@@ -1,0 +1,868 @@
+# Complete Notifications APIs — Exact as in `NotificationDropdown.tsx` + `NotificationsPage.tsx`
+
+Every endpoint and how it's used, extracted exactly as it appears. Nothing modified.
+
+---
+
+## 1. Auth headers (implicit)
+
+**`NotificationDropdown.tsx`** uses raw `fetch` with only:
+
+```tsx
+headers: {
+  'Content-Type': 'application/json',
+  'x-user-id': String(currentUser?.id || ''),
+}
+```
+
+**`NotificationsPage.tsx`** uses the same pattern inside invite handlers:
+
+```tsx
+headers: {
+  "Content-Type": "application/json",
+  "x-user-id": String(currentUser?.id || ""),
+}
+```
+
+Neither file sends `Authorization: Bearer` itself — all real notification data is passed in as a prop (`notifications`, `onMarkAllAsRead`, `onDeleteNotification`, `onLoadMore`, `onAcceptGroupInvite`, `onDeclineGroupInvite`) from `App.tsx`. The components only fall back to direct `fetch` when those callbacks are **not** provided.
+
+---
+
+## 2. Notifications list — how data arrives
+
+Neither file calls a "fetch notifications" endpoint. The list is **injected via props**:
+
+```tsx
+interface NotificationDropdownProps {
+    notifications: Notification[];
+    users: User[];
+    currentUser?: User | null;
+    onNotificationClick: (n: Notification) => void;
+    onMarkAllRead: () => void;
+    onAcceptGroupInvite?: (inviteId: number, groupId: number) => Promise<any> | void;
+    onDeclineGroupInvite?: (inviteId: number, groupId: number) => Promise<any> | void;
+}
+```
+
+```tsx
+interface Props {
+  notifications: Notification[];
+  users: User[];
+  groups?: Group[];
+  currentUser?: User | null;
+  onBack?: () => void;
+  onProfileClick: (id: number) => void;
+  onOpenNotification?: (notification: Notification) => void;
+  onMarkAllAsRead?: () => Promise<any> | void;
+  onDeleteNotification?: (notificationId: number) => Promise<any> | void;
+  onLoadMore?: () => Promise<any> | void;
+  onAcceptGroupInvite?: (inviteId: number, groupId: number) => Promise<any> | void;
+  onDeclineGroupInvite?: (inviteId: number, groupId: number) => Promise<any> | void;
+  hasMore?: boolean;
+  simulateApi?: boolean;
+  stickyHeader?: boolean;
+}
+```
+
+The actual `GET /api/notifications` call lives in **`App.tsx`** (`fetchNotifications`, `loadMoreNotifications`). Those components are pure consumers.
+
+---
+
+## 3. Mark all as read
+
+### 3.1 Delegation (preferred path)
+
+**`NotificationDropdown.tsx` — mark-all button:**
+
+```tsx
+<button
+    onClick={onMarkAllRead}
+    className="text-xs font-semibold text-[#94A3B8] hover:text-[#F97316] transition-colors flex items-center gap-1.5 focus:outline-none"
+>
+    <i className="fas fa-check-double text-[11px]"></i>
+    <span>Mark all read</span>
+</button>
+```
+
+**`NotificationsPage.tsx` — `handleMarkAllAsRead()`:**
+
+```tsx
+const handleMarkAllAsRead = async () => {
+    if (isProcessing || unreadCount === 0) return;
+
+    const snapshot = localNotifications.map((n) => ({ ...n }));
+    setLocalNotifications((prev) => prev.map((n) => ({ ...n, is_read: 1 })));
+    setIsProcessing(true);
+
+    try {
+      if (onMarkAllAsRead) {
+        const result = onMarkAllAsRead();
+        if (result && typeof (result as Promise<any>).then === "function") {
+          await result;
+        }
+      } else if (simulateApi) {
+        await new Promise((res) => setTimeout(res, 500));
+      }
+
+      showToast("success", "All notifications marked as read");
+    } catch (err) {
+      setLocalNotifications(snapshot);
+      console.error("Mark all as read failed:", err);
+      showToast("error", "Failed to mark all as read");
+    } finally {
+      setIsProcessing(false);
+    }
+};
+```
+
+**`NotificationDropdown.tsx` has no direct API call** — it relies entirely on the `onMarkAllRead` prop.
+
+### 3.2 Endpoint in `App.tsx`
+
+```tsx
+const markAllNotificationsAsRead = useCallback(async () => {
+  const token = localStorage.getItem("unera_token");
+  try {
+    const res = await fetch(`/api/notifications`, {
+      method: "PATCH",
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(currentUser?.id ? { "x-user-id": String(currentUser.id) } : {}),
+        'Content-Type': 'application/json',
+      },
+    });
+    const data = await res.json().catch(() => null);
+    if (!res.ok || data?.error) {
+      throw new Error(data?.error || "Failed to mark notifications as read");
+    }
+    setNotifications((prev) =>
+      Array.isArray(prev)
+        ? prev.map((n: any) => ({
+            ...n,
+            is_read: 1,
+          }))
+        : prev
+    );
+  } catch (error) {
+    console.error('Failed to mark notifications as read:', error);
+    setLoginError('Failed to mark notifications as read');
+  }
+}, [currentUser]);
+```
+
+**Endpoint:**
+
+```
+PATCH /api/notifications
+Authorization: Bearer <unera_token>
+x-user-id: <currentUserId>
+Content-Type: application/json
+```
+
+**No body** — marks all of the caller's notifications as read.
+
+**Response** — anything non-`{ error: ... }` is treated as success.
+
+---
+
+## 4. Mark one notification as read
+
+Neither `NotificationDropdown.tsx` nor `NotificationsPage.tsx` calls this endpoint directly. It lives in **`App.tsx`** and is invoked indirectly when the user clicks a notification:
+
+**`App.tsx` — inside `openNotificationTarget()`:**
+
+```tsx
+const markAsRead = async () => {
+  try {
+    await fetch(`/api/notifications/${notification.id}/read`, {
+      method: 'POST',
+      headers: {
+        ...(currentUser?.id ? { "x-user-id": String(currentUser.id) } : {}),
+      },
+    });
+    setNotifications(prev =>
+      prev.map(n =>
+        Number(n.id) === Number(notification.id) ? { ...n, is_read: 1 } : n
+      )
+    );
+  } catch (error) {
+    console.error('Failed to mark notification as read:', error);
+  }
+};
+```
+
+**Endpoint:**
+
+```
+POST /api/notifications/{notificationId}/read
+x-user-id: <currentUserId>
+```
+
+**No body.**
+
+**In `NotificationsPage.tsx`, `handleOpenNotification` optimistically flips `is_read` locally but does not call this endpoint itself** — the parent `App.tsx` handler is what actually POSTs:
+
+```tsx
+const handleOpenNotification = (n: Notification) => {
+    // Mark as read locally when opened
+    if (!safeNumber(n.is_read, 0)) {
+      setLocalNotifications((prev) =>
+        prev.map((item) =>
+          safeNumber(item.id, 0) === safeNumber(n.id, 0)
+            ? { ...item, is_read: 1 }
+            : item
+        )
+      );
+    }
+
+    if (onOpenNotification) {
+      onOpenNotification(n);
+      return;
+    }
+
+    const actorId = safeNumber(n.actor_id, 0);
+    if (actorId) onProfileClick(actorId);
+};
+```
+
+---
+
+## 5. Delete a notification
+
+**`NotificationsPage.tsx` — `handleDeleteNotification()`:**
+
+```tsx
+const handleDeleteNotification = async (notificationId: number) => {
+    if (!notificationId || deletingId === notificationId) return;
+
+    const snapshot = localNotifications;
+    setDeletingId(notificationId);
+    setMenuOpenId(null);
+    setLocalNotifications((prev) => prev.filter((n) => safeNumber(n.id, 0) !== notificationId));
+
+    try {
+      if (onDeleteNotification) {
+        const result = onDeleteNotification(notificationId);
+        if (result && typeof (result as Promise<any>).then === "function") {
+          await result;
+        }
+      } else if (simulateApi) {
+        await new Promise((res) => setTimeout(res, 500));
+      }
+
+      showToast("success", "Notification removed");
+    } catch (err) {
+      console.error("Delete notification failed:", err);
+      setLocalNotifications(snapshot);
+      showToast("error", "Failed to remove notification");
+    } finally {
+      setDeletingId(null);
+    }
+};
+```
+
+**`NotificationDropdown.tsx` does not delete notifications.**
+
+**`App.tsx` — `deleteNotification()` (the actual caller):**
+
+```tsx
+const deleteNotification = useCallback(async (notificationId: number) => {
+  const token = localStorage.getItem("unera_token");
+  try {
+    const res = await fetch(`/api/notifications?id=${notificationId}`, {
+      method: "DELETE",
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(currentUser?.id ? { "x-user-id": String(currentUser.id) } : {}),
+      },
+    });
+    const data = await res.json().catch(() => null);
+    if (!res.ok || data?.error) {
+      throw new Error(data?.error || "Failed to delete notification");
+    }
+    setNotifications((prev) =>
+      Array.isArray(prev) ? prev.filter((n: any) => Number(n.id) !== Number(notificationId)) : prev
+    );
+  } catch (error) {
+    console.error('Failed to delete notification:', error);
+    setLoginError('Failed to delete notification');
+  }
+}, [currentUser]);
+```
+
+**Endpoint:**
+
+```
+DELETE /api/notifications?id={notificationId}
+Authorization: Bearer <unera_token>
+x-user-id: <currentUserId>
+```
+
+**No body.**
+
+**Response** — anything non-`{ error: ... }` is treated as success.
+
+---
+
+## 6. Load more notifications (pagination)
+
+**`NotificationsPage.tsx` — `handleLoadMoreEarlier()`:**
+
+```tsx
+const handleLoadMoreEarlier = async () => {
+    if (isLoadingMore) return;
+    setIsLoadingMore(true);
+
+    setEarlierVisibleCount((prev) => prev + LOAD_MORE_COUNT);
+
+    if (onLoadMore) {
+      try {
+        const result = onLoadMore();
+        if (result && typeof (result as Promise<any>).then === "function") {
+          await result;
+        }
+      } catch (err) {
+        console.error("Failed to load more notifications:", err);
+      }
+    }
+
+    setIsLoadingMore(false);
+};
+```
+
+**Reveals 15 more rows** from the local array (`LOAD_MORE_COUNT = 15`), then calls `onLoadMore`.
+
+**`App.tsx` — `loadMoreNotifications()`:**
+
+```tsx
+const loadMoreNotifications = useCallback(async () => {
+  if (!currentUser) return;
+  try {
+    const data = await apiFetch("/api/notifications", {
+      headers: {
+        "x-user-id": String(currentUser.id),
+      },
+    }).catch(() => []);
+
+    const list = Array.isArray(data) ? data : (data?.notifications ?? []);
+    if (Array.isArray(list) && list.length > 0) {
+      setNotifications((prev) => {
+        const prevList = Array.isArray(prev) ? prev : [];
+        const existingIds = new Set(prevList.map((n: any) => Number(n.id)));
+        const newItems = list.filter((n: any) => !existingIds.has(Number(n.id)));
+        if (newItems.length === 0) {
+          setHasMoreNotifications(false);
+          return prevList;
+        }
+        return [...prevList, ...newItems];
+      });
+    } else {
+      setHasMoreNotifications(false);
+    }
+  } catch {
+    setHasMoreNotifications(false);
+  }
+}, [currentUser]);
+```
+
+**Endpoint:**
+
+```
+GET /api/notifications
+x-user-id: <currentUserId>
+```
+
+**Response shape** — either:
+
+```json
+[
+  { "id": 1, "type": "like", "actor_id": 15, "message": "liked your post", "is_read": 0, "created_at": "..." },
+  ...
+]
+```
+
+or:
+
+```json
+{
+  "notifications": [ ...same array... ]
+}
+```
+
+The component normalizes both:
+
+```tsx
+const list = Array.isArray(data) ? data : (data?.notifications ?? []);
+```
+
+---
+
+## 7. Fetch notifications on mount / polling
+
+**`App.tsx` — `fetchNotifications()`:**
+
+```tsx
+const fetchNotifications = useCallback(async () => {
+  if (!currentUser) return;
+
+  try {
+    const data = await apiFetch("/api/notifications", {
+      headers: {
+        "x-user-id": String(currentUser.id)
+      }
+    }).catch(() => []);
+
+    setNotifications(Array.isArray(data) ? data : (data?.notifications ?? []));
+  } catch {
+    setNotifications([]);
+  }
+}, [currentUser]);
+```
+
+**Auto-refresh every 20s in `App.tsx`:**
+
+```tsx
+useEffect(() => {
+  if (!currentUser) return;
+
+  fetchNotifications();
+
+  const interval = setInterval(fetchNotifications, 20000);
+
+  return () => clearInterval(interval);
+}, [currentUser, fetchNotifications]);
+```
+
+**Endpoint:**
+
+```
+GET /api/notifications
+x-user-id: <currentUserId>
+```
+
+Same shape as load-more.
+
+---
+
+## 8. Group invite — Accept
+
+### 8.1 Delegation path
+
+**`NotificationDropdown.tsx` — `handleJoinInvite()`:**
+
+```tsx
+const handleJoinInvite = async (e: React.MouseEvent, notif: Notification) => {
+    e.stopPropagation();
+    const notifId = Number(notif.id || 0);
+    const groupId = Number((notif as any).group_id || notif.entity_id || 0);
+    const inviteId = Number((notif as any).invite_id || (notif as any).parent_id || 0);
+
+    setInviteLoading((prev) => ({ ...prev, [notifId]: true }));
+    try {
+        if (onAcceptGroupInvite) {
+            await onAcceptGroupInvite(inviteId, groupId);
+        } else {
+            const targetInviteId = inviteId || 0;
+            await fetch(`/api/group-invites?id=${targetInviteId}${groupId ? `&group_id=${groupId}` : ''}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-user-id': String(currentUser?.id || ''),
+                },
+                body: JSON.stringify({ user_id: currentUser?.id, status: 'accepted', group_id: groupId }),
+            });
+        }
+        setInviteStatus((prev) => ({ ...prev, [notifId]: 'joined' }));
+    } catch (err) {
+        console.error('Failed to accept invite:', err);
+    } finally {
+        setInviteLoading((prev) => ({ ...prev, [notifId]: false }));
+    }
+};
+```
+
+### 8.2 Fallback endpoint when `onAcceptGroupInvite` is not provided
+
+```
+PUT /api/group-invites?id={inviteId}&group_id={groupId}
+Content-Type: application/json
+x-user-id: <currentUserId>
+
+{
+  "user_id": <currentUserId>,
+  "status": "accepted",
+  "group_id": <groupId>
+}
+```
+
+If `inviteId` is `0`, the query string is `?id=0` — the backend must handle that. `&group_id=` is only appended when `groupId > 0`.
+
+### 8.3 `NotificationsPage.tsx` variant — different fallback!
+
+```tsx
+const handleJoinInvite = async (n: Notification) => {
+    const notifId = safeNumber(n.id, 0);
+    const groupId = safeNumber(n.entity_id || (n as any).group_id || 0, 0);
+    const inviteId = safeNumber((n as any).invite_id || (n as any).parent_id || 0, 0);
+
+    setInviteLoading((prev) => ({ ...prev, [notifId]: true }));
+    try {
+      if (onAcceptGroupInvite) {
+        await onAcceptGroupInvite(inviteId, groupId);
+      } else if (groupId) {
+        await fetch(`/api/groups/${groupId}/join`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-user-id": String(currentUser?.id || ""),
+          },
+          body: JSON.stringify({ user_id: currentUser?.id, group_id: groupId }),
+        });
+      }
+      setInviteStatus((prev) => ({ ...prev, [notifId]: "joined" }));
+      setLocalNotifications((prev) =>
+        prev.map((item) =>
+          safeNumber(item.id, 0) === notifId ? { ...item, is_read: 1 } : item
+        )
+      );
+      showToast("success", "Joined group!");
+    } catch (err: any) {
+      showToast("error", err?.message || "Could not join group");
+    } finally {
+      setInviteLoading((prev) => ({ ...prev, [notifId]: false }));
+    }
+};
+```
+
+**Fallback endpoint when `onAcceptGroupInvite` is not provided:**
+
+```
+POST /api/groups/{groupId}/join
+Content-Type: application/json
+x-user-id: <currentUserId>
+
+{
+  "user_id": <currentUserId>,
+  "group_id": <groupId>
+}
+```
+
+> ⚠️ **Note:** `NotificationDropdown.tsx` uses `PUT /api/group-invites?id=&group_id=` while `NotificationsPage.tsx` uses `POST /api/groups/{groupId}/join`. When `onAcceptGroupInvite` is wired from `App.tsx` (which both components normally receive), both delegate to `App.tsx`'s `acceptGroupInvite`, and **neither fallback fires**.
+
+**`App.tsx` — `acceptGroupInvite()`** is the real endpoint used:
+
+```tsx
+const acceptGroupInvite = useCallback(async (inviteId: number, groupId: number) => {
+  if (!requireAuth("Accepting group invites")) return;
+  if (!currentUser) return;
+
+  try {
+    const validInviteId = Number(inviteId) || 0;
+    const url = `/api/group-invites?id=${validInviteId}${groupId ? `&group_id=${Number(groupId)}` : ''}`;
+    const res = await apiFetch(url, {
+      method: 'PUT',
+      body: JSON.stringify({
+        status: 'accepted',
+        user_id: Number(currentUser.id),
+        group_id: groupId ? Number(groupId) : undefined,
+      }),
+    });
+
+    if (groupId) {
+      await refreshGroupMembers(groupId);
+    }
+    
+    fetchOtherData().catch(() => {});
+    
+    return res;
+  } catch (error) {
+    console.error('Failed to accept group invite:', error);
+    throw error;
+  }
+}, [currentUser, requireAuth, refreshGroupMembers, fetchOtherData]);
+```
+
+**Real endpoint:**
+
+```
+PUT /api/group-invites?id={inviteId}&group_id={groupId}
+Content-Type: application/json
+Authorization: Bearer <unera_token>
+x-user-id: <currentUserId>
+
+{
+  "status": "accepted",
+  "user_id": <currentUserId>,
+  "group_id": <groupId>
+}
+```
+
+---
+
+## 9. Group invite — Decline / Reject
+
+### 9.1 `NotificationDropdown.tsx` — `handleRejectInvite()`
+
+```tsx
+const handleRejectInvite = async (e: React.MouseEvent, notif: Notification) => {
+    e.stopPropagation();
+    const notifId = Number(notif.id || 0);
+    const groupId = Number((notif as any).group_id || notif.entity_id || 0);
+    const inviteId = Number((notif as any).invite_id || (notif as any).parent_id || 0);
+
+    setInviteLoading((prev) => ({ ...prev, [notifId]: true }));
+    try {
+        if (onDeclineGroupInvite) {
+            await onDeclineGroupInvite(inviteId, groupId);
+        } else {
+            const targetInviteId = inviteId || 0;
+            await fetch(`/api/group-invites?id=${targetInviteId}${groupId ? `&group_id=${groupId}` : ''}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-user-id': String(currentUser?.id || ''),
+                },
+                body: JSON.stringify({ id: targetInviteId, status: 'declined', user_id: currentUser?.id, group_id: groupId }),
+            });
+        }
+        setInviteStatus((prev) => ({ ...prev, [notifId]: 'rejected' }));
+    } catch (err) {
+        console.error('Failed to decline invite:', err);
+    } finally {
+        setInviteLoading((prev) => ({ ...prev, [notifId]: false }));
+    }
+};
+```
+
+**Fallback endpoint:**
+
+```
+PUT /api/group-invites?id={inviteId}&group_id={groupId}
+Content-Type: application/json
+x-user-id: <currentUserId>
+
+{
+  "id": <inviteId>,
+  "status": "declined",
+  "user_id": <currentUserId>,
+  "group_id": <groupId>
+}
+```
+
+### 9.2 `NotificationsPage.tsx` — `handleRejectInvite()`
+
+```tsx
+const handleRejectInvite = async (n: Notification) => {
+    const notifId = safeNumber(n.id, 0);
+    const groupId = safeNumber(n.entity_id || (n as any).group_id || 0, 0);
+    const inviteId = safeNumber((n as any).invite_id || (n as any).parent_id || 0, 0);
+
+    setInviteLoading((prev) => ({ ...prev, [notifId]: true }));
+    try {
+      if (onDeclineGroupInvite) {
+        await onDeclineGroupInvite(inviteId, groupId);
+      } else if (inviteId) {
+        await fetch(`/api/group-invites`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "x-user-id": String(currentUser?.id || ""),
+          },
+          body: JSON.stringify({ id: inviteId, status: "rejected" }),
+        });
+      }
+      setInviteStatus((prev) => ({ ...prev, [notifId]: "rejected" }));
+      setLocalNotifications((prev) =>
+        prev.map((item) =>
+          safeNumber(item.id, 0) === notifId ? { ...item, is_read: 1 } : item
+        )
+      );
+      showToast("success", "Invitation declined");
+    } catch (err: any) {
+      showToast("error", err?.message || "Could not decline invite");
+    } finally {
+      setInviteLoading((prev) => ({ ...prev, [notifId]: false }));
+    }
+};
+```
+
+**Fallback endpoint (no query params, body-only):**
+
+```
+PUT /api/group-invites
+Content-Type: application/json
+x-user-id: <currentUserId>
+
+{
+  "id": <inviteId>,
+  "status": "rejected"
+}
+```
+
+> ⚠️ **Note:** `NotificationDropdown.tsx` uses `status: 'declined'` with `id` in both body and query. `NotificationsPage.tsx` uses `status: 'rejected'` with `id` only in the body.
+
+**`App.tsx` — `declineGroupInvite()`** is the real endpoint used when props are wired:
+
+```tsx
+const declineGroupInvite = useCallback(async (inviteId: number, groupId?: number) => {
+  if (!requireAuth("Declining group invites")) return;
+  if (!currentUser) return;
+
+  try {
+    const validInviteId = Number(inviteId) || 0;
+    const url = `/api/group-invites?id=${validInviteId}${groupId ? `&group_id=${Number(groupId)}` : ''}`;
+    const res = await apiFetch(url, {
+      method: 'PUT',
+      body: JSON.stringify({
+        status: 'declined',
+        user_id: Number(currentUser.id),
+        group_id: groupId ? Number(groupId) : undefined,
+      }),
+    });
+    fetchOtherData().catch(() => {});
+    return res;
+  } catch (error) {
+    console.error('Failed to decline group invite:', error);
+    throw error;
+  }
+}, [currentUser, requireAuth, fetchOtherData]);
+```
+
+**Real endpoint:**
+
+```
+PUT /api/group-invites?id={inviteId}&group_id={groupId}
+Content-Type: application/json
+Authorization: Bearer <unera_token>
+x-user-id: <currentUserId>
+
+{
+  "status": "declined",
+  "user_id": <currentUserId>,
+  "group_id": <groupId>
+}
+```
+
+---
+
+## 10. Toggle read status (menu action)
+
+**`NotificationsPage.tsx` — `handleToggleReadStatus()`:**
+
+```tsx
+const handleToggleReadStatus = (notificationId: number, currentRead: boolean) => {
+    setMenuOpenId(null);
+    setLocalNotifications((prev) =>
+      prev.map((n) =>
+        safeNumber(n.id, 0) === notificationId
+          ? { ...n, is_read: currentRead ? 0 : 1 }
+          : n
+      )
+    );
+};
+```
+
+**No API call.** This is local-only — the parent is not informed. A server call would need to be added; none exists in either file.
+
+---
+
+## 11. Complete API endpoint table
+
+| # | Method | Endpoint | Purpose | Where called |
+|---|---|---|---|---|
+| 1 | `GET` | `/api/notifications` | Fetch all notifications (on mount + every 20s) | `App.tsx → fetchNotifications()` |
+| 2 | `GET` | `/api/notifications` | Pagination / load more | `App.tsx → loadMoreNotifications()` |
+| 3 | `PATCH` | `/api/notifications` | Mark **all** as read | `App.tsx → markAllNotificationsAsRead()` |
+| 4 | `POST` | `/api/notifications/{id}/read` | Mark **one** as read | `App.tsx → openNotificationTarget().markAsRead()` |
+| 5 | `DELETE` | `/api/notifications?id={id}` | Delete one notification | `App.tsx → deleteNotification()` |
+| 6 | `PUT` | `/api/group-invites?id={inviteId}&group_id={groupId}` | **Accept** group invite | `App.tsx → acceptGroupInvite()` (+ fallbacks in both components) |
+| 7 | `PUT` | `/api/group-invites?id={inviteId}&group_id={groupId}` | **Decline** group invite | `App.tsx → declineGroupInvite()` (+ fallbacks in both components) |
+| 8 | `POST` | `/api/groups/{groupId}/join` | Fallback join (NotificationsPage only) | `NotificationsPage.tsx` when `onAcceptGroupInvite` is missing |
+
+---
+
+## 12. Fallback endpoint variants (when props are NOT provided)
+
+These fire only when `App.tsx` does not pass the corresponding callback — i.e., when the component is used standalone.
+
+### 12.1 From `NotificationDropdown.tsx`
+
+| Action | Method | Endpoint | Body |
+|---|---|---|---|
+| Accept invite | `PUT` | `/api/group-invites?id={inviteId}&group_id={groupId}` | `{ user_id, status: "accepted", group_id }` |
+| Decline invite | `PUT` | `/api/group-invites?id={inviteId}&group_id={groupId}` | `{ id: inviteId, status: "declined", user_id, group_id }` |
+
+### 12.2 From `NotificationsPage.tsx`
+
+| Action | Method | Endpoint | Body |
+|---|---|---|---|
+| Accept invite | `POST` | `/api/groups/{groupId}/join` | `{ user_id, group_id }` |
+| Decline invite | `PUT` | `/api/group-invites` | `{ id: inviteId, status: "rejected" }` |
+
+---
+
+## 13. Notification object shape
+
+Both components read these fields from each `Notification`:
+
+```ts
+{
+  id: number;
+  type: string;               // "like" | "react" | "comment" | "reply" | "follow" | "share" | "group_invite" | "invite" | "birthday" | "event" | "product" | ...
+  actor_id: number;           // sender of the notification
+  entity_id: number;          // the thing being acted on (post id, group id, etc.)
+  entity_type?: string;       // "post" | "reel" | "story" | "song" | "product" | "event" | "group_post" | "group" | "profile"
+  message: string;            // human-readable description
+  is_read: 0 | 1;
+  created_at: string;
+  updated_at?: string;
+  reaction_type?: string;     // for reactions — "like" | "love" | "haha" | "wow" | "sad" | "angry" | "fire" | ...
+  actors_json?: string;       // JSON array of extra actor ids (for stacked avatars)
+  actors_count?: number;
+  group_id?: number;          // for group invites
+  invite_id?: number;         // for group invites
+  group_name?: string;
+  preview_text?: string;      // snippet of the content (post text, comment text...)
+  preview_image?: string;     // thumbnail of the content
+  actor_name?: string;        // denormalized actor name
+  actor_image?: string;       // denormalized actor avatar
+  target_type?: string;       // alternative to entity_type
+  target_id?: number;         // alternative to entity_id
+}
+```
+
+---
+
+## 14. Behavior summary
+
+| User action | What happens |
+|---|---|
+| **Open the notification panel** | Renders the `notifications` prop as-is. No fetch. |
+| **Click a notification** | Calls `onNotificationClick(n)` / `onOpenNotification(n)`. Parent handles navigation + `POST /api/notifications/{id}/read`. Locally marks `is_read` for instant UI. |
+| **Click "Mark all read"** | Optimistic `is_read = 1` on all rows. Calls `onMarkAllRead()` / `onMarkAllAsRead()`. Parent fires `PATCH /api/notifications`. Rolls back on error. |
+| **Click "See previous notifications"** | Reveals 15 more rows from `localNotifications` and calls `onLoadMore()`. Parent fires `GET /api/notifications` and merges new rows (dedup by id). |
+| **Click "Join Group"** | Sets loading spinner. Calls `onAcceptGroupInvite(inviteId, groupId)`. Parent fires `PUT /api/group-invites?id=&group_id=`. Locally sets `inviteStatus[notifId] = "joined"`. |
+| **Click "Cancel"/"Decline"** | Sets loading spinner. Calls `onDeclineGroupInvite(inviteId, groupId)`. Parent fires `PUT /api/group-invites?id=&group_id=`. Locally sets `inviteStatus[notifId] = "rejected"`. |
+| **Open ⋯ menu → Mark as read/unread** | Local-only state flip. **No API call.** |
+| **Open ⋯ menu → Remove** | Optimistic row removal. Calls `onDeleteNotification(id)`. Parent fires `DELETE /api/notifications?id=`. Rolls back on error. |
+| **Background refresh** | `App.tsx` polls `GET /api/notifications` every **20s** while a user is logged in. |
+
+---
+
+## 15. Notes on differences between the two components
+
+| Feature | `NotificationDropdown.tsx` | `NotificationsPage.tsx` |
+|---|---|---|
+| Fetch notifications | ❌ never | ❌ never (parent only) |
+| Mark all read | ✅ `onMarkAllRead` prop → `PATCH /api/notifications` | ✅ `onMarkAllAsRead` prop → `PATCH /api/notifications` |
+| Mark single read | ❌ not exposed | ✅ optimistic local flip; real `POST /api/notifications/{id}/read` lives in `App.tsx` |
+| Toggle read/unread | ❌ | ✅ local-only, **no API** |
+| Delete | ❌ | ✅ via `onDeleteNotification` → `DELETE /api/notifications?id=` |
+| Load more | ❌ | ✅ `onLoadMore` → `GET /api/notifications` |
+| Accept invite fallback | `PUT /api/group-invites?id=&group_id=` with `status: "accepted"` | `POST /api/groups/{groupId}/join` |
+| Decline invite fallback | `PUT /api/group-invites?id=&group_id=` with `status: "declined"` | `PUT /api/group-invites` with `status: "rejected"` |
+| Sections (New / Today / Earlier) | ❌ flat list | ✅ sorted into 3 sections |
+| Search | ❌ | ✅ client-side filter over `message`, `type`, `actor.name` |
+| Simulated mode | ❌ | ✅ `simulateApi` prop delays operations by 500ms |
+
+**Neither component performs a `GET` on its own.** The list arrives pre-populated via props, which is why the endpoints for fetch/delete/mark-all/load-more all live in **`App.tsx`** (`fetchNotifications`, `loadMoreNotifications`, `markAllNotificationsAsRead`, `deleteNotification`, `openNotificationTarget`).
