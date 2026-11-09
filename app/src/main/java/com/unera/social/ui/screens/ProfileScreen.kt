@@ -46,6 +46,7 @@ import com.unera.social.ui.components.InstagramVideoCard
 import com.unera.social.ui.components.GalleryViewerDialog
 import com.unera.social.ui.theme.*
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -116,6 +117,7 @@ fun ProfileScreen(
 
     var selectedTab by remember(initialTab, user.id) { mutableStateOf(initialTab) }
     var showEditProfileModal by remember { mutableStateOf(false) }
+    var showAnalyticsDashboard by remember { mutableStateOf(false) }
     var showModActionsMenu by remember { mutableStateOf(false) }
     var showSuspendDialog by remember { mutableStateOf(false) }
     var suspendDuration by remember { mutableStateOf("week") }
@@ -178,6 +180,19 @@ fun ProfileScreen(
             kotlinx.coroutines.delay(3000)
             toastMessage = null
         }
+    }
+
+    BackHandler(enabled = showAnalyticsDashboard) {
+        showAnalyticsDashboard = false
+    }
+
+    if (showAnalyticsDashboard) {
+        AnalyticsDashboardScreen(
+            currentUser = currentUser,
+            userPosts = userPosts,
+            onBack = { showAnalyticsDashboard = false }
+        )
+        return
     }
 
     Box(
@@ -688,17 +703,18 @@ fun ProfileScreen(
 
                             Button(
                                 onClick = {
-                                    if (isGuest) onRequestAuth() else { showEditProfileModal = true }
+                                    if (isGuest) onRequestAuth() else { showAnalyticsDashboard = true }
                                 },
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E293B)),
                                 shape = RoundedCornerShape(8.dp),
                                 modifier = Modifier
                                     .weight(1f)
                                     .height(42.dp)
+                                    .testTag("profile_analytics_button")
                             ) {
-                                Icon(Icons.Filled.Edit, null, tint = Color(0xFFF8FAFC), modifier = Modifier.size(16.dp))
+                                Icon(Icons.Filled.Insights, null, tint = Color(0xFF38BDF8), modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Edit profile", color = Color(0xFFF8FAFC), fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                                Text("Analytics", color = Color(0xFFF8FAFC), fontWeight = FontWeight.Bold, fontSize = 15.sp)
                             }
                         } else {
                             Button(

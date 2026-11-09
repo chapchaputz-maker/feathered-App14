@@ -156,13 +156,15 @@ object MessagesApiService {
                     val lastTime = c.optString("last_message_at", "Just now")
                     val unreadCount = c.optInt("unread_count", 0)
                     val isOnline = c.optInt("is_online", 0) == 1 || c.optBoolean("is_online", false)
+                    val isVerified = c.optInt("is_verified", 0) == 1 || c.optBoolean("is_verified", false) || c.optInt("verified", 0) == 1 || c.optBoolean("verified", false)
 
                     val participant = User(
                         id = otherUserId,
                         name = otherName,
                         username = "@${otherName.lowercase().replace(" ", "")}",
                         profileImageUrl = otherAvatar,
-                        isOnline = isOnline
+                        isOnline = isOnline,
+                        isVerified = isVerified
                     )
                     list.add(
                         Conversation(
@@ -180,7 +182,10 @@ object MessagesApiService {
                     )
                 }
             }
-            list
+            val deduplicated = list.distinctBy {
+                if (it.participant.id > 0L) it.participant.id else it.participant.name.trim().lowercase()
+            }
+            deduplicated
         } catch (e: Exception) {
             e.printStackTrace()
             emptyList()

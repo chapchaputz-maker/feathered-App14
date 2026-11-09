@@ -2492,9 +2492,12 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
                             newConv
                         }
                     }
-                    MessagesCache.setCachedConversations(context, uid, merged)
+                    val distinctMerged = merged.distinctBy {
+                        if (it.participant.id > 0L) it.participant.id else it.participant.name.trim().lowercase()
+                    }
+                    MessagesCache.setCachedConversations(context, uid, distinctMerged)
                     state.copy(
-                        conversations = merged,
+                        conversations = distinctMerged,
                         isConversationsLoading = false
                     )
                 }
@@ -2821,7 +2824,10 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
             openAuth("login")
             return
         }
-        val existing = _uiState.value.conversations.find { it.participant.id == user.id }
+        val existing = _uiState.value.conversations.find {
+            (user.id > 0L && it.participant.id == user.id) ||
+            it.participant.name.equals(user.name, ignoreCase = true)
+        }
         val introMessage = if (product != null) {
             "${product.title}: Hello, I am interested in this product. Is it still available? [product:${product.id}]"
         } else null
@@ -2844,8 +2850,12 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
                 rawConversationId = 0L
             )
             _uiState.update { state ->
+                val remaining = state.conversations.filter {
+                    !(user.id > 0L && it.participant.id == user.id) &&
+                    !it.participant.name.equals(user.name, ignoreCase = true)
+                }
                 state.copy(
-                    conversations = listOf(newConv) + state.conversations,
+                    conversations = listOf(newConv) + remaining,
                     activeConversationId = newConv.id,
                     currentScreen = Screen.MESSAGES,
                     selectedProductForDetail = null

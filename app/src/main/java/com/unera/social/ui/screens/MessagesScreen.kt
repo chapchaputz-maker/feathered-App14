@@ -33,11 +33,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
+import androidx.compose.foundation.lazy.rememberLazyListState
+import com.unera.social.data.ChatTimestampFormatter
 import com.unera.social.model.ChatAttachment
 import com.unera.social.model.ChatMessage
 import com.unera.social.model.Conversation
 import com.unera.social.model.User
 import com.unera.social.ui.components.ChatWindow
+import com.unera.social.ui.components.FeatheredAvatar
+import com.unera.social.ui.components.VerifiedBadge
 import com.unera.social.ui.theme.*
 
 /**
@@ -121,11 +125,16 @@ fun MessagesScreen(
     // CONVERSATIONS LIST VIEW (ChatsList.tsx)
     // ==========================================
     var query by remember { mutableStateOf("") }
-    val filteredConversations = remember(conversations, query) {
+    val distinctConversations = remember(conversations) {
+        conversations.distinctBy {
+            if (it.participant.id > 0L) it.participant.id else it.participant.name.trim().lowercase()
+        }
+    }
+    val filteredConversations = remember(distinctConversations, query) {
         if (query.isBlank()) {
-            conversations
+            distinctConversations
         } else {
-            conversations.filter {
+            distinctConversations.filter {
                 it.participant.name.contains(query, ignoreCase = true) ||
                 it.participant.username.contains(query, ignoreCase = true) ||
                 it.lastMessage.contains(query, ignoreCase = true)
@@ -133,9 +142,31 @@ fun MessagesScreen(
         }
     }
 
-    // Followed users available for Active Now or New Chat
+    // Followed users available for Active Now (limit to at most 8 users)
     val activeNowUsers = remember(followingUsers) {
-        followingUsers.filter { it.id != currentUser.id }
+        followingUsers.filter { it.id != currentUser.id }.take(8)
+    }
+
+    // Pagination: initial 10 chats, then infinite scroll loading the next 10
+    var visibleChatCount by remember { mutableIntStateOf(10) }
+    val conversationsListState = rememberLazyListState()
+
+    val shouldLoadMore by remember {
+        derivedStateOf {
+            val total = filteredConversations.size
+            val lastVisible = conversationsListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            lastVisible >= visibleChatCount - 1 && visibleChatCount < total
+        }
+    }
+
+    LaunchedEffect(shouldLoadMore) {
+        if (shouldLoadMore) {
+            visibleChatCount = (visibleChatCount + 10).coerceAtMost(filteredConversations.size)
+        }
+    }
+
+    val paginatedConversations = remember(filteredConversations, visibleChatCount) {
+        filteredConversations.take(visibleChatCount)
     }
 
     Column(
@@ -341,15 +372,33 @@ fun MessagesScreen(
             }
         } else {
             LazyColumn(
+                state = conversationsListState,
                 modifier = Modifier
                     .fillMaxSize()
                     .testTag("conversations_list")
             ) {
-                items(filteredConversations, key = { it.id }) { conv ->
+                items(paginatedConversations, key = { it.id }) { conv ->
                     ConversationItem(
                         conversation = conv,
                         onClick = { onOpenConversation(conv.id) }
                     )
+                }
+
+                if (visibleChatCount < filteredConversations.size) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = Carrot500,
+                                strokeWidth = 2.dp
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -386,14 +435,13 @@ fun ActiveNowItem(
             .testTag("active_now_user_${user.id}")
     ) {
         Box(modifier = Modifier.size(52.dp)) {
-            AsyncImage(
-                model = user.profileImageUrl.ifBlank { "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200" },
-                contentDescription = user.name,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(50.dp)
-                    .clip(CircleShape)
-                    .border(2.dp, if (user.isOnline) Color(0xFF10B981) else Color(0xFF334155), CircleShape)
+            FeatheredAvatar(
+                name = user.name,
+                username = user.username,
+                imageUrl = user.profileImageUrl,
+                size = 50.dp,
+                borderColor = if (user.isOnline) Color(0xFF10B981) else Color(0xFF334155),
+                borderWidth = 2.dp
             )
             if (user.isOnline) {
                 Box(
@@ -435,17 +483,14 @@ fun ConversationItem(
             .testTag("conversation_item_${conversation.id}"),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box {
-            AsyncImage(
-                model = conversation.participant.profileImageUrl.ifBlank {
-                    "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200"
-                },
-                contentDescription = conversation.participant.name,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(54.dp)
-                    .clip(CircleShape)
-                    .border(1.dp, Color(0xFF334155), CircleShape)
+        Box(modifier = Modifier.size(54.dp)) {
+            FeatheredAvatar(
+                name = conversation.participant.name,
+                username = conversation.participant.username,
+                imageUrl = conversation.participant.profileImageUrl,
+                size = 54.dp,
+                borderColor = Color(0xFF334155),
+                borderWidth = 1.dp
             )
             if (conversation.participant.isOnline) {
                 Box(
@@ -467,15 +512,26 @@ fun ConversationItem(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    modifier = Modifier.weight(1f, fill = false)
+                ) {
+                    Text(
+                        text = conversation.participant.name,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 19.sp,
+                        color = Color.White,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    if (conversation.participant.isVerified) {
+                        VerifiedBadge(size = 16.dp)
+                    }
+                }
                 Text(
-                    text = conversation.participant.name,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 15.sp,
-                    color = Color.White
-                )
-                Text(
-                    text = conversation.lastTimestamp,
-                    fontSize = 11.sp,
+                    text = ChatTimestampFormatter.format(conversation.lastTimestamp),
+                    fontSize = 12.sp,
                     color = if (conversation.unreadCount > 0) Carrot500 else Color(0xFF94A3B8)
                 )
             }
@@ -489,7 +545,7 @@ fun ConversationItem(
             ) {
                 Text(
                     text = conversation.lastMessage.ifBlank { "Started a conversation" },
-                    fontSize = 13.sp,
+                    fontSize = 20.sp,
                     color = if (conversation.unreadCount > 0) Color.White else Color(0xFF94A3B8),
                     fontWeight = if (conversation.unreadCount > 0) FontWeight.SemiBold else FontWeight.Normal,
                     maxLines = 1,

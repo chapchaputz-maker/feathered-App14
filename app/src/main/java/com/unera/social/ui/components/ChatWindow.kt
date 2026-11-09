@@ -49,6 +49,7 @@ import com.unera.social.model.ChatMessage
 import com.unera.social.model.Conversation
 import com.unera.social.model.User
 import com.unera.social.data.audio.VoiceNoteManager
+import com.unera.social.data.ChatTimestampFormatter
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -244,14 +245,22 @@ fun ChatWindow(
                     Spacer(modifier = Modifier.width(10.dp))
 
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = participant.name,
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(
+                                text = participant.name,
+                                fontSize = 19.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            if (participant.isVerified) {
+                                VerifiedBadge(size = 16.dp)
+                            }
+                        }
                         Text(
                             text = if (effectiveRecipientOnline) "Active now" else if (!recipientLastSeen.isNullOrBlank()) "Last seen $recipientLastSeen" else "Offline",
                             fontSize = 12.sp,
@@ -678,8 +687,8 @@ fun ChatWindow(
                                     if (cleanMessageText.isNotBlank()) {
                                         Text(
                                             text = cleanMessageText,
-                                            fontSize = 15.sp,
-                                            lineHeight = 20.sp,
+                                            fontSize = 20.sp,
+                                            lineHeight = 26.sp,
                                             color = if (isMine) Color.White else Color(0xFFF0F2F5)
                                         )
                                     }
@@ -764,8 +773,8 @@ fun ChatWindow(
                                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
                                     Text(
-                                        text = msg.timestamp,
-                                        fontSize = 10.sp,
+                                        text = ChatTimestampFormatter.format(msg.timestamp),
+                                        fontSize = 11.sp,
                                         color = if (isMine) Color.White.copy(alpha = 0.75f) else Color(0xFF8E8E93)
                                     )
                                     if (msg.isEdited) {

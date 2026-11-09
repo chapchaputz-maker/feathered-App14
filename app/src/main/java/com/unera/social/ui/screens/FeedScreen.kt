@@ -1192,6 +1192,27 @@ fun WebPostCard(
     var showReactionDock by remember { mutableStateOf(false) }
     var isExpandedText by remember { mutableStateOf(false) }
 
+    // Track non-video post views in FeedScreen.
+    // Video views are recorded strictly in Reelvideo page (ReelsScreen) when opened.
+    val isVideoPost = remember(post) {
+        post.postType == "video" || post.postType == "reel" ||
+        post.mediaType == "video" ||
+        PostsApiService.isValidVideoUrl(post.videoUrl) ||
+        (post.mediaUrl?.let { PostsApiService.isValidVideoUrl(it) } == true) ||
+        (post.getDefaultPlayableVideoUrl().isNotBlank() && PostsApiService.isValidVideoUrl(post.getDefaultPlayableVideoUrl())) ||
+        (post.mediaMeta.firstOrNull()?.type == "video")
+    }
+
+    LaunchedEffect(post.id, currentUser.id, isVideoPost) {
+        if (!isVideoPost && post.id > 0L && currentUser.id > 0L) {
+            com.unera.social.data.PostViewTracker.trackPostView(
+                postId = post.id,
+                authorId = if (post.author.id > 0L) post.author.id else post.userId,
+                viewerId = currentUser.id
+            )
+        }
+    }
+
     // Observe cache updates so preview comment reflects likes, additions, and network fetches
     val cacheVersion by CommentsCache.cacheVersion.collectAsState()
 

@@ -1254,4 +1254,38 @@ object PostsApiService {
             duration = duration
         )
     }
+
+    /**
+     * Record a view on a post via POST /api/posts/:id with x-user-id header
+     */
+    suspend fun recordPostView(postId: Long, viewerId: Long, token: String? = null): Boolean = withContext(Dispatchers.IO) {
+        if (postId <= 0L || viewerId <= 0L) return@withContext false
+        try {
+            val url = URL("$BASE_URL/api/posts/$postId")
+            val conn = (url.openConnection() as HttpURLConnection).apply {
+                requestMethod = "POST"
+                connectTimeout = 4000
+                readTimeout = 4000
+                doOutput = true
+                setRequestProperty("Content-Type", "application/json")
+                setRequestProperty("Accept", "application/json")
+                setRequestProperty("User-Agent", USER_AGENT)
+                setRequestProperty("x-user-id", viewerId.toString())
+                if (!token.isNullOrBlank()) {
+                    setRequestProperty("Authorization", "Bearer $token")
+                }
+            }
+            conn.outputStream.use { os ->
+                val writer = OutputStreamWriter(os, "UTF-8")
+                writer.write("{\"action\":\"view\"}")
+                writer.flush()
+            }
+            val code = conn.responseCode
+            conn.disconnect()
+            code in 200..299
+        } catch (_: Exception) {
+            false
+        }
+    }
 }
+

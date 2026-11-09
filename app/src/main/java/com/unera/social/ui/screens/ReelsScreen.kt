@@ -59,6 +59,7 @@ import androidx.media3.ui.PlayerView
 import coil.compose.AsyncImage
 import com.unera.social.R
 import com.unera.social.data.VideosApiService
+import com.unera.social.data.PostViewTracker
 import com.unera.social.model.*
 import com.unera.social.ui.components.FacebookReactionDock
 import com.unera.social.ui.components.ShareBottomSheetDialog
@@ -694,6 +695,18 @@ private fun FacebookVideoItemView(
             exoPlayer.playWhenReady = true
         } else {
             exoPlayer.playWhenReady = false
+        }
+    }
+
+    // Record video views ONLY in Reelvideo page when actively watched
+    LaunchedEffect(isActive, isPlaying, post.id, currentUser?.id) {
+        val uid = currentUser?.id ?: 0L
+        if (isActive && isPlaying && post.id > 0L && uid > 0L) {
+            PostViewTracker.trackPostView(
+                postId = post.id,
+                authorId = if (post.author.id > 0L) post.author.id else post.userId,
+                viewerId = uid
+            )
         }
     }
 
