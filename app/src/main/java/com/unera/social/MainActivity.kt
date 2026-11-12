@@ -361,6 +361,7 @@ fun FeatheredApp(
                         onDismissPymk = { viewModel.dismissPymk(it) },
                         pymkLoading = uiState.isPymkLoading,
                         groups = uiState.groups,
+                        groupSuggestions = uiState.groupSuggestions,
                         isFeedLoading = uiState.isFeedLoading,
                         onRefresh = { viewModel.refreshFeed() },
                         onOpenCreatePost = { viewModel.setShowCreatePostDialog(true) },
@@ -380,6 +381,7 @@ fun FeatheredApp(
                         onReactPost = { postId, reaction -> viewModel.reactToPost(postId, reaction) },
                         onSharePost = { postId -> viewModel.sharePost(postId) },
                         onOpenProduct = { product -> viewModel.setSelectedProductForDetail(product) },
+                        onOpenMarketplace = { viewModel.setScreen(Screen.MARKETPLACE) },
                         onOpenEvent = { _ -> viewModel.setScreen(Screen.EVENTS) },
                         onOpenGroup = { groupId ->
                             viewModel.setActiveGroupId(groupId)

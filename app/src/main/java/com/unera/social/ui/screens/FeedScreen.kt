@@ -45,12 +45,17 @@ import androidx.media3.ui.PlayerView
 import coil.compose.AsyncImage
 import coil.decode.VideoFrameDecoder
 import coil.request.ImageRequest
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import com.unera.social.data.MockData
+import com.unera.social.data.MarketplaceApiService
 import com.unera.social.data.PostsApiService
 import com.unera.social.data.CommentsCache
 import com.unera.social.data.EventsApiService
 import com.unera.social.model.*
 import com.unera.social.ui.components.*
+import com.unera.social.ui.theme.InterFontFamily
+import com.unera.social.ui.theme.InterTypography
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -294,11 +299,13 @@ fun FeedScreen(
     onDismissPymk: ((Long) -> Unit)? = null,
     pymkLoading: Boolean = false,
     groups: List<Group> = emptyList(),
+    groupSuggestions: List<Group> = emptyList(),
     isFeedLoading: Boolean = false,
     onRefresh: (() -> Unit)? = null,
     onReactPost: ((Long, String) -> Unit)? = null,
     onSharePost: ((Long) -> Unit)? = null,
     onOpenProduct: ((Product) -> Unit)? = null,
+    onOpenMarketplace: (() -> Unit)? = null,
     onOpenEvent: ((Event) -> Unit)? = null,
     onOpenGroup: ((Long) -> Unit)? = null,
     onJoinGroup: ((Long) -> Unit)? = null,
@@ -323,19 +330,45 @@ fun FeedScreen(
     var followStates by remember { mutableStateOf(mapOf<Long, Boolean>()) }
     var groupJoinedStates by remember { mutableStateOf(mapOf<Long, Boolean>()) }
 
-    // Professionally filter out groups user has already joined so they never appear in Groups You May Join
-    val unjoinedGroups = remember(groups, groupJoinedStates, currentUser.id) {
-        groups.filter { group ->
-            val isExplicitlyJoined = groupJoinedStates[group.id]
-            if (isExplicitlyJoined != null) {
-                !isExplicitlyJoined
-            } else {
-                !group.isMember && (currentUser.id <= 0 || !group.members.contains(currentUser.id))
+    // Professionally filter out groups user has already joined (or owns) so they never appear in Groups You May Join
+    val unjoinedGroups = remember(groups, groupSuggestions, groupJoinedStates, currentUser.id) {
+        val joinedIds = buildSet {
+            groups.forEach { g ->
+                val isJoinedLocal = groupJoinedStates[g.id] == true
+                val isJoinedByModel = g.isMember ||
+                    (currentUser.id > 0L && (g.adminId == currentUser.id || g.members.contains(currentUser.id)))
+                if (isJoinedLocal || isJoinedByModel) {
+                    add(g.id)
+                }
+            }
+            groupJoinedStates.forEach { (gid, joined) ->
+                if (joined) add(gid)
             }
         }
+        val candidateGroups = if (groupSuggestions.isNotEmpty()) groupSuggestions else groups
+        candidateGroups.filter { group ->
+            group.id !in joinedIds &&
+                !group.isMember &&
+                (currentUser.id <= 0L || (group.adminId != currentUser.id && !group.members.contains(currentUser.id)))
+        }.distinctBy { it.id }
     }
 
     val listState = rememberRestoredLazyListState(key = "FEED")
+
+    // Rank MarketPoint products for you once so both logged-in and guest users meet relevant items while scrolling
+    val rankedMarketProducts = remember(products, currentUser.id, currentUser.location) {
+        if (products.isEmpty()) emptyList()
+        else {
+            val viewerCountry = MarketplaceApiService.detectCountryFromText(currentUser.location)
+            val ranked = MarketplaceApiService.rankForYou(products, viewerCountry)
+            val others = ranked.filter { it.seller.id != currentUser.id }
+            if (others.isNotEmpty()) {
+                (others + ranked.filter { it.seller.id == currentUser.id }).distinctBy { it.id }
+            } else {
+                ranked
+            }
+        }
+    }
 
     // Merge real live ads from /api/ads/feeds every 5 posts only when real ads exist. Never fake ads.
     val feedPosts = remember(posts, ads) {
@@ -381,12 +414,23 @@ fun FeedScreen(
         }
     }
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color(0xFF050B18))
-            .testTag("feed_screen_list")
+    MaterialTheme(
+        colorScheme = MaterialTheme.colorScheme,
+        shapes = MaterialTheme.shapes,
+        typography = InterTypography
     ) {
+        CompositionLocalProvider(
+            LocalTextStyle provides LocalTextStyle.current.copy(
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.Normal
+            )
+        ) {
+            Box(
+                modifier = modifier
+                    .fillMaxSize()
+                    .background(Color(0xFF050B18))
+                    .testTag("feed_screen_list")
+            ) {
         LazyColumn(
             state = listState,
             modifier = Modifier.fillMaxSize(),
@@ -553,17 +597,22 @@ fun FeedScreen(
                         .background(Color(0xFF050B18))
                 )
 
-                // Interleaved Widget 0: MarketPoint for you (Suggested Products)
-                if (index == 1 && products.isNotEmpty()) {
+                // Interleaved Widget 0: MarketPoint for you (Suggested Products) - shown for both guest and logged-in users while scrolling posts
+                val marketInsertFirstIndex = if (feedPosts.size <= 1) 0 else 1
+                val shouldShowMarketWidget = rankedMarketProducts.isNotEmpty() &&
+                    (index == marketInsertFirstIndex || (index >= 12 && index % 12 == 0))
+                if (shouldShowMarketWidget) {
+                    val marketOffset = if (index <= 1) 0 else (index / 12) * 4
                     val marketplaceContext = LocalMarketplaceContext.current
                     SuggestedProductsWidget(
-                        products = products,
+                        products = rankedMarketProducts,
                         currentUser = currentUser,
+                        offset = marketOffset,
                         onViewProduct = { prod ->
                             onOpenProduct?.invoke(prod) ?: marketplaceContext.onViewProduct(prod.id)
                         },
                         onSeeAll = {
-                            marketplaceContext.onViewProduct(products.firstOrNull()?.id ?: 0L)
+                            onOpenMarketplace?.invoke() ?: marketplaceContext.onViewProduct(rankedMarketProducts.firstOrNull()?.id ?: 0L)
                         }
                     )
                     Box(
@@ -614,8 +663,12 @@ fun FeedScreen(
                         groups = unjoinedGroups,
                         joinedStates = groupJoinedStates,
                         onJoinToggle = { gid ->
-                            groupJoinedStates = groupJoinedStates + (gid to true)
-                            onJoinGroup?.invoke(gid)
+                            if (isGuest) {
+                                onRequestAuth()
+                            } else {
+                                groupJoinedStates = groupJoinedStates + (gid to true)
+                                onJoinGroup?.invoke(gid)
+                            }
                         },
                         onGroupClick = { gid ->
                             onOpenGroup?.invoke(gid)
@@ -653,6 +706,7 @@ fun FeedScreen(
                                     text = "No posts available",
                                     color = Color(0xFF94A3B8),
                                     fontSize = 15.sp,
+                                    fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Medium
                                 )
                                 onRefresh?.let { doRefresh ->
@@ -661,7 +715,12 @@ fun FeedScreen(
                                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1877F2)),
                                         shape = RoundedCornerShape(8.dp)
                                     ) {
-                                        Text("Refresh Feed", color = Color.White)
+                                        Text(
+                                            text = "Refresh Feed",
+                                            color = Color.White,
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.Medium
+                                        )
                                     }
                                 }
                             }
@@ -822,6 +881,8 @@ fun FeedScreen(
             }
         }
     }
+    }
+    }
 }
 
 /**
@@ -869,8 +930,12 @@ fun CreatePostSection(
             ) {
                 Text(
                     text = "What's on your mind?",
-                    fontSize = 15.sp,
-                    color = Color(0xFF94A3B8)
+                    fontSize = 14.sp,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Normal,
+                    color = Color(0xFF94A3B8),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
 
@@ -879,95 +944,106 @@ fun CreatePostSection(
             // Green Photo quick button
             Row(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
+                    .clip(RoundedCornerShape(10.dp))
                     .clickable(onClick = onPhotoClick)
-                    .padding(horizontal = 8.dp, vertical = 6.dp),
+                    .padding(horizontal = 8.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
                     imageVector = Icons.Default.Image,
                     contentDescription = "Photo",
                     tint = Color(0xFF10B981),
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(22.dp)
                 )
-                Spacer(modifier = Modifier.width(4.dp))
+                Spacer(modifier = Modifier.width(5.dp))
                 Text(
                     text = "Photo",
                     color = Color(0xFFCBD5E1),
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 13.sp
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 14.sp,
+                    maxLines = 1,
+                    softWrap = false
                 )
             }
         }
 
         Spacer(modifier = Modifier.height(10.dp))
         HorizontalDivider(color = Color(0xFF1E293B).copy(alpha = 0.6f), thickness = 1.dp)
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Bottom Action Bar: Live, Photo, Video, Event
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Live Video
             Row(
                 modifier = Modifier
                     .weight(1f)
-                    .clip(RoundedCornerShape(8.dp))
+                    .heightIn(min = 44.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color(0xFF1E293B).copy(alpha = 0.45f))
                     .clickable(onClick = onClick)
-                    .padding(vertical = 6.dp),
+                    .padding(horizontal = 4.dp, vertical = 10.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(imageVector = Icons.Default.Videocam, contentDescription = "Live", tint = Color(0xFF1877F2), modifier = Modifier.size(19.dp))
-                Spacer(modifier = Modifier.width(6.dp))
-                Text("Live", color = Color(0xFF94A3B8), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                Icon(imageVector = Icons.Default.Videocam, contentDescription = "Live", tint = Color(0xFF1877F2), modifier = Modifier.size(22.dp))
+                Spacer(modifier = Modifier.width(5.dp))
+                Text("Live", color = Color(0xFFE2E8F0), fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, maxLines = 1, softWrap = false)
             }
 
             // Photo
             Row(
                 modifier = Modifier
                     .weight(1f)
-                    .clip(RoundedCornerShape(8.dp))
+                    .heightIn(min = 44.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color(0xFF1E293B).copy(alpha = 0.45f))
                     .clickable(onClick = onPhotoClick)
-                    .padding(vertical = 6.dp),
+                    .padding(horizontal = 4.dp, vertical = 10.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(imageVector = Icons.Default.PhotoLibrary, contentDescription = "Photo", tint = Color(0xFF10B981), modifier = Modifier.size(19.dp))
-                Spacer(modifier = Modifier.width(6.dp))
-                Text("Photo", color = Color(0xFF94A3B8), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                Icon(imageVector = Icons.Default.PhotoLibrary, contentDescription = "Photo", tint = Color(0xFF10B981), modifier = Modifier.size(22.dp))
+                Spacer(modifier = Modifier.width(5.dp))
+                Text("Photo", color = Color(0xFFE2E8F0), fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, maxLines = 1, softWrap = false)
             }
 
             // Video
             Row(
                 modifier = Modifier
                     .weight(1f)
-                    .clip(RoundedCornerShape(8.dp))
+                    .heightIn(min = 44.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color(0xFF1E293B).copy(alpha = 0.45f))
                     .clickable(onClick = onVideoClick)
-                    .padding(vertical = 6.dp),
+                    .padding(horizontal = 4.dp, vertical = 10.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(imageVector = Icons.Default.CameraAlt, contentDescription = "Video", tint = Color(0xFFF43F5E), modifier = Modifier.size(19.dp))
-                Spacer(modifier = Modifier.width(6.dp))
-                Text("Video", color = Color(0xFF94A3B8), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                Icon(imageVector = Icons.Default.CameraAlt, contentDescription = "Video", tint = Color(0xFFF43F5E), modifier = Modifier.size(22.dp))
+                Spacer(modifier = Modifier.width(5.dp))
+                Text("Video", color = Color(0xFFE2E8F0), fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, maxLines = 1, softWrap = false)
             }
 
             // Event
             Row(
                 modifier = Modifier
                     .weight(1f)
-                    .clip(RoundedCornerShape(8.dp))
+                    .heightIn(min = 44.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color(0xFF1E293B).copy(alpha = 0.45f))
                     .clickable(onClick = onEventClick)
-                    .padding(vertical = 6.dp),
+                    .padding(horizontal = 4.dp, vertical = 10.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(imageVector = Icons.Default.Event, contentDescription = "Event", tint = Color(0xFFF59E0B), modifier = Modifier.size(19.dp))
-                Spacer(modifier = Modifier.width(6.dp))
-                Text("Event", color = Color(0xFF94A3B8), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                Icon(imageVector = Icons.Default.Event, contentDescription = "Event", tint = Color(0xFFF59E0B), modifier = Modifier.size(22.dp))
+                Spacer(modifier = Modifier.width(5.dp))
+                Text("Event", color = Color(0xFFE2E8F0), fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, maxLines = 1, softWrap = false)
             }
         }
     }
@@ -1024,10 +1100,13 @@ fun StoriesSection(
                     ) {
                         Text(
                             text = "Create Story",
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color(0xFFF8FAFC),
-                            modifier = Modifier.padding(bottom = 10.dp)
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 0.dp).padding(bottom = 9.dp)
                         )
                     }
 
@@ -1091,7 +1170,8 @@ fun StoriesSection(
                                 text = story.textContent.ifBlank { "Story" },
                                 color = Color.White,
                                 fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold,
                                 maxLines = 4,
                                 textAlign = TextAlign.Center,
                                 overflow = TextOverflow.Ellipsis
@@ -1138,6 +1218,7 @@ fun StoriesSection(
                     Text(
                         text = story.author.name,
                         fontSize = 11.sp,
+                        fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
                         maxLines = 1,
@@ -1155,6 +1236,7 @@ fun StoriesSection(
 /**
  * Main Web Post Card Component matching web Post
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun WebPostCard(
     post: Post,
@@ -1243,6 +1325,12 @@ fun WebPostCard(
         else emptyList()
     }
 
+    CompositionLocalProvider(
+        LocalTextStyle provides LocalTextStyle.current.copy(
+            fontFamily = InterFontFamily,
+            fontWeight = FontWeight.Normal
+        )
+    ) {
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -1365,6 +1453,7 @@ fun WebPostCard(
                         ) {
                             Text(
                                 text = sharerDisplayName,
+                                fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 19.sp,
                                 color = Color(0xFFF8FAFC),
@@ -1391,6 +1480,7 @@ fun WebPostCard(
                             Text(
                                 text = "Shared",
                                 fontSize = 12.sp,
+                                fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Color(0xFF1877F2)
                             )
@@ -1406,6 +1496,7 @@ fun WebPostCard(
                         ) {
                             Text(
                                 text = originalAuthorName,
+                                fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 17.sp,
                                 color = Color(0xFF38BDF8),
@@ -1427,9 +1518,11 @@ fun WebPostCard(
                             Text(
                                 text = displayTime,
                                 fontSize = 12.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 color = Color(0xFF94A3B8)
                             )
-                            Text("•", fontSize = 12.sp, color = Color(0xFF94A3B8))
+                            Text("•", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8))
                             Icon(
                                 imageVector = Icons.Default.Public,
                                 contentDescription = "Public",
@@ -1437,10 +1530,12 @@ fun WebPostCard(
                                 modifier = Modifier.size(11.dp)
                             )
                             if (post.sharedPost.timestamp.isNotBlank()) {
-                                Text("•", fontSize = 12.sp, color = Color(0xFF94A3B8))
+                                Text("•", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8))
                                 Text(
                                     text = PostsApiService.formatRelativeTime(post.sharedPost.timestamp),
                                     fontSize = 11.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     color = Color(0xFF64748B)
                                 )
                             }
@@ -1453,6 +1548,7 @@ fun WebPostCard(
                             if (post.groupId != null) {
                                 Text(
                                     text = post.groupName ?: "Group",
+                                    fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 21.sp,
                                     color = Color(0xFFF8FAFC),
@@ -1464,6 +1560,7 @@ fun WebPostCard(
                                     ?: post.author.name.ifBlank { "Feathered User" }
                                 Text(
                                     text = authorDisplayName,
+                                    fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 21.sp,
                                     color = Color(0xFFF8FAFC),
@@ -1485,7 +1582,7 @@ fun WebPostCard(
                                         .background(Color(0xFF1E293B))
                                         .padding(horizontal = 6.dp, vertical = 2.dp)
                                 ) {
-                                    Text("Ad", fontSize = 10.sp, color = Color(0xFF94A3B8), fontWeight = FontWeight.Bold)
+                                    Text("Ad", fontSize = 10.sp, color = Color(0xFF94A3B8), fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
                                 }
                             }
                         }
@@ -1501,13 +1598,16 @@ fun WebPostCard(
                                 Text(
                                     text = post.author.name,
                                     fontSize = 13.sp,
-                                    fontWeight = FontWeight.Medium,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Bold,
                                     color = Color(0xFFCBD5E1),
                                     modifier = Modifier.clickable(onClick = onUserClick)
                                 )
                                 Text(
                                     text = " • $displayTime • ",
                                     fontSize = 13.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     color = Color(0xFF94A3B8)
                                 )
                                 Icon(
@@ -1522,9 +1622,11 @@ fun WebPostCard(
                                 Text(
                                     text = displayTime,
                                     fontSize = 13.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     color = Color(0xFF94A3B8)
                                 )
-                                Text("•", fontSize = 13.sp, color = Color(0xFF94A3B8))
+                                Text("•", fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8))
                                 Icon(
                                     imageVector = Icons.Default.Public,
                                     contentDescription = "Public",
@@ -1534,19 +1636,23 @@ fun WebPostCard(
                             }
 
                             if (!post.feeling.isNullOrBlank()) {
-                                Text("•", fontSize = 13.sp, color = Color(0xFF94A3B8))
+                                Text("•", fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8))
                                 Text(
                                     text = "feeling ${post.feeling}",
                                     fontSize = 13.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     color = Color(0xFF94A3B8)
                                 )
                             }
 
                             if (!post.location.isNullOrBlank()) {
-                                Text("•", fontSize = 13.sp, color = Color(0xFF94A3B8))
+                                Text("•", fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8))
                                 Text(
                                     text = post.location,
                                     fontSize = 13.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     color = Color(0xFF94A3B8),
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
@@ -1580,7 +1686,8 @@ fun WebPostCard(
                             text = if (actualIsFollowing) "Following" else "Follow",
                             color = if (actualIsFollowing) Color(0xFFF8FAFC) else Color.White,
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Medium
                         )
                     }
                     Spacer(modifier = Modifier.width(4.dp))
@@ -1604,7 +1711,8 @@ fun WebPostCard(
                 Text(
                     text = post.sponsoredHeadline,
                     fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold,
                     color = Color(0xFFF8FAFC),
                     modifier = Modifier.padding(horizontal = 14.dp, vertical = 2.dp)
                 )
@@ -1623,6 +1731,8 @@ fun WebPostCard(
                             text = cleanContent,
                             fontSize = 20.sp,
                             lineHeight = 28.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             color = Color(0xFFE4E6EB)
                         )
                     }
@@ -1675,6 +1785,8 @@ fun WebPostCard(
                             text = if (!sharedHasMoreThan8Words || isExpandedSharedText) sharedCleanContent else sharedTruncatedContent,
                             fontSize = 20.sp,
                             lineHeight = 28.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             color = Color(0xFFCBD5E1)
                         )
                         if (sharedHasMoreThan8Words) {
@@ -1689,7 +1801,8 @@ fun WebPostCard(
                                 Text(
                                     text = if (isExpandedSharedText) "See Less" else "See More",
                                     color = Color(0xFF1877F2),
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 16.sp
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
@@ -1817,6 +1930,8 @@ fun WebPostCard(
                             text = if (!hasMoreThan8Words || isExpandedText) cleanContent else truncatedContent,
                             fontSize = 20.sp,
                             lineHeight = 28.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             color = Color(0xFFE4E6EB)
                         )
                         if (hasMoreThan8Words) {
@@ -1831,7 +1946,8 @@ fun WebPostCard(
                                 Text(
                                     text = if (isExpandedText) "See Less" else "See More",
                                     color = Color(0xFF1877F2),
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 16.sp
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
@@ -1966,7 +2082,8 @@ fun WebPostCard(
                     ) {
                         Text(
                             text = cta,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             fontSize = 15.sp,
                             color = Color.White
                         )
@@ -1976,7 +2093,7 @@ fun WebPostCard(
                 }
             }
 
-            // Engagement Stats Row
+            // Engagement Stats Row (19sp React.., Discuss.., Shares arranged on one horizontal row)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -1988,24 +2105,46 @@ fun WebPostCard(
                 FacebookReactionSummaryRow(
                     likesCount = post.likesCount,
                     reactions = post.reactions,
-                    onOpenReactions = onOpenReactions
+                    onOpenReactions = onOpenReactions,
+                    fontSize = 19.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = InterFontFamily,
+                    abbreviateLabel = true,
+                    modifier = Modifier.weight(1f, fill = false)
                 )
 
+                Spacer(modifier = Modifier.width(6.dp))
+
                 // Discussions & Shares
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Text(
-                        text = "${post.commentsCount} Discussions",
+                        text = "${formatCount(post.commentsCount)} Discuss..",
                         color = Color(0xFF94A3B8),
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium,
+                        fontSize = 19.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.clickable(onClick = onComment)
                     )
-                    Text("•", color = Color(0xFF94A3B8), fontSize = 13.sp)
+                    Text(
+                        text = "•",
+                        color = Color(0xFF94A3B8),
+                        fontSize = 19.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal
+                    )
                     Text(
                         text = "${post.sharesCount} Shares",
                         color = Color(0xFF94A3B8),
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium,
+                        fontSize = 19.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        softWrap = false,
                         modifier = Modifier.clickable(onClick = onShare)
                     )
                 }
@@ -2013,7 +2152,7 @@ fun WebPostCard(
 
             HorizontalDivider(color = Color(0xFF1E293B), thickness = 1.dp)
 
-            // Action Buttons Row: React, Discuss, Share, Save (Matching Web: px-3.5 py-2.5 border-t border-[#1E293B])
+            // Action Buttons Row: React, Discuss, Share, Save (19sp numbers below)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -2034,6 +2173,8 @@ fun WebPostCard(
                         onReact = onReact,
                         showReactionDock = showReactionDock,
                         onToggleReactionDock = { showReactionDock = it },
+                        fontSize = 19.sp,
+                        fontFamily = InterFontFamily,
                         modifier = Modifier.testTag("like_post_btn_${post.id}")
                     )
 
@@ -2041,7 +2182,10 @@ fun WebPostCard(
                     DiscussButton(
                         commentCount = post.commentsCount,
                         onClick = onComment,
-                        testTag = "comment_post_btn_${post.id}"
+                        testTag = "comment_post_btn_${post.id}",
+                        fontSize = 19.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = InterFontFamily
                     )
 
                     // Share Button (Facing Northeast: ↗, Send icon rotated -35deg)
@@ -2066,7 +2210,8 @@ fun WebPostCard(
                             Text(
                                 text = formatCount(post.sharesCount),
                                 color = Color(0xFFF8FAFC),
-                                fontSize = 14.sp,
+                                fontSize = 19.sp,
+                                fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.SemiBold
                             )
                         }
@@ -2140,6 +2285,7 @@ fun WebPostCard(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text(
                                         text = previewAuthor.name,
+                                        fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 19.sp,
                                         color = Color(0xFFF8FAFC)
@@ -2155,6 +2301,8 @@ fun WebPostCard(
                                     text = currentComment.text,
                                     fontSize = 20.sp,
                                     lineHeight = 26.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     color = Color(0xFFCBD5E1),
                                     maxLines = 3,
                                     overflow = TextOverflow.Ellipsis
@@ -2173,6 +2321,8 @@ fun WebPostCard(
                                 Text(
                                     text = currentComment.timestamp,
                                     fontSize = 12.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     color = Color(0xFF94A3B8)
                                 )
                             }
@@ -2188,14 +2338,17 @@ fun WebPostCard(
                             ) {
                                 Text(
                                     text = if (isLiked) "Liked" else "Like",
-                                    fontSize = 13.sp,
-                                    fontWeight = if (isLiked) FontWeight.Bold else FontWeight.SemiBold,
+                                    fontSize = 14.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = if (isLiked) FontWeight.Bold else FontWeight.Medium,
                                     color = if (isLiked) Color(0xFF38BDF8) else Color(0xFF94A3B8)
                                 )
                                 if (likesCount > 0) {
                                     Text(
                                         text = formatCount(likesCount),
                                         fontSize = 12.sp,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Medium,
                                         color = if (isLiked) Color(0xFF38BDF8) else Color(0xFF94A3B8)
                                     )
                                 }
@@ -2203,8 +2356,9 @@ fun WebPostCard(
 
                             Text(
                                 text = "Reply",
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 14.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Medium,
                                 color = Color(0xFF94A3B8),
                                 modifier = Modifier.clickable(onClick = onComment)
                             )
@@ -2213,6 +2367,7 @@ fun WebPostCard(
                 }
             }
     }
+}
 }
 }
 
@@ -2371,8 +2526,8 @@ fun EventPostCard(
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(dateParts.first, fontSize = 11.sp, fontWeight = FontWeight.Black, color = Color(0xFF1877F2))
-                        Text(dateParts.second, fontSize = 18.sp, fontWeight = FontWeight.Black, color = Color(0xFFF8FAFC))
+                        Text(dateParts.first, fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, color = Color(0xFF1877F2))
+                        Text(dateParts.second, fontSize = 18.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, color = Color(0xFFF8FAFC))
                     }
                 }
             }
@@ -2380,7 +2535,8 @@ fun EventPostCard(
             Column(modifier = Modifier.padding(14.dp)) {
                 Text(
                     text = event.title,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp,
                     color = Color(0xFFF8FAFC)
                 )
@@ -2389,6 +2545,8 @@ fun EventPostCard(
                 Text(
                     text = "${event.date} • ${event.location}",
                     fontSize = 13.sp,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Normal,
                     color = Color(0xFF94A3B8)
                 )
 
@@ -2396,8 +2554,9 @@ fun EventPostCard(
                 Text(
                     text = "$attendeesCount going • $interestedCount interested",
                     fontSize = 12.sp,
+                    fontFamily = InterFontFamily,
                     color = Color(0xFF10B981),
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.SemiBold
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -2406,7 +2565,7 @@ fun EventPostCard(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    // Going Button (Exact Web: h-11 text-[15px] font-bold rounded-lg)
+                    // Going Button (Exact Web: h-11 text-[15px] rounded-lg)
                     Button(
                         onClick = { handleRSVPClick("going") },
                         enabled = !loading && !isPast,
@@ -2422,12 +2581,13 @@ fun EventPostCard(
                         Text(
                             text = if (rsvpStatus == "going") "✓ Going" else "Going",
                             fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = if (rsvpStatus == "going") FontWeight.Bold else FontWeight.Medium,
                             color = Color.White
                         )
                     }
 
-                    // Interested Button (Exact Web: h-11 text-[15px] font-bold rounded-lg)
+                    // Interested Button (Exact Web: h-11 text-[15px] rounded-lg)
                     Button(
                         onClick = { handleRSVPClick("interested") },
                         enabled = !loading && !isPast,
@@ -2444,7 +2604,8 @@ fun EventPostCard(
                         Text(
                             text = if (rsvpStatus == "interested") "✓ Interested" else "Interested",
                             fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = if (rsvpStatus == "interested") FontWeight.Bold else FontWeight.Medium,
                             color = if (rsvpStatus == "interested") Color.Black else Color(0xFFF8FAFC)
                         )
                     }
@@ -2516,13 +2677,15 @@ fun ProductPostCard(
                         Text(
                             text = product.currency,
                             fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color(0xFFF8FAFC)
                         )
                         Text(
                             text = "%,d".format(product.price.toLong()),
                             fontSize = 21.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color(0xFFF8FAFC)
                         )
                     }
@@ -2530,6 +2693,7 @@ fun ProductPostCard(
                     Text(
                         text = product.location.ifBlank { "MarketPoint" },
                         fontSize = 14.sp,
+                        fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Medium,
                         color = Color(0xFF94A3B8)
                     )
@@ -2550,7 +2714,8 @@ fun ProductPostCard(
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = "View Product",
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Medium,
                         fontSize = 14.sp,
                         color = Color.White
                     )
@@ -2566,7 +2731,8 @@ fun ProductPostCard(
                 Text(
                     text = product.title,
                     fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold,
                     color = Color(0xFFF8FAFC),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
@@ -2576,7 +2742,7 @@ fun ProductPostCard(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.LocationOn, contentDescription = null, tint = Color(0xFFF43F5E), modifier = Modifier.size(14.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text(product.location, fontSize = 13.sp, color = Color(0xFF94A3B8))
+                        Text(product.location, fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8))
                     }
                 }
                 if (product.description.isNotBlank()) {
@@ -2584,6 +2750,8 @@ fun ProductPostCard(
                     Text(
                         text = product.description,
                         fontSize = 13.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = Color(0xFFCBD5E1),
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
@@ -2604,10 +2772,21 @@ fun SuggestedProductsWidget(
     currentUser: User,
     onViewProduct: (Product) -> Unit,
     onSeeAll: () -> Unit,
+    offset: Int = 0,
     modifier: Modifier = Modifier
 ) {
-    val suggested = remember(products, currentUser.id) {
-        products.filter { it.seller.id != currentUser.id }.take(4)
+    val suggested = remember(products, currentUser.id, offset) {
+        if (products.isEmpty()) {
+            emptyList()
+        } else {
+            val pool = products.filter { it.seller.id != currentUser.id }.ifEmpty { products }
+            if (pool.size <= 4) {
+                pool
+            } else {
+                val start = ((offset % pool.size) + pool.size) % pool.size
+                (0 until 4).map { i -> pool[(start + i) % pool.size] }.distinctBy { it.id }
+            }
+        }
     }
 
     if (suggested.isEmpty()) return
@@ -2628,13 +2807,15 @@ fun SuggestedProductsWidget(
             Text(
                 text = "MarketPoint for you",
                 color = Color(0xFFF8FAFC),
-                fontWeight = FontWeight.Bold,
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.SemiBold,
                 fontSize = 21.sp
             )
             Text(
                 text = "See all",
                 color = Color(0xFF1877F2),
-                fontWeight = FontWeight.Bold,
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.Medium,
                 fontSize = 17.sp,
                 modifier = Modifier
                     .clip(RoundedCornerShape(6.dp))
@@ -2690,7 +2871,8 @@ fun SuggestedProductsWidget(
                                         text = "${prod.currency} %,d".format(prod.price.toLong()),
                                         color = Color.White,
                                         fontSize = 12.sp,
-                                        fontWeight = FontWeight.Bold
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.SemiBold
                                     )
                                 }
 
@@ -2707,7 +2889,8 @@ fun SuggestedProductsWidget(
                                             text = "Ad",
                                             color = Color.White,
                                             fontSize = 10.sp,
-                                            fontWeight = FontWeight.Bold
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.SemiBold
                                         )
                                     }
                                 }
@@ -2718,7 +2901,8 @@ fun SuggestedProductsWidget(
                                 text = prod.title,
                                 color = Color(0xFFF8FAFC),
                                 fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
@@ -2817,21 +3001,21 @@ fun JobPostingCard(
                         .background(Color(0xFF10B981).copy(alpha = 0.15f))
                         .padding(horizontal = 8.dp, vertical = 3.dp)
                 ) {
-                    Text("JOB POSTING", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFF10B981))
+                    Text("JOB POSTING", fontSize = 10.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, color = Color(0xFF10B981))
                 }
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(jobType, fontSize = 12.sp, color = Color(0xFFF59E0B), fontWeight = FontWeight.SemiBold)
+                Text(jobType, fontSize = 12.sp, fontFamily = InterFontFamily, color = Color(0xFFF59E0B), fontWeight = FontWeight.SemiBold)
             }
 
             Spacer(modifier = Modifier.height(8.dp))
-            Text(jobTitle, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFFF8FAFC))
+            Text(jobTitle, fontSize = 18.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, color = Color(0xFFF8FAFC))
 
             Spacer(modifier = Modifier.height(4.dp))
-            Text("$company • $location", fontSize = 13.sp, color = Color(0xFF94A3B8))
+            Text("$company • $location", fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8))
 
             if (salary.isNotBlank()) {
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(salary, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF10B981))
+                Text(salary, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, color = Color(0xFF10B981))
             }
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -2843,7 +3027,7 @@ fun JobPostingCard(
             ) {
                 Icon(Icons.AutoMirrored.Filled.Send, contentDescription = null, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("Apply Now", fontWeight = FontWeight.Bold)
+                Text("Apply Now", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
             }
         }
     }
@@ -2897,7 +3081,8 @@ fun MusicPostCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = song.title,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp,
                         color = Color(0xFFF8FAFC),
                         maxLines = 1,
@@ -2906,6 +3091,8 @@ fun MusicPostCard(
                     Text(
                         text = "${song.artist} • ${song.album}",
                         fontSize = 13.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = Color(0xFF94A3B8),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -2922,7 +3109,7 @@ fun MusicPostCard(
                 ) {
                     Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Play", fontWeight = FontWeight.Bold)
+                    Text("Play", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                 }
             }
         }
@@ -2979,7 +3166,8 @@ fun FeedStoryCard(
                             text = story.textContent.ifBlank { post.content },
                             color = Color.White,
                             fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             textAlign = TextAlign.Center,
                             lineHeight = 28.sp
                         )
@@ -3009,6 +3197,7 @@ fun FeedStoryCard(
                             text = caption,
                             color = Color.White,
                             fontSize = 15.sp,
+                            fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier
                                 .align(Alignment.BottomStart)
@@ -3041,7 +3230,8 @@ fun FeedStoryCard(
                         Text(
                             text = "STORY",
                             fontSize = 11.sp,
-                            fontWeight = FontWeight.Black,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color.White
                         )
                     }
@@ -3085,6 +3275,7 @@ fun FeedStoryCard(
                     Text(
                         text = "Story Update",
                         fontSize = 13.sp,
+                        fontFamily = InterFontFamily,
                         color = Color(0xFF94A3B8),
                         fontWeight = FontWeight.Medium
                     )
@@ -3098,7 +3289,7 @@ fun FeedStoryCard(
                 ) {
                     Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(14.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Watch Story", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    Text("Watch Story", fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                 }
             }
         }
@@ -3145,6 +3336,7 @@ fun SharedProductCard(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = originalAuthor.name,
+                            fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp,
                             color = Color(0xFFF8FAFC)
@@ -3157,6 +3349,8 @@ fun SharedProductCard(
                     Text(
                         text = "Shared a product from MarketPoint • ${PostsApiService.formatRelativeTime(timestamp)}",
                         fontSize = 11.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = Color(0xFF94A3B8)
                     )
                 }
@@ -3166,7 +3360,7 @@ fun SharedProductCard(
                         .background(Color(0xFF1877F2).copy(alpha = 0.15f))
                         .padding(horizontal = 8.dp, vertical = 3.dp)
                 ) {
-                    Text("MarketPoint", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1877F2))
+                    Text("MarketPoint", fontSize = 10.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, color = Color(0xFF1877F2))
                 }
             }
 
@@ -3203,7 +3397,8 @@ fun SharedProductCard(
                 Text(
                     text = "${product.currency} %,d".format(product.price.toLong()),
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold,
                     color = Color(0xFFF8FAFC)
                 )
 
@@ -3222,7 +3417,8 @@ fun SharedProductCard(
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "View",
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Medium,
                         fontSize = 12.sp,
                         color = Color.White
                     )
@@ -3234,7 +3430,8 @@ fun SharedProductCard(
                 Text(
                     text = product.title,
                     fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold,
                     color = Color(0xFFF8FAFC),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -3244,7 +3441,7 @@ fun SharedProductCard(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.LocationOn, contentDescription = null, tint = Color(0xFFF43F5E), modifier = Modifier.size(13.dp))
                         Spacer(modifier = Modifier.width(3.dp))
-                        Text(product.location, fontSize = 12.sp, color = Color(0xFF94A3B8))
+                        Text(product.location, fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8))
                     }
                 }
                 if (product.description.isNotBlank()) {
@@ -3252,6 +3449,8 @@ fun SharedProductCard(
                     Text(
                         text = product.description,
                         fontSize = 12.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = Color(0xFFCBD5E1),
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
@@ -3266,7 +3465,7 @@ fun SharedProductCard(
                 ) {
                     Icon(Icons.Default.ShoppingBag, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("View in MarketPoint", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    Text("View in MarketPoint", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, fontSize = 13.sp)
                 }
             }
         }
@@ -3320,6 +3519,7 @@ fun SharedEventCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = originalAuthor.name,
+                        fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp,
                         color = Color(0xFFF8FAFC)
@@ -3327,6 +3527,8 @@ fun SharedEventCard(
                     Text(
                         text = "Shared an event • ${PostsApiService.formatRelativeTime(timestamp)}",
                         fontSize = 11.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = Color(0xFF94A3B8)
                     )
                 }
@@ -3336,7 +3538,7 @@ fun SharedEventCard(
                         .background(Color(0xFF8B5CF6).copy(alpha = 0.15f))
                         .padding(horizontal = 8.dp, vertical = 3.dp)
                 ) {
-                    Text("EVENT", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFF8B5CF6))
+                    Text("EVENT", fontSize = 10.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, color = Color(0xFF8B5CF6))
                 }
             }
 
@@ -3364,8 +3566,8 @@ fun SharedEventCard(
                         modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(dateParts.first, fontSize = 10.sp, fontWeight = FontWeight.Black, color = Color(0xFF1877F2))
-                        Text(dateParts.second, fontSize = 16.sp, fontWeight = FontWeight.Black, color = Color(0xFFF8FAFC))
+                        Text(dateParts.first, fontSize = 10.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, color = Color(0xFF1877F2))
+                        Text(dateParts.second, fontSize = 16.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, color = Color(0xFFF8FAFC))
                     }
                 }
             }
@@ -3375,7 +3577,8 @@ fun SharedEventCard(
                 Text(
                     text = event.title,
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold,
                     color = Color(0xFFF8FAFC),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -3384,12 +3587,15 @@ fun SharedEventCard(
                 Text(
                     text = "${event.date} • ${event.location}",
                     fontSize = 12.sp,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Normal,
                     color = Color(0xFF94A3B8)
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "${event.goingCount} attending • ${event.interestedCount} interested",
                     fontSize = 11.sp,
+                    fontFamily = InterFontFamily,
                     color = Color(0xFF10B981),
                     fontWeight = FontWeight.SemiBold
                 )
@@ -3402,7 +3608,7 @@ fun SharedEventCard(
                 ) {
                     Icon(Icons.Default.Event, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("View Event Details", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    Text("View Event Details", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, fontSize = 13.sp)
                 }
             }
         }
@@ -3458,6 +3664,7 @@ fun SharedStoryCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = originalAuthor.name,
+                        fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp,
                         color = Color(0xFFF8FAFC)
@@ -3465,6 +3672,8 @@ fun SharedStoryCard(
                     Text(
                         text = "Shared a Story • ${PostsApiService.formatRelativeTime(timestamp)}",
                         fontSize = 11.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = Color(0xFF94A3B8)
                     )
                 }
@@ -3474,7 +3683,7 @@ fun SharedStoryCard(
                         .background(Color(0xFFEC4899).copy(alpha = 0.15f))
                         .padding(horizontal = 8.dp, vertical = 3.dp)
                 ) {
-                    Text("STORY", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFFEC4899))
+                    Text("STORY", fontSize = 10.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, color = Color(0xFFEC4899))
                 }
             }
 
@@ -3504,7 +3713,8 @@ fun SharedStoryCard(
                             text = story.textContent,
                             color = Color.White,
                             fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             textAlign = TextAlign.Center
                         )
                     }
@@ -3541,6 +3751,8 @@ fun SharedStoryCard(
                 Text(
                     text = "Tap to view story",
                     fontSize = 12.sp,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Medium,
                     color = Color(0xFF94A3B8)
                 )
                 Button(
@@ -3551,7 +3763,7 @@ fun SharedStoryCard(
                 ) {
                     Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(14.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Watch Story", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text("Watch Story", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                 }
             }
         }
@@ -3718,6 +3930,7 @@ fun SharedPostNestedCard(
                             if (isGroup) {
                                 Text(
                                     text = sharedPost.groupName ?: "Group",
+                                    fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 15.sp,
                                     color = Color(0xFFF8FAFC),
@@ -3726,6 +3939,7 @@ fun SharedPostNestedCard(
                             } else {
                                 Text(
                                     text = authorDisplayName,
+                                    fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 14.sp,
                                     color = Color(0xFFF8FAFC)
@@ -3743,6 +3957,8 @@ fun SharedPostNestedCard(
                                 PostsApiService.formatRelativeTime(sharedPost.timestamp)
                             },
                             fontSize = 11.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             color = Color(0xFF94A3B8)
                         )
                     }
@@ -3779,6 +3995,8 @@ fun SharedPostNestedCard(
                         text = if (!hasMoreThan8Words || isExpandedSharedText) sharedPost.content else truncatedContent,
                         fontSize = 20.sp,
                         lineHeight = 28.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = Color(0xFFCBD5E1)
                     )
                     if (hasMoreThan8Words) {
@@ -3793,7 +4011,8 @@ fun SharedPostNestedCard(
                             Text(
                                 text = if (isExpandedSharedText) "See Less" else "See More",
                                 color = Color(0xFF1877F2),
-                                fontWeight = FontWeight.Bold,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 16.sp
                             )
                             Spacer(modifier = Modifier.width(4.dp))
@@ -3847,7 +4066,8 @@ fun PeopleYouMayKnowSection(
             Text(
                 text = "People You May Know",
                 fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.SemiBold,
                 color = Color(0xFFF8FAFC)
             )
         }
@@ -3864,7 +4084,7 @@ fun PeopleYouMayKnowSection(
                     shape = RoundedCornerShape(14.dp),
                     colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B)),
                     border = BorderStroke(1.dp, Color(0xFF334155).copy(alpha = 0.5f)),
-                    modifier = Modifier.width(160.dp)
+                    modifier = Modifier.width(176.dp)
                 ) {
                     Column(
                         modifier = Modifier.fillMaxWidth()
@@ -3909,18 +4129,19 @@ fun PeopleYouMayKnowSection(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
                                     text = user.name,
+                                    fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Bold,
-                                    fontSize = 14.sp,
+                                    fontSize = 19.sp,
                                     color = Color(0xFFF8FAFC),
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                     modifier = Modifier
-                                        .weight(1f)
+                                        .weight(1f, fill = false)
                                         .clickable { onUserClick(user) }
                                 )
                                 if (user.isVerified) {
-                                    Spacer(modifier = Modifier.width(3.dp))
-                                    VerifiedBadge(size = 12.dp)
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    VerifiedBadge(size = 16.dp)
                                 }
                             }
 
@@ -3928,6 +4149,8 @@ fun PeopleYouMayKnowSection(
                             Text(
                                 text = "Suggested for you",
                                 fontSize = 11.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 color = Color(0xFF94A3B8)
                             )
 
@@ -3954,7 +4177,8 @@ fun PeopleYouMayKnowSection(
                                 Text(
                                     text = if (isFollowing) "Following" else "Follow",
                                     fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Medium,
                                     color = if (isFollowing) Color(0xFFF8FAFC) else Color.White
                                 )
                             }
@@ -3992,7 +4216,8 @@ fun GroupsYouMayJoinSection(
             Text(
                 text = "Groups You May Join",
                 fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.SemiBold,
                 color = Color(0xFFF8FAFC)
             )
         }
@@ -4010,7 +4235,7 @@ fun GroupsYouMayJoinSection(
                     colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B)),
                     border = BorderStroke(1.dp, Color(0xFF334155).copy(alpha = 0.5f)),
                     modifier = Modifier
-                        .width(220.dp)
+                        .width(236.dp)
                         .clickable { onGroupClick(group.id) }
                 ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
@@ -4048,7 +4273,8 @@ fun GroupsYouMayJoinSection(
                                     text = if (group.isPrivate) "🔒 Private" else "🌍 Public",
                                     fontSize = 10.sp,
                                     color = Color.White,
-                                    fontWeight = FontWeight.Bold
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold
                                 )
                             }
                         }
@@ -4057,8 +4283,10 @@ fun GroupsYouMayJoinSection(
                         Column(modifier = Modifier.padding(12.dp)) {
                             Text(
                                 text = group.name,
+                                fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 15.sp,
+                                fontSize = 19.sp,
+                                lineHeight = 23.sp,
                                 color = Color(0xFFF8FAFC),
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
@@ -4069,6 +4297,8 @@ fun GroupsYouMayJoinSection(
                             Text(
                                 text = "${group.membersCount} members • ${group.category}",
                                 fontSize = 11.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 color = Color(0xFF94A3B8)
                             )
 
@@ -4088,7 +4318,8 @@ fun GroupsYouMayJoinSection(
                                 Text(
                                     text = if (isJoined) "Joined" else "Join Group",
                                     fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Medium,
                                     color = Color.White
                                 )
                             }

@@ -778,7 +778,6 @@ object GroupsApiService {
         val cover = obj.optString("cover_image", obj.optString("coverImageUrl", ""))
         val profile = obj.optString("profile_image", obj.optString("profileImageUrl", ""))
         val membersCount = obj.optInt("members_count", obj.optInt("membersCount", 0))
-        val isMember = obj.optInt("is_member", -1) == 1 || obj.optBoolean("is_member", false) || adminId == viewerId
         val category = obj.optString("category", "general")
         val memberPostingAllowed = obj.optInt("member_posting_allowed", 1) == 1 && obj.optBoolean("member_posting_allowed", true)
         val createdAt = obj.optString("created_at", "")
@@ -793,6 +792,26 @@ object GroupsApiService {
                 if (uid > 0 && !memberIds.contains(uid)) memberIds.add(uid)
             }
         }
+
+        fun hasTruthyFlag(key: String): Boolean {
+            if (!obj.has(key) || obj.isNull(key)) return false
+            val raw = obj.opt(key)
+            return when (raw) {
+                is Boolean -> raw
+                is Number -> raw.toInt() == 1
+                is String -> raw.equals("1", ignoreCase = true) || raw.equals("true", ignoreCase = true) || raw.equals("yes", ignoreCase = true)
+                else -> false
+            }
+        }
+
+        val roleStr = obj.optString("my_role", obj.optString("user_role", obj.optString("membership_status", ""))).lowercase()
+        val isRoleMember = roleStr in setOf("member", "admin", "moderator", "owner", "joined", "active")
+        val isMember = hasTruthyFlag("is_member") ||
+            hasTruthyFlag("isMember") ||
+            hasTruthyFlag("joined") ||
+            hasTruthyFlag("is_joined") ||
+            isRoleMember ||
+            (viewerId > 0L && (adminId == viewerId || memberIds.contains(viewerId)))
 
         return Group(
             id = id,

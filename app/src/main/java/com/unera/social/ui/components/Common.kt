@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.SubcomposeAsyncImage
+import com.unera.social.ui.theme.InterFontFamily
 
 /**
  * Standard spinner matching web Spinner from Common.tsx:
@@ -592,6 +593,7 @@ fun PushButton(
                 text = "Push",
                 color = Color(0xFF2563EB),
                 fontSize = 14.sp,
+                fontFamily = InterFontFamily,
                 fontWeight = FontWeight.SemiBold
             )
         }

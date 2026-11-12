@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.unera.social.R
 import com.unera.social.model.User
+import com.unera.social.ui.theme.InterFontFamily
 
 /**
  * FeatheredTopBar - Matches web Header in Layout.tsx exactly.
@@ -79,8 +80,9 @@ fun FeatheredTopBar(
                 ) {
                     Text(
                         text = "feathered",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Black,
+                        fontSize = 27.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Bold,
                         color = Color.White,
                         letterSpacing = (-0.5).sp
                     )
@@ -109,7 +111,7 @@ fun FeatheredTopBar(
                                 imageVector = Icons.Default.Storefront,
                                 contentDescription = "MarketPoint",
                                 tint = Color.White,
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.size(25.5.dp)
                             )
                         }
 
@@ -129,7 +131,8 @@ fun FeatheredTopBar(
                                 Text(
                                     text = badgeStr,
                                     fontSize = 10.sp,
-                                    fontWeight = FontWeight.Black,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold,
                                     color = Color.White
                                 )
                             }
@@ -150,7 +153,7 @@ fun FeatheredTopBar(
                             painter = painterResource(id = R.drawable.ic_search_bold),
                             contentDescription = "Search",
                             tint = Color.Unspecified,
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(25.5.dp)
                         )
                     }
 
@@ -169,7 +172,7 @@ fun FeatheredTopBar(
                                 painter = painterResource(id = R.drawable.ic_bell),
                                 contentDescription = "Notifications",
                                 tint = Color.Unspecified,
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.size(25.5.dp)
                             )
                         }
 
@@ -194,7 +197,8 @@ fun FeatheredTopBar(
                                 Text(
                                     text = badgeStr,
                                     fontSize = 10.sp,
-                                    fontWeight = FontWeight.Black,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold,
                                     color = Color.White
                                 )
                             }
@@ -219,7 +223,8 @@ fun FeatheredTopBar(
                             Text(
                                 text = "Log In",
                                 fontSize = 13.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Medium,
                                 color = Color.White
                             )
                         }

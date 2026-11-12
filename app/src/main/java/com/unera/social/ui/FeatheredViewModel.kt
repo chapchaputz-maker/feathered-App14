@@ -411,6 +411,12 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
     fun refreshFeed() {
         fetchPeopleYouMayKnow()
         fetchLiveUsers()
+        if (_uiState.value.products.isEmpty()) {
+            refreshLiveProducts()
+        }
+        if (_uiState.value.groups.isEmpty()) {
+            refreshGroups()
+        }
         launchSafe {
             _uiState.update { it.copy(isFeedLoading = true) }
             val isUserLoggedIn = _uiState.value.isLoggedIn && !_uiState.value.isGuest
@@ -4604,7 +4610,15 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
             _uiState.update { it.copy(isGroupsLoading = true) }
             val viewerId = _uiState.value.currentUser.id
             val liveGroups = GroupsApiService.fetchGroups(viewerId)
-            val suggestions = GroupsApiService.fetchGroupSuggestions(viewerId)
+            val rawSuggestions = GroupsApiService.fetchGroupSuggestions(viewerId)
+            val joinedIds = liveGroups.filter { g ->
+                g.isMember || (viewerId > 0L && (g.adminId == viewerId || g.members.contains(viewerId)))
+            }.map { it.id }.toSet()
+            val suggestions = rawSuggestions.filter { g ->
+                g.id !in joinedIds &&
+                    !g.isMember &&
+                    (viewerId <= 0L || (g.adminId != viewerId && !g.members.contains(viewerId)))
+            }
             val invites = GroupsApiService.fetchGroupInvites(viewerId)
             _uiState.update { state ->
                 state.copy(
@@ -4687,6 +4701,7 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
                 _uiState.update { state ->
                     state.copy(
                         groups = listOf(created) + state.groups,
+                        groupSuggestions = state.groupSuggestions.filter { it.id != created.id },
                         activeGroupId = created.id
                     )
                 }
@@ -4710,6 +4725,7 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
                 _uiState.update { state ->
                     state.copy(
                         groups = listOf(fallbackGroup) + state.groups,
+                        groupSuggestions = state.groupSuggestions.filter { it.id != newId },
                         activeGroupId = newId
                     )
                 }
@@ -4734,7 +4750,10 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
                     )
                 } else group
             }
-            state.copy(groups = updatedGroups)
+            state.copy(
+                groups = updatedGroups,
+                groupSuggestions = state.groupSuggestions.filter { it.id != groupId }
+            )
         }
         viewModelScope.launch {
             GroupsApiService.joinGroup(groupId, currentUserId)
@@ -5469,6 +5488,8 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
             )
         }
         refreshFeed()
+        refreshLiveProducts()
+        refreshGroups()
     }
 
     suspend fun loginUser(email: String, pass: String): Pair<Boolean, String?> {
@@ -5501,6 +5522,8 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
             }
             // Fetch live home feed for logged in user from /api/feeds?userId=<id>&limit=50
             refreshFeed()
+            refreshLiveProducts()
+            refreshGroups()
             refreshVideos()
             fetchPeopleYouMayKnow()
             startMessagingServices()
@@ -5562,6 +5585,8 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
                 )
             }
             refreshFeed()
+            refreshLiveProducts()
+            refreshGroups()
             refreshVideos()
             fetchPeopleYouMayKnow()
             startMessagingServices()
@@ -5595,5 +5620,6 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
             )
         }
         refreshFeed()
+        refreshGroups()
     }
 }

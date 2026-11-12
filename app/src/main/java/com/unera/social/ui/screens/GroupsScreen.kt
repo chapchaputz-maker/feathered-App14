@@ -446,13 +446,19 @@ fun GroupsScreen(
                     }
 
                     GroupsTab.DISCOVER -> {
-                        val unjoinedFromGroups = groups.filter { group ->
-                            val isOwner = group.adminId == currentUser.id
-                            val isMem = group.isMember || group.members.contains(currentUser.id)
-                            !isOwner && !isMem
-                        }
+                        val joinedGroupIds = groups.filter { group ->
+                            val isOwner = currentUser.id > 0L && group.adminId == currentUser.id
+                            val isMem = group.isMember || (currentUser.id > 0L && group.members.contains(currentUser.id))
+                            isOwner || isMem
+                        }.map { it.id }.toSet()
+                        val unjoinedFromGroups = groups.filter { it.id !in joinedGroupIds }
                         val combinedSuggestions = (groupSuggestions + unjoinedFromGroups)
                             .distinctBy { it.id }
+                            .filter { g ->
+                                g.id !in joinedGroupIds &&
+                                    !g.isMember &&
+                                    (currentUser.id <= 0L || (g.adminId != currentUser.id && !g.members.contains(currentUser.id)))
+                            }
                             .filter {
                                 searchQuery.isBlank() || it.name.contains(searchQuery, ignoreCase = true) || it.description.contains(searchQuery, ignoreCase = true)
                             }

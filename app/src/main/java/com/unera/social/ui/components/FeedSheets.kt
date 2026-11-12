@@ -63,7 +63,10 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.material.icons.automirrored.filled.Reply
+import com.unera.social.ui.theme.InterFontFamily
 import kotlinx.coroutines.delay
 
 private fun formatCount(count: Int): String {
@@ -96,6 +99,7 @@ fun getReactionEmoji(type: String): String {
 /**
  * Fullscreen Gallery Viewer matching web GalleryViewer
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun GalleryViewerDialog(
     images: List<String>,
@@ -217,23 +221,26 @@ fun GalleryViewerDialog(
                         .background(Color(0xFF0B1120))
                         .padding(horizontal = 16.dp, vertical = 12.dp)
                 ) {
-                    Row(
+                    FlowRow(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 8.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Text(
                             text = "${post.likesCount} Reactions",
                             color = Color(0xFFF8FAFC),
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold
+                            fontSize = 19.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold
                         )
                         Text(
                             text = "${post.commentsCount} Discussions • ${post.sharesCount} Shares",
                             color = Color(0xFF94A3B8),
-                            fontSize = 14.sp
+                            fontSize = 19.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold
                         )
                     }
 
@@ -258,6 +265,8 @@ fun GalleryViewerDialog(
                                 onReact = { reaction -> onReact?.invoke(reaction) ?: onLike() },
                                 showReactionDock = showReactionDock,
                                 onToggleReactionDock = { showReactionDock = it },
+                                fontSize = 19.sp,
+                                fontFamily = InterFontFamily,
                                 modifier = Modifier.testTag("gallery_like_post_btn_${post.id}")
                             )
 
@@ -265,7 +274,10 @@ fun GalleryViewerDialog(
                             DiscussButton(
                                 commentCount = post.commentsCount,
                                 onClick = onComment,
-                                testTag = "gallery_comment_post_btn_${post.id}"
+                                testTag = "gallery_comment_post_btn_${post.id}",
+                                fontSize = 19.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                fontFamily = InterFontFamily
                             )
 
                             // Share Button (Facing Northeast: ↗, Send icon rotated -35deg)
@@ -290,7 +302,8 @@ fun GalleryViewerDialog(
                                     Text(
                                         text = formatCount(post.sharesCount),
                                         color = Color(0xFFF8FAFC),
-                                        fontSize = 14.sp,
+                                        fontSize = 19.sp,
+                                        fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.SemiBold
                                     )
                                 }
@@ -2228,20 +2241,22 @@ private fun CommentItemRow(
                 }
 
                 // Sub-bar: Time, Like (Tap / Hold for 7 3D Reactions Dock), Reply, Options, Count
-                Row(
+                @OptIn(ExperimentalLayoutApi::class)
+                FlowRow(
                     modifier = Modifier
                         .padding(start = 8.dp, top = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                     horizontalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     Text(
                         text = comment.timestamp,
                         fontSize = 11.sp,
-                        color = Color(0xFF94A3B8)
+                        color = Color(0xFF94A3B8),
+                        modifier = Modifier.align(Alignment.CenterVertically)
                     )
 
                     // 7 3D Facebook Reaction dock & button on comment
-                    Box {
+                    Box(modifier = Modifier.align(Alignment.CenterVertically)) {
                         if (showReactionDock) {
                             Box(
                                 modifier = Modifier
@@ -2285,14 +2300,14 @@ private fun CommentItemRow(
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(
                                         text = currentReaction.label,
-                                        fontSize = 12.sp,
+                                        fontSize = 14.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = currentReaction.color
                                     )
                                 } else {
                                     Text(
                                         text = if (comment.isLiked) "❤️ Liked" else "🤍 Like",
-                                        fontSize = 12.sp,
+                                        fontSize = 14.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = if (comment.isLiked) Color(0xFFF43F5E) else Color(0xFF94A3B8)
                                     )
@@ -2303,19 +2318,23 @@ private fun CommentItemRow(
 
                     Text(
                         text = "Reply",
-                        fontSize = 12.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF94A3B8),
-                        modifier = Modifier.clickable(onClick = onReply)
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .clickable(onClick = onReply)
                     )
 
                     if (onToggleHide != null) {
                         Text(
                             text = if (comment.isHidden) "Unhide" else "Hide",
-                            fontSize = 12.sp,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = if (comment.isHidden) Color(0xFF38BDF8) else Color(0xFF94A3B8),
-                            modifier = Modifier.clickable(onClick = onToggleHide)
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .clickable(onClick = onToggleHide)
                         )
                     }
 
@@ -2325,7 +2344,9 @@ private fun CommentItemRow(
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color(0xFFEF4444),
-                            modifier = Modifier.clickable(onClick = onDelete)
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .clickable(onClick = onDelete)
                         )
                     }
 
@@ -2334,12 +2355,15 @@ private fun CommentItemRow(
                             text = "Options",
                             fontSize = 12.sp,
                             color = Color(0xFF64748B),
-                            modifier = Modifier.clickable(onClick = onMoreOptions)
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .clickable(onClick = onMoreOptions)
                         )
                     }
 
                     if (comment.likesCount > 0) {
                         Row(
+                            modifier = Modifier.align(Alignment.CenterVertically),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(3.dp)
                         ) {
@@ -2693,7 +2717,7 @@ private fun CompactReplyItem(
 
                 Text(
                     text = if (reply.isLiked) "❤️ Liked" else "Like",
-                    fontSize = 11.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = if (reply.isLiked) Color(0xFFF43F5E) else Color(0xFF94A3B8),
                     modifier = Modifier.clickable(onClick = onLike)
@@ -2701,7 +2725,7 @@ private fun CompactReplyItem(
 
                 Text(
                     text = "Reply",
-                    fontSize = 11.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF94A3B8),
                     modifier = Modifier.clickable(onClick = onReply)

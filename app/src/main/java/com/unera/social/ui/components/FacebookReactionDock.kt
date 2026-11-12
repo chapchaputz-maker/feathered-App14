@@ -30,7 +30,10 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -41,6 +44,7 @@ import coil.decode.ImageDecoderDecoder
 import coil.request.ImageRequest
 import com.unera.social.R
 import com.unera.social.model.UserReaction
+import com.unera.social.ui.screens.formatCount
 import kotlin.math.abs
 
 /**
@@ -279,7 +283,9 @@ fun FacebookReactionButton(
     onReact: (String) -> Unit,
     showReactionDock: Boolean,
     onToggleReactionDock: (Boolean) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    fontSize: TextUnit = 14.sp,
+    fontFamily: FontFamily? = null
 ) {
     val context = LocalContext.current
     val currentReaction = getFacebookReaction(myReaction)
@@ -359,7 +365,8 @@ fun FacebookReactionButton(
                     Text(
                         text = if (likesCount > 0) "$likesCount" else currentReaction.label,
                         color = currentReaction.color,
-                        fontSize = 14.sp,
+                        fontSize = fontSize,
+                        fontFamily = fontFamily,
                         fontWeight = FontWeight.Bold
                     )
                 } else if (isLiked) {
@@ -374,7 +381,8 @@ fun FacebookReactionButton(
                         Text(
                             text = likesCount.toString(),
                             color = Color(0xFFF43F5E),
-                            fontSize = 14.sp,
+                            fontSize = fontSize,
+                            fontFamily = fontFamily,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -390,7 +398,8 @@ fun FacebookReactionButton(
                         Text(
                             text = likesCount.toString(),
                             color = Color(0xFFF8FAFC),
-                            fontSize = 14.sp,
+                            fontSize = fontSize,
+                            fontFamily = fontFamily,
                             fontWeight = FontWeight.SemiBold
                         )
                     }
@@ -410,7 +419,11 @@ fun FacebookReactionSummaryRow(
     likesCount: Int,
     reactions: List<UserReaction> = emptyList(),
     onOpenReactions: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    fontSize: TextUnit = 13.sp,
+    fontWeight: FontWeight = FontWeight.Bold,
+    fontFamily: FontFamily? = null,
+    abbreviateLabel: Boolean = false
 ) {
     val context = LocalContext.current
     val gifLoader = remember(context) {
@@ -480,13 +493,20 @@ fun FacebookReactionSummaryRow(
             }
         }
 
-        Spacer(modifier = Modifier.width(7.dp))
+        Spacer(modifier = Modifier.width(if (abbreviateLabel) 5.dp else 7.dp))
 
         Text(
-            text = if (likesCount == 1) "1 Reaction" else "$likesCount Reactions",
+            text = if (abbreviateLabel) {
+                "${formatCount(likesCount)} React.."
+            } else {
+                if (likesCount == 1) "1 Reaction" else "$likesCount Reactions"
+            },
             color = Color(0xFFF8FAFC),
-            fontWeight = FontWeight.Bold,
-            fontSize = 13.sp
+            fontWeight = fontWeight,
+            fontSize = fontSize,
+            fontFamily = fontFamily,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }

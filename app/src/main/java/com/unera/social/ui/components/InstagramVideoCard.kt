@@ -1559,14 +1559,14 @@ fun VideoDiscussionModal(
                                                 )
                                                 Text(
                                                     text = if (commentLikesCount > 0) "$commentLikesCount" else "Like",
-                                                    fontSize = 11.5.sp,
+                                                    fontSize = 14.sp,
                                                     color = if (commentLiked) Color(0xFFEF4444) else Color(0xFF94A3B8)
                                                 )
                                             }
 
                                             Text(
                                                 text = "Reply",
-                                                fontSize = 11.5.sp,
+                                                fontSize = 14.sp,
                                                 color = Color(0xFF94A3B8),
                                                 modifier = Modifier.clickable {
                                                     replyingToUser = comment.author.name
@@ -1576,7 +1576,7 @@ fun VideoDiscussionModal(
 
                                             Text(
                                                 text = if (isHidden) "Unhide" else "Hide",
-                                                fontSize = 11.5.sp,
+                                                fontSize = 14.sp,
                                                 color = Color(0xFF94A3B8),
                                                 modifier = Modifier.clickable { isHidden = !isHidden }
                                             )

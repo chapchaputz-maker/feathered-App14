@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.unera.social.ui.theme.InterFontFamily
 import kotlin.math.roundToInt
 
 /**
@@ -171,7 +172,8 @@ fun PostUploadProgressBanner(
                 ) {
                     Text(
                         text = uploadState.title,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         color = TextWhite,
                         fontSize = 15.sp,
                         maxLines = 1,
@@ -181,7 +183,8 @@ fun PostUploadProgressBanner(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = if (uploadState.isSuccess) "Done" else "$pct%",
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         color = if (uploadState.isSuccess) SuccessGreen else BrandBlue,
                         fontSize = 13.sp
                     )
@@ -193,6 +196,8 @@ fun PostUploadProgressBanner(
                     text = uploadState.secondaryStatus,
                     color = TextMuted,
                     fontSize = 13.sp,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Normal,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -342,6 +347,7 @@ fun PostUploadBottomPill(
                             text = uploadState.title,
                             color = Color.White,
                             fontSize = 13.sp,
+                            fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -352,13 +358,16 @@ fun PostUploadBottomPill(
                             text = if (uploadState.isSuccess) "100%" else "$pct%",
                             color = if (uploadState.isSuccess) SuccessGreen else BrandBlue,
                             fontSize = 13.sp,
-                            fontWeight = FontWeight.Bold
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold
                         )
                     }
                     Text(
                         text = uploadState.secondaryStatus,
                         color = TextMuted,
                         fontSize = 11.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )

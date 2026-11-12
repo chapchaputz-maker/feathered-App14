@@ -28,9 +28,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.unera.social.model.Screen
+import com.unera.social.ui.theme.InterFontFamily
 
 private fun formatBadge(count: Int): String {
     if (count <= 0) return ""
@@ -74,7 +76,7 @@ fun FeatheredBottomNav(
             border = BorderStroke(1.dp, Color(0xFF1E293B)),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(64.dp)
+                .height(68.dp)
                 .shadow(
                     elevation = 16.dp,
                     ambientColor = Color.Black,
@@ -85,7 +87,7 @@ fun FeatheredBottomNav(
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
-                    .padding(horizontal = 6.dp),
+                    .padding(horizontal = 2.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // 1. Home
@@ -124,11 +126,14 @@ fun FeatheredBottomNav(
                 ) {
                     Text(
                         text = "POST",
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Black,
+                        fontSize = 13.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Medium,
                         color = Color(0xFF1877F2),
                         letterSpacing = 0.8.sp,
-                        modifier = Modifier.padding(bottom = 6.dp)
+                        maxLines = 1,
+                        softWrap = false,
+                        modifier = Modifier.padding(bottom = 5.dp)
                     )
                 }
 
@@ -163,7 +168,7 @@ fun FeatheredBottomNav(
         Box(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .offset(y = (-20).dp),
+                .offset(y = (-22).dp),
             contentAlignment = Alignment.Center
         ) {
             Box(
@@ -190,7 +195,7 @@ fun FeatheredBottomNav(
                     imageVector = Icons.Default.Add,
                     contentDescription = "Create Post",
                     tint = Color.White,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(26.dp)
                 )
             }
         }
@@ -223,7 +228,7 @@ private fun NavTabItem(
                 imageVector = icon,
                 contentDescription = label,
                 tint = if (isActive) Color(0xFF1877F2) else Color(0xFF94A3B8),
-                modifier = Modifier.size(21.dp)
+                modifier = Modifier.size(23.dp)
             )
 
             // Red notification badge matching web: bg-[#E41E3F] text-[10px] font-bold
@@ -252,8 +257,12 @@ private fun NavTabItem(
 
         Text(
             text = label,
-            fontSize = 11.sp,
-            fontWeight = if (isActive) FontWeight.Bold else FontWeight.Medium,
+            fontSize = 14.sp,
+            fontFamily = InterFontFamily,
+            fontWeight = FontWeight.Medium,
+            maxLines = 1,
+            softWrap = false,
+            overflow = TextOverflow.Ellipsis,
             color = if (isActive) Color(0xFF1877F2) else Color(0xFF94A3B8)
         )
 

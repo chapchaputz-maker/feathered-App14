@@ -23,7 +23,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.unera.social.R
@@ -57,7 +59,10 @@ fun DiscussButton(
     commentCount: Int,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    testTag: String = "discuss_button"
+    testTag: String = "discuss_button",
+    fontSize: TextUnit = 14.sp,
+    fontWeight: FontWeight = FontWeight.SemiBold,
+    fontFamily: FontFamily? = null
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -102,8 +107,9 @@ fun DiscussButton(
             Text(
                 text = formatCount(commentCount),
                 color = contentColor,
-                fontSize = 14.sp, // text-[14px]
-                fontWeight = FontWeight.SemiBold // font-semibold
+                fontSize = fontSize,
+                fontFamily = fontFamily,
+                fontWeight = fontWeight
             )
         }
     }

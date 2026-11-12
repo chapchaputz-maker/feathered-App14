@@ -296,14 +296,14 @@ fun MusicCommentsSheet(
                                             Text(
                                                 text = "Like",
                                                 color = Color(0xFF94A3B8),
-                                                fontSize = 12.sp,
+                                                fontSize = 14.sp,
                                                 fontWeight = FontWeight.Medium,
                                                 modifier = Modifier.clickable { }
                                             )
                                             Text(
                                                 text = "Reply",
                                                 color = Color(0xFF94A3B8),
-                                                fontSize = 12.sp,
+                                                fontSize = 14.sp,
                                                 fontWeight = FontWeight.Medium,
                                                 modifier = Modifier.clickable {
                                                     inputText = "@${comment.userName} "
