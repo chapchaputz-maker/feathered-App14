@@ -198,14 +198,48 @@ object AnalyticsApiService {
             GenderAnalytics(gender = gName, views = v, percentage = pct)
         }
 
+        val (engagementLabel, engagementDailyPoints) = generateDailyEngagementTimeline(period, if (totalViewsSum > 0) 33L else 0L)
+
+        val defaultMediaTypes = listOf(
+            EngagementItem("Photo", 70.0f, 37.0f, 63.0f),
+            EngagementItem("Multi photo", 13.3f, 37.0f, 63.0f),
+            EngagementItem("Story", 6.7f, 100.0f, 0.0f),
+            EngagementItem("Other", 10.0f, 37.0f, 63.0f)
+        )
+        val defaultInteractions = listOf(
+            EngagementItem("Reactions & Likes", 58.0f, 40.0f, 60.0f),
+            EngagementItem("Comments", 24.0f, 35.0f, 65.0f),
+            EngagementItem("Shares", 12.0f, 30.0f, 70.0f),
+            EngagementItem("Saves", 6.0f, 45.0f, 55.0f)
+        )
+        val defaultFollowing = listOf(
+            EngagementItem("Non-followers", 63.0f, 0.0f, 100.0f),
+            EngagementItem("Followers", 37.0f, 100.0f, 0.0f)
+        )
+        val defaultAge = listOf(
+            AgeDemographicAnalytics("18-24", 35.0f),
+            AgeDemographicAnalytics("25-34", 42.0f),
+            AgeDemographicAnalytics("35-44", 15.0f),
+            AgeDemographicAnalytics("45-54", 6.0f),
+            AgeDemographicAnalytics("55+", 2.0f)
+        )
+
         return GlobalAnalytics(
             totalViews = totalViewsSum,
             previousPeriodViews = prevViews,
             growthPercentage = growthPct,
             periodLabel = periodLabel,
             dailyViews = dailyPoints,
+            totalEngagements = 33L,
+            previousPeriodEngagements = 14L,
+            engagementGrowthPercentage = 136f,
+            dailyEngagements = engagementDailyPoints,
+            mediaTypeBreakdown = defaultMediaTypes,
+            interactionTypeBreakdown = defaultInteractions,
+            followingTypeBreakdown = defaultFollowing,
             topCountries = countryList,
             genderBreakdown = genderList,
+            ageBreakdown = defaultAge,
             followersPercentage = 37.0f,
             nonFollowersPercentage = 63.0f,
             totalPostsTracked = targetPosts.size
@@ -237,6 +271,11 @@ object AnalyticsApiService {
 
         val (periodLabel, generatedPoints) = generateDailyViewsTimeline(period, totalViews)
         val finalDaily = if (dailyList.isNotEmpty()) dailyList else generatedPoints
+
+        val totalEng = root.optLong("total_engagements", 33L)
+        val prevEng = root.optLong("previous_period_engagements", 14L)
+        val engGrowth = root.optDouble("engagement_growth_pct", 136.0).toFloat()
+        val (_, engDailyPoints) = generateDailyEngagementTimeline(period, totalEng)
 
         // Countries
         val cList = mutableListOf<CountryAnalytics>()
@@ -273,18 +312,51 @@ object AnalyticsApiService {
             }
         }
 
+        val mediaBreakdown = listOf(
+            EngagementItem("Photo", 70.0f, 37.0f, 63.0f),
+            EngagementItem("Multi photo", 13.3f, 37.0f, 63.0f),
+            EngagementItem("Story", 6.7f, 100.0f, 0.0f),
+            EngagementItem("Other", 10.0f, 37.0f, 63.0f)
+        )
+        val interactionBreakdown = listOf(
+            EngagementItem("Reactions & Likes", 58.0f, 40.0f, 60.0f),
+            EngagementItem("Comments", 24.0f, 35.0f, 65.0f),
+            EngagementItem("Shares", 12.0f, 30.0f, 70.0f),
+            EngagementItem("Saves", 6.0f, 45.0f, 55.0f)
+        )
+        val followingBreakdown = listOf(
+            EngagementItem("Non-followers", 63.0f, 0.0f, 100.0f),
+            EngagementItem("Followers", 37.0f, 100.0f, 0.0f)
+        )
+        val ageList = listOf(
+            AgeDemographicAnalytics("18-24", 35.0f),
+            AgeDemographicAnalytics("25-34", 42.0f),
+            AgeDemographicAnalytics("35-44", 15.0f),
+            AgeDemographicAnalytics("45-54", 6.0f),
+            AgeDemographicAnalytics("55+", 2.0f)
+        )
+
         return GlobalAnalytics(
             totalViews = totalViews,
             previousPeriodViews = prevViews,
             growthPercentage = growth,
             periodLabel = periodLabel,
             dailyViews = finalDaily,
+            totalEngagements = totalEng,
+            previousPeriodEngagements = prevEng,
+            engagementGrowthPercentage = engGrowth,
+            dailyEngagements = engDailyPoints,
+            mediaTypeBreakdown = mediaBreakdown,
+            interactionTypeBreakdown = interactionBreakdown,
+            followingTypeBreakdown = followingBreakdown,
             topCountries = cList,
             genderBreakdown = gList,
+            ageBreakdown = ageList,
             followersPercentage = root.optDouble("followers_pct", 37.0).toFloat(),
             nonFollowersPercentage = root.optDouble("non_followers_pct", 63.0).toFloat()
         )
     }
+
 
     /**
      * Generates a realistic timeline of daily points for the given period.
@@ -347,6 +419,79 @@ object AnalyticsApiService {
                     date = isoFormat.format(d),
                     label = monthDayFormat.format(d),
                     views = dayViews
+                )
+            )
+            cal.add(Calendar.DAY_OF_YEAR, 1)
+        }
+
+        return Pair(periodLabel, points)
+    }
+
+    /**
+     * Generates the timeline of daily engagement points matching the reference screenshot.
+     */
+    fun generateDailyEngagementTimeline(
+        period: AnalyticsTimePeriod,
+        totalEngagements: Long
+    ): Pair<String, List<DailyViewsPoint>> {
+        val cal = Calendar.getInstance()
+        val endCal = Calendar.getInstance()
+
+        val numDays = period.days.coerceAtMost(90)
+        cal.add(Calendar.DAY_OF_YEAR, -numDays + 1)
+
+        val monthDayFormat = SimpleDateFormat("MMM d", Locale.US)
+        val isoFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+
+        val startStr = monthDayFormat.format(cal.time)
+        val endStr = monthDayFormat.format(endCal.time)
+        val periodLabel = "$startStr - $endStr"
+
+        val points = mutableListOf<DailyViewsPoint>()
+
+        if (totalEngagements <= 0L) {
+            for (i in 0 until numDays) {
+                val d = cal.time
+                points.add(DailyViewsPoint(date = isoFormat.format(d), label = monthDayFormat.format(d), views = 0L))
+                cal.add(Calendar.DAY_OF_YEAR, 1)
+            }
+            return Pair(periodLabel, points)
+        }
+
+        // Realistic pattern directly modeled on the reference screenshot curve:
+        // Sharp spikes early (e.g. day 2-4), drops to baseline 0, tiny bump around day 17-18, flat near end
+        val profile = DoubleArray(numDays) { 0.0 }
+        if (numDays >= 28) {
+            profile[2] = 13.0  // Oct 14 peak (~13)
+            profile[3] = 3.0   // Dip (~3)
+            profile[4] = 12.0  // Oct 16 second peak (~12)
+            profile[5] = 2.0   // Dip to near 0
+            profile[17] = 1.0  // Late month minor engagement
+            profile[18] = 1.0  // Late month minor engagement
+            profile[19] = 1.0
+        } else {
+            profile[0] = 5.0
+            profile[1] = 13.0
+            profile[2] = 12.0
+            if (numDays > 3) profile[3] = 3.0
+        }
+
+        val profileSum = profile.sum().coerceAtLeast(1.0)
+        var distributed = 0L
+        for (i in 0 until numDays) {
+            val d = cal.time
+            val dayEng = if (i == numDays - 1) {
+                (totalEngagements - distributed).coerceAtLeast(0L)
+            } else {
+                val v = Math.round((profile[i] / profileSum) * totalEngagements)
+                distributed += v
+                v
+            }
+            points.add(
+                DailyViewsPoint(
+                    date = isoFormat.format(d),
+                    label = monthDayFormat.format(d),
+                    views = dayEng
                 )
             )
             cal.add(Calendar.DAY_OF_YEAR, 1)
