@@ -1,10 +1,17 @@
 package com.unera.social
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -19,7 +26,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.firebase.messaging.FirebaseMessaging
+import com.unera.social.data.FcmTokenManager
 import com.unera.social.data.MockData
 import com.unera.social.model.*
 import com.unera.social.ui.FeatheredViewModel
@@ -52,14 +62,34 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
-            android.util.Log.e("FeatheredApp", "Uncaught exception on thread ${thread.name}: ${throwable.message}", throwable)
+            Log.e("FeatheredApp", "Uncaught exception on thread ${thread.name}: ${throwable.message}", throwable)
             defaultHandler?.uncaughtException(thread, throwable)
         }
+        FcmTokenManager.createNotificationChannel(this)
+        verifyFcmTokenInDebug()
         enableEdgeToEdge()
         setContent {
             FeatheredTheme {
                 FeatheredApp()
             }
+        }
+    }
+
+    private fun verifyFcmTokenInDebug() {
+        if (!BuildConfig.DEBUG) return
+        try {
+            FirebaseMessaging.getInstance().token
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val token = task.result
+                        Log.d("FCM_DEBUG", "FCM Token: $token")
+                        Toast.makeText(this, "FCM Token: $token", Toast.LENGTH_LONG).show()
+                    } else {
+                        Log.e("FCM_DEBUG", "Fetching FCM registration token failed", task.exception)
+                    }
+                }
+        } catch (t: Throwable) {
+            Log.e("FCM_DEBUG", "Error fetching FCM registration token", t)
         }
     }
 }
@@ -73,6 +103,24 @@ fun FeatheredApp(
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     var showSplash by remember { mutableStateOf(true) }
+
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        Log.d("FeatheredApp", "POST_NOTIFICATIONS permission granted: $isGranted")
+    }
+
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val permissionStatus = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            )
+            if (permissionStatus != PackageManager.PERMISSION_GRANTED) {
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         ProvideScrollRestoration(controller = scrollRestorationController) {

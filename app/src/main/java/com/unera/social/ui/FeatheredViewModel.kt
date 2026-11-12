@@ -20,6 +20,7 @@ import android.content.Context
 import android.net.Uri
 import com.unera.social.data.MediaUploadHelper
 import com.unera.social.data.CommentsCache
+import com.unera.social.data.FcmTokenManager
 import com.unera.social.data.NotificationsApiService
 import com.unera.social.data.MessagesApiService
 import com.unera.social.data.MessagesCache
@@ -252,6 +253,9 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
                 )
             }
             startMessagingServices()
+            launchSafe {
+                FcmTokenManager.registerFcmTokenWithBackend(savedUser.id.toString())
+            }
             // Refresh fresh profile from /api/auth/user/me or /api/users?id=<id> in background
             viewModelScope.launch {
                 try {
@@ -5502,6 +5506,9 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
             startMessagingServices()
             refreshNotifications()
             startNotificationsPolling()
+            launchSafe {
+                FcmTokenManager.registerFcmTokenWithBackend(liveUser.id.toString())
+            }
             Pair(true, null)
         } else {
             val errorMsg = result.exceptionOrNull()?.message ?: "Invalid email or password."
@@ -5560,6 +5567,9 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
             startMessagingServices()
             refreshNotifications()
             startNotificationsPolling()
+            launchSafe {
+                FcmTokenManager.registerFcmTokenWithBackend(liveUser.id.toString())
+            }
             Pair(true, null)
         } else {
             val errorMsg = result.exceptionOrNull()?.message ?: "Signup failed. Please try again."
