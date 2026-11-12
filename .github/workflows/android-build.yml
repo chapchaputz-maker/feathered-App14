@@ -97,37 +97,7 @@ jobs:
             echo "$GOOGLE_SERVICES_JSON" > app/google-services.json
           elif [ ! -f "app/google-services.json" ]; then
             echo "Restoring default google-services.json..."
-            cat << 'EOF' > app/google-services.json
-{
-  "project_info": {
-    "project_number": "1852910597",
-    "project_id": "featheredsocial",
-    "storage_bucket": "featheredsocial.firebasestorage.app"
-  },
-  "client": [
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:1852910597:android:1181d0d2ec86042b16406c",
-        "android_client_info": {
-          "package_name": "co.feathered.ap"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCNYsjdAXRROIw2_7YgeWwKbZo44Vbz0YE"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    }
-  ],
-  "configuration_version": "1"
-}
-EOF
+            echo "ewogICJwcm9qZWN0X2luZm8iOiB7CiAgICAicHJvamVjdF9udW1iZXIiOiAiMTg1MjkxMDU5NyIsCiAgICAicHJvamVjdF9pZCI6ICJmZWF0aGVyZWRzb2NpYWwiLAogICAgInN0b3JhZ2VfYnVja2V0IjogImZlYXRoZXJlZHNvY2lhbC5maXJlYmFzZXN0b3JhZ2UuYXBwIgogIH0sCiAgImNsaWVudCI6IFsKICAgIHsKICAgICAgImNsaWVudF9pbmZvIjogewogICAgICAgICJtb2JpbGVzZGtfYXBwX2lkIjogIjE6MTg1MjkxMDU5NzphbmRyb2lkOjExODFkMGQyZWM4NjA0MmIxNjQwNmMiLAogICAgICAgICJhbmRyb2lkX2NsaWVudF9pbmZvIjogewogICAgICAgICAgInBhY2thZ2VfbmFtZSI6ICJjby5mZWF0aGVyZWQuYXAiCiAgICAgICAgfQogICAgICB9LAogICAgICAib2F1dGhfY2xpZW50IjogW10sCiAgICAgICJhcGlfa2V5IjogWwogICAgICAgIHsKICAgICAgICAgICJjdXJyZW50X2tleSI6ICJBSXphU3lDTllzamRBWFJST0l3Ml83WWdlV3dLYlpvNDRWYnowWUUiCiAgICAgICAgfQogICAgICBdLAogICAgICAic2VydmljZXMiOiB7CiAgICAgICAgImFwcGludml0ZV9zZXJ2aWNlIjogewogICAgICAgICAgIm90aGVyX3BsYXRmb3JtX29hdXRoX2NsaWVudCI6IFtdCiAgICAgICAgfQogICAgICB9CiAgICB9CiAgXSwKICAiY29uZmlndXJhdGlvbl92ZXJzaW9uIjogIjEiCn0K" | base64 -d > app/google-services.json
           fi
 
 
