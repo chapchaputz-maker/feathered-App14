@@ -37,17 +37,24 @@ import coil.compose.AsyncImage
 import com.unera.social.model.*
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
-import com.unera.social.ui.components.ALL_TEXT_POST_BACKGROUNDS
-import com.unera.social.ui.components.AnimatedBgCategory
-import com.unera.social.ui.components.TextPostBackgroundTemplate
-import com.unera.social.ui.components.AnimatedPostBackground
-import com.unera.social.ui.components.CommentActionModal
-import com.unera.social.ui.components.VerifiedBadge
-import com.unera.social.ui.theme.*
+import androidx.compose.ui.text.font.FontStyle
+import com.unera.social.data.BackgroundsApiService
 import com.unera.social.data.MarketplaceApiService
 import com.unera.social.data.MockData
+import com.unera.social.data.RemotePostBackground
+import com.unera.social.ui.components.ALL_TEXT_POST_BACKGROUNDS
+import com.unera.social.ui.components.AnimatedBgCategory
+import com.unera.social.ui.components.AnimatedPostBackground
+import com.unera.social.ui.components.CommentActionModal
+import com.unera.social.ui.components.RemoteImageBackgroundLayer
+import com.unera.social.ui.components.TextPostBackgroundTemplate
+import com.unera.social.ui.components.VerifiedBadge
+import com.unera.social.ui.theme.*
+import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -95,15 +102,30 @@ fun CreatePostModal(
     onPhotoClick: (() -> Unit)? = null,
     onVideoClick: (() -> Unit)? = null
 ) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val remoteBackgrounds by BackgroundsApiService.backgrounds.collectAsState()
+    val isLoadingRemoteBgs by BackgroundsApiService.isLoading.collectAsState()
+    val remoteBgError by BackgroundsApiService.errorMessage.collectAsState()
+
+    LaunchedEffect(Unit) {
+        BackgroundsApiService.ensureLoaded(context)
+    }
+
     var view by remember { mutableStateOf(CreatePostView.MAIN) }
     var content by remember { mutableStateOf("") }
     var mediaUrls by remember { mutableStateOf(if (!initialMediaUrl.isNullOrBlank()) listOf(initialMediaUrl) else emptyList<String>()) }
     var isVideoMedia by remember { mutableStateOf(initialOpenPicker == "video") }
     var activeBackground by remember { mutableStateOf<TextPostBackgroundTemplate?>(null) }
+    var activeRemoteBackground by remember { mutableStateOf<RemotePostBackground?>(null) }
     var activeCategory by remember { mutableStateOf(AnimatedBgCategory.REALISTIC) }
+    var activeRealitySubCategory by remember { mutableStateOf("All") }
     var textAlignment by remember { mutableStateOf(TextAlign.Center) }
+    var textPosition by remember { mutableStateOf("center") }
     var textTextColor by remember { mutableStateOf(Color.White) }
-    var textFontStyle by remember { mutableStateOf("bold") }
+    var textFontSizeSp by remember { mutableStateOf(23) }
+    var textFontStyle by remember { mutableStateOf("sans") }
+    var textIsBold by remember { mutableStateOf(true) }
     var selectedFeeling by remember { mutableStateOf<String?>(null) }
     var selectedLocation by remember { mutableStateOf<String?>(null) }
     var locationQuery by remember { mutableStateOf("") }
@@ -117,6 +139,7 @@ fun CreatePostModal(
             isVideoMedia = false
             mediaUrls = mediaUrls + uris.map { it.toString() }
             activeBackground = null
+            activeRemoteBackground = null
         }
     }
 
@@ -127,6 +150,7 @@ fun CreatePostModal(
             isVideoMedia = true
             mediaUrls = mediaUrls + uri.toString()
             activeBackground = null
+            activeRemoteBackground = null
         }
     }
 
@@ -146,9 +170,8 @@ fun CreatePostModal(
         }
     }
 
-
-
-    val canPost = content.isNotBlank() || mediaUrls.isNotEmpty() || (activeBackground != null && activeBackground?.id != "none")
+    val hasActiveBackground = (activeRemoteBackground != null) || (activeBackground != null && activeBackground?.id != "none")
+    val canPost = content.isNotBlank() || mediaUrls.isNotEmpty() || hasActiveBackground
 
     // Link detection for link preview
     val detectedUrl = remember(content) {
@@ -161,16 +184,20 @@ fun CreatePostModal(
         if (mediaUrls.isNotEmpty()) {
             null
         } else {
+            val alignStr = when (textAlignment) {
+                TextAlign.Start -> "left"
+                TextAlign.End -> "right"
+                else -> "center"
+            }
+            val colorHex = String.format("#%06X", (0xFFFFFF and textTextColor.toArgb()))
+            val weightStr = if (textIsBold) "bold" else "normal"
+            val remote = activeRemoteBackground
             val bg = activeBackground
-            // The colour background is ONLY used when user explicitly chooses to use the colour features
-            if (bg != null && bg.id != "none" && bg.styleString.isNotBlank()) {
-                val alignStr = when (textAlignment) {
-                    TextAlign.Start -> "left"
-                    TextAlign.End -> "right"
-                    else -> "center"
-                }
-                val colorHex = String.format("#%06X", (0xFFFFFF and textTextColor.toArgb()))
-                "${bg.styleString}|align:$alignStr|color:$colorHex|font:$textFontStyle"
+
+            if (remote != null) {
+                "reality:${remote.id}|bgtype:${remote.backgroundTypeValue}|align:$alignStr|pos:$textPosition|color:$colorHex|size:$textFontSizeSp|font:$textFontStyle|weight:$weightStr"
+            } else if (bg != null && bg.id != "none" && bg.styleString.isNotBlank()) {
+                "${bg.styleString}|align:$alignStr|pos:$textPosition|color:$colorHex|size:$textFontSizeSp|font:$textFontStyle|weight:$weightStr"
             } else {
                 null
             }
@@ -614,42 +641,95 @@ fun CreatePostModal(
                                 }
                             }
 
-                            // Colored Canvas or Normal Text Input
+                            // Colored / Animated / Reality Image Canvas or Normal Text Input
                             item {
-                                if (activeBackground != null && activeBackground?.id != "none") {
-                                    val currentBg = activeBackground!!
-                                    // Full bleed animated or colored canvas
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .heightIn(min = 280.dp)
-                                            .padding(horizontal = 0.dp, vertical = 6.dp)
-                                            .clip(RoundedCornerShape(0.dp))
-                                            .then(
-                                                if (currentBg.isAnimated) Modifier
-                                                else Modifier.background(Brush.linearGradient(currentBg.baseColors))
-                                            ),
-                                        contentAlignment = when (textAlignment) {
+                                if (hasActiveBackground) {
+                                    val currentBg = activeBackground
+                                    val currentRemote = activeRemoteBackground
+                                    val editorAlignment = when (textPosition) {
+                                        "top" -> when (textAlignment) {
+                                            TextAlign.Start -> Alignment.TopStart
+                                            TextAlign.End -> Alignment.TopEnd
+                                            else -> Alignment.TopCenter
+                                        }
+                                        "bottom" -> when (textAlignment) {
+                                            TextAlign.Start -> Alignment.BottomStart
+                                            TextAlign.End -> Alignment.BottomEnd
+                                            else -> Alignment.BottomCenter
+                                        }
+                                        else -> when (textAlignment) {
                                             TextAlign.Start -> Alignment.CenterStart
                                             TextAlign.End -> Alignment.CenterEnd
                                             else -> Alignment.Center
                                         }
+                                    }
+                                    val isDarkEditorText = textTextColor.luminance() < 0.45f
+                                    val editorTextShadow = if (isDarkEditorText) {
+                                        Shadow(color = Color.White.copy(alpha = 0.55f), offset = Offset(1f, 1f), blurRadius = 6f)
+                                    } else {
+                                        Shadow(color = Color.Black.copy(alpha = 0.80f), offset = Offset(2f, 2f), blurRadius = 9f)
+                                    }
+                                    val editorFontWeight = if (textIsBold) FontWeight.Bold else FontWeight.Normal
+                                    val editorFontFamily = when (textFontStyle) {
+                                        "serif" -> FontFamily.Serif
+                                        "monospace" -> FontFamily.Monospace
+                                        "cursive" -> FontFamily.Cursive
+                                        else -> InterFontFamily
+                                    }
+                                    val editorFontStyle = if (textFontStyle == "italic") FontStyle.Italic else FontStyle.Normal
+
+                                    // Full bleed animated, Reality image, or colored canvas
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .heightIn(min = 290.dp)
+                                            .padding(horizontal = 0.dp, vertical = 6.dp)
+                                            .clip(RoundedCornerShape(0.dp))
+                                            .then(
+                                                if (currentRemote != null || (currentBg != null && currentBg.isAnimated)) Modifier
+                                                else if (currentBg != null) Modifier.background(Brush.linearGradient(currentBg.baseColors))
+                                                else Modifier
+                                            ),
+                                        contentAlignment = editorAlignment
                                     ) {
-                                        if (currentBg.isAnimated) {
+                                        if (currentRemote != null) {
+                                            RemoteImageBackgroundLayer(
+                                                background = currentRemote,
+                                                modifier = Modifier.matchParentSize(),
+                                                isVisible = true
+                                            )
+                                            val scrimAlpha = currentRemote.effectiveOverlayAlpha(textTextColor)
+                                            Box(
+                                                modifier = Modifier
+                                                    .matchParentSize()
+                                                    .background(currentRemote.parsedOverlayColor().copy(alpha = scrimAlpha))
+                                            )
+                                            if (textPosition == "top" || textPosition == "bottom") {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .matchParentSize()
+                                                        .background(
+                                                            if (textPosition == "top") {
+                                                                Brush.verticalGradient(listOf(Color.Black.copy(alpha = 0.28f), Color.Transparent))
+                                                            } else {
+                                                                Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.28f)))
+                                                            }
+                                                        )
+                                                )
+                                            }
+                                        } else if (currentBg != null && currentBg.isAnimated) {
                                             AnimatedPostBackground(
                                                 templateId = currentBg.id,
                                                 modifier = Modifier.matchParentSize()
                                             )
+                                            Box(
+                                                modifier = Modifier
+                                                    .matchParentSize()
+                                                    .background(Color.Black.copy(alpha = 0.22f))
+                                            )
                                         }
 
-                                        // Automatic contrast scrim
-                                        Box(
-                                            modifier = Modifier
-                                                .matchParentSize()
-                                                .background(if (currentBg.isAnimated) Color.Black.copy(alpha = 0.22f) else Color.Transparent)
-                                        )
-
-                                        // Top badge: background label + clear button
+                                        // Top badge: background label
                                         Row(
                                             modifier = Modifier
                                                 .align(Alignment.TopStart)
@@ -662,8 +742,13 @@ fun CreatePostModal(
                                                     .background(Color.Black.copy(alpha = 0.65f))
                                                     .padding(horizontal = 8.dp, vertical = 4.dp)
                                             ) {
+                                                val badgeLabel = when {
+                                                    currentRemote != null -> "${if (currentRemote.isAnimated) "✨" else "🖼️"} ${currentRemote.name}"
+                                                    currentBg != null -> "${currentBg.iconEmoji} ${currentBg.label}"
+                                                    else -> ""
+                                                }
                                                 Text(
-                                                    text = "${currentBg.iconEmoji} ${currentBg.label}",
+                                                    text = badgeLabel,
                                                     color = Color.White,
                                                     fontSize = 11.sp,
                                                     fontFamily = InterFontFamily,
@@ -674,13 +759,17 @@ fun CreatePostModal(
 
                                         // Clear background button
                                         IconButton(
-                                            onClick = { activeBackground = null },
+                                            onClick = {
+                                                activeBackground = null
+                                                activeRemoteBackground = null
+                                            },
                                             modifier = Modifier
                                                 .align(Alignment.TopEnd)
                                                 .padding(10.dp)
                                                 .size(28.dp)
                                                 .clip(CircleShape)
                                                 .background(Color.Black.copy(alpha = 0.65f))
+                                                .testTag("clear_post_background_btn")
                                         ) {
                                             Icon(Icons.Default.Close, contentDescription = "Clear background", tint = Color.White, modifier = Modifier.size(14.dp))
                                         }
@@ -691,10 +780,11 @@ fun CreatePostModal(
                                             placeholder = {
                                                 Text(
                                                     "What's on your mind?",
-                                                    color = textTextColor.copy(alpha = 0.7f),
-                                                    fontSize = 23.sp,
-                                                    fontFamily = InterFontFamily,
-                                                    fontWeight = FontWeight.Bold,
+                                                    color = textTextColor.copy(alpha = 0.72f),
+                                                    fontSize = textFontSizeSp.sp,
+                                                    fontFamily = editorFontFamily,
+                                                    fontWeight = editorFontWeight,
+                                                    fontStyle = editorFontStyle,
                                                     textAlign = textAlignment,
                                                     modifier = Modifier.fillMaxWidth()
                                                 )
@@ -708,27 +798,24 @@ fun CreatePostModal(
                                                 unfocusedTextColor = textTextColor
                                             ),
                                             textStyle = androidx.compose.ui.text.TextStyle(
-                                                fontSize = 23.sp,
-                                                fontWeight = when (textFontStyle) {
-                                                    "serif" -> FontWeight.SemiBold
-                                                    "display" -> FontWeight.Bold
-                                                    else -> FontWeight.Bold
-                                                },
-                                                fontFamily = when (textFontStyle) {
-                                                    "serif" -> FontFamily.Serif
-                                                    else -> InterFontFamily
-                                                },
+                                                fontSize = textFontSizeSp.sp,
+                                                lineHeight = (textFontSizeSp * 1.4f).sp,
+                                                fontWeight = editorFontWeight,
+                                                fontFamily = editorFontFamily,
+                                                fontStyle = editorFontStyle,
                                                 textAlign = textAlignment,
                                                 color = textTextColor,
-                                                shadow = Shadow(
-                                                    color = Color.Black.copy(alpha = 0.75f),
-                                                    offset = Offset(2f, 2f),
-                                                    blurRadius = 8f
-                                                )
+                                                shadow = editorTextShadow
                                             ),
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .padding(horizontal = 24.dp, vertical = 24.dp)
+                                                .padding(
+                                                    start = 24.dp,
+                                                    end = 24.dp,
+                                                    top = if (textPosition == "top") 42.dp else 28.dp,
+                                                    bottom = 24.dp
+                                                )
+                                                .testTag("background_post_text_input")
                                         )
                                     }
                                 } else {
@@ -923,97 +1010,242 @@ fun CreatePostModal(
                                             .padding(top = 10.dp)
                                     ) {
                                         // 1. Text styling controls (visible when a background is active)
-                                        if (activeBackground != null && activeBackground?.id != "none") {
-                                            Row(
+                                        if (hasActiveBackground) {
+                                            Column(
                                                 modifier = Modifier
                                                     .fillMaxWidth()
                                                     .padding(horizontal = 14.dp, vertical = 4.dp),
-                                                horizontalArrangement = Arrangement.SpaceBetween,
-                                                verticalAlignment = Alignment.CenterVertically
+                                                verticalArrangement = Arrangement.spacedBy(6.dp)
                                             ) {
-                                                // Alignment toggles (Left, Center, Right)
+                                                // Top control row: Alignment, Vertical Position, Bold toggle, Font family
                                                 Row(
-                                                    modifier = Modifier
-                                                        .clip(RoundedCornerShape(8.dp))
-                                                        .background(Color(0xFF1E293B))
-                                                        .padding(2.dp),
-                                                    horizontalArrangement = Arrangement.spacedBy(2.dp)
-                                                ) {
-                                                    IconButton(
-                                                        onClick = { textAlignment = TextAlign.Start },
-                                                        modifier = Modifier
-                                                            .size(28.dp)
-                                                            .background(if (textAlignment == TextAlign.Start) Color(0xFF1877F2) else Color.Transparent, RoundedCornerShape(6.dp))
-                                                    ) {
-                                                        Icon(Icons.Default.FormatAlignLeft, contentDescription = "Align Left", tint = Color.White, modifier = Modifier.size(16.dp))
-                                                    }
-                                                    IconButton(
-                                                        onClick = { textAlignment = TextAlign.Center },
-                                                        modifier = Modifier
-                                                            .size(28.dp)
-                                                            .background(if (textAlignment == TextAlign.Center) Color(0xFF1877F2) else Color.Transparent, RoundedCornerShape(6.dp))
-                                                    ) {
-                                                        Icon(Icons.Default.FormatAlignCenter, contentDescription = "Align Center", tint = Color.White, modifier = Modifier.size(16.dp))
-                                                    }
-                                                    IconButton(
-                                                        onClick = { textAlignment = TextAlign.End },
-                                                        modifier = Modifier
-                                                            .size(28.dp)
-                                                            .background(if (textAlignment == TextAlign.End) Color(0xFF1877F2) else Color.Transparent, RoundedCornerShape(6.dp))
-                                                    ) {
-                                                        Icon(Icons.Default.FormatAlignRight, contentDescription = "Align Right", tint = Color.White, modifier = Modifier.size(16.dp))
-                                                    }
-                                                }
-
-                                                // Color dots (White, Soft Gold, Ice Cyan, Soft Pink, Dark Obsidian)
-                                                Row(
-                                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    horizontalArrangement = Arrangement.SpaceBetween,
                                                     verticalAlignment = Alignment.CenterVertically
                                                 ) {
-                                                    val colors = listOf(
-                                                        Color.White,
-                                                        Color(0xFFFEF08A),
-                                                        Color(0xFFA5F3FC),
-                                                        Color(0xFFFECDD3),
-                                                        Color(0xFF0F172A)
-                                                    )
-                                                    for (c in colors) {
+                                                    // Horizontal Alignment (Left, Center, Right)
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .clip(RoundedCornerShape(8.dp))
+                                                            .background(Color(0xFF1E293B))
+                                                            .padding(2.dp),
+                                                        horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                                    ) {
+                                                        IconButton(
+                                                            onClick = { textAlignment = TextAlign.Start },
+                                                            modifier = Modifier
+                                                                .size(28.dp)
+                                                                .background(if (textAlignment == TextAlign.Start) Color(0xFF1877F2) else Color.Transparent, RoundedCornerShape(6.dp))
+                                                                .testTag("bg_align_left")
+                                                        ) {
+                                                            Icon(Icons.Default.FormatAlignLeft, contentDescription = "Align Left", tint = Color.White, modifier = Modifier.size(16.dp))
+                                                        }
+                                                        IconButton(
+                                                            onClick = { textAlignment = TextAlign.Center },
+                                                            modifier = Modifier
+                                                                .size(28.dp)
+                                                                .background(if (textAlignment == TextAlign.Center) Color(0xFF1877F2) else Color.Transparent, RoundedCornerShape(6.dp))
+                                                                .testTag("bg_align_center")
+                                                        ) {
+                                                            Icon(Icons.Default.FormatAlignCenter, contentDescription = "Align Center", tint = Color.White, modifier = Modifier.size(16.dp))
+                                                        }
+                                                        IconButton(
+                                                            onClick = { textAlignment = TextAlign.End },
+                                                            modifier = Modifier
+                                                                .size(28.dp)
+                                                                .background(if (textAlignment == TextAlign.End) Color(0xFF1877F2) else Color.Transparent, RoundedCornerShape(6.dp))
+                                                                .testTag("bg_align_right")
+                                                        ) {
+                                                            Icon(Icons.Default.FormatAlignRight, contentDescription = "Align Right", tint = Color.White, modifier = Modifier.size(16.dp))
+                                                        }
+                                                    }
+
+                                                    // Vertical Text Positioning (Top, Center, Bottom)
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .clip(RoundedCornerShape(8.dp))
+                                                            .background(Color(0xFF1E293B))
+                                                            .padding(2.dp),
+                                                        horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                                    ) {
+                                                        IconButton(
+                                                            onClick = { textPosition = "top" },
+                                                            modifier = Modifier
+                                                                .size(28.dp)
+                                                                .background(if (textPosition == "top") Color(0xFF1877F2) else Color.Transparent, RoundedCornerShape(6.dp))
+                                                                .testTag("bg_pos_top")
+                                                        ) {
+                                                            Icon(Icons.Default.VerticalAlignTop, contentDescription = "Position Top", tint = Color.White, modifier = Modifier.size(16.dp))
+                                                        }
+                                                        IconButton(
+                                                            onClick = { textPosition = "center" },
+                                                            modifier = Modifier
+                                                                .size(28.dp)
+                                                                .background(if (textPosition == "center") Color(0xFF1877F2) else Color.Transparent, RoundedCornerShape(6.dp))
+                                                                .testTag("bg_pos_center")
+                                                        ) {
+                                                            Icon(Icons.Default.VerticalAlignCenter, contentDescription = "Position Center", tint = Color.White, modifier = Modifier.size(16.dp))
+                                                        }
+                                                        IconButton(
+                                                            onClick = { textPosition = "bottom" },
+                                                            modifier = Modifier
+                                                                .size(28.dp)
+                                                                .background(if (textPosition == "bottom") Color(0xFF1877F2) else Color.Transparent, RoundedCornerShape(6.dp))
+                                                                .testTag("bg_pos_bottom")
+                                                        ) {
+                                                            Icon(Icons.Default.VerticalAlignBottom, contentDescription = "Position Bottom", tint = Color.White, modifier = Modifier.size(16.dp))
+                                                        }
+                                                    }
+
+                                                    // Bold toggle + Font Style cycle
+                                                    Row(
+                                                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
                                                         Box(
                                                             modifier = Modifier
-                                                                .size(22.dp)
-                                                                .clip(CircleShape)
-                                                                .background(c)
-                                                                .border(if (textTextColor == c) 2.dp else 1.dp, if (textTextColor == c) Color(0xFF1877F2) else Color(0xFF475569), CircleShape)
-                                                                .clickable { textTextColor = c }
-                                                        )
+                                                                .size(30.dp)
+                                                                .clip(RoundedCornerShape(8.dp))
+                                                                .background(if (textIsBold) Color(0xFF1877F2) else Color(0xFF1E293B))
+                                                                .clickable { textIsBold = !textIsBold }
+                                                                .testTag("bg_bold_toggle"),
+                                                            contentAlignment = Alignment.Center
+                                                        ) {
+                                                            Text(
+                                                                text = "B",
+                                                                fontSize = 14.sp,
+                                                                fontFamily = InterFontFamily,
+                                                                fontWeight = FontWeight.Bold,
+                                                                color = Color.White
+                                                            )
+                                                        }
+
+                                                        Box(
+                                                            modifier = Modifier
+                                                                .clip(RoundedCornerShape(8.dp))
+                                                                .background(Color(0xFF1E293B))
+                                                                .clickable {
+                                                                    textFontStyle = when (textFontStyle) {
+                                                                        "sans" -> "serif"
+                                                                        "serif" -> "display"
+                                                                        "display" -> "italic"
+                                                                        "italic" -> "cursive"
+                                                                        else -> "sans"
+                                                                    }
+                                                                }
+                                                                .padding(horizontal = 10.dp, vertical = 6.dp)
+                                                                .testTag("bg_font_style")
+                                                        ) {
+                                                            Text(
+                                                                text = when (textFontStyle) {
+                                                                    "serif" -> "Serif"
+                                                                    "display" -> "Display"
+                                                                    "italic" -> "Italic"
+                                                                    "cursive" -> "Script"
+                                                                    else -> "Sans"
+                                                                },
+                                                                fontSize = 11.sp,
+                                                                fontFamily = InterFontFamily,
+                                                                fontWeight = FontWeight.SemiBold,
+                                                                color = Color(0xFF38BDF8)
+                                                            )
+                                                        }
                                                     }
                                                 }
 
-                                                // Font Style (Bold / Serif / Display)
-                                                Box(
-                                                    modifier = Modifier
-                                                        .clip(RoundedCornerShape(8.dp))
-                                                        .background(Color(0xFF1E293B))
-                                                        .clickable {
-                                                            textFontStyle = when (textFontStyle) {
-                                                                "bold" -> "serif"
-                                                                "serif" -> "display"
-                                                                else -> "bold"
-                                                            }
-                                                        }
-                                                        .padding(horizontal = 8.dp, vertical = 6.dp)
+                                                // Second control row: Text color swatches + Auto contrast + Font size stepper
+                                                Row(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                                    verticalAlignment = Alignment.CenterVertically
                                                 ) {
-                                                    Text(
-                                                        text = when (textFontStyle) {
-                                                            "serif" -> "Serif"
-                                                            "display" -> "Display"
-                                                            else -> "Bold"
-                                                        },
-                                                        fontSize = 11.sp,
-                                                        fontFamily = InterFontFamily,
-                                                        fontWeight = FontWeight.SemiBold,
-                                                        color = Color(0xFF38BDF8)
-                                                    )
+                                                    Row(
+                                                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
+                                                        // Auto Contrast Button
+                                                        Box(
+                                                            modifier = Modifier
+                                                                .height(24.dp)
+                                                                .clip(RoundedCornerShape(6.dp))
+                                                                .background(Color(0xFF1E293B))
+                                                                .border(1.dp, Color(0xFF38BDF8), RoundedCornerShape(6.dp))
+                                                                .clickable {
+                                                                    textTextColor = activeRemoteBackground?.resolvedDefaultTextColor()
+                                                                        ?: activeBackground?.defaultTextColor
+                                                                        ?: Color.White
+                                                                }
+                                                                .padding(horizontal = 6.dp)
+                                                                .testTag("bg_color_auto"),
+                                                            contentAlignment = Alignment.Center
+                                                        ) {
+                                                            Text(
+                                                                text = "Auto",
+                                                                fontSize = 10.sp,
+                                                                fontFamily = InterFontFamily,
+                                                                fontWeight = FontWeight.SemiBold,
+                                                                color = Color(0xFF38BDF8)
+                                                            )
+                                                        }
+
+                                                        val colors = listOf(
+                                                            Color.White,
+                                                            Color(0xFFFEF08A),
+                                                            Color(0xFFA5F3FC),
+                                                            Color(0xFFFECDD3),
+                                                            Color(0xFFBBF7D0),
+                                                            Color(0xFF0F172A)
+                                                        )
+                                                        for ((cIdx, c) in colors.withIndex()) {
+                                                            Box(
+                                                                modifier = Modifier
+                                                                    .size(22.dp)
+                                                                    .clip(CircleShape)
+                                                                    .background(c)
+                                                                    .border(if (textTextColor == c) 2.dp else 1.dp, if (textTextColor == c) Color(0xFF1877F2) else Color(0xFF475569), CircleShape)
+                                                                    .clickable { textTextColor = c }
+                                                                    .testTag("bg_color_swatch_$cIdx")
+                                                            )
+                                                        }
+                                                    }
+
+                                                    // Font size stepper (16..32sp)
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .clip(RoundedCornerShape(8.dp))
+                                                            .background(Color(0xFF1E293B))
+                                                            .padding(horizontal = 4.dp, vertical = 2.dp),
+                                                        verticalAlignment = Alignment.CenterVertically,
+                                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                                    ) {
+                                                        Box(
+                                                            modifier = Modifier
+                                                                .size(24.dp)
+                                                                .clip(RoundedCornerShape(6.dp))
+                                                                .clickable { if (textFontSizeSp > 16) textFontSizeSp -= 2 }
+                                                                .testTag("bg_font_size_dec"),
+                                                            contentAlignment = Alignment.Center
+                                                        ) {
+                                                            Text("A-", fontSize = 11.sp, color = Color.White, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                                                        }
+                                                        Text(
+                                                            text = "${textFontSizeSp}sp",
+                                                            fontSize = 11.sp,
+                                                            color = Color(0xFF94A3B8),
+                                                            fontFamily = InterFontFamily,
+                                                            fontWeight = FontWeight.Medium
+                                                        )
+                                                        Box(
+                                                            modifier = Modifier
+                                                                .size(24.dp)
+                                                                .clip(RoundedCornerShape(6.dp))
+                                                                .clickable { if (textFontSizeSp < 32) textFontSizeSp += 2 }
+                                                                .testTag("bg_font_size_inc"),
+                                                            contentAlignment = Alignment.Center
+                                                        ) {
+                                                            Text("A+", fontSize = 12.sp, color = Color.White, fontFamily = InterFontFamily, fontWeight = FontWeight.Bold)
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
@@ -1032,8 +1264,16 @@ fun CreatePostModal(
                                                     modifier = Modifier
                                                         .clip(RoundedCornerShape(16.dp))
                                                         .background(if (isCatSelected) Color(0xFF1877F2) else Color(0xFF1E293B))
-                                                        .clickable { activeCategory = cat }
+                                                        .clickable {
+                                                            activeCategory = cat
+                                                            if (cat == AnimatedBgCategory.REALITY && remoteBackgrounds.isEmpty() && !isLoadingRemoteBgs) {
+                                                                coroutineScope.launch {
+                                                                    BackgroundsApiService.fetchBackgrounds(context, forceRefresh = true)
+                                                                }
+                                                            }
+                                                        }
                                                         .padding(horizontal = 10.dp, vertical = 6.dp)
+                                                        .testTag("bg_category_${cat.name.lowercase()}")
                                                 ) {
                                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                                         Text(cat.emoji, fontSize = 12.sp, fontFamily = InterFontFamily)
@@ -1051,29 +1291,73 @@ fun CreatePostModal(
                                         }
 
                                         // 3. Thumbnails for the active category
-                                        val currentTemplates = remember(activeCategory) {
-                                            ALL_TEXT_POST_BACKGROUNDS.filter { it.category == activeCategory }
-                                        }
+                                        if (activeCategory == AnimatedBgCategory.REALITY) {
+                                            val realitySubCats = remember(remoteBackgrounds) {
+                                                val cats = remoteBackgrounds.map { it.normalizedSubCategory() }.distinct().filter { it != "All" }
+                                                if (cats.size > 1) listOf("All") + cats else emptyList()
+                                            }
 
-                                        LazyRow(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(horizontal = 14.dp, vertical = 6.dp),
-                                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            items(currentTemplates) { bg ->
-                                                val isSelected = activeBackground?.id == bg.id || (activeBackground == null && bg.id == "none")
+                                            if (realitySubCats.isNotEmpty()) {
+                                                LazyRow(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .padding(horizontal = 14.dp, vertical = 2.dp),
+                                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    items(realitySubCats) { sub ->
+                                                        val isSubSelected = activeRealitySubCategory == sub
+                                                        Box(
+                                                            modifier = Modifier
+                                                                .clip(RoundedCornerShape(12.dp))
+                                                                .background(if (isSubSelected) Color(0xFF0EA5E9).copy(alpha = 0.22f) else Color(0xFF0F172A))
+                                                                .border(
+                                                                    1.dp,
+                                                                    if (isSubSelected) Color(0xFF38BDF8) else Color(0xFF1E293B),
+                                                                    RoundedCornerShape(12.dp)
+                                                                )
+                                                                .clickable { activeRealitySubCategory = sub }
+                                                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                                                                .testTag("reality_subcat_${sub.lowercase()}")
+                                                        ) {
+                                                            Text(
+                                                                text = sub,
+                                                                fontSize = 11.sp,
+                                                                fontFamily = InterFontFamily,
+                                                                fontWeight = if (isSubSelected) FontWeight.SemiBold else FontWeight.Normal,
+                                                                color = if (isSubSelected) Color(0xFF38BDF8) else Color(0xFF94A3B8)
+                                                            )
+                                                        }
+                                                    }
+                                                }
+                                            }
 
-                                                if (bg.id == "none") {
-                                                    // "None" Reset button
+                                            val filteredRemoteBackgrounds = remember(remoteBackgrounds, activeRealitySubCategory) {
+                                                if (activeRealitySubCategory == "All") remoteBackgrounds
+                                                else remoteBackgrounds.filter { it.normalizedSubCategory().equals(activeRealitySubCategory, ignoreCase = true) }
+                                            }
+
+                                            LazyRow(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(horizontal = 14.dp, vertical = 6.dp)
+                                                    .testTag("reality_backgrounds_gallery"),
+                                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                item(key = "reality_none") {
+                                                    val isNoneSelected = !hasActiveBackground
                                                     Box(
                                                         modifier = Modifier
-                                                            .size(46.dp)
+                                                            .size(54.dp)
                                                             .clip(RoundedCornerShape(10.dp))
                                                             .background(Color(0xFF1E293B))
-                                                            .border(if (isSelected) 2.dp else 1.dp, if (isSelected) Color.White else Color(0xFF334155), RoundedCornerShape(10.dp))
-                                                            .clickable { activeBackground = null },
+                                                            .border(if (isNoneSelected) 2.dp else 1.dp, if (isNoneSelected) Color.White else Color(0xFF334155), RoundedCornerShape(10.dp))
+                                                            .clickable {
+                                                                activeBackground = null
+                                                                activeRemoteBackground = null
+                                                            }
+                                                            .testTag("reality_bg_none"),
                                                         contentAlignment = Alignment.Center
                                                     ) {
                                                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -1081,32 +1365,161 @@ fun CreatePostModal(
                                                             Text("None", fontSize = 9.sp, color = Color(0xFF94A3B8), fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                                                         }
                                                     }
-                                                } else {
-                                                    // Rich thumbnail with gradient base + emoji icon badge + selection ring
-                                                    Box(
-                                                        modifier = Modifier
-                                                            .size(46.dp)
-                                                            .clip(RoundedCornerShape(10.dp))
-                                                            .background(Brush.linearGradient(bg.baseColors))
-                                                            .border(if (isSelected) 2.5.dp else 1.dp, if (isSelected) Color.White else Color.White.copy(alpha = 0.25f), RoundedCornerShape(10.dp))
-                                                            .clickable { activeBackground = bg },
-                                                        contentAlignment = Alignment.Center
-                                                    ) {
-                                                        Text(
-                                                            text = bg.iconEmoji,
-                                                            fontSize = 18.sp,
-                                                            fontFamily = InterFontFamily
-                                                        )
-                                                        if (bg.isAnimated) {
-                                                            // Small animated sparkle indicator badge
-                                                            Box(
-                                                                modifier = Modifier
-                                                                    .align(Alignment.BottomEnd)
-                                                                    .padding(2.dp)
-                                                                    .size(10.dp)
-                                                                    .clip(CircleShape)
-                                                                    .background(Color(0xFF38BDF8))
+                                                }
+
+                                                if (isLoadingRemoteBgs && filteredRemoteBackgrounds.isEmpty()) {
+                                                    item(key = "reality_loading") {
+                                                        Box(
+                                                            modifier = Modifier
+                                                                .size(54.dp)
+                                                                .clip(RoundedCornerShape(10.dp))
+                                                                .background(Color(0xFF1E293B)),
+                                                            contentAlignment = Alignment.Center
+                                                        ) {
+                                                            CircularProgressIndicator(
+                                                                modifier = Modifier.size(20.dp),
+                                                                strokeWidth = 2.dp,
+                                                                color = Color(0xFF38BDF8)
                                                             )
+                                                        }
+                                                    }
+                                                } else if (filteredRemoteBackgrounds.isEmpty()) {
+                                                    item(key = "reality_retry") {
+                                                        Box(
+                                                            modifier = Modifier
+                                                                .height(54.dp)
+                                                                .clip(RoundedCornerShape(10.dp))
+                                                                .background(Color(0xFF1E293B))
+                                                                .border(1.dp, Color(0xFF334155), RoundedCornerShape(10.dp))
+                                                                .clickable {
+                                                                    coroutineScope.launch {
+                                                                        BackgroundsApiService.fetchBackgrounds(context, forceRefresh = true)
+                                                                    }
+                                                                }
+                                                                .padding(horizontal = 12.dp)
+                                                                .testTag("reality_retry_btn"),
+                                                            contentAlignment = Alignment.Center
+                                                        ) {
+                                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                                Icon(Icons.Default.Refresh, contentDescription = "Retry", tint = Color(0xFF38BDF8), modifier = Modifier.size(16.dp))
+                                                                Spacer(modifier = Modifier.width(6.dp))
+                                                                Text(
+                                                                    text = if (!remoteBgError.isNullOrBlank()) "Retry" else "Reload",
+                                                                    fontSize = 11.sp,
+                                                                    color = Color(0xFFCBD5E1),
+                                                                    fontFamily = InterFontFamily,
+                                                                    fontWeight = FontWeight.Medium
+                                                                )
+                                                            }
+                                                        }
+                                                    }
+                                                } else {
+                                                    items(filteredRemoteBackgrounds, key = { "remote_${it.id}" }) { bg ->
+                                                        val isSelected = activeRemoteBackground?.id == bg.id
+                                                        Box(
+                                                            modifier = Modifier
+                                                                .size(54.dp)
+                                                                .clip(RoundedCornerShape(10.dp))
+                                                                .border(
+                                                                    if (isSelected) 2.5.dp else 1.dp,
+                                                                    if (isSelected) Color.White else Color.White.copy(alpha = 0.25f),
+                                                                    RoundedCornerShape(10.dp)
+                                                                )
+                                                                .clickable {
+                                                                    activeBackground = null
+                                                                    activeRemoteBackground = bg
+                                                                    textTextColor = bg.resolvedDefaultTextColor()
+                                                                }
+                                                                .testTag("reality_bg_item_${bg.id}"),
+                                                            contentAlignment = Alignment.Center
+                                                        ) {
+                                                            RemoteImageBackgroundLayer(
+                                                                background = bg,
+                                                                modifier = Modifier.matchParentSize(),
+                                                                isVisible = true,
+                                                                useThumbnailOnly = true
+                                                            )
+                                                            if (bg.isAnimated) {
+                                                                Box(
+                                                                    modifier = Modifier
+                                                                        .align(Alignment.BottomEnd)
+                                                                        .padding(3.dp)
+                                                                        .size(10.dp)
+                                                                        .clip(CircleShape)
+                                                                        .background(Color(0xFF38BDF8))
+                                                                        .border(1.dp, Color.White, CircleShape)
+                                                                )
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            val currentTemplates = remember(activeCategory) {
+                                                ALL_TEXT_POST_BACKGROUNDS.filter { it.category == activeCategory }
+                                            }
+
+                                            LazyRow(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(horizontal = 14.dp, vertical = 6.dp),
+                                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                items(currentTemplates) { bg ->
+                                                    val isSelected = activeRemoteBackground == null &&
+                                                        (activeBackground?.id == bg.id || (activeBackground == null && bg.id == "none"))
+
+                                                    if (bg.id == "none") {
+                                                        // "None" Reset button
+                                                        Box(
+                                                            modifier = Modifier
+                                                                .size(46.dp)
+                                                                .clip(RoundedCornerShape(10.dp))
+                                                                .background(Color(0xFF1E293B))
+                                                                .border(if (isSelected) 2.dp else 1.dp, if (isSelected) Color.White else Color(0xFF334155), RoundedCornerShape(10.dp))
+                                                                .clickable {
+                                                                    activeBackground = null
+                                                                    activeRemoteBackground = null
+                                                                },
+                                                            contentAlignment = Alignment.Center
+                                                        ) {
+                                                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                                                Icon(Icons.Default.FormatColorReset, contentDescription = "None", tint = Color.White, modifier = Modifier.size(18.dp))
+                                                                Text("None", fontSize = 9.sp, color = Color(0xFF94A3B8), fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
+                                                            }
+                                                        }
+                                                    } else {
+                                                        // Rich thumbnail with gradient base + emoji icon badge + selection ring
+                                                        Box(
+                                                            modifier = Modifier
+                                                                .size(46.dp)
+                                                                .clip(RoundedCornerShape(10.dp))
+                                                                .background(Brush.linearGradient(bg.baseColors))
+                                                                .border(if (isSelected) 2.5.dp else 1.dp, if (isSelected) Color.White else Color.White.copy(alpha = 0.25f), RoundedCornerShape(10.dp))
+                                                                .clickable {
+                                                                    activeRemoteBackground = null
+                                                                    activeBackground = bg
+                                                                    textTextColor = bg.defaultTextColor
+                                                                },
+                                                            contentAlignment = Alignment.Center
+                                                        ) {
+                                                            Text(
+                                                                text = bg.iconEmoji,
+                                                                fontSize = 18.sp,
+                                                                fontFamily = InterFontFamily
+                                                            )
+                                                            if (bg.isAnimated) {
+                                                                // Small animated sparkle indicator badge
+                                                                Box(
+                                                                    modifier = Modifier
+                                                                        .align(Alignment.BottomEnd)
+                                                                        .padding(2.dp)
+                                                                        .size(10.dp)
+                                                                        .clip(CircleShape)
+                                                                        .background(Color(0xFF38BDF8))
+                                                                )
+                                                            }
                                                         }
                                                     }
                                                 }

@@ -903,6 +903,8 @@ object GroupsApiService {
             ?: targetObj?.optString("background")?.takeIf { it.isNotBlank() && it != "null" }
             ?: obj.optString("background_color").takeIf { it.isNotBlank() && it != "null" }
             ?: targetObj?.optString("background_color")?.takeIf { it.isNotBlank() && it != "null" }
+            ?: obj.optString("background_id").takeIf { it.isNotBlank() && it != "null" }?.let { "reality:$it" }
+            ?: targetObj?.optString("background_id")?.takeIf { it.isNotBlank() && it != "null" }?.let { "reality:$it" }
 
         val hasMedia = mediaUrls.isNotEmpty()
         val backgroundStyle = if (hasMedia) null else rawBackgroundStyle?.trim()?.removeSurrounding("\"")?.replace("\\\"", "\"")?.takeIf {

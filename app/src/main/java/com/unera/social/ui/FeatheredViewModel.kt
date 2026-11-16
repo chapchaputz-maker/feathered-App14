@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.unera.social.data.AdsApiService
+import com.unera.social.data.BackgroundsApiService
 import com.unera.social.data.EventsApiService
 import com.unera.social.data.GroupsApiService
 import com.unera.social.data.GroupMemberInfo
@@ -299,6 +300,11 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
                     showAuthModal = false
                 )
             }
+        }
+
+        BackgroundsApiService.initCache(context)
+        launchSafe {
+            BackgroundsApiService.fetchBackgrounds(context)
         }
 
         fetchPeopleYouMayKnow()

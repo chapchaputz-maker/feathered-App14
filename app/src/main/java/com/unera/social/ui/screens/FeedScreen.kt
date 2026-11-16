@@ -527,12 +527,20 @@ fun FeedScreen(
                         post.postType == "product_share" || post.postType == "event_share" ||
                         post.postType == "song_share" || post.postType == "story_share"
 
+                val itemKey = "post_${post.id}_$index"
+                val isItemVisible by remember(listState, itemKey) {
+                    derivedStateOf {
+                        listState.layoutInfo.visibleItemsInfo.any { it.key == itemKey }
+                    }
+                }
+
                 // Exact rule matching web Feeds.tsx line 2235:
                 // Unified normal post card matching Facebook feed design
                 WebPostCard(
                     post = post,
                     currentUser = currentUser,
                     isFollowing = post.author.isFollowing,
+                    isVisible = isItemVisible,
                     onFollowToggle = {
                         if (isGuest) {
                             onRequestAuth()
@@ -1269,6 +1277,7 @@ fun WebPostCard(
     onRequestAuth: () -> Unit = {},
     onRsvpEvent: ((Long, String, String) -> Unit)? = null,
     hideCommentPreview: Boolean = false,
+    isVisible: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     var showReactionDock by remember { mutableStateOf(false) }
@@ -1826,6 +1835,7 @@ fun WebPostCard(
                     TextPostBackgroundView(
                         backgroundStyle = sharedPost.backgroundStyle,
                         content = resolvedSharedBody,
+                        isVisible = isVisible,
                         modifier = Modifier.fillMaxWidth()
                     )
                 } else if (resolvedSharedBody.isNotBlank()) {
@@ -2029,6 +2039,7 @@ fun WebPostCard(
                     TextPostBackgroundView(
                         backgroundStyle = post.backgroundStyle,
                         content = postBodyText,
+                        isVisible = isVisible,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }

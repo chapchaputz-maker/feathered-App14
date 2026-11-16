@@ -1,5 +1,6 @@
 package com.unera.social.ui.components
 
+import android.graphics.drawable.Animatable
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -17,11 +18,23 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.*
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import coil.size.Precision
+import coil.size.Size as CoilSize
+import com.unera.social.data.BackgroundImageLoader
+import com.unera.social.data.BackgroundsApiService
+import com.unera.social.data.RemotePostBackground
 import com.unera.social.ui.theme.InterFontFamily
 import kotlin.math.*
 
@@ -49,37 +62,47 @@ fun AnimatedPostBackground(
         findBackgroundTemplate(cleanId) ?: ALL_TEXT_POST_BACKGROUNDS[7] // fallback to blooming_rose
     }
 
-    // Infinite animation loop (paused if isVisible is false for performance)
-    val infiniteTransition = rememberInfiniteTransition(label = "bg_anim")
-    val animProgress by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 6000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "animProgress"
-    )
-
-    val fastProgress by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 2400, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "fastProgress"
-    )
-
-    val pulseProgress by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1800, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "pulseProgress"
-    )
+    // Infinite animation loop (paused when isVisible is false to save battery and GPU)
+    val animProgress: Float
+    val fastProgress: Float
+    val pulseProgress: Float
+    if (isVisible) {
+        val infiniteTransition = rememberInfiniteTransition(label = "bg_anim")
+        val animState by infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 6000, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart
+            ),
+            label = "animProgress"
+        )
+        val fastState by infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 2400, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart
+            ),
+            label = "fastProgress"
+        )
+        val pulseState by infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 1800, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "pulseProgress"
+        )
+        animProgress = animState
+        fastProgress = fastState
+        pulseProgress = pulseState
+    } else {
+        animProgress = 0.25f
+        fastProgress = 0.25f
+        pulseProgress = 0.5f
+    }
 
     Box(
         modifier = modifier
@@ -2513,9 +2536,128 @@ private fun DrawScope.drawRealistic3dLion(w: Float, h: Float, fastProgress: Floa
 }
 
 /**
+ * RemoteImageBackgroundLayer - Renders a database-backed static image or animated WebP/GIF
+ * background with thumbnail/poster placeholder, bounded decode dimensions for low-end devices,
+ * and automatic animation pause/stop when scrolled out of view or when lifecycle is paused.
+ */
+@Composable
+fun RemoteImageBackgroundLayer(
+    background: RemotePostBackground,
+    modifier: Modifier = Modifier,
+    isVisible: Boolean = true,
+    useThumbnailOnly: Boolean = false
+) {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val imageLoader = remember(context) { BackgroundImageLoader.get(context) }
+    val isLowEnd = remember(context) { BackgroundImageLoader.isLowEndDevice(context) }
+
+    var isLifecycleResumed by remember {
+        mutableStateOf(lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED))
+    }
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, _ ->
+            isLifecycleResumed = lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    val dominantBase = remember(background.dominantColor) {
+        background.parsedDominantColor() ?: Color(0xFF0F172A)
+    }
+
+    val primaryUrl = remember(background, useThumbnailOnly, isLowEnd, isVisible) {
+        when {
+            useThumbnailOnly -> background.effectiveThumbnailUrl
+            isLowEnd && !isVisible && background.effectivePosterUrl.isNotBlank() -> background.effectivePosterUrl
+            else -> background.url
+        }
+    }
+    val posterUrl = remember(background, primaryUrl) {
+        background.effectivePosterUrl.takeIf { it.isNotBlank() && it != primaryUrl }
+    }
+
+    var mainLoaded by remember(primaryUrl) { mutableStateOf(false) }
+    var animatable by remember(primaryUrl) { mutableStateOf<Animatable?>(null) }
+
+    val shouldAnimate = background.isAnimated && !useThumbnailOnly && isVisible && isLifecycleResumed
+    LaunchedEffect(animatable, shouldAnimate) {
+        val anim = animatable ?: return@LaunchedEffect
+        if (shouldAnimate) {
+            anim.start()
+        } else {
+            anim.stop()
+        }
+    }
+    DisposableEffect(animatable) {
+        onDispose {
+            animatable?.stop()
+        }
+    }
+
+    val primaryRequest = remember(primaryUrl, useThumbnailOnly, isLowEnd, context) {
+        val targetSize = when {
+            useThumbnailOnly -> CoilSize(220, 220)
+            isLowEnd -> CoilSize(720, 720)
+            else -> CoilSize(1280, 1280)
+        }
+        ImageRequest.Builder(context)
+            .data(primaryUrl)
+            .size(targetSize)
+            .precision(Precision.INEXACT)
+            .crossfade(!useThumbnailOnly)
+            .build()
+    }
+
+    val posterRequest = remember(posterUrl, context) {
+        posterUrl?.let {
+            ImageRequest.Builder(context)
+                .data(it)
+                .size(CoilSize(480, 480))
+                .precision(Precision.INEXACT)
+                .build()
+        }
+    }
+
+    Box(
+        modifier = modifier
+            .clipToBounds()
+            .background(dominantBase)
+    ) {
+        if (!useThumbnailOnly && !mainLoaded && posterRequest != null) {
+            AsyncImage(
+                model = posterRequest,
+                imageLoader = imageLoader,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.matchParentSize()
+            )
+        }
+        AsyncImage(
+            model = primaryRequest,
+            imageLoader = imageLoader,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            onSuccess = { state ->
+                mainLoaded = true
+                val anim = state.result.drawable as? Animatable
+                animatable = anim
+                if (anim != null) {
+                    if (shouldAnimate) anim.start() else anim.stop()
+                }
+            },
+            modifier = Modifier.matchParentSize()
+        )
+    }
+}
+
+/**
  * TextPostBackgroundView - The complete presentation layer for a background-styled text post.
- * Handles both classic CSS-like gradients and newly introduced animated scenes.
- * Automatically ensures high text contrast, readability, and correct alignment.
+ * Handles classic CSS-like gradients, Compose Canvas animated scenes, and Reality database-fetched
+ * static/animated image backgrounds with full text styling, positioning, and contrast adjustment.
  */
 @Composable
 fun TextPostBackgroundView(
@@ -2527,20 +2669,58 @@ fun TextPostBackgroundView(
 ) {
     if (content.isBlank() && backgroundStyle.isNullOrBlank()) return
 
+    val context = LocalContext.current
     val cleanStyle = remember(backgroundStyle) {
         backgroundStyle?.trim()?.removeSurrounding("\"")?.replace("\\\"", "\"") ?: ""
     }
     val styling = remember(cleanStyle) { TextPostStyling.parse(cleanStyle) }
-    val isAnimated = remember(cleanStyle) {
-        cleanStyle.contains("animated:") || findBackgroundTemplate(cleanStyle)?.isAnimated == true
+    val remoteBackgrounds by BackgroundsApiService.backgrounds.collectAsState()
+
+    val isReality = remember(cleanStyle, remoteBackgrounds) {
+        BackgroundsApiService.isRealityStyle(cleanStyle)
+    }
+    LaunchedEffect(cleanStyle) {
+        if (BackgroundsApiService.isRealityStyle(cleanStyle)) {
+            BackgroundsApiService.ensureLoaded(context)
+        }
     }
 
-    // Determine Box alignment from parsed styling.alignment
-    val boxAlignment = remember(styling.alignment) {
-        when (styling.alignment) {
-            TextAlign.Start, TextAlign.Left -> Alignment.CenterStart
-            TextAlign.End, TextAlign.Right -> Alignment.CenterEnd
-            else -> Alignment.Center
+    val remoteBackground = remember(cleanStyle, remoteBackgrounds) {
+        BackgroundsApiService.findRemoteBackground(cleanStyle)
+    }
+
+    val isCanvasAnimated = remember(cleanStyle, remoteBackground) {
+        remoteBackground == null &&
+            !isReality &&
+            (cleanStyle.contains("animated:") || findBackgroundTemplate(cleanStyle)?.isAnimated == true)
+    }
+
+    val effectiveTextColor = remember(styling, remoteBackground) {
+        when {
+            styling.hasExplicitColor -> styling.textColor
+            remoteBackground != null -> remoteBackground.resolvedDefaultTextColor()
+            else -> styling.textColor
+        }
+    }
+
+    // Determine combined horizontal + vertical Box alignment from parsed styling
+    val boxAlignment = remember(styling.alignment, styling.position) {
+        when (styling.position) {
+            "top" -> when (styling.alignment) {
+                TextAlign.Start, TextAlign.Left -> Alignment.TopStart
+                TextAlign.End, TextAlign.Right -> Alignment.TopEnd
+                else -> Alignment.TopCenter
+            }
+            "bottom" -> when (styling.alignment) {
+                TextAlign.Start, TextAlign.Left -> Alignment.BottomStart
+                TextAlign.End, TextAlign.Right -> Alignment.BottomEnd
+                else -> Alignment.BottomCenter
+            }
+            else -> when (styling.alignment) {
+                TextAlign.Start, TextAlign.Left -> Alignment.CenterStart
+                TextAlign.End, TextAlign.Right -> Alignment.CenterEnd
+                else -> Alignment.Center
+            }
         }
     }
 
@@ -2552,7 +2732,24 @@ fun TextPostBackgroundView(
             .then(if (onTextClick != null) Modifier.clickable { onTextClick() } else Modifier),
         contentAlignment = boxAlignment
     ) {
-        if (isAnimated) {
+        if (remoteBackground != null) {
+            RemoteImageBackgroundLayer(
+                background = remoteBackground,
+                modifier = Modifier.matchParentSize(),
+                isVisible = isVisible
+            )
+        } else if (isReality) {
+            // Subtle placeholder while DB background resolves on cold start
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(
+                        Brush.linearGradient(
+                            listOf(Color(0xFF0F172A), Color(0xFF1E293B))
+                        )
+                    )
+            )
+        } else if (isCanvasAnimated) {
             // Render High-Fidelity Animated Background Scene
             AnimatedPostBackground(
                 templateId = cleanStyle,
@@ -2579,39 +2776,70 @@ fun TextPostBackgroundView(
             )
         }
 
-        // Automatic contrast scrim layer so animated graphics never overpower text readability
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .background(
-                    if (isAnimated) Color.Black.copy(alpha = 0.22f)
-                    else Color.Transparent
+        // Automatic contrast scrim layer so artwork never overpowers text readability
+        if (remoteBackground != null) {
+            val scrimAlpha = remember(remoteBackground, effectiveTextColor) {
+                remoteBackground.effectiveOverlayAlpha(effectiveTextColor)
+            }
+            val scrimColor = remember(remoteBackground, scrimAlpha) {
+                remoteBackground.parsedOverlayColor().copy(alpha = scrimAlpha)
+            }
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(scrimColor)
+            )
+            // Subtle positional gradient veil when text sits near top/bottom edge
+            if (styling.position == "top" || styling.position == "bottom") {
+                val edgeGradient = if (styling.position == "top") {
+                    Brush.verticalGradient(listOf(Color.Black.copy(alpha = 0.28f), Color.Transparent))
+                } else {
+                    Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.28f)))
+                }
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .background(edgeGradient)
                 )
-        )
+            }
+        } else if (isCanvasAnimated) {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(Color.Black.copy(alpha = 0.22f))
+            )
+        }
 
-        // Content box that drives minimum 320dp height while strictly respecting parsed alignment
+        val isDarkText = effectiveTextColor.luminance() < 0.45f
+        val textShadow = remember(isDarkText) {
+            if (isDarkText) {
+                Shadow(
+                    color = Color.White.copy(alpha = 0.55f),
+                    offset = Offset(1f, 1f),
+                    blurRadius = 6f
+                )
+            } else {
+                Shadow(
+                    color = Color.Black.copy(alpha = 0.80f),
+                    offset = Offset(2f, 2f),
+                    blurRadius = 9f
+                )
+            }
+        }
+
+        // Content box that drives minimum 320dp height while strictly respecting parsed alignment & position
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .defaultMinSize(minHeight = 320.dp)
-                .padding(horizontal = 26.dp, vertical = 24.dp),
+                .padding(horizontal = 26.dp, vertical = 26.dp),
             contentAlignment = boxAlignment
         ) {
             Text(
                 text = content,
-                color = styling.textColor,
+                color = effectiveTextColor,
                 fontSize = styling.fontSizeSp.sp,
-                fontWeight = when (styling.fontStyleName.lowercase()) {
-                    "normal", "regular" -> FontWeight.Normal
-                    "medium" -> FontWeight.Medium
-                    "semibold" -> FontWeight.SemiBold
-                    "bold" -> FontWeight.Bold
-                    "extrabold" -> FontWeight.Bold
-                    "black", "display" -> FontWeight.Bold
-                    "serif" -> FontWeight.SemiBold
-                    "italic" -> FontWeight.Normal
-                    else -> FontWeight.Bold
-                },
+                fontWeight = styling.resolvedFontWeight(),
                 fontFamily = when (styling.fontStyleName.lowercase()) {
                     "serif" -> FontFamily.Serif
                     "monospace", "mono" -> FontFamily.Monospace
@@ -2626,13 +2854,7 @@ fun TextPostBackgroundView(
                 },
                 textAlign = styling.alignment,
                 lineHeight = (styling.fontSizeSp * 1.45f).sp,
-                style = androidx.compose.ui.text.TextStyle(
-                    shadow = Shadow(
-                        color = Color.Black.copy(alpha = 0.75f),
-                        offset = Offset(2f, 2f),
-                        blurRadius = 8f
-                    )
-                ),
+                style = androidx.compose.ui.text.TextStyle(shadow = textShadow),
                 modifier = Modifier.fillMaxWidth()
             )
         }

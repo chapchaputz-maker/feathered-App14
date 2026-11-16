@@ -8,6 +8,7 @@ import androidx.compose.ui.text.style.TextAlign
  */
 enum class AnimatedBgCategory(val label: String, val emoji: String) {
     REALISTIC("Realistic", "🌟"),
+    REALITY("Reality", "🖼️"),
     EXISTING("Classic", "🎨"),
     FLOWERS("Flowers", "🌸"),
     CHARACTERS_3D("3D Characters", "🧸"),
@@ -526,8 +527,31 @@ data class TextPostStyling(
     val alignment: TextAlign = TextAlign.Center,
     val textColor: Color = Color.White,
     val fontSizeSp: Int = 23,
-    val fontStyleName: String = "bold"
+    val fontStyleName: String = "bold",
+    val isBold: Boolean? = null,
+    val position: String = "center",
+    val hasExplicitColor: Boolean = false
 ) {
+    fun resolvedFontWeight(): androidx.compose.ui.text.font.FontWeight {
+        return when (isBold) {
+            true -> androidx.compose.ui.text.font.FontWeight.Bold
+            false -> when (fontStyleName.lowercase()) {
+                "medium" -> androidx.compose.ui.text.font.FontWeight.Medium
+                "semibold" -> androidx.compose.ui.text.font.FontWeight.SemiBold
+                else -> androidx.compose.ui.text.font.FontWeight.Normal
+            }
+            null -> when (fontStyleName.lowercase()) {
+                "normal", "regular" -> androidx.compose.ui.text.font.FontWeight.Normal
+                "medium" -> androidx.compose.ui.text.font.FontWeight.Medium
+                "semibold" -> androidx.compose.ui.text.font.FontWeight.SemiBold
+                "bold", "extrabold", "black", "display" -> androidx.compose.ui.text.font.FontWeight.Bold
+                "serif" -> androidx.compose.ui.text.font.FontWeight.SemiBold
+                "italic" -> androidx.compose.ui.text.font.FontWeight.Normal
+                else -> androidx.compose.ui.text.font.FontWeight.Bold
+            }
+        }
+    }
+
     companion object {
         fun parse(styleString: String?): TextPostStyling {
             if (styleString.isNullOrBlank()) return TextPostStyling()
@@ -536,31 +560,54 @@ data class TextPostStyling(
             var color = Color.White
             var size = 23
             var font = "bold"
+            var boldOverride: Boolean? = null
+            var pos = "center"
+            var explicitColor = false
 
             val parts = clean.split("|")
             for (p in parts) {
-                val kv = p.trim().split(":")
-                if (kv.size == 2) {
-                    val k = kv[0].trim().lowercase()
-                    val v = kv[1].trim()
+                val trimmed = p.trim()
+                val colonIdx = trimmed.indexOf(':')
+                if (colonIdx > 0 && colonIdx < trimmed.lastIndex) {
+                    val k = trimmed.substring(0, colonIdx).trim().lowercase()
+                    val v = trimmed.substring(colonIdx + 1).trim()
                     when (k) {
                         "align" -> align = when (v.lowercase()) {
                             "left", "start" -> TextAlign.Start
                             "right", "end" -> TextAlign.End
                             else -> TextAlign.Center
                         }
+                        "pos", "position", "valign" -> pos = when (v.lowercase()) {
+                            "top", "start" -> "top"
+                            "bottom", "end" -> "bottom"
+                            else -> "center"
+                        }
                         "color" -> try {
                             if (v.startsWith("#")) {
-                                val c = java.lang.Long.parseLong(v.removePrefix("#"), 16)
-                                color = if (v.length == 7) Color(0xFF000000 or c) else Color(c)
+                                val hex = v.removePrefix("#")
+                                val c = java.lang.Long.parseLong(hex, 16)
+                                color = if (hex.length <= 6) Color(0xFF000000L or c) else Color(c)
+                                explicitColor = true
                             }
                         } catch (_: Exception) {}
                         "size" -> size = v.toIntOrNull()?.coerceIn(16, 32) ?: 23
                         "font" -> font = v
+                        "weight", "bold" -> when (v.lowercase()) {
+                            "bold", "true", "700", "800", "900" -> boldOverride = true
+                            "normal", "regular", "false", "400" -> boldOverride = false
+                        }
                     }
                 }
             }
-            return TextPostStyling(align, color, size, font)
+            return TextPostStyling(
+                alignment = align,
+                textColor = color,
+                fontSizeSp = size,
+                fontStyleName = font,
+                isBold = boldOverride,
+                position = pos,
+                hasExplicitColor = explicitColor
+            )
         }
     }
 }

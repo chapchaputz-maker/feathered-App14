@@ -332,6 +332,29 @@ object PostsApiService {
                     put("background", cleanBackground)
                     put("colours", cleanBackground)
                     put("background_style", cleanBackground)
+                    if (cleanBackground.startsWith("reality:", ignoreCase = true)) {
+                        val parts = cleanBackground.split("|")
+                        val bgId = parts.firstOrNull()?.substringAfter(":")?.trim()
+                        if (!bgId.isNullOrBlank()) {
+                            put("background_id", bgId)
+                        }
+                        for (part in parts.drop(1)) {
+                            val idx = part.indexOf(':')
+                            if (idx > 0 && idx < part.lastIndex) {
+                                val k = part.substring(0, idx).trim().lowercase()
+                                val v = part.substring(idx + 1).trim()
+                                when (k) {
+                                    "bgtype" -> put("background_type", v)
+                                    "color" -> put("text_color", v)
+                                    "size" -> v.toIntOrNull()?.let { put("font_size", it) }
+                                    "font" -> put("font_style", v)
+                                    "weight" -> put("font_weight", v)
+                                    "align" -> put("text_align", v)
+                                    "pos" -> put("text_position", v)
+                                }
+                            }
+                        }
+                    }
                 }
                 if (taggedUsers.isNotEmpty()) {
                     put("tagged_users", JSONArray(taggedUsers))
@@ -437,6 +460,7 @@ object PostsApiService {
             ?: metaObj?.optString("colours")?.takeIf { it.isNotBlank() && it != "null" }
             ?: metaObj?.optString("background_style")?.takeIf { it.isNotBlank() && it != "null" }
             ?: metaObj?.optString("background")?.takeIf { it.isNotBlank() && it != "null" }
+            ?: synthesizeRealityStyleFromFields(obj, rawObj, metaObj)
 
         val hasMedia = !mediaUrl.isNullOrBlank() || mediaUrls.isNotEmpty()
         val backgroundStyle = if (hasMedia) null else rawBackgroundStyle?.trim()?.removeSurrounding("\"")?.replace("\\\"", "\"")?.takeIf {
@@ -932,6 +956,7 @@ object PostsApiService {
             ?: metaObj?.optString("colours")?.takeIf { it.isNotBlank() && it != "null" }
             ?: metaObj?.optString("background_style")?.takeIf { it.isNotBlank() && it != "null" }
             ?: metaObj?.optString("background")?.takeIf { it.isNotBlank() && it != "null" }
+            ?: synthesizeRealityStyleFromFields(obj, rawObj, metaObj)
 
         val hasMedia = !mediaUrl.isNullOrBlank() || mediaUrls.isNotEmpty()
         val backgroundStyle = if (hasMedia) null else rawBackgroundStyle?.trim()?.removeSurrounding("\"")?.replace("\\\"", "\"")?.takeIf {
@@ -1023,6 +1048,39 @@ object PostsApiService {
             createdAt = rawDate,
             userId = userId
         )
+    }
+
+    private fun synthesizeRealityStyleFromFields(
+        obj: JSONObject,
+        rawObj: JSONObject,
+        metaObj: JSONObject?
+    ): String? {
+        val bgId = obj.optString("background_id").takeIf { it.isNotBlank() && it != "null" }
+            ?: rawObj.optString("background_id").takeIf { it.isNotBlank() && it != "null" }
+            ?: metaObj?.optString("background_id")?.takeIf { it.isNotBlank() && it != "null" }
+            ?: return null
+        val sb = StringBuilder("reality:$bgId")
+        val bgType = obj.optString("background_type").takeIf { it.isNotBlank() && it != "null" }
+            ?: rawObj.optString("background_type").takeIf { it.isNotBlank() && it != "null" }
+        if (!bgType.isNullOrBlank()) sb.append("|bgtype:$bgType")
+        val align = obj.optString("text_align").takeIf { it.isNotBlank() && it != "null" }
+            ?: rawObj.optString("text_align").takeIf { it.isNotBlank() && it != "null" }
+        if (!align.isNullOrBlank()) sb.append("|align:$align")
+        val pos = obj.optString("text_position").takeIf { it.isNotBlank() && it != "null" }
+            ?: rawObj.optString("text_position").takeIf { it.isNotBlank() && it != "null" }
+        if (!pos.isNullOrBlank()) sb.append("|pos:$pos")
+        val color = obj.optString("text_color").takeIf { it.isNotBlank() && it != "null" }
+            ?: rawObj.optString("text_color").takeIf { it.isNotBlank() && it != "null" }
+        if (!color.isNullOrBlank()) sb.append("|color:$color")
+        val size = obj.optInt("font_size", rawObj.optInt("font_size", 0))
+        if (size in 16..32) sb.append("|size:$size")
+        val font = obj.optString("font_style").takeIf { it.isNotBlank() && it != "null" }
+            ?: rawObj.optString("font_style").takeIf { it.isNotBlank() && it != "null" }
+        if (!font.isNullOrBlank()) sb.append("|font:$font")
+        val weight = obj.optString("font_weight").takeIf { it.isNotBlank() && it != "null" }
+            ?: rawObj.optString("font_weight").takeIf { it.isNotBlank() && it != "null" }
+        if (!weight.isNullOrBlank()) sb.append("|weight:$weight")
+        return sb.toString()
     }
 
     private fun extractMediaUrls(obj: JSONObject): List<String> {
