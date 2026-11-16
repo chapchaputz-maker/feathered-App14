@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
+import com.unera.social.ui.theme.InterFontFamily
 
 data class AdPreviewData(
     val name: String = "",
@@ -116,7 +117,8 @@ fun AdPreview(
                     Text(
                         text = "FREE PROMOTION",
                         fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         color = Color(0xFF059669)
                     )
                 }
@@ -124,6 +126,7 @@ fun AdPreview(
                 Text(
                     text = "Sponsored",
                     fontSize = 12.sp,
+                    fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Medium,
                     color = Color(0xFF71717A)
                 )
@@ -159,6 +162,7 @@ fun AdPreview(
                             Text(
                                 text = advertiserName.take(1).uppercase(),
                                 fontSize = 18.sp,
+                                fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
                             )
@@ -169,7 +173,8 @@ fun AdPreview(
                         Text(
                             text = advertiserName,
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Bold,
                             color = Color(0xFF18181B)
                         )
                         if (isVerified) {
@@ -213,7 +218,9 @@ fun AdPreview(
                             Text(
                                 text = "Ad Preview",
                                 color = Color(0xFFA1A1AA),
-                                fontSize = 14.sp
+                                fontSize = 14.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal
                             )
                         }
                     }
@@ -400,7 +407,8 @@ fun AdPreview(
                                                 text = "+${allMediaUrls.size - 3}",
                                                 color = Color.White,
                                                 fontSize = 20.sp,
-                                                fontWeight = FontWeight.Bold
+                                                fontFamily = InterFontFamily,
+                                                fontWeight = FontWeight.SemiBold
                                             )
                                         }
                                     }
@@ -417,6 +425,8 @@ fun AdPreview(
                 Text(
                     text = cleanDesc,
                     fontSize = 14.sp,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Normal,
                     color = Color(0xFF27272A),
                     lineHeight = 20.sp,
                     modifier = Modifier.padding(14.dp)
@@ -441,13 +451,21 @@ fun AdPreview(
                     Text(
                         text = "✨ Free Promotion",
                         fontSize = 12.sp,
+                        fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
                         color = Color(0xFF059669)
                     )
-                    Text(text = "•", color = Color(0xFF34D399))
+                    Text(
+                        text = "•",
+                        color = Color(0xFF34D399),
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal
+                    )
                     Text(
                         text = "No cost to boost",
                         fontSize = 12.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = Color(0xFF059669)
                     )
                 }
@@ -475,6 +493,7 @@ fun AdPreview(
                     Text(
                         text = contactDisplay,
                         fontSize = 12.sp,
+                        fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
                         color = Color(0xFF2563EB),
                         maxLines = 1,
@@ -497,7 +516,8 @@ fun AdPreview(
                     Text(
                         text = data.cta.ifBlank { "Learn More" },
                         fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         color = Color.White
                     )
                 }
@@ -507,6 +527,8 @@ fun AdPreview(
             Text(
                 text = "Free advertising on Feathered • Reach more people at no cost",
                 fontSize = 10.sp,
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.Normal,
                 color = Color(0xFFA1A1AA),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -613,6 +635,7 @@ fun AdPreview(
                             text = "${selectedImageIndex + 1} / ${allMediaUrls.size}",
                             color = Color.White,
                             fontSize = 13.sp,
+                            fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Medium
                         )
                     }

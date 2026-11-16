@@ -236,9 +236,11 @@ fun ProfessionalLoader(
                 Text(
                     text = brandName,
                     fontSize = 42.sp,
-                    fontWeight = FontWeight.Black,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Bold,
                     letterSpacing = (-1.5).sp,
                     style = LocalTextStyle.current.copy(
+                        fontFamily = InterFontFamily,
                         brush = Brush.horizontalGradient(
                             colors = listOf(Color(0xFF1877F2), Color(0xFF1D8AF2))
                         )
@@ -294,7 +296,8 @@ fun ProfessionalLoader(
                 text = tagline.uppercase(),
                 color = Color(0xFF94A3B8).copy(alpha = taglineAlpha),
                 fontSize = 12.sp,
-                fontWeight = FontWeight.Black,
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.SemiBold,
                 letterSpacing = 4.sp
             )
 
@@ -536,6 +539,7 @@ fun FeatheredAvatar(
                             text = initials,
                             color = Color.White,
                             fontSize = fontSize,
+                            fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -552,6 +556,7 @@ fun FeatheredAvatar(
                     text = initials,
                     color = Color.White,
                     fontSize = fontSize,
+                    fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Bold
                 )
             }

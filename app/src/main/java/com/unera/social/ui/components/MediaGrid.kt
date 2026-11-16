@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
+import com.unera.social.ui.theme.InterFontFamily
 
 /**
  * MediaItem - Represents an individual media image matching web MediaItem interface.
@@ -429,6 +430,7 @@ fun MediaGridTile(
                     text = "+$extraCount",
                     color = Color.White,
                     fontSize = 34.sp,
+                    fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -502,6 +504,7 @@ fun MediaPreviewModal(
                         text = "${currentIndex + 1} / ${media.size}",
                         color = Color.White,
                         fontSize = 13.sp,
+                        fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                     )

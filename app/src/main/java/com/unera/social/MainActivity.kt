@@ -288,6 +288,7 @@ fun FeatheredApp(
                     onDeclineGroupInvite = { notifId, groupId -> viewModel.declineGroupInvite(notifId, groupId) },
                     onLoadMore = { viewModel.loadMoreNotifications() },
                     hasMore = uiState.hasMoreNotifications,
+                    isLoadingMore = uiState.isLoadingMoreNotifications,
                     isRefreshing = uiState.isNotificationsLoading,
                     onRefresh = { viewModel.refreshNotifications(silent = false) },
                     modifier = screenModifier
@@ -884,6 +885,7 @@ fun FeatheredApp(
             currentUser = uiState.currentUser,
             isFollowing = selectedPost.author.isFollowing,
             allUsers = uiState.users,
+            postTarget = uiState.notificationPostTarget,
             onFollowToggle = {
                 viewModel.toggleFollowUser(selectedPost.author.id)
             },
@@ -910,11 +912,27 @@ fun FeatheredApp(
             onLikePost = {
                 viewModel.toggleLikePost(selectedPost.id)
             },
+            onReactPost = { reactionType ->
+                viewModel.reactToPost(selectedPost.id, reactionType)
+            },
             onSharePost = {
                 viewModel.sharePost(selectedPost.id)
             },
             onSavePost = {
                 viewModel.toggleSavePost(selectedPost.id)
+            },
+            onOpenProduct = { prod ->
+                viewModel.setSelectedPostForComments(null)
+                viewModel.setSelectedProductForDetail(prod)
+            },
+            onOpenEvent = { _ ->
+                viewModel.setSelectedPostForComments(null)
+                viewModel.setScreen(Screen.EVENTS)
+            },
+            onOpenGroup = { gid ->
+                viewModel.setSelectedPostForComments(null)
+                viewModel.setActiveGroupId(gid)
+                viewModel.setScreen(Screen.GROUPS)
             }
         )
     }

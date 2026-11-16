@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.unera.social.R
+import com.unera.social.ui.theme.InterFontFamily
 import kotlinx.coroutines.delay
 
 private const val SPLASH_LOGO_URL = "https://media.featheredsocial.site/file_00000000fcd8820ebece7f0c251fccf1.png"
@@ -179,6 +180,7 @@ fun FacebookSplashScreen(
             Text(
                 text = "By",
                 fontSize = 12.sp,
+                fontFamily = InterFontFamily,
                 fontWeight = FontWeight.Normal,
                 color = Color(0xFF64748B),
                 letterSpacing = 1.sp
@@ -187,6 +189,7 @@ fun FacebookSplashScreen(
             Text(
                 text = "featherTech",
                 fontSize = 18.sp,
+                fontFamily = InterFontFamily,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFF8FAFC),
                 letterSpacing = 0.6.sp

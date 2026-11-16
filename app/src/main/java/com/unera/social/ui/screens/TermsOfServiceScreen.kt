@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.unera.social.ui.theme.InterFontFamily
 
 /**
  * TermsOfServiceScreen - Native Jetpack Compose implementation of TermsOfService.tsx.
@@ -88,7 +89,8 @@ fun TermsOfServiceScreen(
                     Text(
                         text = "UNERA Terms",
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         color = Color(0xFF1877F2)
                     )
                 }
@@ -113,7 +115,8 @@ fun TermsOfServiceScreen(
                         Text(
                             text = "Back",
                             fontSize = 13.sp,
-                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Medium,
                             color = Color(0xFFF8FAFC)
                         )
                     }
@@ -139,13 +142,16 @@ fun TermsOfServiceScreen(
                     Text(
                         text = "Terms of Service",
                         fontSize = 28.sp,
-                        fontWeight = FontWeight.ExtraBold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         color = Color.White
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "Effective Date: February 14, 2025",
                         fontSize = 13.5.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = Color(0xFF94A3B8)
                     )
                     Spacer(modifier = Modifier.height(14.dp))
@@ -176,13 +182,16 @@ fun TermsOfServiceScreen(
                             Text(
                                 text = "Important Notice:",
                                 fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold,
                                 color = Color(0xFFE4E6EB)
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = "By accessing or using the UNERA Platform, you agree to be bound by these Terms. If you disagree with any part of the terms, then you may not access the Service. Please read these Terms carefully before using UNERA.",
                                 fontSize = 13.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 color = Color(0xFFCBD5E1),
                                 lineHeight = 19.sp
                             )
@@ -205,7 +214,8 @@ fun TermsOfServiceScreen(
                     Text(
                         text = "2. Eligibility",
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         color = Color.White
                     )
 
@@ -233,18 +243,23 @@ fun TermsOfServiceScreen(
                     Text(
                         text = "3. Accounts",
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         color = Color.White
                     )
                     Text(
                         text = "When you create an account with us, you must provide us information that is accurate, complete, and current at all times. Failure to do so constitutes a breach of the Terms, which may result in immediate termination of your account on our Service.",
                         fontSize = 14.5.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = Color(0xFFD0D2D6),
                         lineHeight = 21.sp
                     )
                     Text(
                         text = "You are responsible for safeguarding the password that you use to access the Service and for any activities or actions under your password. You agree not to disclose your password to any third party.",
                         fontSize = 14.5.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = Color(0xFFD0D2D6),
                         lineHeight = 21.sp
                     )
@@ -262,7 +277,8 @@ fun TermsOfServiceScreen(
                             Text(
                                 text = "Account Responsibilities:",
                                 fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold,
                                 color = Color(0xFFF8FAFC)
                             )
                             BulletItem("You must notify us immediately upon becoming aware of any breach of security.")
@@ -280,12 +296,15 @@ fun TermsOfServiceScreen(
                     Text(
                         text = "4. User Content",
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         color = Color.White
                     )
                     Text(
                         text = "Our Service allows you to post, link, store, share and otherwise make available certain information, text, graphics, videos, music, or other material (\"Content\"). You are responsible for the Content that you post to the Service, including its legality, reliability, and appropriateness.",
                         fontSize = 14.5.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = Color(0xFFD0D2D6),
                         lineHeight = 21.sp
                     )
@@ -314,7 +333,8 @@ fun TermsOfServiceScreen(
                                 Text(
                                     text = "Prohibited Content:",
                                     fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold,
                                     color = Color(0xFFF8FAFC)
                                 )
                             }
@@ -344,6 +364,8 @@ fun TermsOfServiceScreen(
                                     Text(
                                         text = rule,
                                         fontSize = 13.sp,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Normal,
                                         color = Color(0xFF94A3B8)
                                     )
                                 }
@@ -354,6 +376,8 @@ fun TermsOfServiceScreen(
                     Text(
                         text = "Content License: By posting Content on UNERA, you grant us a worldwide, non-exclusive, royalty-free license to use, copy, reproduce, process, adapt, modify, publish, transmit, display, and distribute such Content on our platform.",
                         fontSize = 14.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = Color(0xFFD0D2D6),
                         lineHeight = 20.sp
                     )
@@ -366,12 +390,15 @@ fun TermsOfServiceScreen(
                     Text(
                         text = "5. Intellectual Property Rights",
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         color = Color.White
                     )
                     Text(
                         text = "The Service and its original content, features, and functionality are and will remain the exclusive property of UNERA and its licensors. The Service is protected by copyright, trademark, and other laws of Tanzania and international jurisdictions.",
                         fontSize = 14.5.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = Color(0xFFD0D2D6),
                         lineHeight = 21.sp
                     )
@@ -389,7 +416,8 @@ fun TermsOfServiceScreen(
                             Text(
                                 text = "Our Intellectual Property Includes:",
                                 fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold,
                                 color = Color(0xFFF8FAFC)
                             )
                             BulletItem("The UNERA name, logo, and brand identity")
@@ -407,7 +435,8 @@ fun TermsOfServiceScreen(
                     Text(
                         text = "6. Platform Features & Services",
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         color = Color.White
                     )
 
@@ -464,7 +493,8 @@ fun TermsOfServiceScreen(
                     Text(
                         text = "10. Limitation of Liability",
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         color = Color.White
                     )
 
@@ -481,12 +511,15 @@ fun TermsOfServiceScreen(
                             Text(
                                 text = "IMPORTANT LIABILITY LIMITATIONS:",
                                 fontSize = 13.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold,
                                 color = Color(0xFFE4E6EB)
                             )
                             Text(
                                 text = "In no event shall UNERA, nor its directors, employees, or affiliates, be liable for any indirect, incidental, special, or consequential damages resulting from your access to or inability to use the Service, any conduct of third parties, or unauthorized access to your transmissions.",
                                 fontSize = 12.5.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 color = Color(0xFFCBD5E1),
                                 lineHeight = 18.sp
                             )
@@ -537,12 +570,15 @@ fun TermsOfServiceScreen(
                     Text(
                         text = "16. Contact Us",
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         color = Color.White
                     )
                     Text(
                         text = "If you have any questions about these Terms, please contact us:",
                         fontSize = 14.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = Color(0xFFD0D2D6)
                     )
 
@@ -592,6 +628,8 @@ fun TermsOfServiceScreen(
                     Text(
                         text = "By using UNERA, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.",
                         fontSize = 12.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = Color(0xFF94A3B8),
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )
@@ -608,7 +646,7 @@ fun TermsOfServiceScreen(
                         ) {
                             Icon(Icons.Default.Home, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Return to UNERA", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            Text("Return to UNERA", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, fontSize = 13.sp)
                         }
 
                         if (onOpenPrivacy != null) {
@@ -620,7 +658,7 @@ fun TermsOfServiceScreen(
                             ) {
                                 Icon(Icons.Default.Shield, contentDescription = null, modifier = Modifier.size(16.dp), tint = Color(0xFFF8FAFC))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Privacy Policy", fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = Color(0xFFF8FAFC))
+                                Text("Privacy Policy", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, fontSize = 13.sp, color = Color(0xFFF8FAFC))
                             }
                         }
                     }
@@ -639,12 +677,15 @@ private fun TermsSection(
         Text(
             text = title,
             fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
+            fontFamily = InterFontFamily,
+            fontWeight = FontWeight.SemiBold,
             color = Color.White
         )
         Text(
             text = content,
             fontSize = 14.5.sp,
+            fontFamily = InterFontFamily,
+            fontWeight = FontWeight.Normal,
             color = Color(0xFFD0D2D6),
             lineHeight = 21.sp
         )
@@ -673,6 +714,8 @@ private fun BulletPointRow(
         Text(
             text = text,
             fontSize = 14.sp,
+            fontFamily = InterFontFamily,
+            fontWeight = FontWeight.Normal,
             color = Color(0xFFCBD5E1),
             lineHeight = 20.sp,
             modifier = Modifier.weight(1f)
@@ -695,6 +738,8 @@ private fun BulletItem(text: String) {
         Text(
             text = text,
             fontSize = 13.sp,
+            fontFamily = InterFontFamily,
+            fontWeight = FontWeight.Normal,
             color = Color(0xFF94A3B8)
         )
     }
@@ -730,13 +775,16 @@ private fun FeatureCard(
                 Text(
                     text = title,
                     fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold,
                     color = Color(0xFFF8FAFC)
                 )
             }
             Text(
                 text = desc,
                 fontSize = 13.sp,
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.Normal,
                 color = Color(0xFF94A3B8),
                 lineHeight = 18.sp
             )
@@ -769,11 +817,14 @@ private fun ContactRow(
             Text(
                 text = title,
                 fontSize = 12.sp,
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.Normal,
                 color = Color(0xFF94A3B8)
             )
             Text(
                 text = subtitle,
                 fontSize = 14.sp,
+                fontFamily = InterFontFamily,
                 fontWeight = FontWeight.SemiBold,
                 color = if (isAction) Color(0xFF1877F2) else Color(0xFFF8FAFC)
             )

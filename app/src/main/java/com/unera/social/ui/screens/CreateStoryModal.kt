@@ -46,6 +46,7 @@ import coil.compose.AsyncImage
 import com.unera.social.data.StoriesApiService
 import com.unera.social.model.Song
 import com.unera.social.model.User
+import com.unera.social.ui.theme.InterFontFamily
 import java.io.File
 import java.io.FileOutputStream
 
@@ -233,9 +234,10 @@ fun CreateStoryDialog(
                                 value = textContent,
                                 onValueChange = { textContent = it },
                                 textStyle = TextStyle(
+                                    fontFamily = InterFontFamily,
                                     color = Color.White,
                                     fontSize = 32.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.SemiBold,
                                     textAlign = TextAlign.Center
                                 ),
                                 cursorBrush = SolidColor(Color.White),
@@ -247,9 +249,10 @@ fun CreateStoryDialog(
                                         if (textContent.isEmpty()) {
                                             Text(
                                                 text = "Start typing...",
+                                                fontFamily = InterFontFamily,
                                                 color = Color.White.copy(alpha = 0.45f),
                                                 fontSize = 32.sp,
-                                                fontWeight = FontWeight.Bold,
+                                                fontWeight = FontWeight.SemiBold,
                                                 textAlign = TextAlign.Center
                                             )
                                         }
@@ -301,8 +304,9 @@ fun CreateStoryDialog(
 
                                     Text(
                                         text = "Select Photos",
+                                        fontFamily = InterFontFamily,
                                         color = Color.White,
-                                        fontWeight = FontWeight.Black,
+                                        fontWeight = FontWeight.SemiBold,
                                         fontSize = 20.sp,
                                         textAlign = TextAlign.Center
                                     )
@@ -311,6 +315,8 @@ fun CreateStoryDialog(
 
                                     Text(
                                         text = "Choose high quality photos for your story",
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Normal,
                                         color = Color(0xFF94A3B8),
                                         fontSize = 14.sp,
                                         textAlign = TextAlign.Center
@@ -485,14 +491,17 @@ fun CreateStoryDialog(
                                 Column {
                                     Text(
                                         text = music.title,
+                                        fontFamily = InterFontFamily,
                                         color = Color.White,
                                         fontSize = 12.sp,
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.SemiBold,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis
                                     )
                                     Text(
                                         text = music.artist,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Normal,
                                         color = Color.White.copy(alpha = 0.7f),
                                         fontSize = 10.sp,
                                         maxLines = 1,
@@ -538,16 +547,18 @@ fun CreateStoryDialog(
                     ) {
                         Text(
                             text = "Discard",
+                            fontFamily = InterFontFamily,
                             color = Color.White,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 13.sp
                         )
                     }
 
                     Text(
                         text = "Create Story",
+                        fontFamily = InterFontFamily,
                         color = Color.White,
-                        fontWeight = FontWeight.Black,
+                        fontWeight = FontWeight.SemiBold,
                         fontSize = 18.sp
                     )
 
@@ -573,7 +584,8 @@ fun CreateStoryDialog(
                         } else {
                             Text(
                                 text = "Share",
-                                fontWeight = FontWeight.Black,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 13.sp
                             )
                         }
@@ -649,8 +661,9 @@ fun CreateStoryDialog(
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
                                     text = "Text",
+                                    fontFamily = InterFontFamily,
                                     color = if (mode == "text") Color.White else Color.White.copy(alpha = 0.6f),
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 13.sp
                                 )
                             }
@@ -673,8 +686,9 @@ fun CreateStoryDialog(
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
                                     text = "Media",
+                                    fontFamily = InterFontFamily,
                                     color = if (mode == "media") Color.White else Color.White.copy(alpha = 0.6f),
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 13.sp
                                 )
                             }
@@ -871,16 +885,18 @@ fun LiveMusicPickerModal(
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = "Close",
+                            fontFamily = InterFontFamily,
                             color = Color(0xFFB0B3B8),
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 14.sp
                         )
                     }
 
                     Text(
                         text = "Add Music",
+                        fontFamily = InterFontFamily,
                         color = Color.White,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp
                     )
 
@@ -930,12 +946,15 @@ fun LiveMusicPickerModal(
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
                                         text = "Upload Music",
+                                        fontFamily = InterFontFamily,
                                         color = Color.White,
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.SemiBold,
                                         fontSize = 15.sp
                                     )
                                     Text(
                                         text = "Choose a file from your device",
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Normal,
                                         color = Color(0xFFB0B3B8),
                                         fontSize = 12.sp
                                     )
@@ -949,9 +968,10 @@ fun LiveMusicPickerModal(
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
                             text = "F-MUSIC TRENDS",
+                            fontFamily = InterFontFamily,
                             color = Color(0xFF94A3B8),
                             fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.SemiBold,
                             letterSpacing = 1.2.sp,
                             modifier = Modifier.padding(horizontal = 4.dp)
                         )
@@ -973,6 +993,8 @@ fun LiveMusicPickerModal(
                                     Spacer(modifier = Modifier.height(10.dp))
                                     Text(
                                         text = "Loading music...",
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Normal,
                                         color = Color(0xFF94A3B8),
                                         fontSize = 13.sp
                                     )
@@ -989,6 +1011,8 @@ fun LiveMusicPickerModal(
                             ) {
                                 Text(
                                     text = "No tracks currently listed. Upload your own music above!",
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     color = Color(0xFF94A3B8),
                                     fontSize = 13.sp,
                                     textAlign = TextAlign.Center
@@ -1023,14 +1047,17 @@ fun LiveMusicPickerModal(
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(
                                             text = song.title,
+                                            fontFamily = InterFontFamily,
                                             color = Color.White,
-                                            fontWeight = FontWeight.Bold,
+                                            fontWeight = FontWeight.SemiBold,
                                             fontSize = 14.sp,
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis
                                         )
                                         Text(
                                             text = song.artist,
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.Normal,
                                             color = Color(0xFFB0B3B8),
                                             fontSize = 12.sp,
                                             maxLines = 1,
@@ -1086,8 +1113,9 @@ fun LiveMusicPickerModal(
                                         ) {
                                             Text(
                                                 text = "Add",
+                                                fontFamily = InterFontFamily,
                                                 color = Color.White,
-                                                fontWeight = FontWeight.Bold,
+                                                fontWeight = FontWeight.Medium,
                                                 fontSize = 13.sp
                                             )
                                         }

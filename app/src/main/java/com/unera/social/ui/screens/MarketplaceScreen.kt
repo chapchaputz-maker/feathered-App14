@@ -243,7 +243,8 @@ fun MarketplaceScreen(
                         Text(
                             text = "MarketPoint",
                             fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = InterFontFamily,
                             color = Color(0xFFF8FAFC)
                         )
                     }
@@ -302,7 +303,8 @@ fun MarketplaceScreen(
                             ) {
                                 Text(
                                     text = activeCountry.flag,
-                                    fontSize = 18.sp
+                                    fontSize = 18.sp,
+                                    fontFamily = InterFontFamily
                                 )
                             }
                         }
@@ -321,8 +323,9 @@ fun MarketplaceScreen(
                         ) {
                             Text(
                                 text = "Sell",
-                                fontWeight = FontWeight.SemiBold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 14.sp,
+                                fontFamily = InterFontFamily,
                                 color = Color.White
                             )
                         }
@@ -356,7 +359,8 @@ fun MarketplaceScreen(
                                 Text(
                                     text = label,
                                     fontSize = 13.sp,
-                                    fontWeight = FontWeight.SemiBold,
+                                    fontWeight = FontWeight.Medium,
+                                    fontFamily = InterFontFamily,
                                     color = if (active) Color(0xFF1877F2) else Color(0xFFF8FAFC)
                                 )
                             }
@@ -391,7 +395,8 @@ fun MarketplaceScreen(
                             Text(
                                 text = cat.name,
                                 fontSize = 13.sp,
-                                fontWeight = FontWeight.SemiBold,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = InterFontFamily,
                                 color = if (active) Color.White else Color(0xFFF8FAFC)
                             )
                         }
@@ -462,8 +467,9 @@ fun MarketplaceScreen(
 
                     Text(
                         text = "No items found",
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.SemiBold,
                         fontSize = 20.sp,
+                        fontFamily = InterFontFamily,
                         color = Color(0xFFF8FAFC)
                     )
 
@@ -472,6 +478,8 @@ fun MarketplaceScreen(
                     Text(
                         text = "Try changing your category, market view, or search.",
                         fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                        fontFamily = InterFontFamily,
                         color = Color(0xFF94A3B8),
                         textAlign = TextAlign.Center
                     )
@@ -490,7 +498,8 @@ fun MarketplaceScreen(
                     ) {
                         Text(
                             text = "Reset",
-                            fontWeight = FontWeight.SemiBold,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = InterFontFamily,
                             color = Color.White
                         )
                     }
@@ -539,7 +548,11 @@ fun MarketplaceScreen(
                         OutlinedTextField(
                             value = searchQuery,
                             onValueChange = { searchQuery = it },
-                            placeholder = { Text("Search MarketPoint…", color = Color(0xFF94A3B8)) },
+                            textStyle = LocalTextStyle.current.copy(
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal
+                            ),
+                            placeholder = { Text("Search MarketPoint…", color = Color(0xFF94A3B8), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.Search,
@@ -580,6 +593,8 @@ fun MarketplaceScreen(
                     Text(
                         text = if (searchQuery.isNotBlank()) "${filteredProducts.size} results found" else "Type to search products",
                         fontSize = 12.sp,
+                        fontWeight = FontWeight.Normal,
+                        fontFamily = InterFontFamily,
                         color = Color(0xFF94A3B8),
                         modifier = Modifier.padding(start = 8.dp)
                     )
@@ -601,8 +616,9 @@ fun MarketplaceScreen(
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
                         text = "Select Country",
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.SemiBold,
                         fontSize = 18.sp,
+                        fontFamily = InterFontFamily,
                         color = Color(0xFFF8FAFC)
                     )
                     Spacer(modifier = Modifier.height(12.dp))
@@ -619,13 +635,14 @@ fun MarketplaceScreen(
                                 .padding(vertical = 10.dp, horizontal = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(text = item.flag, fontSize = 20.sp)
+                            Text(text = item.flag, fontSize = 20.sp, fontFamily = InterFontFamily)
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
                                 text = item.name,
                                 color = if (isSelected) Color(0xFF1877F2) else Color(0xFFF8FAFC),
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                fontSize = 14.sp
+                                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                                fontSize = 14.sp,
+                                fontFamily = InterFontFamily
                             )
                         }
                     }
@@ -685,7 +702,8 @@ fun WebMarketProductCard(
             Text(
                 text = formattedPrice,
                 fontSize = 15.sp,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.SemiBold,
+                fontFamily = InterFontFamily,
                 color = Color.White
             )
         }
@@ -703,7 +721,8 @@ fun WebMarketProductCard(
                 Text(
                     text = "Ad",
                     fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = InterFontFamily,
                     color = Color.White,
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                 )
@@ -722,7 +741,8 @@ fun WebMarketProductCard(
                 Text(
                     text = "New",
                     fontSize = 10.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = InterFontFamily,
                     color = Color.White,
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                 )

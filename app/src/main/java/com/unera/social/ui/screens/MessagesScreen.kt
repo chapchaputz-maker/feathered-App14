@@ -187,7 +187,8 @@ fun MessagesScreen(
                 Text(
                     text = "Chats",
                     fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = InterFontFamily,
                     color = Color.White
                 )
                 if (isConversationsLoading) {
@@ -244,7 +245,11 @@ fun MessagesScreen(
         OutlinedTextField(
             value = query,
             onValueChange = { query = it },
-            placeholder = { Text("Search messages and friends…", color = Color(0xFF64748B), fontSize = 13.sp) },
+            textStyle = LocalTextStyle.current.copy(
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.Normal
+            ),
+            placeholder = { Text("Search messages and friends…", color = Color(0xFF64748B), fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Search,
@@ -289,7 +294,8 @@ fun MessagesScreen(
                 Text(
                     text = "ACTIVE NOW",
                     fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = InterFontFamily,
                     color = Color(0xFF94A3B8),
                     letterSpacing = 0.5.sp,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
@@ -348,13 +354,16 @@ fun MessagesScreen(
                     Text(
                         text = if (query.isNotBlank()) "No messages matching \"$query\"" else "No messages yet",
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = InterFontFamily,
                         color = Color.White
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
                         text = "Connect and start chatting with friends and creators.",
                         fontSize = 13.sp,
+                        fontWeight = FontWeight.Normal,
+                        fontFamily = InterFontFamily,
                         color = Color(0xFF94A3B8),
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
@@ -366,7 +375,7 @@ fun MessagesScreen(
                     ) {
                         Icon(imageVector = Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Start a Chat", fontWeight = FontWeight.Bold)
+                        Text("Start a Chat", fontWeight = FontWeight.Medium, fontFamily = InterFontFamily)
                     }
                 }
             }
@@ -460,6 +469,8 @@ fun ActiveNowItem(
         Text(
             text = user.name.split(" ").firstOrNull() ?: user.name,
             fontSize = 11.sp,
+            fontWeight = FontWeight.Bold,
+            fontFamily = InterFontFamily,
             color = Color(0xFFE2E8F0),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
@@ -521,6 +532,7 @@ fun ConversationItem(
                         text = conversation.participant.name,
                         fontWeight = FontWeight.Bold,
                         fontSize = 19.sp,
+                        fontFamily = InterFontFamily,
                         color = Color.White,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -532,38 +544,74 @@ fun ConversationItem(
                 Text(
                     text = ChatTimestampFormatter.format(conversation.lastTimestamp),
                     fontSize = 12.sp,
+                    fontWeight = FontWeight.Normal,
+                    fontFamily = InterFontFamily,
                     color = if (conversation.unreadCount > 0) Carrot500 else Color(0xFF94A3B8)
                 )
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
+            val latestMessageText = remember(conversation.lastMessage, conversation.messages) {
+                val raw = conversation.lastMessage.trim()
+                val sanitized = if (
+                    raw.equals("Started a conversation", ignoreCase = true) ||
+                    raw.equals("Started conversation", ignoreCase = true)
+                ) "" else raw
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = conversation.lastMessage.ifBlank { "Started a conversation" },
-                    fontSize = 20.sp,
-                    color = if (conversation.unreadCount > 0) Color.White else Color(0xFF94A3B8),
-                    fontWeight = if (conversation.unreadCount > 0) FontWeight.SemiBold else FontWeight.Normal,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
-                )
+                sanitized.ifBlank {
+                    val lastMsg = conversation.messages.lastOrNull()
+                    when {
+                        lastMsg == null -> ""
+                        lastMsg.text.isNotBlank() -> lastMsg.text.trim()
+                        lastMsg.attachments.isNotEmpty() -> {
+                            val att = lastMsg.attachments.first()
+                            when {
+                                att.fileType.contains("audio", ignoreCase = true) || att.mimeType.startsWith("audio/") -> "🎤 Voice message"
+                                att.fileType.contains("image", ignoreCase = true) || att.mimeType.startsWith("image/") -> "📷 Photo"
+                                att.fileType.contains("video", ignoreCase = true) || att.mimeType.startsWith("video/") -> "🎥 Video"
+                                else -> "📎 ${att.filename}"
+                            }
+                        }
+                        else -> ""
+                    }
+                }
+            }
 
-                if (conversation.unreadCount > 0) {
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Badge(
-                        containerColor = Carrot500,
-                        contentColor = Color.White
-                    ) {
+            if (latestMessageText.isNotBlank() || conversation.unreadCount > 0) {
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (latestMessageText.isNotBlank()) {
                         Text(
-                            text = conversation.unreadCount.toString(),
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold
+                            text = latestMessageText,
+                            fontSize = 20.sp,
+                            color = if (conversation.unreadCount > 0) Color.White else Color(0xFF94A3B8),
+                            fontWeight = if (conversation.unreadCount > 0) FontWeight.SemiBold else FontWeight.Normal,
+                            fontFamily = InterFontFamily,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f)
                         )
+                    } else {
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+
+                    if (conversation.unreadCount > 0) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Badge(
+                            containerColor = Carrot500,
+                            contentColor = Color.White
+                        ) {
+                            Text(
+                                text = conversation.unreadCount.toString(),
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                fontFamily = InterFontFamily
+                            )
+                        }
                     }
                 }
             }
@@ -612,7 +660,8 @@ fun NewChatPickerModal(
                     Text(
                         text = "New Message",
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = InterFontFamily,
                         color = Color.White
                     )
                     IconButton(onClick = onDismiss, modifier = Modifier.size(28.dp)) {
@@ -625,7 +674,11 @@ fun NewChatPickerModal(
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    placeholder = { Text("Search friends…", color = Color(0xFF64748B), fontSize = 13.sp) },
+                    textStyle = LocalTextStyle.current.copy(
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal
+                    ),
+                    placeholder = { Text("Search friends…", color = Color(0xFF64748B), fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                     leadingIcon = {
                         Icon(Icons.Default.Search, contentDescription = null, tint = Color(0xFF64748B), modifier = Modifier.size(18.dp))
                     },
@@ -654,6 +707,8 @@ fun NewChatPickerModal(
                         Text(
                             text = "No friends found",
                             fontSize = 13.sp,
+                            fontWeight = FontWeight.Normal,
+                            fontFamily = InterFontFamily,
                             color = Color(0xFF94A3B8)
                         )
                     }
@@ -699,11 +754,14 @@ fun NewChatPickerModal(
                                         text = user.name,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 14.sp,
+                                        fontFamily = InterFontFamily,
                                         color = Color.White
                                     )
                                     Text(
                                         text = user.username,
                                         fontSize = 12.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        fontFamily = InterFontFamily,
                                         color = Color(0xFF94A3B8)
                                     )
                                 }

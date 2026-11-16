@@ -255,6 +255,7 @@ fun StoryViewerDialog(
                             ) {
                                 Text(
                                     text = story.author.name,
+                                    fontFamily = InterFontFamily,
                                     color = Color.White,
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.Bold,
@@ -267,6 +268,8 @@ fun StoryViewerDialog(
                             }
                             Text(
                                 text = PostsApiService.formatRelativeTime(story.timestamp),
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 color = Color.White.copy(alpha = 0.7f),
                                 fontSize = 11.sp
                             )
@@ -292,8 +295,9 @@ fun StoryViewerDialog(
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
                                     text = if (story.author.isFollowing) "Following" else "Follow",
+                                    fontFamily = InterFontFamily,
                                     fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     color = if (story.author.isFollowing) Color(0xFFF8FAFC) else Color.White
                                 )
                             }
@@ -344,8 +348,9 @@ fun StoryViewerDialog(
                                 )
                                 Text(
                                     text = "${story.viewsCount}",
+                                    fontFamily = InterFontFamily,
                                     fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.SemiBold,
                                     color = Color.White
                                 )
                             }
@@ -411,6 +416,7 @@ fun StoryViewerDialog(
                             )
                             Text(
                                 text = story.musicTitle ?: "",
+                                fontFamily = InterFontFamily,
                                 color = Color.White,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.SemiBold
@@ -491,13 +497,14 @@ fun StoryViewerDialog(
                                     modifier = Modifier.size(18.dp)
                                 ) {
                                     Box(contentAlignment = Alignment.Center) {
-                                        Text("❤️", fontSize = 10.sp)
+                                        Text("❤️", fontFamily = InterFontFamily, fontSize = 10.sp)
                                     }
                                 }
                                 Text(
                                     text = "${story.reactionsCount} reactions",
+                                    fontFamily = InterFontFamily,
                                     fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.SemiBold,
                                     color = Color.White
                                 )
                             }
@@ -506,6 +513,8 @@ fun StoryViewerDialog(
                             if (story.commentsCount > 0) {
                                 Text(
                                     text = "${story.commentsCount} discussions",
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     fontSize = 12.sp,
                                     color = Color.White.copy(alpha = 0.7f),
                                     modifier = Modifier.clickable {
@@ -527,8 +536,9 @@ fun StoryViewerDialog(
                         OutlinedTextField(
                             value = replyText,
                             onValueChange = { replyText = it },
+                            textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
                             placeholder = {
-                                Text("Reply to ${story.author.name}…", color = Color.White.copy(alpha = 0.5f), fontSize = 13.sp)
+                                Text("Reply to ${story.author.name}…", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color.White.copy(alpha = 0.5f), fontSize = 13.sp)
                             },
                             singleLine = true,
                             shape = RoundedCornerShape(24.dp),
@@ -586,7 +596,7 @@ fun StoryViewerDialog(
                                 .clip(CircleShape)
                                 .background(Color.White.copy(alpha = 0.12f))
                         ) {
-                            Text("😍", fontSize = 18.sp)
+                            Text("😍", fontFamily = InterFontFamily, fontSize = 18.sp)
                         }
 
                         // Comment sheet opener
@@ -667,9 +677,10 @@ private fun StoryMediaContent(
         ) {
             Text(
                 text = story.textContent.ifBlank { "Sharing moments on Unera ✨" },
+                fontFamily = InterFontFamily,
                 color = Color.White,
                 fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center,
                 lineHeight = 32.sp
             )
@@ -743,8 +754,9 @@ fun StoryViewersModal(
                     )
                     Text(
                         text = "Story Viewers ($totalViews)",
+                        fontFamily = InterFontFamily,
                         fontSize = 17.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.SemiBold,
                         color = Color.White
                     )
                 }
@@ -769,6 +781,8 @@ fun StoryViewersModal(
                 ) {
                     Text(
                         text = "No viewers yet. Friends will appear here when they view your story.",
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = Color(0xFF94A3B8),
                         fontSize = 13.sp,
                         textAlign = TextAlign.Center
@@ -805,18 +819,22 @@ fun StoryViewersModal(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = viewer.name,
+                                    fontFamily = InterFontFamily,
                                     fontSize = 14.sp,
-                                    fontWeight = FontWeight.SemiBold,
+                                    fontWeight = FontWeight.Bold,
                                     color = Color.White
                                 )
                                 Text(
                                     text = "@${viewer.username}",
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     fontSize = 12.sp,
                                     color = Color(0xFF94A3B8)
                                 )
                             }
                             Text(
                                 text = "Viewed",
+                                fontFamily = InterFontFamily,
                                 fontSize = 11.sp,
                                 color = Color(0xFF38BDF8),
                                 fontWeight = FontWeight.Medium
@@ -869,8 +887,9 @@ fun StoryDiscussionsModal(
             ) {
                 Text(
                     text = "Discussions (${commentsList.size})",
+                    fontFamily = InterFontFamily,
                     fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.SemiBold,
                     color = Color.White
                 )
                 IconButton(onClick = onDismiss) {
@@ -904,6 +923,7 @@ fun StoryDiscussionsModal(
                         ) {
                             Text(
                                 text = author.take(1),
+                                fontFamily = InterFontFamily,
                                 color = Color.White,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp
@@ -920,11 +940,11 @@ fun StoryDiscussionsModal(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text(text = author, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                                Text(text = time, fontSize = 10.sp, color = Color(0xFF94A3B8))
+                                Text(text = author, fontFamily = InterFontFamily, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                                Text(text = time, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 10.sp, color = Color(0xFF94A3B8))
                             }
                             Spacer(modifier = Modifier.height(2.dp))
-                            Text(text = text, fontSize = 13.sp, color = Color(0xFFF1F5F9))
+                            Text(text = text, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 13.sp, color = Color(0xFFF1F5F9))
                         }
                     }
                 }
@@ -941,7 +961,8 @@ fun StoryDiscussionsModal(
                 OutlinedTextField(
                     value = newCommentText,
                     onValueChange = { newCommentText = it },
-                    placeholder = { Text("Write a comment…", color = Color(0xFF64748B), fontSize = 13.sp) },
+                    textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
+                    placeholder = { Text("Write a comment…", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF64748B), fontSize = 13.sp) },
                     singleLine = true,
                     shape = RoundedCornerShape(20.dp),
                     colors = OutlinedTextFieldDefaults.colors(

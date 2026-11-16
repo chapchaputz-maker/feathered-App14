@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.unera.social.model.AdCampaign
+import com.unera.social.ui.theme.InterFontFamily
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -136,13 +137,16 @@ fun AdDashboardView(
                     Text(
                         text = "Ad Analytics",
                         fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         color = Color.White,
                         letterSpacing = (-0.5).sp
                     )
                     Text(
                         text = "Track your campaign performance and analytics.",
                         fontSize = 13.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = Color(0xFFA1A1AA),
                         modifier = Modifier.padding(top = 2.dp)
                     )
@@ -166,7 +170,8 @@ fun AdDashboardView(
                         Text(
                             text = "Campaigns",
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Medium,
                             color = Color.White
                         )
                     }
@@ -262,13 +267,15 @@ fun AdDashboardView(
                                 Text(
                                     text = "Click-Through Rate (CTR)",
                                     fontSize = 13.sp,
+                                    fontFamily = InterFontFamily,
                                     color = Color(0xFFA1A1AA),
                                     fontWeight = FontWeight.Medium
                                 )
                                 Text(
                                     text = "$overallCtr%",
                                     fontSize = 32.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold,
                                     color = Color.White,
                                     modifier = Modifier.padding(top = 4.dp)
                                 )
@@ -318,6 +325,8 @@ fun AdDashboardView(
                         Text(
                             text = "Industry average: 1.5 - 2.5%",
                             fontSize = 12.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             color = Color(0xFF71717A),
                             modifier = Modifier.padding(top = 10.dp)
                         )
@@ -342,19 +351,23 @@ fun AdDashboardView(
                             Text(
                                 text = "Active Campaigns",
                                 fontSize = 13.sp,
+                                fontFamily = InterFontFamily,
                                 color = Color(0xFFA1A1AA),
                                 fontWeight = FontWeight.Medium
                             )
                             Text(
                                 text = "$activeCampaigns",
                                 fontSize = 32.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold,
                                 color = Color.White,
                                 modifier = Modifier.padding(top = 4.dp)
                             )
                             Text(
                                 text = "out of ${campaigns.size} total",
                                 fontSize = 12.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 color = Color(0xFF71717A),
                                 modifier = Modifier.padding(top = 2.dp)
                             )
@@ -401,7 +414,8 @@ fun AdDashboardView(
                         Text(
                             text = "Weekly Performance",
                             fontSize = 17.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color.White
                         )
 
@@ -419,6 +433,7 @@ fun AdDashboardView(
                                     Text(
                                         text = selectedTimeRange,
                                         fontSize = 12.sp,
+                                        fontFamily = InterFontFamily,
                                         color = Color(0xFFCBD5E1),
                                         fontWeight = FontWeight.Medium
                                     )
@@ -439,7 +454,15 @@ fun AdDashboardView(
                             ) {
                                 listOf("Last 7 days", "Last 30 days", "Last 90 days").forEach { opt ->
                                     DropdownMenuItem(
-                                        text = { Text(opt, color = Color.White, fontSize = 13.sp) },
+                                        text = {
+                                            Text(
+                                                opt,
+                                                color = Color.White,
+                                                fontSize = 13.sp,
+                                                fontFamily = InterFontFamily,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                        },
                                         onClick = {
                                             selectedTimeRange = opt
                                             showTimeDropdown = false
@@ -522,8 +545,9 @@ fun AdDashboardView(
                                 Text(
                                     text = day.day,
                                     fontSize = 11.sp,
+                                    fontFamily = InterFontFamily,
                                     color = if (isSelected) Color.White else Color(0xFF71717A),
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
                                 )
                             }
                         }
@@ -549,12 +573,15 @@ fun AdDashboardView(
                                 Text(
                                     text = "${day.day} Breakdown",
                                     fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold,
                                     color = Color.White
                                 )
                                 Text(
                                     text = "Impressions: ${day.impressions} • Clicks: ${day.clicks}",
                                     fontSize = 12.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     color = Color(0xFF38BDF8)
                                 )
                             }
@@ -581,7 +608,7 @@ fun AdDashboardView(
                                     .clip(RoundedCornerShape(2.dp))
                                     .background(Color(0xFF3B82F6))
                             )
-                            Text(text = "Impressions", fontSize = 12.sp, color = Color(0xFFA1A1AA))
+                            Text(text = "Impressions", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFFA1A1AA))
                         }
 
                         Spacer(modifier = Modifier.width(24.dp))
@@ -596,7 +623,7 @@ fun AdDashboardView(
                                     .clip(RoundedCornerShape(2.dp))
                                     .background(Color(0xFF10B981))
                             )
-                            Text(text = "Clicks", fontSize = 12.sp, color = Color(0xFFA1A1AA))
+                            Text(text = "Clicks", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFFA1A1AA))
                         }
                     }
                 }
@@ -615,12 +642,15 @@ fun AdDashboardView(
                         Text(
                             text = "Top Performing Campaigns",
                             fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color.White
                         )
                         Text(
                             text = "Campaigns ranked by engagement and impressions",
                             fontSize = 12.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             color = Color(0xFFA1A1AA),
                             modifier = Modifier.padding(top = 2.dp)
                         )
@@ -630,6 +660,8 @@ fun AdDashboardView(
                         Text(
                             text = "${campaigns.take(5).size} shown",
                             fontSize = 11.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             color = Color(0xFF71717A)
                         )
                     }
@@ -669,12 +701,15 @@ fun AdDashboardView(
                         Text(
                             text = "No campaigns yet",
                             fontSize = 15.sp,
+                            fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
                             color = Color(0xFFA1A1AA)
                         )
                         Text(
                             text = "Create your first ad to see performance data",
                             fontSize = 12.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             color = Color(0xFF71717A)
                         )
                     }
@@ -774,7 +809,8 @@ private fun TopCampaignPerformanceCard(ad: AdCampaign) {
                         Text(
                             text = ad.name.ifBlank { "Campaign #${ad.id}" },
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color.White,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
@@ -782,6 +818,8 @@ private fun TopCampaignPerformanceCard(ad: AdCampaign) {
                         Text(
                             text = "${ad.location.ifBlank { "Global" }} • ${ad.days}d",
                             fontSize = 12.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             color = Color(0xFFA1A1AA),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -806,7 +844,8 @@ private fun TopCampaignPerformanceCard(ad: AdCampaign) {
                             Text(
                                 text = ad.status.uppercase(),
                                 fontSize = 9.sp,
-                                fontWeight = FontWeight.ExtraBold,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold,
                                 color = statusColor
                             )
                         }
@@ -828,14 +867,16 @@ private fun TopCampaignPerformanceCard(ad: AdCampaign) {
                         Text(
                             text = "$ctr%",
                             fontSize = 15.sp,
-                            fontWeight = FontWeight.Black,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF34D399),
                             lineHeight = 16.sp
                         )
                         Text(
                             text = "CTR",
                             fontSize = 10.sp,
-                            fontWeight = FontWeight.ExtraBold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF6EE7B7),
                             letterSpacing = 1.sp
                         )
@@ -892,12 +933,15 @@ private fun CompactStatBox(
             Text(
                 text = value,
                 fontSize = 13.sp,
-                fontWeight = FontWeight.Bold,
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.SemiBold,
                 color = valueColor
             )
             Text(
                 text = label,
                 fontSize = 10.sp,
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.Normal,
                 color = Color(0xFFA1A1AA),
                 modifier = Modifier.padding(top = 1.dp)
             )
@@ -940,6 +984,7 @@ private fun DashboardStatCard(
                     Text(
                         text = title,
                         fontSize = 12.sp,
+                        fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Medium,
                         color = Color(0xFFA1A1AA),
                         maxLines = 1,
@@ -948,7 +993,8 @@ private fun DashboardStatCard(
                     Text(
                         text = value,
                         fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         color = Color.White,
                         modifier = Modifier.padding(top = 4.dp)
                     )
@@ -985,13 +1031,16 @@ private fun DashboardStatCard(
                     Text(
                         text = trendValue,
                         fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         color = if (trend == "up") Color(0xFF34D399) else Color(0xFFF87171)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "vs last week",
                         fontSize = 11.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = Color(0xFF71717A)
                     )
                 }
@@ -999,6 +1048,7 @@ private fun DashboardStatCard(
                 Text(
                     text = subtitleNote,
                     fontSize = 11.sp,
+                    fontFamily = InterFontFamily,
                     color = Color(0xFF34D399),
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(top = 8.dp)

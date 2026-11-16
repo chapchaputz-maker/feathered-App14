@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.unera.social.model.Post
 import com.unera.social.model.User
+import com.unera.social.ui.theme.InterFontFamily
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -179,6 +180,7 @@ fun InstagramVideoShareCard(
                             Text(
                                 text = authorName,
                                 fontSize = 15.sp,
+                                fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFFF8FAFC),
                                 maxLines = 1,
@@ -196,21 +198,29 @@ fun InstagramVideoShareCard(
                             Text(
                                 text = "@$authorUsername",
                                 fontSize = 11.5.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 color = Color(0xFF94A3B8)
                             )
                             Text(
                                 text = "•",
                                 fontSize = 11.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 color = Color(0xFF64748B)
                             )
                             Text(
                                 text = targetPost.timestamp,
                                 fontSize = 11.5.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 color = Color(0xFF94A3B8)
                             )
                             Text(
                                 text = "•",
                                 fontSize = 11.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 color = Color(0xFF64748B)
                             )
                             Icon(
@@ -257,20 +267,20 @@ fun InstagramVideoShareCard(
                             when {
                                 word.startsWith("#") && word.length > 1 -> {
                                     pushStringAnnotation(tag = "TAG", annotation = word)
-                                    withStyle(SpanStyle(color = Color(0xFF38BDF8), fontWeight = FontWeight.SemiBold)) {
+                                    withStyle(SpanStyle(color = Color(0xFF38BDF8), fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)) {
                                         append(word)
                                     }
                                     pop()
                                 }
                                 word.startsWith("@") && word.length > 1 -> {
                                     pushStringAnnotation(tag = "MENTION", annotation = word)
-                                    withStyle(SpanStyle(color = Color(0xFF60A5FA), fontWeight = FontWeight.Medium)) {
+                                    withStyle(SpanStyle(color = Color(0xFF60A5FA), fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)) {
                                         append(word)
                                     }
                                     pop()
                                 }
                                 else -> {
-                                    withStyle(SpanStyle(color = Color(0xFFF8FAFC))) {
+                                    withStyle(SpanStyle(color = Color(0xFFF8FAFC), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)) {
                                         append(word)
                                     }
                                 }
@@ -289,6 +299,8 @@ fun InstagramVideoShareCard(
                     ClickableText(
                         text = annotatedString,
                         style = LocalTextStyle.current.copy(
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             fontSize = 14.sp,
                             lineHeight = 20.sp
                         ),
@@ -302,7 +314,8 @@ fun InstagramVideoShareCard(
                         Text(
                             text = if (isCaptionExpanded) "less" else "more",
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF94A3B8),
                             modifier = Modifier
                                 .clickable { isCaptionExpanded = !isCaptionExpanded }
@@ -457,6 +470,8 @@ fun InstagramVideoShareCard(
                             text = audioTitle,
                             color = Color.White,
                             fontSize = 11.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -529,6 +544,8 @@ fun InstagramVideoShareCard(
                         Text(
                             text = "${formatCount(viewsCount)} views",
                             fontSize = 12.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             color = Color(0xFF94A3B8)
                         )
                     }
@@ -547,6 +564,8 @@ fun InstagramVideoShareCard(
                         Text(
                             text = formatCount(likesCount),
                             fontSize = 12.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             color = Color(0xFF94A3B8)
                         )
                     }
@@ -565,6 +584,8 @@ fun InstagramVideoShareCard(
                         Text(
                             text = formatCount(commentsCount),
                             fontSize = 12.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             color = Color(0xFF94A3B8)
                         )
                     }
@@ -583,6 +604,7 @@ fun InstagramVideoShareCard(
                         Text(
                             text = "Watch video",
                             fontSize = 12.sp,
+                            fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF38BDF8)
                         )

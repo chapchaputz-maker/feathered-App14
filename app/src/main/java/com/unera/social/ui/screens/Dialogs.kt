@@ -210,7 +210,8 @@ fun CreatePostModal(
                             Text(
                                 text = "Post with",
                                 fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold,
                                 color = Color(0xFFF8FAFC),
                                 modifier = Modifier.weight(1f)
                             )
@@ -218,7 +219,8 @@ fun CreatePostModal(
                                 Text(
                                     text = "Done",
                                     color = Color(0xFF1877F2),
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 16.sp
                                 )
                             }
@@ -227,7 +229,11 @@ fun CreatePostModal(
                         OutlinedTextField(
                             value = tagSearchQuery,
                             onValueChange = { tagSearchQuery = it },
-                            placeholder = { Text("Search friends…", color = Color(0xFF94A3B8)) },
+                            textStyle = LocalTextStyle.current.copy(
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal
+                            ),
+                            placeholder = { Text("Search friends…", color = Color(0xFF94A3B8), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                             leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color(0xFF94A3B8)) },
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -270,8 +276,8 @@ fun CreatePostModal(
                                     )
                                     Spacer(modifier = Modifier.width(12.dp))
                                     Column(modifier = Modifier.weight(1f)) {
-                                        Text(friend.name, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color(0xFFF8FAFC))
-                                        Text(friend.username, fontSize = 12.sp, color = Color(0xFF94A3B8))
+                                        Text(friend.name, fontFamily = InterFontFamily, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color(0xFFF8FAFC))
+                                        Text(friend.username, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = Color(0xFF94A3B8))
                                     }
                                     Checkbox(
                                         checked = isTagged,
@@ -311,7 +317,8 @@ fun CreatePostModal(
                             Text(
                                 text = "How are you feeling?",
                                 fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold,
                                 color = Color(0xFFF8FAFC)
                             )
                         }
@@ -341,7 +348,8 @@ fun CreatePostModal(
                                         Text(
                                             text = feel,
                                             fontSize = 17.sp,
-                                            fontWeight = FontWeight.Bold,
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.Medium,
                                             color = Color.White
                                         )
                                     }
@@ -373,7 +381,8 @@ fun CreatePostModal(
                             Text(
                                 text = "Search Location",
                                 fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold,
                                 color = Color(0xFFF8FAFC)
                             )
                         }
@@ -381,7 +390,11 @@ fun CreatePostModal(
                         OutlinedTextField(
                             value = locationQuery,
                             onValueChange = { locationQuery = it },
-                            placeholder = { Text("Where are you?", color = Color(0xFF94A3B8)) },
+                            textStyle = LocalTextStyle.current.copy(
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal
+                            ),
+                            placeholder = { Text("Where are you?", color = Color(0xFF94A3B8), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                             leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null, tint = Color(0xFFF02849)) },
                             trailingIcon = {
                                 if (locationQuery.isNotBlank()) {
@@ -415,7 +428,8 @@ fun CreatePostModal(
                                 Text(
                                     text = "NEARBY SUGGESTIONS",
                                     fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold,
                                     color = Color(0xFF94A3B8),
                                     modifier = Modifier.padding(vertical = 8.dp)
                                 )
@@ -437,8 +451,9 @@ fun CreatePostModal(
                                     Text(
                                         text = loc,
                                         fontSize = 15.sp,
+                                        fontFamily = InterFontFamily,
                                         color = Color(0xFFF8FAFC),
-                                        fontWeight = FontWeight.SemiBold
+                                        fontWeight = FontWeight.Medium
                                     )
                                 }
                                 HorizontalDivider(color = Color(0xFF1E293B), thickness = 0.5.dp)
@@ -472,7 +487,8 @@ fun CreatePostModal(
                                 Text(
                                     text = "Create Post",
                                     fontSize = 20.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold,
                                     color = Color(0xFFF8FAFC)
                                 )
                             }
@@ -505,7 +521,8 @@ fun CreatePostModal(
                             ) {
                                 Text(
                                     text = "POST",
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 14.sp,
                                     color = if (canPost) Color.White else Color(0xFF94A3B8)
                                 )
@@ -540,6 +557,7 @@ fun CreatePostModal(
                                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                                             Text(
                                                 text = currentUser.name,
+                                                fontFamily = InterFontFamily,
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = 19.sp,
                                                 color = Color(0xFFF8FAFC)
@@ -548,6 +566,8 @@ fun CreatePostModal(
                                                 Text(
                                                     text = " is feeling $selectedFeeling",
                                                     fontSize = 14.sp,
+                                                    fontFamily = InterFontFamily,
+                                                    fontWeight = FontWeight.Normal,
                                                     color = Color(0xFFCBD5E1)
                                                 )
                                             }
@@ -559,14 +579,17 @@ fun CreatePostModal(
                                                     Text(
                                                         text = "in ${selectedLocation?.substringBefore(",")}",
                                                         fontSize = 12.sp,
+                                                        fontFamily = InterFontFamily,
+                                                        fontWeight = FontWeight.Normal,
                                                         color = Color(0xFF94A3B8)
                                                     )
                                                 }
                                                 if (taggedUsers.isNotEmpty()) {
-                                                    if (selectedLocation != null) Text(" • ", color = Color(0xFF94A3B8), fontSize = 12.sp)
+                                                    if (selectedLocation != null) Text(" • ", color = Color(0xFF94A3B8), fontSize = 12.sp, fontFamily = InterFontFamily)
                                                     Text(
                                                         text = "with ${taggedUsers.size} other${if (taggedUsers.size > 1) "s" else ""}",
                                                         fontSize = 12.sp,
+                                                        fontFamily = InterFontFamily,
                                                         color = Color(0xFF1877F2),
                                                         fontWeight = FontWeight.SemiBold
                                                     )
@@ -584,7 +607,7 @@ fun CreatePostModal(
                                             Row(verticalAlignment = Alignment.CenterVertically) {
                                                 Icon(Icons.Default.Public, contentDescription = null, tint = Color(0xFF94A3B8), modifier = Modifier.size(12.dp))
                                                 Spacer(modifier = Modifier.width(4.dp))
-                                                Text("Public", fontSize = 11.sp, color = Color(0xFFF8FAFC), fontWeight = FontWeight.Bold)
+                                                Text("Public", fontSize = 11.sp, color = Color(0xFFF8FAFC), fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                                             }
                                         }
                                     }
@@ -643,7 +666,8 @@ fun CreatePostModal(
                                                     text = "${currentBg.iconEmoji} ${currentBg.label}",
                                                     color = Color.White,
                                                     fontSize = 11.sp,
-                                                    fontWeight = FontWeight.Bold
+                                                    fontFamily = InterFontFamily,
+                                                    fontWeight = FontWeight.SemiBold
                                                 )
                                             }
                                         }
@@ -669,7 +693,8 @@ fun CreatePostModal(
                                                     "What's on your mind?",
                                                     color = textTextColor.copy(alpha = 0.7f),
                                                     fontSize = 23.sp,
-                                                    fontWeight = FontWeight.ExtraBold,
+                                                    fontFamily = InterFontFamily,
+                                                    fontWeight = FontWeight.Bold,
                                                     textAlign = textAlignment,
                                                     modifier = Modifier.fillMaxWidth()
                                                 )
@@ -686,12 +711,12 @@ fun CreatePostModal(
                                                 fontSize = 23.sp,
                                                 fontWeight = when (textFontStyle) {
                                                     "serif" -> FontWeight.SemiBold
-                                                    "display" -> FontWeight.Black
-                                                    else -> FontWeight.ExtraBold
+                                                    "display" -> FontWeight.Bold
+                                                    else -> FontWeight.Bold
                                                 },
                                                 fontFamily = when (textFontStyle) {
                                                     "serif" -> FontFamily.Serif
-                                                    else -> FontFamily.Default
+                                                    else -> InterFontFamily
                                                 },
                                                 textAlign = textAlignment,
                                                 color = textTextColor,
@@ -711,7 +736,7 @@ fun CreatePostModal(
                                     OutlinedTextField(
                                         value = content,
                                         onValueChange = { content = it },
-                                        placeholder = { Text("What's on your mind?", color = Color(0xFF94A3B8), fontSize = 20.sp) },
+                                        placeholder = { Text("What's on your mind?", color = Color(0xFF94A3B8), fontSize = 20.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .padding(horizontal = 14.dp)
@@ -727,6 +752,8 @@ fun CreatePostModal(
                                         textStyle = androidx.compose.ui.text.TextStyle(
                                             fontSize = 20.sp,
                                             lineHeight = 28.sp,
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.Normal,
                                             color = Color(0xFFF8FAFC)
                                         )
                                     )
@@ -790,7 +817,7 @@ fun CreatePostModal(
                                                         .align(Alignment.TopStart),
                                                     contentAlignment = Alignment.Center
                                                 ) {
-                                                    Text("${index + 1}", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                                    Text("${index + 1}", color = Color.White, fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
                                                 }
 
                                                 // Remove button
@@ -830,7 +857,7 @@ fun CreatePostModal(
                                             ) {
                                                 Icon(Icons.Default.AddPhotoAlternate, contentDescription = null, modifier = Modifier.size(18.dp))
                                                 Spacer(modifier = Modifier.width(6.dp))
-                                                Text("Add Photos", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                                Text("Add Photos", fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                                             }
 
                                             OutlinedButton(
@@ -846,7 +873,7 @@ fun CreatePostModal(
                                             ) {
                                                 Icon(Icons.Default.VideoCall, contentDescription = null, modifier = Modifier.size(18.dp))
                                                 Spacer(modifier = Modifier.width(6.dp))
-                                                Text("Add Video", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                                Text("Add Video", fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                                             }
                                         }
                                     }
@@ -879,8 +906,8 @@ fun CreatePostModal(
                                             }
                                             Spacer(modifier = Modifier.width(12.dp))
                                             Column(modifier = Modifier.weight(1f)) {
-                                                Text("Link Preview", fontSize = 13.sp, color = Color(0xFF94A3B8), fontWeight = FontWeight.Bold)
-                                                Text(detectedUrl, fontSize = 14.sp, color = Color(0xFF1877F2), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                                Text("Link Preview", fontSize = 13.sp, color = Color(0xFF94A3B8), fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                                                Text(detectedUrl, fontSize = 14.sp, color = Color(0xFF1877F2), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, maxLines = 1, overflow = TextOverflow.Ellipsis)
                                             }
                                         }
                                     }
@@ -983,7 +1010,8 @@ fun CreatePostModal(
                                                             else -> "Bold"
                                                         },
                                                         fontSize = 11.sp,
-                                                        fontWeight = FontWeight.Bold,
+                                                        fontFamily = InterFontFamily,
+                                                        fontWeight = FontWeight.SemiBold,
                                                         color = Color(0xFF38BDF8)
                                                     )
                                                 }
@@ -1008,12 +1036,13 @@ fun CreatePostModal(
                                                         .padding(horizontal = 10.dp, vertical = 6.dp)
                                                 ) {
                                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                                        Text(cat.emoji, fontSize = 12.sp)
+                                                        Text(cat.emoji, fontSize = 12.sp, fontFamily = InterFontFamily)
                                                         Spacer(modifier = Modifier.width(4.dp))
                                                         Text(
                                                             text = cat.label,
                                                             fontSize = 12.sp,
-                                                            fontWeight = if (isCatSelected) FontWeight.Bold else FontWeight.Medium,
+                                                            fontFamily = InterFontFamily,
+                                                            fontWeight = if (isCatSelected) FontWeight.SemiBold else FontWeight.Medium,
                                                             color = if (isCatSelected) Color.White else Color(0xFFCBD5E1)
                                                         )
                                                     }
@@ -1049,7 +1078,7 @@ fun CreatePostModal(
                                                     ) {
                                                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                                             Icon(Icons.Default.FormatColorReset, contentDescription = "None", tint = Color.White, modifier = Modifier.size(18.dp))
-                                                            Text("None", fontSize = 9.sp, color = Color(0xFF94A3B8), fontWeight = FontWeight.Bold)
+                                                            Text("None", fontSize = 9.sp, color = Color(0xFF94A3B8), fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                                                         }
                                                     }
                                                 } else {
@@ -1065,7 +1094,8 @@ fun CreatePostModal(
                                                     ) {
                                                         Text(
                                                             text = bg.iconEmoji,
-                                                            fontSize = 18.sp
+                                                            fontSize = 18.sp,
+                                                            fontFamily = InterFontFamily
                                                         )
                                                         if (bg.isAnimated) {
                                                             // Small animated sparkle indicator badge
@@ -1192,7 +1222,8 @@ fun CreatePostModal(
                                 Text(
                                     text = "POST",
                                     fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Medium,
                                     color = if (canPost) Color.White else Color(0xFF94A3B8)
                                 )
                             }
@@ -1223,7 +1254,8 @@ private fun CreatePostOptionRow(
         Text(
             text = label,
             fontSize = 16.sp,
-            fontWeight = FontWeight.SemiBold,
+            fontFamily = InterFontFamily,
+            fontWeight = FontWeight.Medium,
             color = Color(0xFFF8FAFC)
         )
     }
@@ -1278,7 +1310,8 @@ fun CommentsDialog(
                 ) {
                     Text(
                         text = "Comments (${post.comments.size})",
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         fontSize = 17.sp,
                         color = TextPrimary
                     )
@@ -1315,6 +1348,8 @@ fun CommentsDialog(
                                 Text(
                                     text = "Be the first to comment!",
                                     color = TextSecondary,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     fontSize = 13.sp
                                 )
                             }
@@ -1351,6 +1386,7 @@ fun CommentsDialog(
                                     ) {
                                         Text(
                                             text = comment.author.name,
+                                            fontFamily = InterFontFamily,
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 13.sp,
                                             color = TextPrimary
@@ -1365,12 +1401,16 @@ fun CommentsDialog(
                                     Spacer(modifier = Modifier.height(2.dp))
                                     Text(
                                         text = comment.text,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Normal,
                                         fontSize = 13.sp,
                                         color = TextPrimary
                                     )
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(
                                         text = comment.timestamp,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Normal,
                                         fontSize = 10.sp,
                                         color = TextSecondary
                                     )
@@ -1392,7 +1432,12 @@ fun CommentsDialog(
                     OutlinedTextField(
                         value = commentText,
                         onValueChange = { commentText = it },
-                        placeholder = { Text("Write a comment…", color = TextSecondary, fontSize = 13.sp) },
+                        textStyle = LocalTextStyle.current.copy(
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 13.sp
+                        ),
+                        placeholder = { Text("Write a comment…", color = TextSecondary, fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                         modifier = Modifier
                             .weight(1f)
                             .testTag("add_comment_input"),
@@ -1501,7 +1546,8 @@ fun ProductDetailDialog(
                     Text(
                         text = "MarketPoint",
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         color = Color(0xFFF8FAFC)
                     )
 
@@ -1552,7 +1598,8 @@ fun ProductDetailDialog(
                                 Text(
                                     text = "Ad",
                                     fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold,
                                     color = Color.White,
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                                 )
@@ -1653,7 +1700,8 @@ fun ProductDetailDialog(
                                 Text(
                                     text = "Ad • Sponsored",
                                     fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold,
                                     color = Color(0xFFFB923C),
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                                 )
@@ -1662,7 +1710,8 @@ fun ProductDetailDialog(
 
                         Text(
                             text = product.title,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             fontSize = 24.sp,
                             color = Color(0xFFF8FAFC),
                             lineHeight = 30.sp
@@ -1672,7 +1721,8 @@ fun ProductDetailDialog(
 
                         Text(
                             text = formattedPrice,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             fontSize = 28.sp,
                             color = Color(0xFFF8FAFC)
                         )
@@ -1681,8 +1731,11 @@ fun ProductDetailDialog(
                             Text(
                                 text = formatMarketPrice(product.price, product.country),
                                 fontSize = 16.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 color = Color(0xFF94A3B8),
                                 style = androidx.compose.ui.text.TextStyle(
+                                    fontFamily = InterFontFamily,
                                     textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough
                                 )
                             )
@@ -1701,6 +1754,8 @@ fun ProductDetailDialog(
                             Text(
                                 text = product.location,
                                 fontSize = 14.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 color = Color(0xFF94A3B8)
                             )
                         }
@@ -1736,6 +1791,7 @@ fun ProductDetailDialog(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text(
                                         text = product.seller.name,
+                                        fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 18.sp,
                                         color = Color(0xFFF8FAFC)
@@ -1748,6 +1804,8 @@ fun ProductDetailDialog(
                                 Text(
                                     text = "Seller",
                                     fontSize = 12.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     color = Color(0xFF94A3B8)
                                 )
                             }
@@ -1802,7 +1860,8 @@ fun ProductDetailDialog(
                     ) {
                         Text(
                             text = "Description",
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             fontSize = 16.sp,
                             color = Color(0xFFF8FAFC)
                         )
@@ -1810,6 +1869,8 @@ fun ProductDetailDialog(
                         Text(
                             text = product.description.ifBlank { "No description provided for this item." },
                             fontSize = 14.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             color = Color(0xFF94A3B8),
                             lineHeight = 22.sp
                         )
@@ -1842,7 +1903,8 @@ fun ProductDetailDialog(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "Message Seller",
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Medium,
                         fontSize = 15.sp,
                         color = Color.White
                     )
@@ -1929,7 +1991,8 @@ fun CreateProductDialog(
                     Text(
                         text = "New listing",
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         color = Color(0xFFF8FAFC)
                     )
 
@@ -1958,7 +2021,8 @@ fun CreateProductDialog(
                     ) {
                         Text(
                             text = if (isPublishing) "Publishing…" else "Publish",
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 16.sp,
                             color = Color(0xFF1877F2)
                         )
@@ -1980,6 +2044,7 @@ fun CreateProductDialog(
                         Text(
                             text = "Photos",
                             fontSize = 16.sp,
+                            fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
                             color = Color(0xFFF8FAFC)
                         )
@@ -2010,6 +2075,7 @@ fun CreateProductDialog(
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Text(
                                     text = "Add photos",
+                                    fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Medium,
                                     fontSize = 14.sp,
                                     color = Color(0xFFF8FAFC)
@@ -2017,6 +2083,8 @@ fun CreateProductDialog(
                                 Text(
                                     text = "Up to 10 images",
                                     fontSize = 12.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     color = Color(0xFF94A3B8)
                                 )
                             }
@@ -2067,6 +2135,8 @@ fun CreateProductDialog(
                         Text(
                             text = "Category",
                             fontSize = 14.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF94A3B8)
                         )
                         Spacer(modifier = Modifier.height(6.dp))
@@ -2087,7 +2157,8 @@ fun CreateProductDialog(
                                         Text(
                                             text = cat.name,
                                             fontSize = 13.sp,
-                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.Medium,
                                             color = if (isSelected) Color.White else Color(0xFFF8FAFC)
                                         )
                                     }
@@ -2103,13 +2174,19 @@ fun CreateProductDialog(
                         Text(
                             text = "What are you selling?",
                             fontSize = 14.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF94A3B8)
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         OutlinedTextField(
                             value = title,
                             onValueChange = { title = it },
-                            placeholder = { Text("Title", color = Color(0xFF64748B)) },
+                            textStyle = LocalTextStyle.current.copy(
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal
+                            ),
+                            placeholder = { Text("Title", color = Color(0xFF64748B), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .testTag("product_title_input"),
@@ -2133,6 +2210,8 @@ fun CreateProductDialog(
                         Text(
                             text = "Price",
                             fontSize = 14.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF94A3B8)
                         )
                         Spacer(modifier = Modifier.height(6.dp))
@@ -2152,7 +2231,8 @@ fun CreateProductDialog(
                             ) {
                                 Text(
                                     text = getCurrencyLabel(countryCode),
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold,
                                     color = Color(0xFFF8FAFC),
                                     fontSize = 14.sp
                                 )
@@ -2161,7 +2241,11 @@ fun CreateProductDialog(
                             TextField(
                                 value = priceText,
                                 onValueChange = { priceText = it },
-                                placeholder = { Text("Price", color = Color(0xFF64748B)) },
+                                textStyle = LocalTextStyle.current.copy(
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal
+                                ),
+                                placeholder = { Text("Price", color = Color(0xFF64748B), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .testTag("product_price_input"),
@@ -2185,6 +2269,8 @@ fun CreateProductDialog(
                         Text(
                             text = "Discount price (optional)",
                             fontSize = 14.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF94A3B8)
                         )
                         Spacer(modifier = Modifier.height(6.dp))
@@ -2204,7 +2290,8 @@ fun CreateProductDialog(
                             ) {
                                 Text(
                                     text = getCurrencyLabel(countryCode),
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold,
                                     color = Color(0xFFF8FAFC),
                                     fontSize = 14.sp
                                 )
@@ -2213,7 +2300,11 @@ fun CreateProductDialog(
                             TextField(
                                 value = discountPriceText,
                                 onValueChange = { discountPriceText = it },
-                                placeholder = { Text("Discount price", color = Color(0xFF64748B)) },
+                                textStyle = LocalTextStyle.current.copy(
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal
+                                ),
+                                placeholder = { Text("Discount price", color = Color(0xFF64748B), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                                 modifier = Modifier.fillMaxSize(),
                                 colors = TextFieldDefaults.colors(
                                     focusedContainerColor = Color.Transparent,
@@ -2235,13 +2326,19 @@ fun CreateProductDialog(
                         Text(
                             text = "Location",
                             fontSize = 14.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF94A3B8)
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         OutlinedTextField(
                             value = location,
                             onValueChange = { location = it },
-                            placeholder = { Text("City, street or region…", color = Color(0xFF64748B)) },
+                            textStyle = LocalTextStyle.current.copy(
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal
+                            ),
+                            placeholder = { Text("City, street or region…", color = Color(0xFF64748B), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.Place,
@@ -2271,6 +2368,8 @@ fun CreateProductDialog(
                         Text(
                             text = "Country (from your profile)",
                             fontSize = 14.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF94A3B8)
                         )
                         Spacer(modifier = Modifier.height(6.dp))
@@ -2286,12 +2385,13 @@ fun CreateProductDialog(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.padding(horizontal = 14.dp)
                             ) {
-                                Text(text = userCountry.flag, fontSize = 20.sp)
+                                Text(text = userCountry.flag, fontSize = 20.sp, fontFamily = InterFontFamily)
                                 Spacer(modifier = Modifier.width(10.dp))
                                 Text(
                                     text = userCountry.name,
                                     fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold,
                                     color = Color(0xFFF8FAFC)
                                 )
                                 Spacer(modifier = Modifier.width(10.dp))
@@ -2304,6 +2404,7 @@ fun CreateProductDialog(
                                     Text(
                                         text = "Auto-detected • ${getCurrencyLabel(userCountry.code)}",
                                         fontSize = 11.sp,
+                                        fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.SemiBold,
                                         color = Color(0xFF38BDF8)
                                     )
@@ -2313,6 +2414,8 @@ fun CreateProductDialog(
                         Text(
                             text = "Your listing is automatically priced in ${getCurrencyLabel(userCountry.code)} and displayed to buyers across ${userCountry.name}.",
                             fontSize = 12.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             color = Color(0xFF64748B),
                             modifier = Modifier.padding(top = 4.dp, start = 2.dp)
                         )
@@ -2325,13 +2428,19 @@ fun CreateProductDialog(
                         Text(
                             text = "Description",
                             fontSize = 14.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF94A3B8)
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         OutlinedTextField(
                             value = description,
                             onValueChange = { description = it },
-                            placeholder = { Text("Describe what you are selling…", color = Color(0xFF64748B)) },
+                            textStyle = LocalTextStyle.current.copy(
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal
+                            ),
+                            placeholder = { Text("Describe what you are selling…", color = Color(0xFF64748B), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(120.dp),
@@ -2354,13 +2463,19 @@ fun CreateProductDialog(
                         Text(
                             text = "Phone Number",
                             fontSize = 14.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF94A3B8)
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         OutlinedTextField(
                             value = phone,
                             onValueChange = { phone = it },
-                            placeholder = { Text("Phone number", color = Color(0xFF64748B)) },
+                            textStyle = LocalTextStyle.current.copy(
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal
+                            ),
+                            placeholder = { Text("Phone number", color = Color(0xFF64748B), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.Phone,
@@ -2416,7 +2531,8 @@ fun CreateProductDialog(
                     ) {
                         Text(
                             text = if (isPublishing) "Publishing…" else "Publish",
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 15.sp,
                             color = Color.White
                         )
@@ -2452,7 +2568,8 @@ fun CreateEventDialog(
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
                     text = "Create an Event",
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp,
                     color = TextPrimary
                 )
@@ -2462,7 +2579,8 @@ fun CreateEventDialog(
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    placeholder = { Text("Event Name", color = TextSecondary) },
+                    textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
+                    placeholder = { Text("Event Name", color = TextSecondary, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("event_title_input"),
@@ -2481,7 +2599,8 @@ fun CreateEventDialog(
                 OutlinedTextField(
                     value = date,
                     onValueChange = { date = it },
-                    placeholder = { Text("Date & Time (e.g. Nov 20 • 6 PM)", color = TextSecondary) },
+                    textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
+                    placeholder = { Text("Date & Time (e.g. Nov 20 • 6 PM)", color = TextSecondary, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -2498,7 +2617,8 @@ fun CreateEventDialog(
                 OutlinedTextField(
                     value = location,
                     onValueChange = { location = it },
-                    placeholder = { Text("Location / Venue", color = TextSecondary) },
+                    textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
+                    placeholder = { Text("Location / Venue", color = TextSecondary, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -2515,7 +2635,8 @@ fun CreateEventDialog(
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    placeholder = { Text("Event Description", color = TextSecondary) },
+                    textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
+                    placeholder = { Text("Event Description", color = TextSecondary, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(80.dp),
@@ -2548,7 +2669,8 @@ fun CreateEventDialog(
                 ) {
                     Text(
                         text = "Publish Event",
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Medium,
                         color = TextPrimary
                     )
                 }
@@ -2597,7 +2719,12 @@ fun SearchDialog(
                     OutlinedTextField(
                         value = query,
                         onValueChange = onQueryChange,
-                        placeholder = { Text("Search Feathered…", color = TextSecondary, fontSize = 13.sp) },
+                        textStyle = LocalTextStyle.current.copy(
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 13.sp
+                        ),
+                        placeholder = { Text("Search Feathered…", color = TextSecondary, fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Search,
@@ -2657,6 +2784,8 @@ fun SearchDialog(
                             Text(
                                 text = "Search for friends, topics, products or events.",
                                 color = TextSecondary,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 fontSize = 13.sp
                             )
                         }
@@ -2666,7 +2795,8 @@ fun SearchDialog(
                             item {
                                 Text(
                                     text = "PEOPLE",
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold,
                                     fontSize = 11.sp,
                                     color = Carrot500
                                 )
@@ -2693,8 +2823,8 @@ fun SearchDialog(
                                     )
                                     Spacer(modifier = Modifier.width(10.dp))
                                     Column {
-                                        Text(u.name, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = TextPrimary)
-                                        Text("@${u.username}", fontSize = 11.sp, color = TextSecondary)
+                                        Text(u.name, fontFamily = InterFontFamily, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = TextPrimary)
+                                        Text("@${u.username}", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 11.sp, color = TextSecondary)
                                     }
                                 }
                             }
@@ -2706,7 +2836,8 @@ fun SearchDialog(
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Text(
                                     text = "MARKETPLACE",
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold,
                                     fontSize = 11.sp,
                                     color = Carrot500
                                 )
@@ -2728,8 +2859,8 @@ fun SearchDialog(
                                     )
                                     Spacer(modifier = Modifier.width(10.dp))
                                     Column {
-                                        Text(p.title, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = TextPrimary)
-                                        Text("${p.currency} ${p.price}", fontSize = 11.sp, color = Carrot500)
+                                        Text(p.title, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = TextPrimary)
+                                        Text("${p.currency} ${p.price}", fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 11.sp, color = Carrot500)
                                     }
                                 }
                             }
@@ -2741,7 +2872,8 @@ fun SearchDialog(
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Text(
                                     text = "POSTS",
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold,
                                     fontSize = 11.sp,
                                     color = Carrot500
                                 )
@@ -2749,6 +2881,8 @@ fun SearchDialog(
                             items(filteredPosts) { pst ->
                                 Text(
                                     text = pst.content,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     fontSize = 13.sp,
                                     color = TextPrimary,
                                     maxLines = 2,

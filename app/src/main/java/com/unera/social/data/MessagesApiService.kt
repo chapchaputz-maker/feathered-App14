@@ -152,7 +152,17 @@ object MessagesApiService {
                     val otherUserId = c.optLong("other_user_id", 0L)
                     val otherName = c.optString("other_name", "User").let { if (it == "null" || it.isBlank()) "User" else it }
                     val otherAvatar = c.optString("other_profile_image_url", "").let { if (it == "null") "" else it }
-                    val lastText = c.optString("last_text_preview", "").let { if (it == "null") "" else it }
+                    val rawLastText = listOf(
+                        c.optString("last_text_preview", ""),
+                        c.optString("last_message", ""),
+                        c.optString("lastMessage", ""),
+                        c.optString("latest_message", ""),
+                        c.optString("text_content", "")
+                    ).firstOrNull { it.isNotBlank() && !it.equals("null", ignoreCase = true) } ?: ""
+                    val lastText = if (
+                        rawLastText.equals("Started a conversation", ignoreCase = true) ||
+                        rawLastText.equals("Started conversation", ignoreCase = true)
+                    ) "" else rawLastText
                     val lastTime = c.optString("last_message_at", "Just now")
                     val unreadCount = c.optInt("unread_count", 0)
                     val isOnline = c.optInt("is_online", 0) == 1 || c.optBoolean("is_online", false)

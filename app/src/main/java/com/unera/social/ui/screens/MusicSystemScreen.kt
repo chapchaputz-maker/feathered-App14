@@ -41,6 +41,7 @@ import com.unera.social.model.AlbumTrackInput
 import com.unera.social.model.AudioTrack
 import com.unera.social.model.Song
 import com.unera.social.model.User
+import com.unera.social.ui.theme.InterFontFamily
 import kotlinx.coroutines.delay
 
 private const val DEFAULT_MUSIC_COVER = "https://media.featheredsocial.site/task_01kftb3024ed7bm84gy6j485fh_1769336848_img_0.webp"
@@ -236,7 +237,8 @@ fun MusicSystemScreen(
                             text = {
                                 Text(
                                     text = "MUSIC",
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 13.sp,
                                     color = if (activeView == MusicView.MUSIC) Color(0xFF1877F2) else Color(0xFF94A3B8)
                                 )
@@ -249,7 +251,8 @@ fun MusicSystemScreen(
                             text = {
                                 Text(
                                     text = "ALBUMS",
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 13.sp,
                                     color = if (activeView == MusicView.ALBUMS || activeView == MusicView.ALBUM) Color(0xFF1877F2) else Color(0xFF94A3B8)
                                 )
@@ -262,7 +265,8 @@ fun MusicSystemScreen(
                             text = {
                                 Text(
                                     text = "STUDIO",
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 13.sp,
                                     color = if (activeView == MusicView.DASHBOARD || activeView == MusicView.UPLOAD) Color(0xFF1877F2) else Color(0xFF94A3B8)
                                 )
@@ -276,7 +280,8 @@ fun MusicSystemScreen(
                                 text = {
                                     Text(
                                         text = "ARTIST",
-                                        fontWeight = FontWeight.Bold,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 13.sp,
                                         color = if (activeView == MusicView.ARTIST) Color(0xFF1877F2) else Color(0xFF94A3B8)
                                     )
@@ -363,7 +368,7 @@ fun MusicSystemScreen(
                         )
                     } else {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text("Album not found", color = Color.White)
+                            Text("Album not found", color = Color.White, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                         }
                     }
                 }
@@ -477,12 +482,15 @@ private fun MusicFeedContent(
                             text = "F-Music",
                             color = Color.White,
                             fontSize = 28.sp,
-                            fontWeight = FontWeight.ExtraBold
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold
                         )
                         Text(
                             text = "Discover trending sounds, creators and fresh vibes",
                             color = Color(0xFF94A3B8),
-                            fontSize = 13.sp
+                            fontSize = 13.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal
                         )
                     }
 
@@ -495,7 +503,7 @@ private fun MusicFeedContent(
                         ),
                         contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp)
                     ) {
-                        Text("Studio", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        Text("Studio", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, fontSize = 13.sp)
                     }
                 }
 
@@ -505,7 +513,8 @@ private fun MusicFeedContent(
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = onSearchQueryChange,
-                    placeholder = { Text("Search songs, artists...", color = Color(0xFF8D96A8), fontSize = 14.sp) },
+                    textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 14.sp),
+                    placeholder = { Text("Search songs, artists...", color = Color(0xFF8D96A8), fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                     leadingIcon = {
                         Icon(imageVector = Icons.Default.Search, contentDescription = null, tint = Color(0xFF8D96A8))
                     },
@@ -573,7 +582,8 @@ private fun MusicFeedContent(
                                 text = genre,
                                 color = if (isSelected) Color.White else Color(0xFF94A3B8),
                                 fontSize = 12.sp,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Medium,
                                 modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
                             )
                         }
@@ -614,12 +624,13 @@ private fun MusicFeedContent(
                                 contentScale = ContentScale.Crop
                             )
                             Column {
-                                Text("Now Playing", color = Color(0xFF8D96A8), fontSize = 11.sp)
+                                Text("Now Playing", color = Color(0xFF8D96A8), fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                                 Text(
                                     currentTrack.title,
                                     color = Color.White,
                                     fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -627,6 +638,8 @@ private fun MusicFeedContent(
                                     currentTrack.artist,
                                     color = Color(0xFFB8BCC7),
                                     fontSize = 12.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Bold,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -659,7 +672,8 @@ private fun MusicFeedContent(
                         text = if (searchQuery.isNotBlank()) "Search Results (${filteredSongs.size})" else "$selectedGenre Tracks (${filteredSongs.size})",
                         color = Color.White,
                         fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                 }
@@ -694,7 +708,7 @@ private fun MusicFeedContent(
                                 modifier = Modifier.size(36.dp)
                             )
                             Spacer(modifier = Modifier.height(14.dp))
-                            Text("Loading music catalog...", color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+                            Text("Loading music catalog...", color = Color.White, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
                         } else {
                             Box(
                                 modifier = Modifier
@@ -715,13 +729,16 @@ private fun MusicFeedContent(
                                 text = "No Songs Available Yet",
                                 color = Color.White,
                                 fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold
                             )
                             Spacer(modifier = Modifier.height(6.dp))
                             Text(
                                 text = "Be the first creator to distribute your music to the Feathered community!",
                                 color = Color(0xFF94A3B8),
                                 fontSize = 13.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 textAlign = TextAlign.Center
                             )
                             Spacer(modifier = Modifier.height(20.dp))
@@ -736,7 +753,7 @@ private fun MusicFeedContent(
                                 ) {
                                     Icon(imageVector = Icons.Default.CloudUpload, contentDescription = null, modifier = Modifier.size(18.dp))
                                     Spacer(modifier = Modifier.width(6.dp))
-                                    Text("Creator Studio", fontWeight = FontWeight.Bold)
+                                    Text("Creator Studio", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                                 }
                                 OutlinedButton(
                                     onClick = onRefresh,
@@ -747,7 +764,7 @@ private fun MusicFeedContent(
                                 ) {
                                     Icon(imageVector = Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
                                     Spacer(modifier = Modifier.width(6.dp))
-                                    Text("Refresh")
+                                    Text("Refresh", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                                 }
                             }
                         }
@@ -822,12 +839,15 @@ private fun MusicFeedContent(
                         text = "All Songs",
                         color = Color.White,
                         fontSize = 22.sp,
-                        fontWeight = FontWeight.ExtraBold
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold
                     )
                     Text(
                         text = "A fresh ranked mix from all Feathered creators",
                         color = Color(0xFF9CA3AF),
-                        fontSize = 13.sp
+                        fontSize = 13.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                 }
@@ -910,21 +930,25 @@ private fun HeroBannerCard(
                     text = "FEATURED",
                     color = Color(0xFF1877F2),
                     fontSize = 11.sp,
-                    fontWeight = FontWeight.ExtraBold,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold,
                     letterSpacing = 1.sp
                 )
                 Text(
                     text = song.title,
                     color = Color.White,
                     fontSize = 20.sp,
-                    fontWeight = FontWeight.ExtraBold,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = song.artist,
                     color = Color.White.copy(alpha = 0.85f),
-                    fontSize = 13.sp
+                    fontSize = 13.sp,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
@@ -944,7 +968,9 @@ private fun HeroBannerCard(
                     Text(
                         text = "${formatCompactNumber(plays)} plays",
                         color = Color.White,
-                        fontSize = 11.sp
+                        fontSize = 11.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal
                     )
                 }
             }
@@ -996,6 +1022,7 @@ private fun QuickActionItem(
             text = label,
             color = Color.White,
             fontSize = 12.sp,
+            fontFamily = InterFontFamily,
             fontWeight = FontWeight.Medium
         )
     }
@@ -1019,12 +1046,15 @@ private fun HorizontalMusicSection(
                 text = title,
                 color = Color.White,
                 fontSize = 22.sp,
-                fontWeight = FontWeight.ExtraBold
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.SemiBold
             )
             Text(
                 text = subtitle,
                 color = Color(0xFF9CA3AF),
-                fontSize = 13.sp
+                fontSize = 13.sp,
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.Normal
             )
         }
 
@@ -1092,7 +1122,8 @@ private fun MusicFeedCard(
                         text = badge,
                         color = Color.White,
                         fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
             }
@@ -1149,13 +1180,17 @@ private fun MusicFeedCard(
                         Text(
                             text = formatCompactNumber(song.stats.plays),
                             color = Color.White,
-                            fontSize = 11.sp
+                            fontSize = 11.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal
                         )
                     }
                     Text(
                         text = song.duration,
                         color = Color.White,
-                        fontSize = 11.sp
+                        fontSize = 11.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal
                     )
                 }
             }
@@ -1168,7 +1203,8 @@ private fun MusicFeedCard(
             text = song.title,
             color = Color.White,
             fontSize = 14.sp,
-            fontWeight = FontWeight.Bold,
+            fontFamily = InterFontFamily,
+            fontWeight = FontWeight.SemiBold,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -1183,6 +1219,8 @@ private fun MusicFeedCard(
                 text = song.artist,
                 color = Color(0xFF94A3B8),
                 fontSize = 12.sp,
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f, fill = false)
@@ -1219,7 +1257,8 @@ private fun SongRankedListItem(
                 text = "$index",
                 color = Color(0xFF9CA3AF),
                 fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.width(20.dp),
                 textAlign = TextAlign.Center
             )
@@ -1238,6 +1277,7 @@ private fun SongRankedListItem(
                     text = song.title,
                     color = Color.White,
                     fontSize = 14.sp,
+                    fontFamily = InterFontFamily,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -1246,6 +1286,8 @@ private fun SongRankedListItem(
                     text = song.artist,
                     color = Color(0xFF9CA3AF),
                     fontSize = 12.sp,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -1254,7 +1296,9 @@ private fun SongRankedListItem(
             Text(
                 text = "${formatCompactNumber(song.stats.plays)} plays",
                 color = Color(0xFF9CA3AF),
-                fontSize = 12.sp
+                fontSize = 12.sp,
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.Normal
             )
 
             IconButton(onClick = onToggleLike) {
@@ -1301,7 +1345,8 @@ private fun SongRowItem(
                     text = song.title,
                     color = Color.White,
                     fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -1309,6 +1354,8 @@ private fun SongRowItem(
                     text = "${song.artist} • ${song.genre}",
                     color = Color(0xFF94A3B8),
                     fontSize = 13.sp,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Normal,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -1346,12 +1393,15 @@ private fun AlbumsListContent(
                     text = "Albums",
                     color = Color.White,
                     fontSize = 28.sp,
-                    fontWeight = FontWeight.ExtraBold
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold
                 )
                 Text(
                     text = "Browse music projects from Feathered creators",
                     color = Color(0xFFA8AFBC),
-                    fontSize = 14.sp
+                    fontSize = 14.sp,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Normal
                 )
             }
         }
@@ -1381,7 +1431,8 @@ private fun AlbumsListContent(
                             text = album.name,
                             color = Color.White,
                             fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -1389,13 +1440,17 @@ private fun AlbumsListContent(
                             text = album.artist,
                             color = Color(0xFFB8BCC7),
                             fontSize = 13.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Bold,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
                         Text(
                             text = "${album.totalTracks} songs",
                             color = Color(0xFF888888),
-                            fontSize = 12.sp
+                            fontSize = 12.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal
                         )
                     }
                 }
@@ -1408,7 +1463,8 @@ private fun AlbumsListContent(
                 text = "All Projects",
                 color = Color.White,
                 fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.SemiBold
             )
         }
 
@@ -1437,17 +1493,22 @@ private fun AlbumsListContent(
                             text = album.name,
                             color = Color.White,
                             fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold
                         )
                         Text(
                             text = album.artist,
                             color = Color(0xFF94A3B8),
-                            fontSize = 13.sp
+                            fontSize = 13.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Bold
                         )
                         Text(
                             text = "${album.totalTracks} tracks",
                             color = Color(0xFF64748B),
-                            fontSize = 12.sp
+                            fontSize = 12.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal
                         )
                     }
 
@@ -1531,7 +1592,8 @@ private fun AlbumDetailContent(
                                 text = album.name,
                                 color = Color.White,
                                 fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold,
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis
                             )
@@ -1539,12 +1601,16 @@ private fun AlbumDetailContent(
                             Text(
                                 text = album.artist,
                                 color = Color.White.copy(alpha = 0.8f),
-                                fontSize = 15.sp
+                                fontSize = 15.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Bold
                             )
                             Text(
                                 text = "${album.totalTracks} songs",
                                 color = Color.White.copy(alpha = 0.6f),
-                                fontSize = 13.sp
+                                fontSize = 13.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal
                             )
                         }
                     }
@@ -1561,7 +1627,7 @@ private fun AlbumDetailContent(
                     ) {
                         Icon(imageVector = Icons.Default.PlayArrow, contentDescription = null)
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Play All (${album.totalTracks})", fontWeight = FontWeight.Bold)
+                        Text("Play All (${album.totalTracks})", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                     }
                 }
             }
@@ -1586,7 +1652,8 @@ private fun AlbumDetailContent(
                     Text(
                         text = "${index + 1}",
                         color = Color(0xFFB0B3B8),
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         fontSize = 14.sp,
                         modifier = Modifier.width(20.dp),
                         textAlign = TextAlign.Center
@@ -1606,7 +1673,8 @@ private fun AlbumDetailContent(
                             text = song.title,
                             color = Color.White,
                             fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -1614,6 +1682,8 @@ private fun AlbumDetailContent(
                             text = song.artist,
                             color = Color(0xFF888888),
                             fontSize = 12.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Bold,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -1622,7 +1692,9 @@ private fun AlbumDetailContent(
                     Text(
                         text = song.duration,
                         color = Color(0xFFB0B3B8),
-                        fontSize = 13.sp
+                        fontSize = 13.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal
                     )
 
                     IconButton(onClick = { onToggleLikeSong(song) }) {
@@ -1674,13 +1746,16 @@ private fun CreatorStudioDashboard(
                     text = "Creator Studio",
                     color = Color.White,
                     fontSize = 26.sp,
-                    fontWeight = FontWeight.ExtraBold
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Upload your music and albums. Monitor your listener analytics.",
                     color = Color(0xFF888888),
                     fontSize = 13.sp,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Normal,
                     textAlign = TextAlign.Center
                 )
 
@@ -1697,7 +1772,7 @@ private fun CreatorStudioDashboard(
                 ) {
                     Icon(imageVector = Icons.Default.CloudUpload, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Upload New Content", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                    Text("Upload New Content", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, fontSize = 15.sp)
                 }
             }
         }
@@ -1741,8 +1816,8 @@ private fun CreatorStudioDashboard(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
-                Text("Your Catalog", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                Text("Manage your uploaded music tracks", color = Color(0xFF888888), fontSize = 12.sp)
+                Text("Your Catalog", color = Color.White, fontSize = 18.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                Text("Manage your uploaded music tracks", color = Color(0xFF888888), fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
             }
         }
 
@@ -1753,7 +1828,9 @@ private fun CreatorStudioDashboard(
                         text = "No uploads yet. Tap 'Upload New Content' above to distribute your first song!",
                         color = Color(0xFF666666),
                         textAlign = TextAlign.Center,
-                        fontSize = 13.sp
+                        fontSize = 13.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal
                     )
                 }
             }
@@ -1780,13 +1857,13 @@ private fun CreatorStudioDashboard(
                         )
 
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(song.title, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                            Text("${song.artist} • ${song.album}", color = Color(0xFF888888), fontSize = 12.sp)
+                            Text(song.title, color = Color.White, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                            Text("${song.artist} • ${song.album}", color = Color(0xFF888888), fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                         }
 
                         Column(horizontalAlignment = Alignment.End) {
-                            Text("${formatCompactNumber(plays)} plays", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-                            Text("${song.stats.likes} likes", color = Color(0xFF888888), fontSize = 11.sp)
+                            Text("${formatCompactNumber(plays)} plays", color = Color.White, fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                            Text("${song.stats.likes} likes", color = Color(0xFF888888), fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                         }
 
                         IconButton(
@@ -1826,11 +1903,11 @@ private fun MetricStatCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(title, color = Color(0xFFB0B3B8), fontSize = 11.sp)
+                Text(title, color = Color(0xFFB0B3B8), fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                 Icon(imageVector = icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(16.dp))
             }
             Spacer(modifier = Modifier.height(4.dp))
-            Text(value, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text(value, color = Color.White, fontSize = 18.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
         }
     }
 }
@@ -1916,8 +1993,8 @@ private fun UploadSongStudio(
                 }
 
                 Column {
-                    Text("Creator Upload Studio", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                    Text("Distribute high-fidelity singles or albums to F-Music", color = Color(0xFFA8AFBC), fontSize = 13.sp)
+                    Text("Creator Upload Studio", color = Color.White, fontSize = 22.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                    Text("Distribute high-fidelity singles or albums to F-Music", color = Color(0xFFA8AFBC), fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                 }
             }
         }
@@ -1936,8 +2013,8 @@ private fun UploadSongStudio(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text(uploadStatus ?: "Uploading...", color = Color.White, fontWeight = FontWeight.Bold)
-                            Text("$uploadProgress%", color = Color(0xFF38BDF8), fontWeight = FontWeight.Bold)
+                            Text(uploadStatus ?: "Uploading...", color = Color.White, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                            Text("$uploadProgress%", color = Color(0xFF38BDF8), fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         LinearProgressIndicator(
@@ -1973,7 +2050,7 @@ private fun UploadSongStudio(
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("Single", fontWeight = FontWeight.Bold)
+                            Text("Single", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                         }
 
                         Button(
@@ -1988,17 +2065,18 @@ private fun UploadSongStudio(
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("Album", fontWeight = FontWeight.Bold)
+                            Text("Album", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                         }
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Text("MAIN ARTIST NAME", color = Color(0xFF888888), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    Text("MAIN ARTIST NAME", color = Color(0xFF888888), fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
                     Spacer(modifier = Modifier.height(6.dp))
                     OutlinedTextField(
                         value = artistName,
                         onValueChange = { artistName = it },
+                        textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp),
                         colors = OutlinedTextFieldDefaults.colors(
@@ -2013,12 +2091,13 @@ private fun UploadSongStudio(
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    Text("GENRE / CATEGORY", color = Color(0xFF888888), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    Text("GENRE / CATEGORY", color = Color(0xFF888888), fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
                     Spacer(modifier = Modifier.height(6.dp))
                     OutlinedTextField(
                         value = genre,
                         onValueChange = { genre = it },
-                        placeholder = { Text("Afrobeats, Bongo Fleva, Amapiano, Hip Hop...", color = Color(0xFF6B7280)) },
+                        textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
+                        placeholder = { Text("Afrobeats, Bongo Fleva, Amapiano, Hip Hop...", color = Color(0xFF6B7280), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp),
                         colors = OutlinedTextFieldDefaults.colors(
@@ -2039,8 +2118,8 @@ private fun UploadSongStudio(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("COVER ARTWORK", color = Color(0xFF888888), fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                        Text("* MANDATORY", color = Color(0xFFEF4444), fontSize = 11.sp, fontWeight = FontWeight.ExtraBold)
+                        Text("COVER ARTWORK", color = Color(0xFF888888), fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                        Text("* MANDATORY", color = Color(0xFFEF4444), fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
                     }
                     Spacer(modifier = Modifier.height(8.dp))
 
@@ -2064,8 +2143,8 @@ private fun UploadSongStudio(
                                 contentScale = ContentScale.Crop
                             )
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("Artwork Ready", color = Color(0xFF10B981), fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                Text("Will be auto-compressed to 900x900 WebP for optimal streaming", color = Color(0xFF94A3B8), fontSize = 11.sp)
+                                Text("Artwork Ready", color = Color(0xFF10B981), fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                                Text("Will be auto-compressed to 900x900 WebP for optimal streaming", color = Color(0xFF94A3B8), fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                                 Spacer(modifier = Modifier.height(6.dp))
                                 OutlinedButton(
                                     onClick = {
@@ -2075,7 +2154,7 @@ private fun UploadSongStudio(
                                     shape = RoundedCornerShape(8.dp),
                                     colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF38BDF8))
                                 ) {
-                                    Text("Change Artwork", fontSize = 12.sp)
+                                    Text("Change Artwork", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                                 }
                             }
                         }
@@ -2114,12 +2193,15 @@ private fun UploadSongStudio(
                                     text = "Upload Cover Artwork *",
                                     color = Color.White,
                                     fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold
                                 )
                                 Text(
                                     text = "Cover photo is required to publish music on F-Music",
                                     color = Color(0xFFEF4444).copy(alpha = 0.9f),
                                     fontSize = 12.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     textAlign = TextAlign.Center
                                 )
                             }
@@ -2129,7 +2211,7 @@ private fun UploadSongStudio(
                     Spacer(modifier = Modifier.height(18.dp))
 
                     if (mode == "single") {
-                        Text("SONG TITLE", color = Color(0xFF888888), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        Text("SONG TITLE", color = Color(0xFF888888), fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
                         Spacer(modifier = Modifier.height(6.dp))
                         OutlinedTextField(
                             value = songTitle,
@@ -2137,7 +2219,8 @@ private fun UploadSongStudio(
                                 songTitle = it
                                 formError = null
                             },
-                            placeholder = { Text("Enter track title...", color = Color(0xFF6B7280)) },
+                            textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
+                            placeholder = { Text("Enter track title...", color = Color(0xFF6B7280), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(10.dp),
                             colors = OutlinedTextFieldDefaults.colors(
@@ -2158,8 +2241,8 @@ private fun UploadSongStudio(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("AUDIO FILE", color = Color(0xFF888888), fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                            Text("* MANDATORY", color = Color(0xFFEF4444), fontSize = 11.sp, fontWeight = FontWeight.ExtraBold)
+                            Text("AUDIO FILE", color = Color(0xFF888888), fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                            Text("* MANDATORY", color = Color(0xFFEF4444), fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
                         }
                         Spacer(modifier = Modifier.height(8.dp))
 
@@ -2189,11 +2272,13 @@ private fun UploadSongStudio(
                                     )
                                 }
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text("Audio Track Attached", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                    Text("Audio Track Attached", color = Color.White, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
                                     Text(
                                         singleAudioName ?: "Selected audio file",
                                         color = Color(0xFF94A3B8),
                                         fontSize = 11.sp,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Normal,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis
                                     )
@@ -2203,7 +2288,7 @@ private fun UploadSongStudio(
                                     shape = RoundedCornerShape(8.dp),
                                     colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF38BDF8))
                                 ) {
-                                    Text("Change", fontSize = 12.sp)
+                                    Text("Change", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                                 }
                             }
                         } else {
@@ -2235,8 +2320,8 @@ private fun UploadSongStudio(
                                         )
                                     }
                                     Column(modifier = Modifier.weight(1f)) {
-                                        Text("Select Audio File *", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                        Text("MP3, WAV, M4A or FLAC from device storage", color = Color(0xFF94A3B8), fontSize = 12.sp)
+                                        Text("Select Audio File *", color = Color.White, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                                        Text("MP3, WAV, M4A or FLAC from device storage", color = Color(0xFF94A3B8), fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                                     }
                                     Icon(imageVector = Icons.Default.ChevronRight, contentDescription = null, tint = Color(0xFF64748B))
                                 }
@@ -2244,7 +2329,7 @@ private fun UploadSongStudio(
                         }
                     } else {
                         // ALBUM MODE
-                        Text("ALBUM NAME", color = Color(0xFF888888), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        Text("ALBUM NAME", color = Color(0xFF888888), fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
                         Spacer(modifier = Modifier.height(6.dp))
                         OutlinedTextField(
                             value = albumTitle,
@@ -2252,7 +2337,8 @@ private fun UploadSongStudio(
                                 albumTitle = it
                                 formError = null
                             },
-                            placeholder = { Text("Enter album name...", color = Color(0xFF6B7280)) },
+                            textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
+                            placeholder = { Text("Enter album name...", color = Color(0xFF6B7280), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(10.dp),
                             colors = OutlinedTextFieldDefaults.colors(
@@ -2267,11 +2353,11 @@ private fun UploadSongStudio(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        Text("TRACKS IN ALBUM (${albumTracksList.size})", color = Color(0xFF888888), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        Text("TRACKS IN ALBUM (${albumTracksList.size})", color = Color(0xFF888888), fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
                         Spacer(modifier = Modifier.height(6.dp))
 
                         if (albumTracksList.isEmpty()) {
-                            Text("No tracks added yet. Add at least one track below.", color = Color(0xFF64748B), fontSize = 12.sp)
+                            Text("No tracks added yet. Add at least one track below.", color = Color(0xFF64748B), fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                         } else {
                             albumTracksList.forEachIndexed { idx, track ->
                                 Row(
@@ -2289,8 +2375,8 @@ private fun UploadSongStudio(
                                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                                         modifier = Modifier.weight(1f)
                                     ) {
-                                        Text("${idx + 1}.", color = Color(0xFF1877F2), fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                                        Text(track.title, color = Color.White, fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                        Text("${idx + 1}.", color = Color(0xFF1877F2), fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                                        Text(track.title, color = Color.White, fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, maxLines = 1, overflow = TextOverflow.Ellipsis)
                                     }
                                     IconButton(
                                         onClick = { albumTracksList = albumTracksList.filterIndexed { i, _ -> i != idx } },
@@ -2312,12 +2398,13 @@ private fun UploadSongStudio(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Column(modifier = Modifier.padding(12.dp)) {
-                                Text("Add Track to Album", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                                Text("Add Track to Album", color = Color.White, fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
                                 Spacer(modifier = Modifier.height(8.dp))
                                 OutlinedTextField(
                                     value = pendingTrackTitle,
                                     onValueChange = { pendingTrackTitle = it },
-                                    placeholder = { Text("Track title...", color = Color(0xFF6B7280)) },
+                                    textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
+                                    placeholder = { Text("Track title...", color = Color(0xFF6B7280), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                                     modifier = Modifier.fillMaxWidth(),
                                     shape = RoundedCornerShape(8.dp),
                                     singleLine = true
@@ -2346,7 +2433,9 @@ private fun UploadSongStudio(
                                             if (pendingTrackAudioUri != null) pendingTrackAudioName ?: "Audio Selected" else "Choose Audio *",
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis,
-                                            fontSize = 12.sp
+                                            fontSize = 12.sp,
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.Medium
                                         )
                                     }
                                     Button(
@@ -2368,7 +2457,7 @@ private fun UploadSongStudio(
                                         shape = RoundedCornerShape(8.dp),
                                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1877F2))
                                     ) {
-                                        Text("Add Track", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                        Text("Add Track", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, fontSize = 12.sp)
                                     }
                                 }
                             }
@@ -2390,7 +2479,7 @@ private fun UploadSongStudio(
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 Icon(imageVector = Icons.Default.ErrorOutline, contentDescription = null, tint = Color(0xFFEF4444), modifier = Modifier.size(18.dp))
-                                Text(formError!!, color = Color(0xFFEF4444), fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                                Text(formError!!, color = Color(0xFFEF4444), fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                             }
                         }
                     }
@@ -2479,7 +2568,8 @@ private fun UploadSongStudio(
                         Text(
                             if (mode == "single") "Publish Single to F-Music" else "Publish Album (${albumTracksList.size} Tracks)",
                             fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 }
@@ -2564,12 +2654,15 @@ private fun ArtistProfileReleasesContent(
                             text = artistName,
                             color = Color.White,
                             fontSize = 24.sp,
+                            fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
                             text = "${artistSongs.size} releases on F-Music",
                             color = Color(0xFF94A3B8),
-                            fontSize = 13.sp
+                            fontSize = 13.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal
                         )
                     }
                 }
@@ -2581,7 +2674,8 @@ private fun ArtistProfileReleasesContent(
                 text = "Popular Releases",
                 color = Color.White,
                 fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
         }

@@ -41,6 +41,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.unera.social.model.User
+import com.unera.social.ui.theme.InterFontFamily
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -111,6 +112,11 @@ fun LocationSearch(
                     onChangeText(it)
                     expanded = true
                 },
+                textStyle = LocalTextStyle.current.copy(
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 14.sp
+                ),
                 placeholder = {
                     Text(
                         text = if (userFallbackLocation.isNotEmpty() && value.isEmpty()) {
@@ -118,6 +124,8 @@ fun LocationSearch(
                         } else {
                             "Type location or search city, venue, or address..."
                         },
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = TextMuted,
                         fontSize = 14.sp
                     )
@@ -198,6 +206,8 @@ fun LocationSearch(
                                 Spacer(modifier = Modifier.width(10.dp))
                                 Text(
                                     text = suggestion,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     color = TextWhite,
                                     fontSize = 13.sp,
                                     maxLines = 1,
@@ -221,6 +231,8 @@ fun LocationSearch(
                             Spacer(modifier = Modifier.width(10.dp))
                             Text(
                                 text = "Your typed location will be used.",
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 color = TextMuted,
                                 fontSize = 12.sp
                             )
@@ -375,7 +387,8 @@ fun CreateEventModal(
 
                         Text(
                             text = pageTitle,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             fontSize = 19.sp,
                             color = TextWhite,
                             maxLines = 1,
@@ -392,7 +405,8 @@ fun CreateEventModal(
                         ) {
                             Text(
                                 text = if (isUploading) "Creating..." else "Create",
-                                fontWeight = FontWeight.Bold,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 16.sp,
                                 color = if (isUploading) TextDisabled else BrandBlue
                             )
@@ -434,6 +448,8 @@ fun CreateEventModal(
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
                                     text = errorMessage ?: "",
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     color = Color(0xFFFEE2E2),
                                     fontSize = 13.sp
                                 )
@@ -445,6 +461,7 @@ fun CreateEventModal(
                     Column {
                         Text(
                             text = "Cover photo",
+                            fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 16.sp,
                             color = TextWhite,
@@ -497,9 +514,10 @@ fun CreateEventModal(
                                 ) {
                                     Text(
                                         text = "Change cover",
+                                        fontFamily = InterFontFamily,
                                         color = Color.White,
                                         fontSize = 13.sp,
-                                        fontWeight = FontWeight.SemiBold,
+                                        fontWeight = FontWeight.Medium,
                                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                                     )
                                 }
@@ -542,6 +560,7 @@ fun CreateEventModal(
                                     Spacer(modifier = Modifier.height(10.dp))
                                     Text(
                                         text = "Add cover photo",
+                                        fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.SemiBold,
                                         fontSize = 15.sp,
                                         color = TextWhite
@@ -549,6 +568,8 @@ fun CreateEventModal(
                                     Spacer(modifier = Modifier.height(2.dp))
                                     Text(
                                         text = "Tap to choose from gallery or use presets below",
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Normal,
                                         fontSize = 12.sp,
                                         color = TextMuted
                                     )
@@ -565,6 +586,8 @@ fun CreateEventModal(
                         ) {
                             Text(
                                 text = if (imageUri != null) "1 cover selected" else "Presets:",
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 fontSize = 12.sp,
                                 color = TextMuted
                             )
@@ -587,8 +610,9 @@ fun CreateEventModal(
                                     ) {
                                         Text(
                                             text = label,
+                                            fontFamily = InterFontFamily,
                                             fontSize = 11.sp,
-                                            fontWeight = if (imageUri == url) FontWeight.Bold else FontWeight.Normal,
+                                            fontWeight = if (imageUri == url) FontWeight.Medium else FontWeight.Normal,
                                             color = if (imageUri == url) BrandBlue else TextWhite,
                                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                                         )
@@ -626,6 +650,7 @@ fun CreateEventModal(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = if (groupId != null) "Posting in ${groupName ?: "Group"}" else "Public Event",
+                                    fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 15.sp,
                                     color = TextWhite
@@ -636,6 +661,8 @@ fun CreateEventModal(
                                     } else {
                                         "Create an event for the Feathered community."
                                     },
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     fontSize = 13.sp,
                                     color = TextMuted
                                 )
@@ -647,6 +674,8 @@ fun CreateEventModal(
                     Column {
                         Text(
                             text = "Event name",
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             fontSize = 14.sp,
                             color = TextMuted,
                             modifier = Modifier.padding(bottom = 6.dp)
@@ -654,7 +683,12 @@ fun CreateEventModal(
                         OutlinedTextField(
                             value = title,
                             onValueChange = { title = it },
-                            placeholder = { Text("What is your event called?", color = TextMuted, fontSize = 14.sp) },
+                            textStyle = LocalTextStyle.current.copy(
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
+                                fontSize = 14.sp
+                            ),
+                            placeholder = { Text("What is your event called?", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = TextMuted, fontSize = 14.sp) },
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(
                                 capitalization = KeyboardCapitalization.Sentences,
@@ -680,6 +714,8 @@ fun CreateEventModal(
                     Column {
                         Text(
                             text = "Start date & time",
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             fontSize = 14.sp,
                             color = TextMuted,
                             modifier = Modifier.padding(bottom = 6.dp)
@@ -692,7 +728,12 @@ fun CreateEventModal(
                             OutlinedTextField(
                                 value = date,
                                 onValueChange = { date = it },
-                                placeholder = { Text("e.g. Nov 14, 2026", color = TextMuted, fontSize = 13.sp) },
+                                textStyle = LocalTextStyle.current.copy(
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
+                                    fontSize = 13.sp
+                                ),
+                                placeholder = { Text("e.g. Nov 14, 2026", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = TextMuted, fontSize = 13.sp) },
                                 leadingIcon = {
                                     Icon(
                                         imageVector = Icons.Default.CalendarToday,
@@ -720,7 +761,12 @@ fun CreateEventModal(
                             OutlinedTextField(
                                 value = time,
                                 onValueChange = { time = it },
-                                placeholder = { Text("e.g. 6:30 PM", color = TextMuted, fontSize = 13.sp) },
+                                textStyle = LocalTextStyle.current.copy(
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
+                                    fontSize = 13.sp
+                                ),
+                                placeholder = { Text("e.g. 6:30 PM", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = TextMuted, fontSize = 13.sp) },
                                 leadingIcon = {
                                     Icon(
                                         imageVector = Icons.Default.Schedule,
@@ -759,6 +805,8 @@ fun CreateEventModal(
                                 ) {
                                     Text(
                                         text = suggestion,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 11.sp,
                                         color = TextMuted,
                                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
@@ -772,6 +820,8 @@ fun CreateEventModal(
                     Column {
                         Text(
                             text = "Location",
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             fontSize = 14.sp,
                             color = TextMuted,
                             modifier = Modifier.padding(bottom = 6.dp)
@@ -786,6 +836,8 @@ fun CreateEventModal(
 
                         Text(
                             text = "You can type manually even if location search does not work.",
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             fontSize = 12.sp,
                             color = TextMuted,
                             modifier = Modifier.padding(top = 6.dp)
@@ -797,6 +849,8 @@ fun CreateEventModal(
                         Column {
                             Text(
                                 text = "Where to show event",
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold,
                                 fontSize = 14.sp,
                                 color = TextMuted,
                                 modifier = Modifier.padding(bottom = 8.dp)
@@ -827,11 +881,12 @@ fun CreateEventModal(
                                 ) {
                                     Column(modifier = Modifier.padding(14.dp)) {
                                         Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Text(userCountry.flag, fontSize = 18.sp)
+                                            Text(userCountry.flag, fontFamily = InterFontFamily, fontSize = 18.sp)
                                             Spacer(modifier = Modifier.width(6.dp))
                                             Text(
                                                 text = "Across ${userCountry.name}",
-                                                fontWeight = FontWeight.Bold,
+                                                fontFamily = InterFontFamily,
+                                                fontWeight = FontWeight.SemiBold,
                                                 fontSize = 14.sp,
                                                 color = TextWhite
                                             )
@@ -839,6 +894,8 @@ fun CreateEventModal(
                                         Spacer(modifier = Modifier.height(4.dp))
                                         Text(
                                             text = "Show across ${userCountry.name} users based on your profile location.",
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.Normal,
                                             fontSize = 12.sp,
                                             color = TextMuted
                                         )
@@ -875,7 +932,8 @@ fun CreateEventModal(
                                             Spacer(modifier = Modifier.width(6.dp))
                                             Text(
                                                 text = "Worldwide",
-                                                fontWeight = FontWeight.Bold,
+                                                fontFamily = InterFontFamily,
+                                                fontWeight = FontWeight.SemiBold,
                                                 fontSize = 14.sp,
                                                 color = TextWhite
                                             )
@@ -883,6 +941,8 @@ fun CreateEventModal(
                                         Spacer(modifier = Modifier.height(4.dp))
                                         Text(
                                             text = "Country rule ignored — visible to any user from any country.",
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.Normal,
                                             fontSize = 12.sp,
                                             color = TextMuted
                                         )
@@ -893,6 +953,8 @@ fun CreateEventModal(
                             if (visibility == "targeted") {
                                 Text(
                                     text = "Your host country is ${userCountry.name} (from your profile). This event will be displayed to users in ${userCountry.name}.",
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     fontSize = 12.sp,
                                     fontStyle = FontStyle.Italic,
                                     color = Color(0xFF38BDF8),
@@ -901,6 +963,8 @@ fun CreateEventModal(
                             } else {
                                 Text(
                                     text = "Worldwide event: Any user from any country can see and join this event.",
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     fontSize = 12.sp,
                                     fontStyle = FontStyle.Italic,
                                     color = Color(0xFF38BDF8),
@@ -914,6 +978,8 @@ fun CreateEventModal(
                     Column {
                         Text(
                             text = "Description",
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             fontSize = 14.sp,
                             color = TextMuted,
                             modifier = Modifier.padding(bottom = 6.dp)
@@ -921,7 +987,12 @@ fun CreateEventModal(
                         OutlinedTextField(
                             value = desc,
                             onValueChange = { desc = it },
-                            placeholder = { Text("Tell people more about this event...", color = TextMuted, fontSize = 14.sp) },
+                            textStyle = LocalTextStyle.current.copy(
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
+                                fontSize = 14.sp
+                            ),
+                            placeholder = { Text("Tell people more about this event...", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = TextMuted, fontSize = 14.sp) },
                             shape = RoundedCornerShape(12.dp),
                             minLines = 4,
                             colors = OutlinedTextFieldDefaults.colors(
@@ -940,6 +1011,8 @@ fun CreateEventModal(
                         )
                         Text(
                             text = "Add important details like dress code, speakers, link, or agenda.",
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             fontSize = 12.sp,
                             color = TextMuted,
                             modifier = Modifier.padding(top = 6.dp)
@@ -972,6 +1045,7 @@ fun CreateEventModal(
                             Column {
                                 Text(
                                     text = currentUser.name.ifBlank { "Feathered User" },
+                                    fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 15.sp,
                                     color = TextWhite,
@@ -980,6 +1054,8 @@ fun CreateEventModal(
                                 )
                                 Text(
                                     text = "Event organizer",
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     fontSize = 13.sp,
                                     color = TextMuted
                                 )
@@ -1010,14 +1086,16 @@ fun CreateEventModal(
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 text = "Creating...",
-                                fontWeight = FontWeight.Bold,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 16.sp,
                                 color = TextMuted
                             )
                         } else {
                             Text(
                                 text = "Create Event",
-                                fontWeight = FontWeight.Bold,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 16.sp,
                                 color = Color.White
                             )

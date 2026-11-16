@@ -30,6 +30,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.unera.social.model.User
+import com.unera.social.ui.theme.InterFontFamily
 
 data class WebShortcutItem(
     val id: String,
@@ -128,7 +129,8 @@ fun MenuOverlay(
                         Text(
                             text = "Menu",
                             fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color(0xFFF8FAFC)
                         )
                     }
@@ -202,6 +204,7 @@ fun MenuOverlay(
                                 Text(
                                     text = currentUser.name,
                                     fontSize = 19.sp,
+                                    fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFFF8FAFC)
                                 )
@@ -209,6 +212,7 @@ fun MenuOverlay(
                                 Text(
                                     text = "View your profile →",
                                     fontSize = 12.sp,
+                                    fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Medium,
                                     color = Color(0xFF1877F2)
                                 )
@@ -222,6 +226,7 @@ fun MenuOverlay(
                     Text(
                         text = "ALL SHORTCUTS",
                         fontSize = 13.sp,
+                        fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
                         color = Color(0xFF94A3B8),
                         letterSpacing = 0.8.sp,
@@ -268,6 +273,7 @@ fun MenuOverlay(
                             Text(
                                 text = item.title,
                                 fontSize = 18.sp,
+                                fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Color(0xFFF8FAFC),
                                 lineHeight = 22.sp
@@ -324,6 +330,7 @@ fun MenuOverlay(
                                         Text(
                                             text = item.title,
                                             fontSize = 18.sp,
+                                            fontFamily = InterFontFamily,
                                             fontWeight = FontWeight.Medium,
                                             color = Color(0xFFF8FAFC)
                                         )
@@ -370,6 +377,7 @@ fun MenuOverlay(
                                 Text(
                                     text = "Log Out",
                                     fontSize = 18.sp,
+                                    fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Medium,
                                     color = Color(0xFFF87171)
                                 )

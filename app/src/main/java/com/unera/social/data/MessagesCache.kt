@@ -102,7 +102,29 @@ object MessagesCache {
                 val otherId = obj.optLong("other_user_id", 0L)
                 val otherName = obj.optString("other_name", "User")
                 val otherAvatar = obj.optString("other_profile_image_url", "").takeIf { it.isNotBlank() && it != "null" } ?: ""
-                val lastText = obj.optString("last_text_preview", "")
+                val rawLastText = obj.optString("last_text_preview", "")
+                val sanitizedLastText = if (
+                    rawLastText.equals("Started a conversation", ignoreCase = true) ||
+                    rawLastText.equals("Started conversation", ignoreCase = true) ||
+                    rawLastText.equals("null", ignoreCase = true)
+                ) "" else rawLastText
+                val lastText = sanitizedLastText.ifBlank {
+                    val cachedLast = getCachedMessages(context, userId, otherId).lastOrNull()
+                    when {
+                        cachedLast == null -> ""
+                        cachedLast.text.isNotBlank() -> cachedLast.text.trim()
+                        cachedLast.attachments.isNotEmpty() -> {
+                            val att = cachedLast.attachments.first()
+                            when {
+                                att.fileType.contains("audio", true) || att.mimeType.startsWith("audio/") -> "🎤 Voice message"
+                                att.fileType.contains("image", true) || att.mimeType.startsWith("image/") -> "📷 Photo"
+                                att.fileType.contains("video", true) || att.mimeType.startsWith("video/") -> "🎥 Video"
+                                else -> "📎 ${att.filename}"
+                            }
+                        }
+                        else -> ""
+                    }
+                }
                 val lastTime = obj.optString("last_message_at", "Just now")
                 val unreadCount = obj.optInt("unread_count", 0)
                 val isOnline = obj.optBoolean("is_online", false)

@@ -50,6 +50,7 @@ import com.unera.social.model.Conversation
 import com.unera.social.model.User
 import com.unera.social.data.audio.VoiceNoteManager
 import com.unera.social.data.ChatTimestampFormatter
+import com.unera.social.ui.theme.InterFontFamily
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -252,6 +253,7 @@ fun ChatWindow(
                             Text(
                                 text = participant.name,
                                 fontSize = 19.sp,
+                                fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White,
                                 maxLines = 1,
@@ -264,6 +266,7 @@ fun ChatWindow(
                         Text(
                             text = if (effectiveRecipientOnline) "Active now" else if (!recipientLastSeen.isNullOrBlank()) "Last seen $recipientLastSeen" else "Offline",
                             fontSize = 12.sp,
+                            fontFamily = InterFontFamily,
                             fontWeight = if (effectiveRecipientOnline) FontWeight.Medium else FontWeight.Normal,
                             color = if (effectiveRecipientOnline) Color(0xFF31A24C) else Color(0xFF8E8E93),
                             maxLines = 1
@@ -353,12 +356,15 @@ fun ChatWindow(
                         Text(
                             text = if (editTarget != null) "EDITING MESSAGE" else "REPLYING TO",
                             fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF0084FF)
                         )
                         Text(
                             text = editTarget?.text ?: replyTo?.text ?: "Attachment",
                             fontSize = 13.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             color = Color(0xFFF0F2F5),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
@@ -412,7 +418,8 @@ fun ChatWindow(
                             text = "${recordSeconds}s",
                             color = Color.White,
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold
                         )
 
                         // Animated live speech waveform bars
@@ -443,7 +450,12 @@ fun ChatWindow(
                         },
                         colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFFFF6B6B))
                     ) {
-                        Text("Cancel", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                        Text(
+                            "Cancel",
+                            fontSize = 13.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Medium
+                        )
                     }
                 }
             }
@@ -476,6 +488,7 @@ fun ChatWindow(
                         Text(
                             text = conversation.lastTimestamp.ifBlank { "Today" },
                             fontSize = 11.sp,
+                            fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF8E8E93),
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
@@ -562,12 +575,15 @@ fun ChatWindow(
                                             Text(
                                                 text = "Reply",
                                                 fontSize = 10.sp,
-                                                fontWeight = FontWeight.Bold,
+                                                fontFamily = InterFontFamily,
+                                                fontWeight = FontWeight.SemiBold,
                                                 color = if (isMine) Color.White.copy(alpha = 0.9f) else Color(0xFF0084FF)
                                             )
                                             Text(
                                                 text = msg.replyToText,
                                                 fontSize = 12.sp,
+                                                fontFamily = InterFontFamily,
+                                                fontWeight = FontWeight.Normal,
                                                 color = if (isMine) Color.White.copy(alpha = 0.85f) else Color(0xFF8E8E93),
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis
@@ -625,7 +641,8 @@ fun ChatWindow(
                                                     text = productData?.title ?: "MarketPoint Listing",
                                                     fontSize = 12.sp,
                                                     color = Color.White,
-                                                    fontWeight = FontWeight.Bold,
+                                                    fontFamily = InterFontFamily,
+                                                    fontWeight = FontWeight.SemiBold,
                                                     maxLines = 1,
                                                     overflow = TextOverflow.Ellipsis
                                                 )
@@ -634,6 +651,7 @@ fun ChatWindow(
                                                         "${productData.currency ?: "TZS"} ${String.format("%,.0f", productData.price)} • ${productData.location}"
                                                     } else "Item #$productId",
                                                     fontSize = 11.sp,
+                                                    fontFamily = InterFontFamily,
                                                     fontWeight = FontWeight.SemiBold,
                                                     color = if (productData != null) Color(0xFF34D399) else Color(0xFF38BDF8)
                                                 )
@@ -661,6 +679,7 @@ fun ChatWindow(
                                             },
                                             fontSize = 13.sp,
                                             color = Color.White,
+                                            fontFamily = InterFontFamily,
                                             fontWeight = FontWeight.Medium
                                         )
                                         if (msg.isMissedCall && !isMine) {
@@ -678,7 +697,12 @@ fun ChatWindow(
                                                 contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
                                                 modifier = Modifier.height(26.dp)
                                             ) {
-                                                Text("Call back", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                                Text(
+                                                    "Call back",
+                                                    fontSize = 11.sp,
+                                                    fontFamily = InterFontFamily,
+                                                    fontWeight = FontWeight.SemiBold
+                                                )
                                             }
                                         }
                                     }
@@ -688,6 +712,8 @@ fun ChatWindow(
                                         Text(
                                             text = cleanMessageText,
                                             fontSize = 20.sp,
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.Normal,
                                             lineHeight = 26.sp,
                                             color = if (isMine) Color.White else Color(0xFFF0F2F5)
                                         )
@@ -747,6 +773,7 @@ fun ChatWindow(
                                                         Text(
                                                             text = att.filename,
                                                             fontSize = 13.sp,
+                                                            fontFamily = InterFontFamily,
                                                             fontWeight = FontWeight.SemiBold,
                                                             color = Color.White,
                                                             maxLines = 1,
@@ -755,6 +782,8 @@ fun ChatWindow(
                                                         Text(
                                                             text = "Document",
                                                             fontSize = 11.sp,
+                                                            fontFamily = InterFontFamily,
+                                                            fontWeight = FontWeight.Normal,
                                                             color = Color(0xFF8E8E93)
                                                         )
                                                     }
@@ -775,12 +804,16 @@ fun ChatWindow(
                                     Text(
                                         text = ChatTimestampFormatter.format(msg.timestamp),
                                         fontSize = 11.sp,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Normal,
                                         color = if (isMine) Color.White.copy(alpha = 0.75f) else Color(0xFF8E8E93)
                                     )
                                     if (msg.isEdited) {
                                         Text(
                                             text = "(edited)",
                                             fontSize = 9.sp,
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.Normal,
                                             color = if (isMine) Color.White.copy(alpha = 0.75f) else Color(0xFF8E8E93)
                                         )
                                     }
@@ -978,7 +1011,8 @@ fun ChatWindow(
                     Text(
                         text = "GIF",
                         fontSize = 11.sp,
-                        fontWeight = FontWeight.Black,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Bold,
                         color = Color(0xFF0084FF),
                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
                     )
@@ -1001,11 +1035,18 @@ fun ChatWindow(
                         TextField(
                             value = inputText,
                             onValueChange = { inputText = it },
+                            textStyle = LocalTextStyle.current.copy(
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
+                                fontSize = 14.sp
+                            ),
                             placeholder = {
                                 Text(
                                     text = if (editTarget != null) "Edit message" else "Aa",
                                     color = Color(0xFF8E8E93),
-                                    fontSize = 14.sp
+                                    fontSize = 14.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal
                                 )
                             },
                             colors = TextFieldDefaults.colors(
@@ -1164,7 +1205,8 @@ fun ChatWindow(
                     Text(
                         text = if (targetMsg.isMine) "Your message" else "Message",
                         fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         color = Color(0xFF8E8E93),
                         modifier = Modifier.align(Alignment.Start)
                     )
@@ -1181,6 +1223,8 @@ fun ChatWindow(
                         Text(
                             text = targetMsg.text.ifBlank { "Attachment" },
                             fontSize = 14.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             color = Color(0xFFF0F2F5),
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
@@ -1254,7 +1298,12 @@ fun ChatWindow(
                         border = BorderStroke(1.dp, Color(0xFF3A3B3C)),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Cancel", color = Color(0xFFF0F2F5), fontWeight = FontWeight.Bold)
+                        Text(
+                            "Cancel",
+                            color = Color(0xFFF0F2F5),
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Medium
+                        )
                     }
                 }
             }
@@ -1344,7 +1393,8 @@ fun ChatWindow(
                                 text = att.filename,
                                 color = Color.White,
                                 fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                             Button(
@@ -1357,7 +1407,11 @@ fun ChatWindow(
                             ) {
                                 Icon(Icons.Default.Download, contentDescription = null)
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Download File")
+                                Text(
+                                    "Download File",
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Medium
+                                )
                             }
                         }
                     }
@@ -1574,7 +1628,8 @@ fun VoiceNotePlayerView(attachment: ChatAttachment, isMine: Boolean) {
             Text(
                 text = "${if (playbackSpeed == 1.0f) "1" else if (playbackSpeed == 1.5f) "1.5" else "2"}x",
                 fontSize = 10.sp,
-                fontWeight = FontWeight.Bold,
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.SemiBold,
                 color = Color.White,
                 modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
             )
@@ -1584,7 +1639,8 @@ fun VoiceNotePlayerView(attachment: ChatAttachment, isMine: Boolean) {
         Text(
             text = timeText,
             fontSize = 11.sp,
-            fontWeight = FontWeight.Bold,
+            fontFamily = InterFontFamily,
+            fontWeight = FontWeight.SemiBold,
             color = Color.White
         )
     }
@@ -1613,7 +1669,13 @@ fun AttachmentOption(
             Icon(imageVector = icon, contentDescription = label, tint = color, modifier = Modifier.size(24.dp))
         }
         Spacer(modifier = Modifier.height(6.dp))
-        Text(text = label, fontSize = 12.sp, color = Color(0xFF8E8E93), fontWeight = FontWeight.Medium)
+        Text(
+            text = label,
+            fontSize = 12.sp,
+            color = Color(0xFF8E8E93),
+            fontFamily = InterFontFamily,
+            fontWeight = FontWeight.Medium
+        )
     }
 }
 
@@ -1643,6 +1705,7 @@ fun EmojiPickerGrid(onSelect: (String) -> Unit) {
                     Text(
                         text = emoji,
                         fontSize = 22.sp,
+                        fontFamily = InterFontFamily,
                         modifier = Modifier.clickable { onSelect(emoji) }
                     )
                 }
@@ -1678,7 +1741,8 @@ fun StickerPickerGrid(onSelect: (String) -> Unit) {
                         Text(
                             text = sticker,
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color.White,
                             modifier = Modifier.padding(vertical = 8.dp, horizontal = 6.dp),
                             maxLines = 1,
@@ -1765,6 +1829,7 @@ fun ActionSheetButton(
             Text(
                 text = label,
                 fontSize = 14.sp,
+                fontFamily = InterFontFamily,
                 fontWeight = FontWeight.Medium,
                 color = if (isDanger) Color(0xFFFF6B6B) else Color(0xFFF0F2F5)
             )

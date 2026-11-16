@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
+import com.unera.social.ui.theme.InterFontFamily
 
 enum class CallMode {
     VOICE,
@@ -238,6 +239,7 @@ fun CallScreen(
                     text = topLabel,
                     color = Color.White.copy(alpha = 0.85f),
                     fontSize = 13.sp,
+                    fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Medium,
                     letterSpacing = 0.4.sp,
                     modifier = Modifier.testTag("call_top_label")
@@ -263,7 +265,8 @@ fun CallScreen(
                     text = peerName,
                     color = Color.White,
                     fontSize = 34.sp,
-                    fontWeight = FontWeight.ExtraBold,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
                     lineHeight = 38.sp,
                     modifier = Modifier.testTag("call_peer_name")
@@ -275,6 +278,7 @@ fun CallScreen(
                         text = sub,
                         color = Color.White.copy(alpha = 0.85f),
                         fontSize = 19.sp,
+                        fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Medium,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.testTag("call_subtitle")
@@ -287,6 +291,7 @@ fun CallScreen(
                         text = "Tap video to swap view",
                         color = Color.White.copy(alpha = 0.6f),
                         fontSize = 12.sp,
+                        fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal
                     )
                 }
@@ -420,6 +425,8 @@ fun CallScreen(
                         text = "If it doesn’t connect, it may need TURN later.",
                         color = Color.White.copy(alpha = 0.7f),
                         fontSize = 12.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         textAlign = TextAlign.Center
                     )
                 }
@@ -518,6 +525,7 @@ private fun AvatarCircle(
                 text = initials,
                 color = Color.White,
                 fontSize = 28.sp,
+                fontFamily = InterFontFamily,
                 fontWeight = FontWeight.Bold
             )
         }
@@ -646,6 +654,7 @@ private fun VideoStreamView(
                         text = "Live Video Connected",
                         color = Color.White.copy(alpha = 0.65f),
                         fontSize = 13.sp,
+                        fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Medium
                     )
                 }

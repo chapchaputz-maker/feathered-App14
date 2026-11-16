@@ -37,6 +37,7 @@ import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.unera.social.model.Post
 import com.unera.social.model.User
+import com.unera.social.ui.theme.InterFontFamily
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -147,6 +148,7 @@ fun PostMenu(
                                 text = "Edit $itemTypeName",
                                 color = Color(0xFFF8FAFC),
                                 fontSize = 14.sp,
+                                fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Medium
                             )
                         }
@@ -177,6 +179,7 @@ fun PostMenu(
                                 text = "Boost Post (Ad)",
                                 color = Color(0xFF38BDF8),
                                 fontSize = 14.sp,
+                                fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Medium
                             )
                         }
@@ -207,6 +210,7 @@ fun PostMenu(
                                 text = "Delete $itemTypeName",
                                 color = Color(0xFFFB7185), // rose-400
                                 fontSize = 14.sp,
+                                fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Medium
                             )
                         }
@@ -244,6 +248,7 @@ fun PostMenu(
                             text = "Share",
                             color = Color(0xFFF8FAFC),
                             fontSize = 14.sp,
+                            fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Medium
                         )
                     }
@@ -273,6 +278,7 @@ fun PostMenu(
                                 text = "Link Copied!",
                                 color = Color(0xFF34D399),
                                 fontSize = 14.sp,
+                                fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Medium
                             )
                         } else {
@@ -286,6 +292,7 @@ fun PostMenu(
                                 text = "Copy Link",
                                 color = Color(0xFFF8FAFC),
                                 fontSize = 14.sp,
+                                fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Medium
                             )
                         }
@@ -324,6 +331,7 @@ fun PostMenu(
                                 text = "Report Post",
                                 color = Color(0xFFFBBF24),
                                 fontSize = 14.sp,
+                                fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Medium
                             )
                         }
@@ -383,7 +391,12 @@ fun PostMenu(
                                 modifier = Modifier.size(16.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Cancel", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                            Text(
+                                "Cancel",
+                                fontSize = 14.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Medium
+                            )
                         }
 
                         // Title
@@ -391,7 +404,8 @@ fun PostMenu(
                             text = "Delete $itemTypeName",
                             color = Color(0xFFF8FAFC),
                             fontSize = 17.sp,
-                            fontWeight = FontWeight.Bold
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold
                         )
 
                         // Top Delete button
@@ -422,7 +436,12 @@ fun PostMenu(
                                     strokeWidth = 2.dp
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Deleting...", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                                Text(
+                                    "Deleting...",
+                                    fontSize = 13.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold
+                                )
                             } else {
                                 Icon(
                                     imageVector = Icons.Default.Delete,
@@ -430,7 +449,12 @@ fun PostMenu(
                                     modifier = Modifier.size(16.dp)
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Delete", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                                Text(
+                                    "Delete",
+                                    fontSize = 13.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold
+                                )
                             }
                         }
                     }
@@ -468,7 +492,8 @@ fun PostMenu(
                         Text(
                             text = "Permanently Delete this $itemTypeName?",
                             fontSize = 24.sp,
-                            fontWeight = FontWeight.Black,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color(0xFFF8FAFC),
                             textAlign = TextAlign.Center
                         )
@@ -479,6 +504,8 @@ fun PostMenu(
                         Text(
                             text = "Are you sure you want to permanently delete this ${itemTypeName.lowercase()}? This action is immediate and cannot be undone. All associated comments, reactions, and media will be wiped.",
                             fontSize = 14.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             color = Color(0xFF94A3B8),
                             lineHeight = 22.sp,
                             textAlign = TextAlign.Center,
@@ -518,6 +545,7 @@ fun PostMenu(
                                     Column {
                                         Text(
                                             text = item.author.name.ifBlank { currentUser?.name ?: "User" },
+                                            fontFamily = InterFontFamily,
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 14.sp,
                                             color = Color(0xFFF8FAFC)
@@ -525,6 +553,8 @@ fun PostMenu(
                                         Text(
                                             text = itemTypeCategory,
                                             fontSize = 11.sp,
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.Normal,
                                             color = Color(0xFF94A3B8)
                                         )
                                     }
@@ -536,7 +566,8 @@ fun PostMenu(
                                     Text(
                                         text = itemTitle,
                                         fontSize = 16.sp,
-                                        fontWeight = FontWeight.Bold,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.SemiBold,
                                         color = Color(0xFFF8FAFC)
                                     )
                                 }
@@ -547,6 +578,8 @@ fun PostMenu(
                                     Text(
                                         text = item.content,
                                         fontSize = 13.sp,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Normal,
                                         color = Color(0xFFCBD5E1),
                                         lineHeight = 18.sp,
                                         maxLines = 3,
@@ -598,7 +631,12 @@ fun PostMenu(
                                     .weight(1f)
                                     .height(48.dp)
                             ) {
-                                Text("Cancel and Keep", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                                Text(
+                                    "Cancel and Keep",
+                                    fontSize = 14.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Medium
+                                )
                             }
 
                             Button(
@@ -630,7 +668,12 @@ fun PostMenu(
                                         strokeWidth = 2.dp
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Deleting...", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                                    Text(
+                                        "Deleting...",
+                                        fontSize = 14.sp,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
                                 } else {
                                     Icon(
                                         imageVector = Icons.Default.Delete,
@@ -638,7 +681,12 @@ fun PostMenu(
                                         modifier = Modifier.size(18.dp)
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Delete Permanently", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                                    Text(
+                                        "Delete Permanently",
+                                        fontSize = 14.sp,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
                                 }
                             }
                         }
@@ -715,7 +763,8 @@ fun EditPostModal(
                         Text(
                             text = "Edit Post",
                             fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color(0xFFF8FAFC)
                         )
 
@@ -756,7 +805,8 @@ fun EditPostModal(
                         Column {
                             Text(
                                 text = user.name,
-                                fontWeight = FontWeight.SemiBold,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Bold,
                                 fontSize = 15.sp,
                                 color = Color(0xFFF8FAFC)
                             )
@@ -780,6 +830,7 @@ fun EditPostModal(
                                     text = "Public",
                                     fontSize = 11.sp,
                                     color = Color(0xFF94A3B8),
+                                    fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Medium
                                 )
                             }
@@ -796,8 +847,19 @@ fun EditPostModal(
                             .fillMaxWidth()
                             .heightIn(min = 140.dp, max = 240.dp)
                             .testTag("edit_post_text_field"),
+                        textStyle = LocalTextStyle.current.copy(
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 15.sp
+                        ),
                         placeholder = {
-                            Text("What's on your mind?", color = Color(0xFF64748B), fontSize = 15.sp)
+                            Text(
+                                "What's on your mind?",
+                                color = Color(0xFF64748B),
+                                fontSize = 15.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal
+                            )
                         },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedTextColor = Color(0xFFF8FAFC),
@@ -848,7 +910,12 @@ fun EditPostModal(
                                 contentColor = Color(0xFFCBD5E1)
                             )
                         ) {
-                            Text("Cancel", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                            Text(
+                                "Cancel",
+                                fontSize = 14.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Medium
+                            )
                         }
 
                         Button(
@@ -880,7 +947,12 @@ fun EditPostModal(
                                     strokeWidth = 2.dp
                                 )
                             } else {
-                                Text("Save Changes", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                                Text(
+                                    "Save Changes",
+                                    fontSize = 14.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold
+                                )
                             }
                         }
                     }

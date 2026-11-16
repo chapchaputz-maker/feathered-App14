@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.unera.social.ui.theme.InterFontFamily
 import kotlin.math.*
 
 /**
@@ -2605,8 +2606,8 @@ fun TextPostBackgroundView(
                     "medium" -> FontWeight.Medium
                     "semibold" -> FontWeight.SemiBold
                     "bold" -> FontWeight.Bold
-                    "extrabold" -> FontWeight.ExtraBold
-                    "black", "display" -> FontWeight.Black
+                    "extrabold" -> FontWeight.Bold
+                    "black", "display" -> FontWeight.Bold
                     "serif" -> FontWeight.SemiBold
                     "italic" -> FontWeight.Normal
                     else -> FontWeight.Bold
@@ -2614,9 +2615,9 @@ fun TextPostBackgroundView(
                 fontFamily = when (styling.fontStyleName.lowercase()) {
                     "serif" -> FontFamily.Serif
                     "monospace", "mono" -> FontFamily.Monospace
-                    "sans-serif", "sans" -> FontFamily.SansSerif
+                    "sans-serif", "sans" -> InterFontFamily
                     "cursive" -> FontFamily.Cursive
-                    else -> FontFamily.Default
+                    else -> InterFontFamily
                 },
                 fontStyle = if (styling.fontStyleName.equals("italic", ignoreCase = true)) {
                     androidx.compose.ui.text.font.FontStyle.Italic

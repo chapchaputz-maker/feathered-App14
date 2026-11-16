@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.unera.social.model.*
 import com.unera.social.ui.components.VerifiedBadge
+import com.unera.social.ui.theme.InterFontFamily
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -385,6 +386,8 @@ fun SearchScreen(
                                         text = "Search people, videos, reels, groups, posts…",
                                         color = Color(0xFF64748B),
                                         fontSize = 13.5.sp,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Normal,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis
                                     )
@@ -399,7 +402,8 @@ fun SearchScreen(
                                     textStyle = TextStyle(
                                         color = Color(0xFFF8FAFC),
                                         fontSize = 14.sp,
-                                        fontWeight = FontWeight.Medium
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Normal
                                     ),
                                     singleLine = true,
                                     cursorBrush = SolidColor(Color(0xFF1877F2)),
@@ -528,7 +532,8 @@ fun SearchScreen(
                             Text(
                                 text = "Recent Searches",
                                 fontSize = 15.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold,
                                 color = Color(0xFFF8FAFC)
                             )
                         }
@@ -537,7 +542,8 @@ fun SearchScreen(
                             Text(
                                 text = "Clear all",
                                 fontSize = 12.sp,
-                                fontWeight = FontWeight.SemiBold,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Medium,
                                 color = Color(0xFF1877F2),
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(4.dp))
@@ -609,6 +615,7 @@ fun SearchScreen(
                                                 Text(
                                                     text = item.title ?: item.query,
                                                     fontSize = 14.5.sp,
+                                                    fontFamily = InterFontFamily,
                                                     fontWeight = FontWeight.SemiBold,
                                                     color = Color(0xFFF8FAFC),
                                                     maxLines = 1,
@@ -617,6 +624,8 @@ fun SearchScreen(
                                                 Text(
                                                     text = item.subtitle ?: "Recent search",
                                                     fontSize = 12.sp,
+                                                    fontFamily = InterFontFamily,
+                                                    fontWeight = FontWeight.Normal,
                                                     color = Color(0xFF64748B),
                                                     maxLines = 1,
                                                     overflow = TextOverflow.Ellipsis
@@ -676,13 +685,16 @@ fun SearchScreen(
                                 Text(
                                     text = "Search for anything",
                                     fontSize = 15.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold,
                                     color = Color(0xFFF8FAFC)
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     text = "Find your friends, trending reels, exciting groups, and community posts across UNERA.",
                                     fontSize = 12.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     color = Color(0xFF64748B),
                                     textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                                     lineHeight = 16.sp
@@ -698,7 +710,8 @@ fun SearchScreen(
                         Text(
                             text = "SUGGESTED TOPICS",
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF94A3B8),
                             letterSpacing = 0.8.sp,
                             modifier = Modifier.padding(horizontal = 2.dp, vertical = 6.dp)
@@ -746,13 +759,16 @@ fun SearchScreen(
                                 Text(
                                     text = "No results found for \"$query\"",
                                     fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold,
                                     color = Color(0xFFF8FAFC)
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     text = "Check your spelling or try searching for another name, topic, or keyword.",
                                     fontSize = 12.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     color = Color(0xFF64748B),
                                     textAlign = androidx.compose.ui.text.style.TextAlign.Center
                                 )
@@ -802,6 +818,7 @@ fun SearchScreen(
                                                 Text(
                                                     text = user.name,
                                                     fontSize = 15.sp,
+                                                    fontFamily = InterFontFamily,
                                                     fontWeight = FontWeight.Bold,
                                                     color = Color(0xFFF8FAFC),
                                                     maxLines = 1,
@@ -814,6 +831,8 @@ fun SearchScreen(
                                             Text(
                                                 text = "@${user.username}",
                                                 fontSize = 12.sp,
+                                                fontFamily = InterFontFamily,
+                                                fontWeight = FontWeight.Normal,
                                                 color = Color(0xFF64748B),
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis
@@ -841,7 +860,8 @@ fun SearchScreen(
                                             Text(
                                                 text = if (isFollowed) "Following" else "Follow",
                                                 fontSize = 12.sp,
-                                                fontWeight = FontWeight.Bold,
+                                                fontFamily = InterFontFamily,
+                                                fontWeight = FontWeight.Medium,
                                                 color = if (isFollowed) Color(0xFFF8FAFC) else Color.White
                                             )
                                         }
@@ -931,7 +951,8 @@ fun SearchScreen(
                                                     Text(
                                                         text = reel.caption.ifBlank { "Video Reel" },
                                                         fontSize = 11.5.sp,
-                                                        fontWeight = FontWeight.Medium,
+                                                        fontFamily = InterFontFamily,
+                                                        fontWeight = FontWeight.Normal,
                                                         color = Color.White,
                                                         maxLines = 2,
                                                         overflow = TextOverflow.Ellipsis
@@ -945,6 +966,8 @@ fun SearchScreen(
                                                         Text(
                                                             text = reel.author.name,
                                                             fontSize = 10.5.sp,
+                                                            fontFamily = InterFontFamily,
+                                                            fontWeight = FontWeight.Bold,
                                                             color = Color(0xFF94A3B8),
                                                             maxLines = 1,
                                                             overflow = TextOverflow.Ellipsis,
@@ -963,6 +986,8 @@ fun SearchScreen(
                                                             Text(
                                                                 text = "${reel.likesCount * 3 + 24}",
                                                                 fontSize = 10.sp,
+                                                                fontFamily = InterFontFamily,
+                                                                fontWeight = FontWeight.Normal,
                                                                 color = Color(0xFF94A3B8)
                                                             )
                                                         }
@@ -1018,6 +1043,7 @@ fun SearchScreen(
                                             Text(
                                                 text = group.name,
                                                 fontSize = 14.5.sp,
+                                                fontFamily = InterFontFamily,
                                                 fontWeight = FontWeight.Bold,
                                                 color = Color(0xFFF8FAFC),
                                                 maxLines = 1,
@@ -1026,6 +1052,8 @@ fun SearchScreen(
                                             Text(
                                                 text = "${group.membersCount} members • ${if (group.isPrivate) "Private" else "Public"} Group",
                                                 fontSize = 12.sp,
+                                                fontFamily = InterFontFamily,
+                                                fontWeight = FontWeight.Normal,
                                                 color = Color(0xFF64748B),
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis
@@ -1043,7 +1071,8 @@ fun SearchScreen(
                                         Text(
                                             text = "View",
                                             fontSize = 12.sp,
-                                            fontWeight = FontWeight.SemiBold,
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.Medium,
                                             color = Color(0xFF38BDF8),
                                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                                         )
@@ -1099,12 +1128,15 @@ fun SearchScreen(
                                         Text(
                                             text = post.author.name,
                                             fontSize = 12.5.sp,
+                                            fontFamily = InterFontFamily,
                                             fontWeight = FontWeight.Bold,
                                             color = Color(0xFFF8FAFC)
                                         )
                                         Text(
                                             text = post.timestamp,
                                             fontSize = 11.sp,
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.Normal,
                                             color = Color(0xFF64748B)
                                         )
                                     }
@@ -1112,6 +1144,8 @@ fun SearchScreen(
                                     Text(
                                         text = post.content,
                                         fontSize = 13.5.sp,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Normal,
                                         color = Color(0xFFCBD5E1),
                                         maxLines = 2,
                                         overflow = TextOverflow.Ellipsis,
@@ -1173,7 +1207,8 @@ fun SearchScreen(
                                             Text(
                                                 text = product.title,
                                                 fontSize = 14.sp,
-                                                fontWeight = FontWeight.Bold,
+                                                fontFamily = InterFontFamily,
+                                                fontWeight = FontWeight.SemiBold,
                                                 color = Color(0xFFF8FAFC),
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis
@@ -1181,12 +1216,15 @@ fun SearchScreen(
                                             Text(
                                                 text = "${product.currency} %,d".format(product.price.toLong()),
                                                 fontSize = 13.sp,
-                                                fontWeight = FontWeight.ExtraBold,
+                                                fontFamily = InterFontFamily,
+                                                fontWeight = FontWeight.SemiBold,
                                                 color = Color(0xFF38BDF8)
                                             )
                                             Text(
                                                 text = product.location,
                                                 fontSize = 11.5.sp,
+                                                fontFamily = InterFontFamily,
+                                                fontWeight = FontWeight.Normal,
                                                 color = Color(0xFF64748B),
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis
@@ -1205,7 +1243,8 @@ fun SearchScreen(
                                         Text(
                                             text = "View",
                                             fontSize = 12.sp,
-                                            fontWeight = FontWeight.Bold,
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.Medium,
                                             color = Color(0xFF38BDF8),
                                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                                         )
@@ -1247,7 +1286,8 @@ private fun SearchFilterTab(
             Text(
                 text = label,
                 fontSize = 12.sp,
-                fontWeight = FontWeight.SemiBold,
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.Medium,
                 color = if (isSelected) Color.White else Color(0xFF94A3B8)
             )
         }
@@ -1282,13 +1322,16 @@ private fun SearchSectionCard(
                 Text(
                     text = title.uppercase(),
                     fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold,
                     color = Color(0xFF94A3B8),
                     letterSpacing = 0.8.sp
                 )
                 Text(
                     text = "$count found",
                     fontSize = 11.sp,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Normal,
                     color = Color(0xFF64748B)
                 )
             }
@@ -1329,6 +1372,7 @@ private fun OptInFlowRowWrapper(
                     Text(
                         text = tag,
                         fontSize = 12.sp,
+                        fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Medium,
                         color = Color(0xFFCBD5E1)
                     )

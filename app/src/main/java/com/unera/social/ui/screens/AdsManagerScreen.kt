@@ -30,6 +30,7 @@ import coil.compose.AsyncImage
 import com.unera.social.model.AdCampaign
 import com.unera.social.model.Post
 import com.unera.social.model.User
+import com.unera.social.ui.theme.InterFontFamily
 
 /**
  * AdsManagerScreen - Matches web AdsManager.tsx exactly.
@@ -125,12 +126,15 @@ fun AdsManagerScreen(
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text = "My Campaigns",
+                                fontFamily = InterFontFamily,
                                 fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.SemiBold,
                                 color = Color.White
                             )
                             Text(
                                 text = "Manage your free advertisement campaigns.",
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 fontSize = 13.sp,
                                 color = Color(0xFFA1A1AA)
                             )
@@ -144,7 +148,7 @@ fun AdsManagerScreen(
                         ) {
                             Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("New Ad", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            Text("New Ad", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, fontSize = 13.sp)
                         }
                     }
 
@@ -179,8 +183,9 @@ fun AdsManagerScreen(
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
                                     text = "Analytics",
+                                    fontFamily = InterFontFamily,
                                     fontSize = 12.sp,
-                                    fontWeight = if (selectedTab == "dashboard") FontWeight.Bold else FontWeight.Medium,
+                                    fontWeight = FontWeight.Medium,
                                     color = if (selectedTab == "dashboard") Color.White else Color(0xFFA1A1AA)
                                 )
                             }
@@ -206,8 +211,9 @@ fun AdsManagerScreen(
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
                                     text = "Create Ad",
+                                    fontFamily = InterFontFamily,
                                     fontSize = 12.sp,
-                                    fontWeight = if (selectedTab == "create") FontWeight.Bold else FontWeight.Medium,
+                                    fontWeight = FontWeight.Medium,
                                     color = if (selectedTab == "create") Color.White else Color(0xFFA1A1AA)
                                 )
                             }
@@ -233,8 +239,9 @@ fun AdsManagerScreen(
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
                                     text = "Campaigns",
+                                    fontFamily = InterFontFamily,
                                     fontSize = 12.sp,
-                                    fontWeight = if (selectedTab == "campaigns") FontWeight.Bold else FontWeight.Medium,
+                                    fontWeight = FontWeight.Medium,
                                     color = if (selectedTab == "campaigns") Color.White else Color(0xFFA1A1AA)
                                 )
                             }
@@ -264,8 +271,9 @@ fun AdsManagerScreen(
                                     ) {
                                         Text(
                                             text = label.split(" ").first(),
+                                            fontFamily = InterFontFamily,
                                             fontSize = 12.sp,
-                                            fontWeight = if (isSel) FontWeight.Bold else FontWeight.Medium,
+                                            fontWeight = FontWeight.Medium,
                                             color = if (isSel) Color.White else Color(0xFFA1A1AA)
                                         )
                                     }
@@ -297,6 +305,7 @@ fun AdsManagerScreen(
                             )
                             Text(
                                 text = "All campaigns are completely free on Feathered • $0 cost",
+                                fontFamily = InterFontFamily,
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = Color(0xFF34D399)
@@ -351,12 +360,15 @@ fun AdsManagerScreen(
                             }
                             Text(
                                 text = "No campaigns found",
+                                fontFamily = InterFontFamily,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Color(0xFFA1A1AA)
                             )
                             Text(
                                 text = "Create your first free ad.",
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 fontSize = 13.sp,
                                 color = Color(0xFF71717A)
                             )
@@ -366,7 +378,7 @@ fun AdsManagerScreen(
                                 shape = RoundedCornerShape(10.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2563EB))
                             ) {
-                                Text("Create Campaign", fontWeight = FontWeight.Bold)
+                                Text("Create Campaign", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                             }
                         }
                     }
@@ -394,10 +406,10 @@ fun AdsManagerScreen(
                 containerColor = Color(0xFF0B1120),
                 shape = RoundedCornerShape(16.dp),
                 title = {
-                    Text("Delete Campaign", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("Delete Campaign", fontFamily = InterFontFamily, color = Color.White, fontWeight = FontWeight.SemiBold)
                 },
                 text = {
-                    Text("Are you sure you want to delete \"${ad.name}\"? This action cannot be undone.", color = Color(0xFFA1A1AA))
+                    Text("Are you sure you want to delete \"${ad.name}\"? This action cannot be undone.", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFFA1A1AA))
                 },
                 confirmButton = {
                     Button(
@@ -407,12 +419,12 @@ fun AdsManagerScreen(
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC2626))
                     ) {
-                        Text("Delete", fontWeight = FontWeight.Bold, color = Color.White)
+                        Text("Delete", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color.White)
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { campaignToDelete = null }) {
-                        Text("Cancel", color = Color(0xFFA1A1AA))
+                        Text("Cancel", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color(0xFFA1A1AA))
                     }
                 }
             )
@@ -497,7 +509,7 @@ private fun AdCampaignCard(
                                 .background(Color(0xFF10B981))
                                 .padding(horizontal = 4.dp, vertical = 1.dp)
                         ) {
-                            Text("FREE", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                            Text("FREE", fontFamily = InterFontFamily, fontSize = 8.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
                         }
                     } else {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -512,8 +524,9 @@ private fun AdCampaignCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = ad.name.ifBlank { "Campaign #${ad.id}" },
+                        fontFamily = InterFontFamily,
                         fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.SemiBold,
                         color = Color.White,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -533,8 +546,9 @@ private fun AdCampaignCard(
                     ) {
                         Text(
                             text = ad.status.uppercase(),
+                            fontFamily = InterFontFamily,
                             fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.SemiBold,
                             color = when (ad.status) {
                                 "active" -> Color(0xFF34D399)
                                 "paused" -> Color(0xFFFBBF24)
@@ -622,7 +636,7 @@ private fun AdCampaignCard(
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     Icon(Icons.Default.CalendarToday, contentDescription = null, tint = Color(0xFF71717A), modifier = Modifier.size(14.dp))
-                    Text("${ad.startDate} - ${ad.endDate}", fontSize = 12.sp, color = Color(0xFF71717A))
+                    Text("${ad.startDate} - ${ad.endDate}", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = Color(0xFF71717A))
                 }
 
                 Row(
@@ -630,7 +644,7 @@ private fun AdCampaignCard(
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Icon(Icons.Default.Star, contentDescription = null, tint = Color(0xFF34D399), modifier = Modifier.size(14.dp))
-                    Text("Free", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF34D399))
+                    Text("Free", fontFamily = InterFontFamily, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF34D399))
                 }
             }
         }
@@ -647,8 +661,8 @@ private fun StatColumn(
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Icon(imageVector = icon, contentDescription = null, tint = Color(0xFF71717A), modifier = Modifier.size(16.dp))
         Spacer(modifier = Modifier.height(2.dp))
-        Text(text = value, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = valueColor)
-        Text(text = label, fontSize = 10.sp, color = Color(0xFF71717A))
+        Text(text = value, fontFamily = InterFontFamily, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = valueColor)
+        Text(text = label, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 10.sp, color = Color(0xFF71717A))
     }
 }
 
@@ -686,14 +700,17 @@ fun CampaignAnalyticsModal(
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = campaign.name.ifBlank { "Campaign #${campaign.id}" },
+                            fontFamily = InterFontFamily,
                             fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color.White,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
                         Text(
                             text = "Campaign Performance Analytics",
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             fontSize = 12.sp,
                             color = Color(0xFFA1A1AA)
                         )
@@ -709,8 +726,9 @@ fun CampaignAnalyticsModal(
                     ) {
                         Text(
                             text = campaign.status.uppercase(),
+                            fontFamily = InterFontFamily,
                             fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.SemiBold,
                             color = if (campaign.status == "active") Color(0xFF34D399) else Color(0xFFFBBF24)
                         )
                     }
@@ -769,30 +787,30 @@ fun CampaignAnalyticsModal(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("Spend / Cost:", fontSize = 12.sp, color = Color(0xFF94A3B8))
-                            Text("FREE ($0)", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF34D399))
+                            Text("Spend / Cost:", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = Color(0xFF94A3B8))
+                            Text("FREE ($0)", fontFamily = InterFontFamily, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF34D399))
                         }
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("Target Location:", fontSize = 12.sp, color = Color(0xFF94A3B8))
-                            Text(campaign.location.ifBlank { "Global" }, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color.White)
+                            Text("Target Location:", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = Color(0xFF94A3B8))
+                            Text(campaign.location.ifBlank { "Global" }, fontFamily = InterFontFamily, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color.White)
                         }
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("Campaign Dates:", fontSize = 12.sp, color = Color(0xFF94A3B8))
-                            Text("${campaign.startDate} - ${campaign.endDate}", fontSize = 12.sp, color = Color(0xFFCBD5E1))
+                            Text("Campaign Dates:", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = Color(0xFF94A3B8))
+                            Text("${campaign.startDate} - ${campaign.endDate}", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = Color(0xFFCBD5E1))
                         }
                         if (campaign.cta.isNotBlank()) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text("Call-To-Action:", fontSize = 12.sp, color = Color(0xFF94A3B8))
-                                Text(campaign.cta, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF38BDF8))
+                                Text("Call-To-Action:", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = Color(0xFF94A3B8))
+                                Text(campaign.cta, fontFamily = InterFontFamily, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF38BDF8))
                             }
                         }
                     }
@@ -806,7 +824,7 @@ fun CampaignAnalyticsModal(
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2563EB)),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Close", fontWeight = FontWeight.Bold, color = Color.White)
+                Text("Close", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color.White)
             }
         }
     )
@@ -837,12 +855,13 @@ private fun AnalyticsMetricTile(
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 Icon(imageVector = icon, contentDescription = null, tint = color, modifier = Modifier.size(16.dp))
-                Text(text = title, fontSize = 11.sp, color = Color(0xFF94A3B8))
+                Text(text = title, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 11.sp, color = Color(0xFF94A3B8))
             }
             Text(
                 text = value,
+                fontFamily = InterFontFamily,
                 fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.SemiBold,
                 color = Color.White
             )
         }

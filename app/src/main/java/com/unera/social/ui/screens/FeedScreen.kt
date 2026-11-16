@@ -1529,6 +1529,27 @@ fun WebPostCard(
                                 tint = Color(0xFF94A3B8),
                                 modifier = Modifier.size(11.dp)
                             )
+                            val sharedDisplayLocation = post.location?.takeIf { it.isNotBlank() && !it.equals("null", ignoreCase = true) }
+                                ?: post.sharedPost.location?.takeIf { it.isNotBlank() && !it.equals("null", ignoreCase = true) }
+                                ?: post.sharedPost.product?.location?.takeIf { it.isNotBlank() && !it.equals("null", ignoreCase = true) }
+                            if (!sharedDisplayLocation.isNullOrBlank()) {
+                                Text("•", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8))
+                                Icon(
+                                    imageVector = Icons.Default.LocationOn,
+                                    contentDescription = "Location",
+                                    tint = Color(0xFF94A3B8),
+                                    modifier = Modifier.size(11.dp)
+                                )
+                                Text(
+                                    text = sharedDisplayLocation,
+                                    fontSize = 12.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
+                                    color = Color(0xFF94A3B8),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
                             if (post.sharedPost.timestamp.isNotBlank()) {
                                 Text("•", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8))
                                 Text(
@@ -1594,6 +1615,9 @@ fun WebPostCard(
                         ) {
                             val isAdPost = post.isSponsored || post.postType == "ad" || post.postType == "sponsored"
                             val displayTime = if (isAdPost) "Ad" else PostsApiService.formatRelativeTime(post.timestamp).let { if (it.isBlank() || it.equals("Sponsored", ignoreCase = true)) "Ad" else it }
+                            val displayLocation = post.location?.takeIf { it.isNotBlank() && !it.equals("null", ignoreCase = true) }
+                                ?: post.product?.location?.takeIf { it.isNotBlank() && !it.equals("null", ignoreCase = true) }
+
                             if (post.groupId != null) {
                                 Text(
                                     text = post.author.name,
@@ -1633,6 +1657,24 @@ fun WebPostCard(
                                     tint = Color(0xFF94A3B8),
                                     modifier = Modifier.size(12.dp)
                                 )
+                                if (!displayLocation.isNullOrBlank()) {
+                                    Text("•", fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8))
+                                    Icon(
+                                        imageVector = Icons.Default.LocationOn,
+                                        contentDescription = "Location",
+                                        tint = Color(0xFF94A3B8),
+                                        modifier = Modifier.size(12.dp)
+                                    )
+                                    Text(
+                                        text = displayLocation,
+                                        fontSize = 13.sp,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Normal,
+                                        color = Color(0xFF94A3B8),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
                             }
 
                             if (!post.feeling.isNullOrBlank()) {
@@ -1646,10 +1688,16 @@ fun WebPostCard(
                                 )
                             }
 
-                            if (!post.location.isNullOrBlank()) {
+                            if (post.groupId != null && !displayLocation.isNullOrBlank()) {
                                 Text("•", fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8))
+                                Icon(
+                                    imageVector = Icons.Default.LocationOn,
+                                    contentDescription = "Location",
+                                    tint = Color(0xFF94A3B8),
+                                    modifier = Modifier.size(12.dp)
+                                )
                                 Text(
-                                    text = post.location,
+                                    text = displayLocation,
                                     fontSize = 13.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
@@ -1765,24 +1813,33 @@ fun WebPostCard(
                         !sharedPost.backgroundStyle.startsWith("style:none") &&
                         !sharedPost.backgroundStyle.startsWith("none|")
 
-                if (hasSharedBackground && sharedCleanContent.isNotBlank()) {
+                val sharedProductDesc = sharedPost.product?.description?.trim()?.takeIf {
+                    it.isNotBlank() && !it.equals("null", ignoreCase = true) && !it.equals("undefined", ignoreCase = true)
+                }
+                val resolvedSharedBody = if (sharedPost.product != null) {
+                    sharedProductDesc ?: sharedCleanContent.takeIf { !it.equals(sharedPost.product.title, ignoreCase = true) }.orEmpty()
+                } else {
+                    sharedCleanContent
+                }
+
+                if (hasSharedBackground && resolvedSharedBody.isNotBlank()) {
                     TextPostBackgroundView(
                         backgroundStyle = sharedPost.backgroundStyle,
-                        content = sharedCleanContent,
+                        content = resolvedSharedBody,
                         modifier = Modifier.fillMaxWidth()
                     )
-                } else if (sharedCleanContent.isNotBlank()) {
-                    val sharedWords = remember(sharedCleanContent) {
-                        sharedCleanContent.split(Regex("\\s+")).filter { it.isNotBlank() }
+                } else if (resolvedSharedBody.isNotBlank()) {
+                    val sharedWords = remember(resolvedSharedBody) {
+                        resolvedSharedBody.split(Regex("\\s+")).filter { it.isNotBlank() }
                     }
                     val sharedHasMoreThan8Words = sharedWords.size > 8
-                    val sharedTruncatedContent = remember(sharedCleanContent, sharedWords) {
-                        if (sharedWords.size > 8) sharedWords.take(8).joinToString(" ") + "…" else sharedCleanContent
+                    val sharedTruncatedContent = remember(resolvedSharedBody, sharedWords) {
+                        if (sharedWords.size > 8) sharedWords.take(8).joinToString(" ") + "…" else resolvedSharedBody
                     }
 
                     Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)) {
                         Text(
-                            text = if (!sharedHasMoreThan8Words || isExpandedSharedText) sharedCleanContent else sharedTruncatedContent,
+                            text = if (!sharedHasMoreThan8Words || isExpandedSharedText) resolvedSharedBody else sharedTruncatedContent,
                             fontSize = 20.sp,
                             lineHeight = 28.sp,
                             fontFamily = InterFontFamily,
@@ -1904,11 +1961,19 @@ fun WebPostCard(
                 }
             } else {
                 // Regular non-shared post handling
+                val productDesc = post.product?.description?.trim()?.takeIf {
+                    it.isNotBlank() && !it.equals("null", ignoreCase = true) && !it.equals("undefined", ignoreCase = true)
+                }
+                val postBodyText = if (post.product != null) {
+                    productDesc ?: cleanContent.takeIf { !it.equals(post.product.title, ignoreCase = true) }.orEmpty()
+                } else {
+                    cleanContent
+                }
+
                 val isDuplicateText = (post.event != null && (cleanContent.equals(post.event.title, ignoreCase = true) || cleanContent.equals(post.event.description, ignoreCase = true))) ||
-                        (post.product != null && (cleanContent.equals(post.product.title, ignoreCase = true) || cleanContent.equals(post.product.description, ignoreCase = true))) ||
                         (post.song != null && cleanContent.contains(post.song.title, ignoreCase = true))
 
-                val hasMedia = mediaList.isNotEmpty() || !post.mediaUrl.isNullOrBlank() || post.videoUrl != null
+                val hasMedia = mediaList.isNotEmpty() || !post.mediaUrl.isNullOrBlank() || post.videoUrl != null || post.product != null
                 val hasBackground = !hasMedia &&
                         !post.backgroundStyle.isNullOrBlank() &&
                         !post.backgroundStyle.equals("none", ignoreCase = true) &&
@@ -1916,18 +1981,18 @@ fun WebPostCard(
                         !post.backgroundStyle.startsWith("style:none") &&
                         !post.backgroundStyle.startsWith("none|")
 
-                if (!isDuplicateText && cleanContent.isNotBlank() && !hasBackground) {
-                    val words = remember(cleanContent) {
-                        cleanContent.split(Regex("\\s+")).filter { it.isNotBlank() }
+                if (!isDuplicateText && postBodyText.isNotBlank() && !hasBackground) {
+                    val words = remember(postBodyText) {
+                        postBodyText.split(Regex("\\s+")).filter { it.isNotBlank() }
                     }
                     val hasMoreThan8Words = words.size > 8
-                    val truncatedContent = remember(cleanContent, words) {
-                        if (words.size > 8) words.take(8).joinToString(" ") + "…" else cleanContent
+                    val truncatedContent = remember(postBodyText, words) {
+                        if (words.size > 8) words.take(8).joinToString(" ") + "…" else postBodyText
                     }
 
                     Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)) {
                         Text(
-                            text = if (!hasMoreThan8Words || isExpandedText) cleanContent else truncatedContent,
+                            text = if (!hasMoreThan8Words || isExpandedText) postBodyText else truncatedContent,
                             fontSize = 20.sp,
                             lineHeight = 28.sp,
                             fontFamily = InterFontFamily,
@@ -1960,10 +2025,10 @@ fun WebPostCard(
                             }
                         }
                     }
-                } else if (hasBackground && cleanContent.isNotBlank()) {
+                } else if (hasBackground && postBodyText.isNotBlank()) {
                     TextPostBackgroundView(
                         backgroundStyle = post.backgroundStyle,
-                        content = cleanContent,
+                        content = postBodyText,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -2722,40 +2787,21 @@ fun ProductPostCard(
                 }
             }
 
-            // Title, location, description
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(14.dp)
-            ) {
-                Text(
-                    text = product.title,
-                    fontSize = 17.sp,
-                    fontFamily = InterFontFamily,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFFF8FAFC),
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-                if (product.location.isNotBlank()) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.LocationOn, contentDescription = null, tint = Color(0xFFF43F5E), modifier = Modifier.size(14.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(product.location, fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8))
-                    }
-                }
-                if (product.description.isNotBlank()) {
-                    Spacer(modifier = Modifier.height(6.dp))
+            // Product Title (description is displayed above the image in WebPostCard at 20sp and location next to the global icon)
+            if (product.title.isNotBlank()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 14.dp, vertical = 12.dp)
+                ) {
                     Text(
-                        text = product.description,
-                        fontSize = 13.sp,
+                        text = product.title,
+                        fontSize = 17.sp,
                         fontFamily = InterFontFamily,
-                        fontWeight = FontWeight.Normal,
-                        color = Color(0xFFCBD5E1),
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFFF8FAFC),
                         maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        lineHeight = 18.sp
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }

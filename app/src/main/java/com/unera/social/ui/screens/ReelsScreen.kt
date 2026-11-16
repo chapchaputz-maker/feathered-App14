@@ -64,6 +64,7 @@ import com.unera.social.model.*
 import com.unera.social.ui.components.FacebookReactionDock
 import com.unera.social.ui.components.ShareBottomSheetDialog
 import com.unera.social.ui.components.ReelCommentsBottomSheetDialog
+import com.unera.social.ui.theme.InterFontFamily
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -336,7 +337,9 @@ fun ReelsScreen(
                     Text(
                         text = "Loading Facebook Videos…",
                         color = Color.White,
-                        fontSize = 14.sp
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                        fontFamily = InterFontFamily
                     )
                 }
             }
@@ -410,12 +413,15 @@ fun ReelsScreen(
                     Text(
                         text = "No Videos Available",
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = InterFontFamily,
                         color = Color.White
                     )
                     Text(
                         text = "Videos from your feed and followed creators will appear here.",
                         fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                        fontFamily = InterFontFamily,
                         color = Color.White.copy(alpha = 0.6f)
                     )
                     if (onRefresh != null) {
@@ -423,7 +429,7 @@ fun ReelsScreen(
                             onClick = onRefresh,
                             colors = ButtonDefaults.buttonColors(containerColor = FbBlue)
                         ) {
-                            Text("Refresh", color = Color.White, fontWeight = FontWeight.Bold)
+                            Text("Refresh", color = Color.White, fontWeight = FontWeight.Medium, fontFamily = InterFontFamily)
                         }
                     }
                 }
@@ -988,6 +994,7 @@ private fun FacebookVideoItemView(
                                 text = post.author.name,
                                 fontSize = 19.sp,
                                 fontWeight = FontWeight.Bold,
+                                fontFamily = InterFontFamily,
                                 color = Color.White,
                                 modifier = Modifier.clickable { onProfileClick(post.author.id) }
                             )
@@ -1026,7 +1033,8 @@ private fun FacebookVideoItemView(
                                             text = if (isFollowingLive) "Following" else "Follow",
                                             color = Color.White,
                                             fontSize = 13.sp,
-                                            fontWeight = FontWeight.Bold
+                                            fontWeight = FontWeight.Medium,
+                                            fontFamily = InterFontFamily
                                         )
                                     }
                                 }
@@ -1043,6 +1051,7 @@ private fun FacebookVideoItemView(
                                     color = Color.White,
                                     fontSize = 17.sp,
                                     fontWeight = FontWeight.Normal,
+                                    fontFamily = InterFontFamily,
                                     maxLines = maxLines,
                                     overflow = TextOverflow.Ellipsis,
                                     modifier = Modifier.clickable { isCaptionExpanded = !isCaptionExpanded }
@@ -1051,8 +1060,9 @@ private fun FacebookVideoItemView(
                                     Text(
                                         text = "… more",
                                         color = Color.White.copy(alpha = 0.85f),
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 15.sp,
+                                        fontFamily = InterFontFamily,
                                         modifier = Modifier.clickable { isCaptionExpanded = true }
                                     )
                                 }
@@ -1082,8 +1092,9 @@ private fun FacebookVideoItemView(
                                     Text(
                                         text = post.sponsoredCtaText.ifBlank { "Learn More" },
                                         color = Color.White,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 14.sp
+                                        fontWeight = FontWeight.Medium,
+                                        fontSize = 14.sp,
+                                        fontFamily = InterFontFamily
                                     )
                                     Icon(
                                         imageVector = Icons.Default.OpenInNew,
@@ -1140,7 +1151,8 @@ private fun FacebookVideoItemView(
                                 text = formatNumber(localLikesCount),
                                 color = Color.White,
                                 fontSize = 13.sp,
-                                fontWeight = FontWeight.SemiBold
+                                fontWeight = FontWeight.SemiBold,
+                                fontFamily = InterFontFamily
                             )
                         }
 
@@ -1164,7 +1176,8 @@ private fun FacebookVideoItemView(
                                 text = formatNumber(post.commentsCount),
                                 color = Color.White,
                                 fontSize = 13.sp,
-                                fontWeight = FontWeight.SemiBold
+                                fontWeight = FontWeight.SemiBold,
+                                fontFamily = InterFontFamily
                             )
                         }
 
@@ -1190,7 +1203,8 @@ private fun FacebookVideoItemView(
                                 text = formatNumber(post.sharesCount),
                                 color = Color.White,
                                 fontSize = 13.sp,
-                                fontWeight = FontWeight.SemiBold
+                                fontWeight = FontWeight.SemiBold,
+                                fontFamily = InterFontFamily
                             )
                         }
                     }
@@ -1209,7 +1223,8 @@ private fun FacebookVideoItemView(
                         text = "${formatVideoTime(currentPositionMs)} / ${formatVideoTime(durationMs)}",
                         color = Color.White.copy(alpha = 0.9f),
                         fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.Medium,
+                        fontFamily = InterFontFamily
                     )
 
                     // Smooth Video Scrubber
@@ -1262,7 +1277,8 @@ private fun FacebookVideoItemView(
                                 text = badgeLabel,
                                 color = Color.White,
                                 fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.SemiBold,
+                                fontFamily = InterFontFamily,
                                 modifier = Modifier.padding(horizontal = 5.dp, vertical = 3.dp)
                             )
                         }
@@ -1335,15 +1351,16 @@ private fun FacebookVideoItemView(
                     Text(
                         text = "Video Options",
                         fontSize = 17.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = InterFontFamily,
                         color = Color.White,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
 
                     // Download Original Video (Strict rule: Original URL exclusively reserved for download)
                     ListItem(
-                        headlineContent = { Text("Download Original Video", color = Color.White, fontWeight = FontWeight.SemiBold) },
-                        supportingContent = { Text("Save pristine untouched file to device", color = Color.White.copy(alpha = 0.6f)) },
+                        headlineContent = { Text("Download Original Video", color = Color.White, fontWeight = FontWeight.Medium, fontFamily = InterFontFamily) },
+                        supportingContent = { Text("Save pristine untouched file to device", color = Color.White.copy(alpha = 0.6f), fontWeight = FontWeight.Normal, fontFamily = InterFontFamily) },
                         leadingContent = {
                             Icon(Icons.Default.Download, contentDescription = null, tint = FbBlue)
                         },
@@ -1366,7 +1383,8 @@ private fun FacebookVideoItemView(
                             Text(
                                 text = activeLabel,
                                 color = Color.White,
-                                fontWeight = FontWeight.SemiBold
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = InterFontFamily
                             )
                         },
                         supportingContent = {
@@ -1379,7 +1397,9 @@ private fun FacebookVideoItemView(
                             Text(
                                 text = supportText,
                                 color = Color.White.copy(alpha = 0.65f),
-                                fontSize = 12.sp
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Normal,
+                                fontFamily = InterFontFamily
                             )
                         },
                         leadingContent = {
@@ -1409,7 +1429,7 @@ private fun FacebookVideoItemView(
 
                     // Save / Bookmark Video
                     ListItem(
-                        headlineContent = { Text("Save Video", color = Color.White) },
+                        headlineContent = { Text("Save Video", color = Color.White, fontWeight = FontWeight.Medium, fontFamily = InterFontFamily) },
                         leadingContent = {
                             Icon(Icons.Default.BookmarkBorder, contentDescription = null, tint = Color.White)
                         },
@@ -1423,7 +1443,7 @@ private fun FacebookVideoItemView(
 
                     // Copy Video Link
                     ListItem(
-                        headlineContent = { Text("Copy Link", color = Color.White) },
+                        headlineContent = { Text("Copy Link", color = Color.White, fontWeight = FontWeight.Medium, fontFamily = InterFontFamily) },
                         leadingContent = {
                             Icon(Icons.Default.Link, contentDescription = null, tint = Color.White)
                         },

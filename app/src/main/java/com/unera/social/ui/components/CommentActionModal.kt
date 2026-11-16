@@ -34,6 +34,7 @@ import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.unera.social.model.Comment
 import com.unera.social.model.SongComment
+import com.unera.social.ui.theme.InterFontFamily
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -154,6 +155,7 @@ fun CommentActionModal(
                                     Text(
                                         text = authorName.take(1).uppercase(),
                                         color = Color.White,
+                                        fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 16.sp
                                     )
@@ -168,6 +170,7 @@ fun CommentActionModal(
                                 ) {
                                     Text(
                                         text = authorName.ifBlank { "User" },
+                                        fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 14.sp,
                                         color = Color(0xFFF8FAFC)
@@ -196,6 +199,7 @@ fun CommentActionModal(
                                                 Text(
                                                     text = "Hidden",
                                                     fontSize = 11.sp,
+                                                    fontFamily = InterFontFamily,
                                                     fontWeight = FontWeight.SemiBold,
                                                     color = Color(0xFFF59E0B)
                                                 )
@@ -209,6 +213,8 @@ fun CommentActionModal(
                                 Text(
                                     text = commentText,
                                     fontSize = 13.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     color = Color(0xFFCBD5E1),
                                     maxLines = 3,
                                     overflow = TextOverflow.Ellipsis,
@@ -253,7 +259,8 @@ fun CommentActionModal(
 
                                 Text(
                                     text = "Delete comment?",
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold,
                                     fontSize = 17.sp,
                                     color = Color(0xFFF8FAFC)
                                 )
@@ -261,6 +268,8 @@ fun CommentActionModal(
                                 Text(
                                     text = "Are you sure you want to permanently delete this comment? This action cannot be undone.",
                                     fontSize = 13.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     color = Color(0xFF94A3B8),
                                     textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                                     lineHeight = 18.sp,
@@ -285,7 +294,11 @@ fun CommentActionModal(
                                             contentColor = Color(0xFFCBD5E1)
                                         )
                                     ) {
-                                        Text("Cancel", fontWeight = FontWeight.SemiBold)
+                                        Text(
+                                            "Cancel",
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.Medium
+                                        )
                                     }
 
                                     Button(
@@ -309,7 +322,11 @@ fun CommentActionModal(
                                             modifier = Modifier.size(16.dp)
                                         )
                                         Spacer(modifier = Modifier.width(6.dp))
-                                        Text("Delete", fontWeight = FontWeight.Bold)
+                                        Text(
+                                            "Delete",
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
                                     }
                                 }
                             }
@@ -406,7 +423,8 @@ fun CommentActionModal(
                                 ) {
                                     Text(
                                         text = "Cancel",
-                                        fontWeight = FontWeight.SemiBold,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 14.sp
                                     )
                                 }
@@ -529,6 +547,7 @@ private fun ActionRow(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
+                    fontFamily = InterFontFamily,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 14.sp,
                     color = titleColor
@@ -536,6 +555,8 @@ private fun ActionRow(
                 Text(
                     text = subtitle,
                     fontSize = 12.sp,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Normal,
                     color = Color(0xFF94A3B8)
                 )
             }

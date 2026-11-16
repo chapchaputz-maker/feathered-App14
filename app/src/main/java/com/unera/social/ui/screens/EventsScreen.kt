@@ -37,6 +37,7 @@ import coil.compose.AsyncImage
 import com.unera.social.data.PostsApiService
 import com.unera.social.model.*
 import com.unera.social.ui.components.*
+import com.unera.social.ui.theme.InterFontFamily
 
 // Feathered Design Tokens
 private val BgDark = Color(0xFF050B18)
@@ -157,8 +158,9 @@ fun EventsScreen(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 text = "Events",
+                                fontFamily = InterFontFamily,
                                 fontSize = 24.sp,
-                                fontWeight = FontWeight.Black,
+                                fontWeight = FontWeight.SemiBold,
                                 color = TextWhite
                             )
                             Spacer(modifier = Modifier.width(8.dp))
@@ -172,14 +174,17 @@ fun EventsScreen(
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
                                 text = "Live",
+                                fontFamily = InterFontFamily,
                                 fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.SemiBold,
                                 color = GoingGreen
                             )
                         }
                         Text(
                             text = "Discover conferences, sessions & meetups",
+                            fontFamily = InterFontFamily,
                             fontSize = 12.sp,
+                            fontWeight = FontWeight.Normal,
                             color = TextMuted
                         )
                     }
@@ -200,7 +205,8 @@ fun EventsScreen(
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = "Create",
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 13.sp,
                             color = Color.White
                         )
@@ -218,9 +224,16 @@ fun EventsScreen(
                     OutlinedTextField(
                         value = searchQuery,
                         onValueChange = { searchQuery = it },
+                        textStyle = LocalTextStyle.current.copy(
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 14.sp
+                        ),
                         placeholder = {
                             Text(
                                 text = "Search events by title, venue, or city...",
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 color = TextMuted,
                                 fontSize = 13.sp
                             )
@@ -286,12 +299,13 @@ fun EventsScreen(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                             ) {
-                                Text(text = viewerCountry.flag, fontSize = 14.sp)
+                                Text(text = viewerCountry.flag, fontFamily = InterFontFamily, fontSize = 14.sp)
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
                                     text = "Across ${viewerCountry.name}",
+                                    fontFamily = InterFontFamily,
                                     fontSize = 12.sp,
-                                    fontWeight = if (isCountrySelected) FontWeight.Bold else FontWeight.Medium,
+                                    fontWeight = if (isCountrySelected) FontWeight.SemiBold else FontWeight.Medium,
                                     color = if (isCountrySelected) Color(0xFF38BDF8) else TextMuted
                                 )
                             }
@@ -310,12 +324,13 @@ fun EventsScreen(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                             ) {
-                                Text(text = "🌍", fontSize = 14.sp)
+                                Text(text = "🌍", fontFamily = InterFontFamily, fontSize = 14.sp)
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
                                     text = "Worldwide",
+                                    fontFamily = InterFontFamily,
                                     fontSize = 12.sp,
-                                    fontWeight = if (isWorldwideSelected) FontWeight.Bold else FontWeight.Medium,
+                                    fontWeight = if (isWorldwideSelected) FontWeight.SemiBold else FontWeight.Medium,
                                     color = if (isWorldwideSelected) Color(0xFF38BDF8) else TextMuted
                                 )
                             }
@@ -340,8 +355,9 @@ fun EventsScreen(
                             ) {
                                 Text(
                                     text = filter,
+                                    fontFamily = InterFontFamily,
                                     fontSize = 12.sp,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                    fontWeight = FontWeight.Medium,
                                     color = if (isSelected) Color.White else TextMuted,
                                     modifier = Modifier.padding(horizontal = 14.dp, vertical = 7.dp)
                                 )
@@ -359,6 +375,7 @@ fun EventsScreen(
                     ) {
                         Text(
                             text = "${filteredAndSortedEvents.size} events found",
+                            fontFamily = InterFontFamily,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium,
                             color = TextMuted
@@ -370,7 +387,9 @@ fun EventsScreen(
                         ) {
                             Text(
                                 text = "Sort:",
+                                fontFamily = InterFontFamily,
                                 fontSize = 11.sp,
+                                fontWeight = FontWeight.Normal,
                                 color = TextMuted
                             )
                             listOf("Date", "Popular").forEach { sortOption ->
@@ -382,8 +401,9 @@ fun EventsScreen(
                                 ) {
                                     Text(
                                         text = sortOption,
+                                        fontFamily = InterFontFamily,
                                         fontSize = 11.sp,
-                                        fontWeight = if (isSortActive) FontWeight.Bold else FontWeight.Normal,
+                                        fontWeight = if (isSortActive) FontWeight.Medium else FontWeight.Normal,
                                         color = if (isSortActive) BrandBlue else TextMuted,
                                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                                     )
@@ -420,14 +440,17 @@ fun EventsScreen(
                         Spacer(modifier = Modifier.height(14.dp))
                         Text(
                             text = "No events found",
+                            fontFamily = InterFontFamily,
                             fontSize = 17.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.SemiBold,
                             color = TextWhite
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "Try different keywords or filters, or be the first to host an event!",
+                            fontFamily = InterFontFamily,
                             fontSize = 13.sp,
+                            fontWeight = FontWeight.Normal,
                             color = TextMuted
                         )
                         Spacer(modifier = Modifier.height(18.dp))
@@ -442,7 +465,11 @@ fun EventsScreen(
                                 modifier = Modifier.size(16.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Create Event")
+                            Text(
+                                text = "Create Event",
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Medium
+                            )
                         }
                     }
                 }
@@ -680,6 +707,7 @@ fun EventFeedItemCard(
                     ) {
                         Text(
                             text = realOrganizerName,
+                            fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Bold,
                             fontSize = 21.sp,
                             color = Color(0xFFF8FAFC),
@@ -700,10 +728,12 @@ fun EventFeedItemCard(
                         val displayTime = if (relativeTime.isBlank() || relativeTime.equals("Sponsored", ignoreCase = true)) "Just now" else relativeTime
                         Text(
                             text = displayTime,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             fontSize = 13.sp,
                             color = Color(0xFF94A3B8)
                         )
-                        Text("•", fontSize = 13.sp, color = Color(0xFF94A3B8))
+                        Text("•", fontFamily = InterFontFamily, fontSize = 13.sp, color = Color(0xFF94A3B8))
                         Icon(
                             imageVector = Icons.Default.Public,
                             contentDescription = "Public",
@@ -727,6 +757,8 @@ fun EventFeedItemCard(
                 Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)) {
                     Text(
                         text = if (!hasMoreThan8Words || isExpandedText) event.description else truncatedContent,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         fontSize = 20.sp,
                         lineHeight = 28.sp,
                         color = Color(0xFFE4E6EB)
@@ -742,8 +774,9 @@ fun EventFeedItemCard(
                         ) {
                             Text(
                                 text = if (isExpandedText) "See Less" else "See More",
+                                fontFamily = InterFontFamily,
                                 color = Color(0xFF1877F2),
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.SemiBold,
                                 fontSize = 16.sp
                             )
                             Spacer(modifier = Modifier.width(4.dp))
@@ -786,14 +819,16 @@ fun EventFeedItemCard(
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
                         text = "${post.commentsCount} Discussions",
+                        fontFamily = InterFontFamily,
                         color = Color(0xFF94A3B8),
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier.clickable(onClick = onDiscuss)
                     )
-                    Text("•", color = Color(0xFF94A3B8), fontSize = 13.sp)
+                    Text("•", fontFamily = InterFontFamily, color = Color(0xFF94A3B8), fontSize = 13.sp)
                     Text(
                         text = "${post.sharesCount} Shares",
+                        fontFamily = InterFontFamily,
                         color = Color(0xFF94A3B8),
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium,
@@ -852,9 +887,10 @@ fun EventFeedItemCard(
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = "Share",
+                            fontFamily = InterFontFamily,
                             color = Color(0xFF94A3B8),
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 }
@@ -987,8 +1023,9 @@ fun EventDetailModal(
                             // Title
                             Text(
                                 text = event.title,
+                                fontFamily = InterFontFamily,
                                 fontSize = 22.sp,
-                                fontWeight = FontWeight.Black,
+                                fontWeight = FontWeight.SemiBold,
                                 color = TextWhite
                             )
 
@@ -1016,12 +1053,15 @@ fun EventDetailModal(
                                 Column {
                                     Text(
                                         text = event.date,
-                                        fontWeight = FontWeight.Bold,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.SemiBold,
                                         fontSize = 14.sp,
                                         color = TextWhite
                                     )
                                     Text(
                                         text = if (event.time.isNotBlank()) event.time else "Scheduled time",
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Normal,
                                         fontSize = 12.sp,
                                         color = TextMuted
                                     )
@@ -1050,12 +1090,15 @@ fun EventDetailModal(
                                 Column {
                                     Text(
                                         text = "Location",
-                                        fontWeight = FontWeight.Bold,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.SemiBold,
                                         fontSize = 14.sp,
                                         color = TextWhite
                                     )
                                     Text(
                                         text = event.location,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Normal,
                                         fontSize = 12.sp,
                                         color = TextMuted
                                     )
@@ -1084,15 +1127,17 @@ fun EventDetailModal(
                                 Column {
                                     Text(
                                         text = "Hosted by",
-                                        fontWeight = FontWeight.Bold,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.SemiBold,
                                         fontSize = 14.sp,
                                         color = TextWhite
                                     )
                                     Text(
                                         text = event.organizer.name,
+                                        fontFamily = InterFontFamily,
                                         fontSize = 12.sp,
                                         color = BrandBlue,
-                                        fontWeight = FontWeight.SemiBold
+                                        fontWeight = FontWeight.Bold
                                     )
                                 }
                             }
@@ -1117,12 +1162,15 @@ fun EventDetailModal(
                                     ) {
                                         Text(
                                             text = "${event.goingCount}",
-                                            fontWeight = FontWeight.Black,
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.SemiBold,
                                             fontSize = 16.sp,
                                             color = GoingGreen
                                         )
                                         Text(
                                             text = "Attending",
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.Normal,
                                             fontSize = 11.sp,
                                             color = TextMuted
                                         )
@@ -1140,12 +1188,15 @@ fun EventDetailModal(
                                     ) {
                                         Text(
                                             text = "${event.interestedCount}",
-                                            fontWeight = FontWeight.Black,
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.SemiBold,
                                             fontSize = 16.sp,
                                             color = InterestedGold
                                         )
                                         Text(
                                             text = "Interested",
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.Normal,
                                             fontSize = 11.sp,
                                             color = TextMuted
                                         )
@@ -1170,7 +1221,8 @@ fun EventDetailModal(
                                 ) {
                                     Text(
                                         text = if (event.isGoing) "✓ Going" else "Going",
-                                        fontWeight = FontWeight.Bold,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 14.sp
                                     )
                                 }
@@ -1185,7 +1237,8 @@ fun EventDetailModal(
                                 ) {
                                     Text(
                                         text = if (event.isInterested) "✓ Interested" else "Interested",
-                                        fontWeight = FontWeight.Bold,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 14.sp,
                                         color = if (event.isInterested) Color.Black else TextWhite
                                     )
@@ -1196,13 +1249,16 @@ fun EventDetailModal(
                                 Spacer(modifier = Modifier.height(16.dp))
                                 Text(
                                     text = "About this event",
+                                    fontFamily = InterFontFamily,
                                     fontSize = 15.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.SemiBold,
                                     color = TextWhite
                                 )
                                 Spacer(modifier = Modifier.height(6.dp))
                                 Text(
                                     text = event.description,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     fontSize = 13.sp,
                                     color = TextMuted,
                                     lineHeight = 19.sp

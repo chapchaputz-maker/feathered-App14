@@ -46,6 +46,8 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import com.unera.social.model.Product
 import com.unera.social.model.Event
+import com.unera.social.model.NotificationPostMode
+import com.unera.social.model.NotificationPostTarget
 import com.unera.social.model.Song
 import com.unera.social.ui.screens.WebPostCard
 import kotlinx.coroutines.launch
@@ -849,7 +851,8 @@ fun DiscussionsSheetDialog(
     onPlayMusic: ((Song) -> Unit)? = null,
     isFollowing: Boolean = false,
     onFollowToggle: (() -> Unit)? = null,
-    allUsers: List<User> = emptyList()
+    allUsers: List<User> = emptyList(),
+    postTarget: NotificationPostTarget? = null
 ) {
     val coroutineScope = rememberCoroutineScope()
     val resolvedAuthor = remember(post.author, allUsers, currentUser) {
@@ -895,7 +898,13 @@ fun DiscussionsSheetDialog(
         mutableStateOf(FeedInteractionApiService.organizeCommentsIntoThreads(post.comments))
     }
     var isLoadingComments by remember(post.id) { mutableStateOf(post.comments.isEmpty()) }
-    var hasAutoScrolledToLatest by remember(post.id) { mutableStateOf(false) }
+    var highlightedCommentId by remember(post.id, postTarget) { mutableStateOf<Long?>(null) }
+    var hasAutoScrolledToTarget by remember(post.id, postTarget) { mutableStateOf(false) }
+
+    val showNotificationContextBanner = postTarget != null &&
+        postTarget.mode == NotificationPostMode.VIEW_POST_TOP &&
+        !postTarget.actorName.isNullOrBlank()
+    val commentStartIndex = if (showNotificationContextBanner) 3 else 2
 
     LaunchedEffect(post.id) {
         val fetched = FeedInteractionApiService.fetchComments(post, currentUser.id)
@@ -925,13 +934,107 @@ fun DiscussionsSheetDialog(
         }
     }
 
-    // Auto-scroll down to the latest discussion when opening the sheet
-    LaunchedEffect(liveComments.size, isLoadingComments) {
-        if (!isLoadingComments && liveComments.isNotEmpty() && !hasAutoScrolledToLatest) {
-            hasAutoScrolledToLatest = true
-            delay(150)
-            val target = (liveComments.size + 1).coerceAtLeast(0)
-            listState.animateScrollToItem(target)
+    // Facebook-style scroll behavior:
+    // - VIEW_POST_TOP (reaction/like/share notification): keep view at top of post (index 0)
+    // - FOCUS_COMMENT (discuss/comment/reply notification): scroll to and highlight the discussed comment
+    // - Default: scroll to latest discussion
+    LaunchedEffect(liveComments.size, isLoadingComments, postTarget) {
+        if (!isLoadingComments && !hasAutoScrolledToTarget) {
+            if (postTarget?.mode == NotificationPostMode.VIEW_POST_TOP) {
+                hasAutoScrolledToTarget = true
+                listState.scrollToItem(0)
+            } else if (liveComments.isNotEmpty()) {
+                hasAutoScrolledToTarget = true
+                delay(160)
+                if (postTarget?.mode == NotificationPostMode.FOCUS_COMMENT) {
+                    val targetCid = postTarget.commentId
+                    val targetActorId = postTarget.actorId
+                    val previewNeedle = postTarget.commentPreview?.trim()?.lowercase()?.take(60)
+                    var matchedIndex = -1
+                    var matchedHighlightId: Long? = null
+                    var parentToExpandId: Long? = null
+
+                    if (targetCid != null && targetCid > 0L) {
+                        liveComments.forEachIndexed { idx, c ->
+                            if (c.id == targetCid) {
+                                matchedIndex = idx
+                                matchedHighlightId = c.id
+                            } else if (c.replies.any { it.id == targetCid }) {
+                                matchedIndex = idx
+                                matchedHighlightId = c.id
+                                parentToExpandId = c.id
+                            }
+                        }
+                    }
+
+                    if (matchedIndex < 0 && targetActorId != null && !previewNeedle.isNullOrBlank()) {
+                        liveComments.forEachIndexed { idx, c ->
+                            val cUid = if (c.userId > 0L) c.userId else c.author.id
+                            if (cUid == targetActorId && c.text.lowercase().contains(previewNeedle)) {
+                                matchedIndex = idx
+                                matchedHighlightId = c.id
+                            } else if (c.replies.any { r ->
+                                    val rUid = if (r.userId > 0L) r.userId else r.author.id
+                                    rUid == targetActorId && r.text.lowercase().contains(previewNeedle)
+                                }
+                            ) {
+                                matchedIndex = idx
+                                matchedHighlightId = c.id
+                                parentToExpandId = c.id
+                            }
+                        }
+                    }
+
+                    if (matchedIndex < 0 && targetActorId != null) {
+                        for (idx in liveComments.indices.reversed()) {
+                            val c = liveComments[idx]
+                            val cUid = if (c.userId > 0L) c.userId else c.author.id
+                            if (cUid == targetActorId) {
+                                matchedIndex = idx
+                                matchedHighlightId = c.id
+                                break
+                            }
+                            if (c.replies.any { r ->
+                                    val rUid = if (r.userId > 0L) r.userId else r.author.id
+                                    rUid == targetActorId
+                                }
+                            ) {
+                                matchedIndex = idx
+                                matchedHighlightId = c.id
+                                parentToExpandId = c.id
+                                break
+                            }
+                        }
+                    }
+
+                    if (matchedIndex < 0 && !previewNeedle.isNullOrBlank()) {
+                        liveComments.forEachIndexed { idx, c ->
+                            if (c.text.lowercase().contains(previewNeedle)) {
+                                matchedIndex = idx
+                                matchedHighlightId = c.id
+                            } else if (c.replies.any { it.text.lowercase().contains(previewNeedle) }) {
+                                matchedIndex = idx
+                                matchedHighlightId = c.id
+                                parentToExpandId = c.id
+                            }
+                        }
+                    }
+
+                    if (parentToExpandId != null) {
+                        expandedCommentIds = expandedCommentIds + parentToExpandId!!
+                    }
+                    if (matchedIndex >= 0) {
+                        highlightedCommentId = matchedHighlightId
+                        listState.animateScrollToItem(commentStartIndex + matchedIndex)
+                    } else {
+                        val fallbackIdx = (commentStartIndex + liveComments.size - 1).coerceAtLeast(commentStartIndex)
+                        listState.animateScrollToItem(fallbackIdx)
+                    }
+                } else {
+                    val target = (commentStartIndex + liveComments.size - 1).coerceAtLeast(0)
+                    listState.animateScrollToItem(target)
+                }
+            }
         }
     }
 
@@ -1023,13 +1126,54 @@ fun DiscussionsSheetDialog(
 
                 HorizontalDivider(color = Color(0xFF1E293B), thickness = 1.dp)
 
-                // Scrollable content: Full Original Post Preview + List of comments
+                // Scrollable content: Optional Notification Banner + Full Original Post Preview + List of comments
                 LazyColumn(
                     state = listState,
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth()
                 ) {
+                    if (showNotificationContextBanner) {
+                        item(key = "notification_reaction_banner") {
+                            val normalizedAction = postTarget?.reactionType?.lowercase()
+                            val reactionEmoji = when (normalizedAction) {
+                                "love", "heart" -> "❤️"
+                                "haha", "laugh" -> "😂"
+                                "wow" -> "😮"
+                                "sad" -> "😢"
+                                "angry" -> "😡"
+                                "fire" -> "🔥"
+                                "share" -> "🔁"
+                                else -> "👍"
+                            }
+                            val bannerActionText = if (normalizedAction == "share") {
+                                "shared this post"
+                            } else {
+                                "reacted to this post"
+                            }
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(Color(0xFF0F1E36))
+                                    .padding(horizontal = 14.dp, vertical = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(text = reactionEmoji, fontSize = 18.sp)
+                                Text(
+                                    text = "${postTarget?.actorName} $bannerActionText",
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = 14.sp,
+                                    color = Color(0xFF93C5FD),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                            HorizontalDivider(color = Color(0xFF1E293B), thickness = 1.dp)
+                        }
+                    }
+
                     // Full Original Post Card (Matching Web: <Post hideCommentPreview={true} ... />)
                     item {
                         Box(
@@ -1136,6 +1280,7 @@ fun DiscussionsSheetDialog(
                                     comment = comment,
                                     canDelete = canDeleteComment,
                                     isExpanded = isExpanded,
+                                    isHighlighted = highlightedCommentId == comment.id,
                                     onToggleExpand = {
                                         expandedCommentIds = if (isExpanded) {
                                             expandedCommentIds - comment.id
@@ -2122,7 +2267,8 @@ private fun CommentItemRow(
     onMoreOptions: (() -> Unit)? = null,
     onUserClick: (() -> Unit)? = null,
     allUsers: List<User> = emptyList(),
-    currentUser: User? = null
+    currentUser: User? = null,
+    isHighlighted: Boolean = false
 ) {
     var showReactionDock by remember { mutableStateOf(false) }
     val currentReaction = getFacebookReaction(comment.myReaction)
@@ -2174,11 +2320,18 @@ private fun CommentItemRow(
             Spacer(modifier = Modifier.width(10.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                // Bubble (#162137)
+                // Bubble (#162137, highlighted with Feathered-blue glow when opened from comment notification)
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(18.dp))
-                        .background(Color(0xFF162137))
+                        .background(if (isHighlighted) Color(0xFF1A2E4D) else Color(0xFF162137))
+                        .then(
+                            if (isHighlighted) {
+                                Modifier.border(1.5.dp, Color(0xFF1877F2), RoundedCornerShape(18.dp))
+                            } else {
+                                Modifier
+                            }
+                        )
                         .clickable { onMoreOptions?.invoke() }
                         .padding(horizontal = 14.dp, vertical = 10.dp)
                 ) {

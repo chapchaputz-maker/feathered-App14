@@ -36,6 +36,7 @@ import com.unera.social.model.Post
 import com.unera.social.model.User
 import com.unera.social.ui.components.AdPreview
 import com.unera.social.ui.components.AdPreviewData
+import com.unera.social.ui.theme.InterFontFamily
 import kotlinx.coroutines.delay
 
 val CTA_OPTIONS = listOf(
@@ -174,13 +175,16 @@ fun AdCreator(
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text = if (initialPost != null) "Boost Your Post" else "Create New Campaign",
+                                fontFamily = InterFontFamily,
                                 fontSize = 22.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.SemiBold,
                                 color = Color.White
                             )
                             Text(
                                 text = if (initialPost != null) "Configure your ad settings below"
                                 else "Boost your posts and reach more people for FREE",
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 fontSize = 13.sp,
                                 color = Color(0xFFA1A1AA)
                             )
@@ -215,8 +219,9 @@ fun AdCreator(
                                     } else {
                                         Text(
                                             text = s.toString(),
+                                            fontFamily = InterFontFamily,
                                             fontSize = 12.sp,
-                                            fontWeight = FontWeight.Bold,
+                                            fontWeight = FontWeight.SemiBold,
                                             color = if (step == s) Color.White else Color(0xFF71717A)
                                         )
                                     }
@@ -264,12 +269,15 @@ fun AdCreator(
                             Column {
                                 Text(
                                     text = "Free Promotion on Feathered",
+                                    fontFamily = InterFontFamily,
                                     fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.SemiBold,
                                     color = Color(0xFF34D399)
                                 )
                                 Text(
                                     text = "All ad campaigns are completely free. No costs, no hidden fees!",
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     fontSize = 12.sp,
                                     color = Color(0xFFA1A1AA)
                                 )
@@ -298,8 +306,9 @@ fun AdCreator(
                         ) {
                             Text(
                                 text = "Select a post to boost",
+                                fontFamily = InterFontFamily,
                                 fontSize = 17.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.SemiBold,
                                 color = Color.White
                             )
 
@@ -362,6 +371,7 @@ fun AdCreator(
                                 Spacer(modifier = Modifier.height(12.dp))
                                 Text(
                                     text = "No posts available to boost",
+                                    fontFamily = InterFontFamily,
                                     color = Color(0xFFA1A1AA),
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.Medium
@@ -468,12 +478,15 @@ fun AdCreator(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = "Selected Post",
+                                    fontFamily = InterFontFamily,
                                     fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.SemiBold,
                                     color = Color(0xFF60A5FA)
                                 )
                                 Text(
                                     text = selectedPost?.content?.ifBlank { "Post media" } ?: "",
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     fontSize = 12.sp,
                                     color = Color(0xFFD4D4D8),
                                     maxLines = 1,
@@ -482,7 +495,7 @@ fun AdCreator(
                             }
 
                             TextButton(onClick = { step = 1 }) {
-                                Text("Change", color = Color(0xFFA1A1AA), fontSize = 13.sp)
+                                Text("Change", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color(0xFFA1A1AA), fontSize = 13.sp)
                             }
                         }
 
@@ -490,6 +503,7 @@ fun AdCreator(
                         Column {
                             Text(
                                 text = "Campaign Name",
+                                fontFamily = InterFontFamily,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Color(0xFFE4E4E7)
@@ -498,7 +512,8 @@ fun AdCreator(
                             OutlinedTextField(
                                 value = campaignName,
                                 onValueChange = { campaignName = it },
-                                placeholder = { Text("e.g. Summer Sale 2026", color = Color(0xFF71717A)) },
+                                textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
+                                placeholder = { Text("e.g. Summer Sale 2026", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF71717A)) },
                                 shape = RoundedCornerShape(10.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedContainerColor = Color(0xFF0F172A),
@@ -517,6 +532,7 @@ fun AdCreator(
                         Column {
                             Text(
                                 text = "Contact Method",
+                                fontFamily = InterFontFamily,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Color(0xFFE4E4E7)
@@ -552,8 +568,9 @@ fun AdCreator(
                                             Spacer(modifier = Modifier.width(6.dp))
                                             Text(
                                                 text = method.label.split(" ").first(),
+                                                fontFamily = InterFontFamily,
                                                 fontSize = 12.sp,
-                                                fontWeight = FontWeight.SemiBold,
+                                                fontWeight = FontWeight.Medium,
                                                 color = if (isSel) Color.White else Color(0xFFA1A1AA)
                                             )
                                         }
@@ -566,7 +583,8 @@ fun AdCreator(
                             OutlinedTextField(
                                 value = contactValue,
                                 onValueChange = { contactValue = it },
-                                placeholder = { Text(contactType.placeholder, color = Color(0xFF71717A)) },
+                                textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
+                                placeholder = { Text(contactType.placeholder, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF71717A)) },
                                 shape = RoundedCornerShape(10.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedContainerColor = Color(0xFF0F172A),
@@ -585,6 +603,7 @@ fun AdCreator(
                         Column {
                             Text(
                                 text = "Call to Action",
+                                fontFamily = InterFontFamily,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Color(0xFFE4E4E7)
@@ -600,6 +619,7 @@ fun AdCreator(
                                     value = selectedCta,
                                     onValueChange = {},
                                     readOnly = true,
+                                    textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
                                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = ctaExpanded) },
                                     shape = RoundedCornerShape(10.dp),
                                     colors = OutlinedTextFieldDefaults.colors(
@@ -622,7 +642,7 @@ fun AdCreator(
                                 ) {
                                     CTA_OPTIONS.forEach { opt ->
                                         DropdownMenuItem(
-                                            text = { Text(opt, color = Color.White) },
+                                            text = { Text(opt, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color.White) },
                                             onClick = {
                                                 selectedCta = opt
                                                 ctaExpanded = false
@@ -637,6 +657,7 @@ fun AdCreator(
                         Column {
                             Text(
                                 text = "Target Location",
+                                fontFamily = InterFontFamily,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Color(0xFFE4E4E7)
@@ -645,7 +666,8 @@ fun AdCreator(
                             OutlinedTextField(
                                 value = targetLocation,
                                 onValueChange = { targetLocation = it },
-                                placeholder = { Text("e.g. Tanzania, Nairobi, Global", color = Color(0xFF71717A)) },
+                                textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
+                                placeholder = { Text("e.g. Tanzania, Nairobi, Global", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF71717A)) },
                                 shape = RoundedCornerShape(10.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedContainerColor = Color(0xFF0F172A),
@@ -669,14 +691,14 @@ fun AdCreator(
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text("Daily Budget ($)", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFFE4E4E7))
+                                    Text("Daily Budget ($)", fontFamily = InterFontFamily, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFFE4E4E7))
                                     Box(
                                         modifier = Modifier
                                             .clip(RoundedCornerShape(8.dp))
                                             .background(Color(0xFF1E293B))
                                             .padding(horizontal = 12.dp, vertical = 6.dp)
                                     ) {
-                                        Text("$${dailyBudget.toInt()}", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                        Text("$${dailyBudget.toInt()}", fontFamily = InterFontFamily, color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                                     }
                                 }
                                 Slider(
@@ -689,7 +711,7 @@ fun AdCreator(
                                         inactiveTrackColor = Color(0xFF1E293B)
                                     )
                                 )
-                                Text("✨ Free promotion - No actual charges", color = Color(0xFF34D399), fontSize = 12.sp)
+                                Text("✨ Free promotion - No actual charges", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF34D399), fontSize = 12.sp)
                             }
 
                             // Duration slider
@@ -699,14 +721,14 @@ fun AdCreator(
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text("Duration (Days)", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFFE4E4E7))
+                                    Text("Duration (Days)", fontFamily = InterFontFamily, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFFE4E4E7))
                                     Box(
                                         modifier = Modifier
                                             .clip(RoundedCornerShape(8.dp))
                                             .background(Color(0xFF1E293B))
                                             .padding(horizontal = 12.dp, vertical = 6.dp)
                                     ) {
-                                        Text("${durationDays.toInt()}d", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                        Text("${durationDays.toInt()}d", fontFamily = InterFontFamily, color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                                     }
                                 }
                                 Slider(
@@ -732,11 +754,11 @@ fun AdCreator(
                                 .padding(16.dp)
                         ) {
                             Column {
-                                Text("Total Campaign Cost", fontSize = 13.sp, color = Color(0xFF34D399), fontWeight = FontWeight.Medium)
+                                Text("Total Campaign Cost", fontFamily = InterFontFamily, fontSize = 13.sp, color = Color(0xFF34D399), fontWeight = FontWeight.Medium)
                                 Spacer(modifier = Modifier.height(2.dp))
-                                Text("$0.00", fontSize = 26.sp, fontWeight = FontWeight.Black, color = Color.White)
+                                Text("$0.00", fontFamily = InterFontFamily, fontSize = 26.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
                                 Spacer(modifier = Modifier.height(2.dp))
-                                Text("✨ Completely free on Feathered", fontSize = 12.sp, color = Color(0xFF34D399))
+                                Text("✨ Completely free on Feathered", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = Color(0xFF34D399))
                             }
                         }
 
@@ -744,8 +766,9 @@ fun AdCreator(
                         Column {
                             Text(
                                 text = "Live Ad Preview",
+                                fontFamily = InterFontFamily,
                                 fontSize = 15.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.SemiBold,
                                 color = Color.White,
                                 modifier = Modifier.padding(bottom = 10.dp)
                             )
@@ -775,7 +798,7 @@ fun AdCreator(
                                     .weight(1f)
                                     .height(48.dp)
                             ) {
-                                Text("Back", fontWeight = FontWeight.Bold, color = Color.White)
+                                Text("Back", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color.White)
                             }
 
                             Button(
@@ -786,7 +809,7 @@ fun AdCreator(
                                     .weight(2f)
                                     .height(48.dp)
                             ) {
-                                Text("Review Campaign", fontWeight = FontWeight.Bold, color = Color.White)
+                                Text("Review Campaign", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color.White)
                             }
                         }
                     }
@@ -808,13 +831,16 @@ fun AdCreator(
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
                                 text = "Review Your Campaign",
+                                fontFamily = InterFontFamily,
                                 fontSize = 22.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.SemiBold,
                                 color = Color.White
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = "Review your ad settings before launching.",
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 fontSize = 13.sp,
                                 color = Color(0xFFA1A1AA)
                             )
@@ -856,10 +882,10 @@ fun AdCreator(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Column {
-                                        Text("Total Cost", fontSize = 12.sp, color = Color(0xFF71717A), fontWeight = FontWeight.Bold)
-                                        Text("$0.00", fontSize = 22.sp, fontWeight = FontWeight.Black, color = Color.White)
+                                        Text("Total Cost", fontFamily = InterFontFamily, fontSize = 12.sp, color = Color(0xFF71717A), fontWeight = FontWeight.SemiBold)
+                                        Text("$0.00", fontFamily = InterFontFamily, fontSize = 22.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
                                     }
-                                    Text("✨ Free promotion on Feathered", color = Color(0xFF34D399), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                                    Text("✨ Free promotion on Feathered", fontFamily = InterFontFamily, color = Color(0xFF34D399), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                                 }
                             }
                         }
@@ -877,7 +903,7 @@ fun AdCreator(
                                     .weight(1f)
                                     .height(50.dp)
                             ) {
-                                Text("Edit Details", fontWeight = FontWeight.Bold, color = Color.White)
+                                Text("Edit Details", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color.White)
                             }
 
                             Button(
@@ -910,7 +936,7 @@ fun AdCreator(
                                 if (isSubmitting) {
                                     CircularProgressIndicator(color = Color.White, modifier = Modifier.size(20.dp))
                                 } else {
-                                    Text("Launch Free Campaign", fontWeight = FontWeight.Bold, color = Color.White)
+                                    Text("Launch Free Campaign", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color.White)
                                 }
                             }
                         }
@@ -947,13 +973,16 @@ fun AdCreator(
 
                         Text(
                             text = "Campaign Launched!",
+                            fontFamily = InterFontFamily,
                             fontSize = 26.sp,
-                            fontWeight = FontWeight.Black,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color.White
                         )
 
                         Text(
                             text = "Your free ad is now live and reaching people. Redirecting to dashboard...",
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             fontSize = 14.sp,
                             color = Color(0xFFA1A1AA),
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -972,8 +1001,8 @@ private fun SummaryRow(label: String, value: String) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = label, fontSize = 12.sp, color = Color(0xFF71717A), fontWeight = FontWeight.SemiBold)
-        Text(text = value, fontSize = 13.sp, color = Color.White, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(text = label, fontFamily = InterFontFamily, fontSize = 12.sp, color = Color(0xFF71717A), fontWeight = FontWeight.SemiBold)
+        Text(text = value, fontFamily = InterFontFamily, fontSize = 13.sp, color = Color.White, fontWeight = FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 
@@ -1020,7 +1049,7 @@ private fun PostSelectionCard(
                             .background(Color.Black.copy(alpha = 0.6f))
                             .padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
-                        Text("Video", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        Text("Video", fontFamily = InterFontFamily, color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
@@ -1028,6 +1057,8 @@ private fun PostSelectionCard(
             Column(modifier = Modifier.padding(10.dp)) {
                 Text(
                     text = post.content.ifBlank { "Post update" },
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Normal,
                     fontSize = 13.sp,
                     color = Color.White,
                     maxLines = 2,
@@ -1038,8 +1069,8 @@ private fun PostSelectionCard(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(post.timestamp, fontSize = 11.sp, color = Color(0xFF71717A))
-                    Text("❤️ ${post.likesCount}", fontSize = 11.sp, color = Color(0xFF71717A))
+                    Text(post.timestamp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 11.sp, color = Color(0xFF71717A))
+                    Text("❤️ ${post.likesCount}", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 11.sp, color = Color(0xFF71717A))
                 }
             }
         }
@@ -1089,6 +1120,8 @@ private fun PostSelectionRow(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = post.content.ifBlank { "Post update" },
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Normal,
                     fontSize = 14.sp,
                     color = Color.White,
                     maxLines = 2,
@@ -1097,6 +1130,8 @@ private fun PostSelectionRow(
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "${post.timestamp} • ${post.likesCount} reactions",
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Normal,
                     fontSize = 12.sp,
                     color = Color(0xFF71717A)
                 )

@@ -29,6 +29,7 @@ import coil.compose.AsyncImage
 import com.unera.social.model.AudioTrack
 import com.unera.social.model.SongComment
 import com.unera.social.model.User
+import com.unera.social.ui.theme.InterFontFamily
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -112,7 +113,8 @@ fun MusicCommentsSheet(
                                 text = "Discussions",
                                 color = Color(0xFFE4E6EB),
                                 fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold
                             )
                         }
 
@@ -121,7 +123,8 @@ fun MusicCommentsSheet(
                                 text = "Done",
                                 color = Color(0xFF1877F2),
                                 fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Medium
                             )
                         }
                     }
@@ -153,7 +156,8 @@ fun MusicCommentsSheet(
                                     text = track.title,
                                     color = Color(0xFFE4E6EB),
                                     fontSize = 15.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -161,6 +165,8 @@ fun MusicCommentsSheet(
                                     text = track.artist,
                                     color = Color(0xFF94A3B8),
                                     fontSize = 13.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Bold,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -181,13 +187,16 @@ fun MusicCommentsSheet(
                                     text = "No discussions yet",
                                     color = Color(0xFFB0B3B8),
                                     fontSize = 17.sp,
+                                    fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.SemiBold
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     text = "Be the first to start a discussion about this track!",
                                     color = Color(0xFF64748B),
-                                    fontSize = 13.sp
+                                    fontSize = 13.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal
                                 )
                             }
                         }
@@ -241,13 +250,16 @@ fun MusicCommentsSheet(
                                                             text = comment.userName,
                                                             color = Color(0xFFE4E6EB),
                                                             fontSize = 14.sp,
+                                                            fontFamily = InterFontFamily,
                                                             fontWeight = FontWeight.Bold,
                                                             modifier = Modifier.clickable { onProfileClick(comment.userId) }
                                                         )
                                                         Text(
                                                             text = "• ${formatTimestamp(comment.createdAt)}",
                                                             color = Color(0xFF94A3B8),
-                                                            fontSize = 11.sp
+                                                            fontSize = 11.sp,
+                                                            fontFamily = InterFontFamily,
+                                                            fontWeight = FontWeight.Normal
                                                         )
                                                     }
 
@@ -260,7 +272,8 @@ fun MusicCommentsSheet(
                                                                 text = "Hidden",
                                                                 color = Color(0xFFFCD34D),
                                                                 fontSize = 10.sp,
-                                                                fontWeight = FontWeight.Bold
+                                                                fontFamily = InterFontFamily,
+                                                                fontWeight = FontWeight.SemiBold
                                                             )
                                                         }
                                                         IconButton(
@@ -282,7 +295,9 @@ fun MusicCommentsSheet(
                                                 Text(
                                                     text = comment.text,
                                                     color = Color(0xFFF8FAFC),
-                                                    fontSize = 14.sp
+                                                    fontSize = 14.sp,
+                                                    fontFamily = InterFontFamily,
+                                                    fontWeight = FontWeight.Normal
                                                 )
                                             }
                                         }
@@ -297,6 +312,7 @@ fun MusicCommentsSheet(
                                                 text = "Like",
                                                 color = Color(0xFF94A3B8),
                                                 fontSize = 14.sp,
+                                                fontFamily = InterFontFamily,
                                                 fontWeight = FontWeight.Medium,
                                                 modifier = Modifier.clickable { }
                                             )
@@ -304,6 +320,7 @@ fun MusicCommentsSheet(
                                                 text = "Reply",
                                                 color = Color(0xFF94A3B8),
                                                 fontSize = 14.sp,
+                                                fontFamily = InterFontFamily,
                                                 fontWeight = FontWeight.Medium,
                                                 modifier = Modifier.clickable {
                                                     inputText = "@${comment.userName} "
@@ -313,7 +330,9 @@ fun MusicCommentsSheet(
                                                 Text(
                                                     text = "${comment.likesCount} likes",
                                                     color = Color(0xFF64748B),
-                                                    fontSize = 12.sp
+                                                    fontSize = 12.sp,
+                                                    fontFamily = InterFontFamily,
+                                                    fontWeight = FontWeight.Normal
                                                 )
                                             }
                                         }
@@ -339,7 +358,8 @@ fun MusicCommentsSheet(
                             OutlinedTextField(
                                 value = inputText,
                                 onValueChange = { inputText = it },
-                                placeholder = { Text("Write a comment...", color = Color(0xFF64748B), fontSize = 14.sp) },
+                                textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 14.sp),
+                                placeholder = { Text("Write a comment...", color = Color(0xFF64748B), fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                                 shape = RoundedCornerShape(24.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedContainerColor = Color(0xFF070D1D),
@@ -372,7 +392,7 @@ fun MusicCommentsSheet(
                                 ),
                                 contentPadding = PaddingValues(horizontal = 18.dp, vertical = 10.dp)
                             ) {
-                                Text("Post", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                Text("Post", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, fontSize = 14.sp)
                             }
                         }
                     }

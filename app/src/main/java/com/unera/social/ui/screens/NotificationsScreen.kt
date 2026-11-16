@@ -43,8 +43,8 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
-private const val INITIAL_EARLIER_COUNT = 15
-private const val LOAD_MORE_COUNT = 15
+private const val INITIAL_NOTIFICATIONS_COUNT = 10
+private const val LOAD_MORE_NOTIFICATIONS_COUNT = 5
 
 @Composable
 fun NotificationsScreen(
@@ -63,6 +63,7 @@ fun NotificationsScreen(
     onDeclineGroupInvite: ((String, Long?) -> Unit)? = null,
     onLoadMore: (() -> Unit)? = null,
     hasMore: Boolean = false,
+    isLoadingMore: Boolean = false,
     isRefreshing: Boolean = false,
     onRefresh: (() -> Unit)? = null
 ) {
@@ -71,8 +72,7 @@ fun NotificationsScreen(
     val scope = rememberCoroutineScope()
     var searchQuery by remember { mutableStateOf("") }
     var isSearchVisible by remember { mutableStateOf(false) }
-    var earlierVisibleCount by remember { mutableIntStateOf(INITIAL_EARLIER_COUNT) }
-    var isLoadingMore by remember { mutableStateOf(false) }
+    var visibleNotificationsCount by remember { mutableIntStateOf(INITIAL_NOTIFICATIONS_COUNT) }
     var activeDropdownId by remember { mutableStateOf<String?>(null) }
     var toastMessage by remember { mutableStateOf<String?>(null) }
     var isToastError by remember { mutableStateOf(false) }
@@ -112,8 +112,13 @@ fun NotificationsScreen(
         filteredNotifications.sortedByDescending { it.timestamp }
     }
 
-    // Partition into New, Today, Earlier
-    val (newNotifications, todayNotifications, earlierNotifications) = remember(sortedNotifications) {
+    // Limit visible notifications to 10 initially, +5 on each "See More" click
+    val visibleNotifications = remember(sortedNotifications, visibleNotificationsCount) {
+        sortedNotifications.take(visibleNotificationsCount)
+    }
+
+    // Partition visible notifications into New, Today, Earlier
+    val (newNotifications, todayNotifications, earlierNotifications) = remember(visibleNotifications) {
         val twoHoursAgo = System.currentTimeMillis() - 7200 * 1000
         val cal = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, 0)
@@ -127,7 +132,7 @@ fun NotificationsScreen(
         val todayNotifs = mutableListOf<Notification>()
         val earlierNotifs = mutableListOf<Notification>()
 
-        sortedNotifications.forEach { notif ->
+        visibleNotifications.forEach { notif ->
             if (!notif.isRead || notif.timestamp >= twoHoursAgo) {
                 newNotifs.add(notif)
             } else if (notif.timestamp >= startOfToday) {
@@ -140,10 +145,8 @@ fun NotificationsScreen(
         Triple(newNotifs, todayNotifs, earlierNotifs)
     }
 
-    val visibleEarlier = remember(earlierNotifications, earlierVisibleCount) {
-        earlierNotifications.take(earlierVisibleCount)
-    }
-    val canShowMoreEarlier = earlierVisibleCount < earlierNotifications.size || (hasMore && onLoadMore != null)
+    val canShowMore = visibleNotificationsCount < sortedNotifications.size ||
+        (hasMore && onLoadMore != null && searchQuery.isBlank())
     val unreadCount = remember(notifications) { notifications.count { !it.isRead } }
 
     Box(
@@ -188,7 +191,8 @@ fun NotificationsScreen(
                             Text(
                                 text = "Notifications",
                                 fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold,
                                 color = TextPrimary
                             )
                         }
@@ -241,6 +245,7 @@ fun NotificationsScreen(
                                 // Manual refresh button
                                 IconButton(
                                     onClick = {
+                                        visibleNotificationsCount = INITIAL_NOTIFICATIONS_COUNT
                                         onRefresh()
                                         showToast("Checking for new notifications...")
                                     },
@@ -386,7 +391,8 @@ fun NotificationsScreen(
                         Text(
                             text = if (searchQuery.isNotEmpty()) "No notifications matching search" else "No notifications yet",
                             fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             color = TextPrimary
                         )
 
@@ -525,7 +531,7 @@ fun NotificationsScreen(
                     }
 
                     // 3. Earlier Section
-                    if (visibleEarlier.isNotEmpty()) {
+                    if (earlierNotifications.isNotEmpty()) {
                         item(key = "header_earlier") {
                             SectionHeader(
                                 title = "Earlier",
@@ -533,7 +539,7 @@ fun NotificationsScreen(
                                 modifier = Modifier.padding(top = 10.dp)
                             )
                         }
-                        items(visibleEarlier, key = { it.id }) { notif ->
+                        items(earlierNotifications, key = { it.id }) { notif ->
                             NotificationCard(
                                 notification = notif,
                                 isMenuOpen = activeDropdownId == notif.id,
@@ -580,50 +586,55 @@ fun NotificationsScreen(
                             )
                             HorizontalDivider(color = Navy800.copy(alpha = 0.5f), thickness = 1.dp)
                         }
+                    }
 
-                        // Pagination Button
-                        if (canShowMoreEarlier) {
-                            item(key = "pagination_btn") {
-                                Box(
+                    // Pagination Button ("See More" requests 5 more from database)
+                    if (canShowMore) {
+                        item(key = "pagination_btn") {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 14.dp)
+                            ) {
+                                Button(
+                                    onClick = {
+                                        if (!isLoadingMore) {
+                                            visibleNotificationsCount += LOAD_MORE_NOTIFICATIONS_COUNT
+                                            onLoadMore?.invoke()
+                                        }
+                                    },
+                                    enabled = !isLoadingMore,
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Navy850,
+                                        contentColor = TextPrimary
+                                    ),
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(horizontal = 16.dp, vertical = 14.dp)
+                                        .height(48.dp)
+                                        .border(1.dp, Navy700, RoundedCornerShape(12.dp))
+                                        .testTag("notifications_load_more_btn")
                                 ) {
-                                    Button(
-                                        onClick = {
-                                            if (!isLoadingMore) {
-                                                isLoadingMore = true
-                                                scope.launch {
-                                                    delay(300)
-                                                    earlierVisibleCount += LOAD_MORE_COUNT
-                                                    onLoadMore?.invoke()
-                                                    isLoadingMore = false
-                                                }
-                                            }
-                                        },
-                                        enabled = !isLoadingMore,
-                                        shape = RoundedCornerShape(12.dp),
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = Navy850,
-                                            contentColor = TextPrimary
-                                        ),
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(46.dp)
-                                            .border(1.dp, Navy700, RoundedCornerShape(12.dp))
-                                            .testTag("notifications_load_more_btn")
-                                    ) {
-                                        if (isLoadingMore) {
-                                            CircularProgressIndicator(
-                                                modifier = Modifier.size(18.dp),
-                                                color = UneraBlue,
-                                                strokeWidth = 2.dp
-                                            )
-                                            Spacer(modifier = Modifier.width(8.dp))
-                                            Text("Loading previous notifications...", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-                                        } else {
-                                            Text("See previous notifications", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-                                        }
+                                    if (isLoadingMore) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.size(18.dp),
+                                            color = UneraBlue,
+                                            strokeWidth = 2.dp
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            text = "Loading more...",
+                                            fontSize = 15.sp,
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                    } else {
+                                        Text(
+                                            text = "See More",
+                                            fontSize = 15.sp,
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
                                     }
                                 }
                             }
@@ -693,7 +704,8 @@ private fun SectionHeader(
         Text(
             text = title,
             fontSize = 17.sp,
-            fontWeight = FontWeight.Bold,
+            fontFamily = InterFontFamily,
+            fontWeight = FontWeight.SemiBold,
             color = TextPrimary
         )
 
@@ -708,7 +720,8 @@ private fun SectionHeader(
                 Text(
                     text = badgeCount.toString(),
                     fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold,
                     color = Color(0xFF38BDF8)
                 )
             }
@@ -802,16 +815,18 @@ private fun NotificationCard(
                     .weight(1f)
                     .padding(end = 4.dp)
             ) {
-                // Actor Name + Action description
+                // Actor Name (21sp Bold) + Action description (20sp Regular)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.Top
                 ) {
                     Text(
                         text = buildMiddleText(notification),
-                        fontSize = 14.sp,
+                        fontSize = 20.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = if (isUnread) TextPrimary else TextSecondary,
-                        lineHeight = 19.sp,
+                        lineHeight = 28.sp,
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -867,12 +882,14 @@ private fun NotificationCard(
                         if (!notification.previewText.isNullOrBlank()) {
                             Text(
                                 text = "“${notification.previewText}”",
-                                fontSize = 12.sp,
+                                fontSize = 16.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 fontStyle = FontStyle.Italic,
                                 color = TextSecondary,
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
-                                lineHeight = 16.sp
+                                lineHeight = 22.sp
                             )
                         }
                     }
@@ -973,7 +990,8 @@ private fun NotificationCard(
                 ) {
                     Text(
                         text = notification.timeAgo.ifBlank { formatRelativeTime(notification.timestamp) },
-                        fontSize = 12.sp,
+                        fontSize = 13.sp,
+                        fontFamily = InterFontFamily,
                         color = if (isUnread) Color(0xFF38BDF8) else TextSecondary,
                         fontWeight = if (isUnread) FontWeight.Medium else FontWeight.Normal
                     )
@@ -1146,28 +1164,39 @@ private fun buildMiddleText(notification: Notification): androidx.compose.ui.tex
         val actorsCount = notification.actorsCount
         val otherCount = maxOf(0, actorsCount - 1)
 
-        // Bold actor name
+        // Bold actor name (21sp, Bold 700, Inter)
         withStyle(
             SpanStyle(
+                fontFamily = InterFontFamily,
                 fontWeight = FontWeight.Bold,
+                fontSize = 21.sp,
                 color = TextPrimary
             )
         ) {
             append(actorName)
         }
 
-        if (otherCount > 0) {
-            append(" and $otherCount ${if (otherCount == 1) "other" else "others"}")
-        }
+        // Notification text (20sp, Regular 400, Inter)
+        withStyle(
+            SpanStyle(
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.Normal,
+                fontSize = 20.sp
+            )
+        ) {
+            if (otherCount > 0) {
+                append(" and $otherCount ${if (otherCount == 1) "other" else "others"}")
+            }
 
-        append(" ")
+            append(" ")
 
-        // Content / Action description
-        if (notification.content.isNotBlank()) {
-            val contentToAppend = notification.content.removePrefix(actorName).trim()
-            append(contentToAppend)
-        } else {
-            append("interacted with your content.")
+            // Content / Action description
+            if (notification.content.isNotBlank()) {
+                val contentToAppend = notification.content.removePrefix(actorName).trim()
+                append(contentToAppend)
+            } else {
+                append("interacted with your content.")
+            }
         }
     }
 }

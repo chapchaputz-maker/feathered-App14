@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.unera.social.R
 import com.unera.social.ui.screens.formatCount
+import com.unera.social.ui.theme.InterFontFamily
 
 /**
  * DiscussButton
@@ -62,7 +63,7 @@ fun DiscussButton(
     testTag: String = "discuss_button",
     fontSize: TextUnit = 14.sp,
     fontWeight: FontWeight = FontWeight.SemiBold,
-    fontFamily: FontFamily? = null
+    fontFamily: FontFamily? = InterFontFamily
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()

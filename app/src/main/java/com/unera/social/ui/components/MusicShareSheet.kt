@@ -27,6 +27,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.unera.social.model.AudioTrack
+import com.unera.social.ui.theme.InterFontFamily
 
 private const val DEFAULT_MUSIC_COVER = "https://media.featheredsocial.site/task_01kftb3024ed7bm84gy6j485fh_1769336848_img_0.webp"
 
@@ -105,7 +106,8 @@ fun MusicShareSheet(
                                     text = track.title,
                                     color = Color(0xFFE4E6EB),
                                     fontSize = 15.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -113,6 +115,8 @@ fun MusicShareSheet(
                                     text = track.artist,
                                     color = Color(0xFF94A3B8),
                                     fontSize = 13.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Bold,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -186,7 +190,7 @@ fun MusicShareSheet(
                             .fillMaxWidth()
                             .height(48.dp)
                     ) {
-                        Text("Cancel", fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                        Text("Cancel", fontSize = 15.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                     }
                 }
             }
@@ -234,12 +238,15 @@ private fun ShareOptionItem(
                     text = title,
                     color = Color(0xFFE4E6EB),
                     fontSize = 15.sp,
+                    fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Medium
                 )
                 Text(
                     text = subtitle,
                     color = Color(0xFF94A3B8),
-                    fontSize = 12.sp
+                    fontSize = 12.sp,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Normal
                 )
             }
 

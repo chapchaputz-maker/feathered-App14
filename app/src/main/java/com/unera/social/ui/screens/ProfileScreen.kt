@@ -239,6 +239,7 @@ fun ProfileScreen(
                                     text = user.name,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 17.sp,
+                                    fontFamily = InterFontFamily,
                                     color = Color(0xFFF8FAFC),
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
@@ -251,6 +252,8 @@ fun ProfileScreen(
                             Text(
                                 text = "@${user.username}",
                                 fontSize = 12.sp,
+                                fontWeight = FontWeight.Normal,
+                                fontFamily = InterFontFamily,
                                 color = Color(0xFF94A3B8)
                             )
                         }
@@ -277,7 +280,8 @@ fun ProfileScreen(
                                     Text(
                                         text = if (currentUser.role == "admin") "ADMIN" else "MOD",
                                         fontSize = 11.sp,
-                                        fontWeight = FontWeight.Bold
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontFamily = InterFontFamily
                                     )
                                     Icon(
                                         imageVector = Icons.Filled.ArrowDropDown,
@@ -299,7 +303,8 @@ fun ProfileScreen(
                                                 text = if (user.isVerified) "Remove Verification Badge" else "Verify Profile (Blue Badge)",
                                                 color = Color(0xFF38BDF8),
                                                 fontSize = 13.sp,
-                                                fontWeight = FontWeight.Medium
+                                                fontWeight = FontWeight.Medium,
+                                                fontFamily = InterFontFamily
                                             )
                                         },
                                         leadingIcon = {
@@ -320,7 +325,7 @@ fun ProfileScreen(
                                     if (user.suspendedUntil == null) {
                                         DropdownMenuItem(
                                             text = {
-                                                Text("Suspend for 1 Week", color = Color(0xFFFBBF24), fontSize = 13.sp)
+                                                Text("Suspend for 1 Week", color = Color(0xFFFBBF24), fontSize = 13.sp, fontWeight = FontWeight.Medium, fontFamily = InterFontFamily)
                                             },
                                             leadingIcon = {
                                                 Icon(Icons.Filled.PauseCircle, null, tint = Color(0xFFFBBF24), modifier = Modifier.size(16.dp))
@@ -333,7 +338,7 @@ fun ProfileScreen(
                                         )
                                         DropdownMenuItem(
                                             text = {
-                                                Text("Suspend for 1 Month", color = Color(0xFFF59E0B), fontSize = 13.sp)
+                                                Text("Suspend for 1 Month", color = Color(0xFFF59E0B), fontSize = 13.sp, fontWeight = FontWeight.Medium, fontFamily = InterFontFamily)
                                             },
                                             leadingIcon = {
                                                 Icon(Icons.Filled.EventBusy, null, tint = Color(0xFFF59E0B), modifier = Modifier.size(16.dp))
@@ -347,7 +352,7 @@ fun ProfileScreen(
                                     } else {
                                         DropdownMenuItem(
                                             text = {
-                                                Text("Unsuspend Profile", color = Color(0xFF34D399), fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                                                Text("Unsuspend Profile", color = Color(0xFF34D399), fontSize = 13.sp, fontWeight = FontWeight.Medium, fontFamily = InterFontFamily)
                                             },
                                             leadingIcon = {
                                                 Icon(Icons.Filled.PlayArrow, null, tint = Color(0xFF34D399), modifier = Modifier.size(16.dp))
@@ -366,7 +371,9 @@ fun ProfileScreen(
                                                 Text(
                                                     text = if (user.role == "moderator") "Remove Moderator Role" else "Make Moderator",
                                                     color = Color(0xFFA78BFA),
-                                                    fontSize = 13.sp
+                                                    fontSize = 13.sp,
+                                                    fontWeight = FontWeight.Medium,
+                                                    fontFamily = InterFontFamily
                                                 )
                                             },
                                             leadingIcon = {
@@ -384,7 +391,7 @@ fun ProfileScreen(
 
                                     DropdownMenuItem(
                                         text = {
-                                            Text("Copy Profile Link", color = Color(0xFFF8FAFC), fontSize = 13.sp)
+                                            Text("Copy Profile Link", color = Color(0xFFF8FAFC), fontSize = 13.sp, fontWeight = FontWeight.Medium, fontFamily = InterFontFamily)
                                         },
                                         leadingIcon = {
                                             Icon(Icons.Filled.Link, null, tint = Color(0xFF38BDF8), modifier = Modifier.size(16.dp))
@@ -466,7 +473,8 @@ fun ProfileScreen(
                                     text = "Edit cover photo",
                                     color = Color.White,
                                     fontSize = 12.sp,
-                                    fontWeight = FontWeight.SemiBold
+                                    fontWeight = FontWeight.Medium,
+                                    fontFamily = InterFontFamily
                                 )
                             }
                         }
@@ -534,8 +542,9 @@ fun ProfileScreen(
                     ) {
                         Text(
                             text = user.name,
-                            fontWeight = FontWeight.ExtraBold,
+                            fontWeight = FontWeight.Bold,
                             fontSize = 24.sp,
+                            fontFamily = InterFontFamily,
                             color = Color(0xFFF8FAFC)
                         )
                         if (user.isVerified) {
@@ -551,7 +560,8 @@ fun ProfileScreen(
                                     text = "Mod",
                                     color = Color(0xFFDDD6FE),
                                     fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontFamily = InterFontFamily,
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                                 )
                             }
@@ -566,7 +576,8 @@ fun ProfileScreen(
                                     text = "Admin",
                                     color = Color(0xFFFECACA),
                                     fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontFamily = InterFontFamily,
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                                 )
                             }
@@ -581,7 +592,8 @@ fun ProfileScreen(
                                     text = "Suspended",
                                     color = Color.White,
                                     fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontFamily = InterFontFamily,
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                                 )
                             }
@@ -595,30 +607,38 @@ fun ProfileScreen(
                     ) {
                         Text(
                             text = "${user.followersCount}",
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = InterFontFamily,
                             color = Color(0xFFF8FAFC),
                             fontSize = 15.sp
                         )
                         Text(
                             text = " followers",
                             color = Color(0xFF94A3B8),
-                            fontSize = 15.sp
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Normal,
+                            fontFamily = InterFontFamily
                         )
                         Text(
                             text = "  ·  ",
                             color = Color(0xFF64748B),
-                            fontSize = 15.sp
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Normal,
+                            fontFamily = InterFontFamily
                         )
                         Text(
                             text = "${userPosts.size}",
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = InterFontFamily,
                             color = Color(0xFFF8FAFC),
                             fontSize = 15.sp
                         )
                         Text(
                             text = " posts",
                             color = Color(0xFF94A3B8),
-                            fontSize = 15.sp
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Normal,
+                            fontFamily = InterFontFamily
                         )
                     }
 
@@ -628,6 +648,8 @@ fun ProfileScreen(
                         Text(
                             text = user.bio,
                             fontSize = 15.sp,
+                            fontWeight = FontWeight.Normal,
+                            fontFamily = InterFontFamily,
                             color = Color(0xFFF8FAFC),
                             lineHeight = 22.sp
                         )
@@ -636,7 +658,8 @@ fun ProfileScreen(
                             text = "+ Add bio",
                             color = Color(0xFF1877F2),
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.SemiBold,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = InterFontFamily,
                             modifier = Modifier.clickable { showEditProfileModal = true }
                         )
                     }
@@ -656,7 +679,8 @@ fun ProfileScreen(
                                 text = "Works at ${user.work}",
                                 fontSize = 14.sp,
                                 color = Color(0xFFF8FAFC),
-                                fontWeight = FontWeight.Medium
+                                fontWeight = FontWeight.Normal,
+                                fontFamily = InterFontFamily
                             )
                         }
                     }
@@ -674,6 +698,8 @@ fun ProfileScreen(
                             Text(
                                 text = user.location,
                                 fontSize = 14.sp,
+                                fontWeight = FontWeight.Normal,
+                                fontFamily = InterFontFamily,
                                 color = Color(0xFF94A3B8)
                             )
                         }
@@ -698,7 +724,7 @@ fun ProfileScreen(
                             ) {
                                 Icon(Icons.Filled.Add, null, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Add to story", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                                Text("Add to story", fontWeight = FontWeight.Medium, fontSize = 15.sp, fontFamily = InterFontFamily)
                             }
 
                             Button(
@@ -714,7 +740,7 @@ fun ProfileScreen(
                             ) {
                                 Icon(Icons.Filled.Insights, null, tint = Color(0xFF38BDF8), modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Analytics", color = Color(0xFFF8FAFC), fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                                Text("Analytics", color = Color(0xFFF8FAFC), fontWeight = FontWeight.Medium, fontSize = 15.sp, fontFamily = InterFontFamily)
                             }
                         } else {
                             Button(
@@ -729,7 +755,7 @@ fun ProfileScreen(
                             ) {
                                 Icon(Icons.Filled.ChatBubble, null, tint = Color(0xFFF8FAFC), modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Message", color = Color(0xFFF8FAFC), fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                                Text("Message", color = Color(0xFFF8FAFC), fontWeight = FontWeight.Medium, fontSize = 15.sp, fontFamily = InterFontFamily)
                             }
 
                             Button(
@@ -754,8 +780,9 @@ fun ProfileScreen(
                                 Text(
                                     text = if (isFollowing) "Following" else "Follow",
                                     color = if (isFollowing) Color(0xFFF8FAFC) else Color.White,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 15.sp
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = 15.sp,
+                                    fontFamily = InterFontFamily
                                 )
                             }
                         }
@@ -784,14 +811,17 @@ fun ProfileScreen(
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
                                         text = "Account is Suspended",
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontFamily = InterFontFamily,
                                         color = Color.White,
                                         fontSize = 14.sp
                                     )
                                     Text(
                                         text = "Expires: ${user.suspendedUntil} · Reason: ${user.suspensionReason ?: "Violation of guidelines"}",
                                         color = Color(0xFFFECACA),
-                                        fontSize = 12.sp
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        fontFamily = InterFontFamily
                                     )
                                 }
                                 if (isAdminOrMod) {
@@ -804,7 +834,7 @@ fun ProfileScreen(
                                         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
                                         modifier = Modifier.height(30.dp)
                                     ) {
-                                        Text("Unsuspend", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                        Text("Unsuspend", fontSize = 11.sp, fontWeight = FontWeight.Medium, fontFamily = InterFontFamily)
                                     }
                                 }
                             }
@@ -834,14 +864,17 @@ fun ProfileScreen(
                                 Column {
                                     Text(
                                         text = "Things in common",
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontFamily = InterFontFamily,
                                         color = Color(0xFFF8FAFC),
                                         fontSize = 14.sp
                                     )
                                     Text(
                                         text = "You both are part of the Feathered community and explore ${user.location}",
                                         color = Color(0xFF94A3B8),
-                                        fontSize = 12.sp
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        fontFamily = InterFontFamily
                                     )
                                 }
                             }
@@ -865,8 +898,9 @@ fun ProfileScreen(
                                 text = {
                                     Text(
                                         text = tab,
-                                        fontWeight = if (selectedTab == tab) FontWeight.Bold else FontWeight.Medium,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 15.sp,
+                                        fontFamily = InterFontFamily,
                                         color = if (selectedTab == tab) Color(0xFF1877F2) else Color(0xFF94A3B8)
                                     )
                                 }
@@ -1006,8 +1040,9 @@ fun ProfileScreen(
                             Column(modifier = Modifier.padding(12.dp)) {
                                 Text(
                                     text = "Products (${userProducts.size})",
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.SemiBold,
                                     fontSize = 17.sp,
+                                    fontFamily = InterFontFamily,
                                     color = Color(0xFFF8FAFC),
                                     modifier = Modifier.padding(bottom = 8.dp)
                                 )
@@ -1041,13 +1076,15 @@ fun ProfileScreen(
                                                 Column(modifier = Modifier.padding(8.dp)) {
                                                     Text(
                                                         text = "${product.currency} ${String.format("%,.0f", product.price)}",
-                                                        fontWeight = FontWeight.Bold,
+                                                        fontWeight = FontWeight.SemiBold,
+                                                        fontFamily = InterFontFamily,
                                                         color = Color(0xFF38BDF8),
                                                         fontSize = 14.sp
                                                     )
                                                     Text(
                                                         text = product.title,
                                                         fontWeight = FontWeight.Medium,
+                                                        fontFamily = InterFontFamily,
                                                         color = Color(0xFFF8FAFC),
                                                         fontSize = 13.sp,
                                                         maxLines = 1,
@@ -1057,6 +1094,8 @@ fun ProfileScreen(
                                                         text = product.location,
                                                         color = Color(0xFF94A3B8),
                                                         fontSize = 11.sp,
+                                                        fontWeight = FontWeight.Normal,
+                                                        fontFamily = InterFontFamily,
                                                         maxLines = 1
                                                     )
                                                 }
@@ -1083,8 +1122,9 @@ fun ProfileScreen(
                             Column(modifier = Modifier.padding(12.dp)) {
                                 Text(
                                     text = "Photos (${userPhotos.size})",
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.SemiBold,
                                     fontSize = 17.sp,
+                                    fontFamily = InterFontFamily,
                                     color = Color(0xFFF8FAFC),
                                     modifier = Modifier.padding(bottom = 8.dp)
                                 )
@@ -1160,6 +1200,7 @@ fun ProfileScreen(
                     color = Color(0xFFF8FAFC),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
+                    fontFamily = InterFontFamily,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)
                 )
             }
@@ -1240,7 +1281,8 @@ fun ProfileScreen(
                     Text(
                         text = "Suspend User Account",
                         color = Color(0xFFF87171),
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = InterFontFamily
                     )
                 },
                 text = {
@@ -1248,13 +1290,19 @@ fun ProfileScreen(
                         Text(
                             text = "Suspending @${user.username} for ${if (suspendDuration == "week") "7 days" else "30 days"}.",
                             color = Color(0xFF94A3B8),
-                            fontSize = 13.sp
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Normal,
+                            fontFamily = InterFontFamily
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                         OutlinedTextField(
                             value = reason,
                             onValueChange = { reason = it },
-                            label = { Text("Reason for Suspension") },
+                            textStyle = LocalTextStyle.current.copy(
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal
+                            ),
+                            label = { Text("Reason for Suspension", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium) },
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedContainerColor = Color(0xFF1E293B),
                                 unfocusedContainerColor = Color(0xFF1E293B),
@@ -1274,12 +1322,12 @@ fun ProfileScreen(
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC2626))
                     ) {
-                        Text("Confirm Suspend")
+                        Text("Confirm Suspend", fontWeight = FontWeight.Medium, fontFamily = InterFontFamily)
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showSuspendDialog = false }) {
-                        Text("Cancel", color = Color(0xFF94A3B8))
+                        Text("Cancel", color = Color(0xFF94A3B8), fontWeight = FontWeight.Medium, fontFamily = InterFontFamily)
                     }
                 }
             )
@@ -1312,12 +1360,13 @@ fun AboutProfileTab(
             Text(
                 text = "About",
                 fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.SemiBold,
+                fontFamily = InterFontFamily,
                 color = Color(0xFFF8FAFC)
             )
             if (isMe) {
                 TextButton(onClick = onEditClick) {
-                    Text("Edit Details", color = Color(0xFF1877F2), fontWeight = FontWeight.Bold)
+                    Text("Edit Details", color = Color(0xFF1877F2), fontWeight = FontWeight.Medium, fontFamily = InterFontFamily)
                 }
             }
         }
@@ -1327,14 +1376,17 @@ fun AboutProfileTab(
             text = "\"${user.bio.ifBlank { "No bio available" }}\"",
             fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
             color = Color(0xFF94A3B8),
-            fontSize = 14.sp
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Normal,
+            fontFamily = InterFontFamily
         )
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = Color(0xFF1E293B))
 
         Text(
             text = "Work & Education",
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.SemiBold,
+            fontFamily = InterFontFamily,
             color = Color(0xFFF8FAFC),
             fontSize = 16.sp
         )
@@ -1346,7 +1398,9 @@ fun AboutProfileTab(
             Text(
                 text = if (user.work.isNotBlank()) "Works at ${user.work}" else "No work added",
                 color = Color(0xFFF8FAFC),
-                fontSize = 14.sp
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Normal,
+                fontFamily = InterFontFamily
             )
         }
 
@@ -1357,7 +1411,9 @@ fun AboutProfileTab(
             Text(
                 text = if (user.education.isNotBlank()) "Studied at ${user.education}" else "No education added",
                 color = Color(0xFFF8FAFC),
-                fontSize = 14.sp
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Normal,
+                fontFamily = InterFontFamily
             )
         }
 
@@ -1365,7 +1421,8 @@ fun AboutProfileTab(
 
         Text(
             text = "Contact & Basic Info",
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.SemiBold,
+            fontFamily = InterFontFamily,
             color = Color(0xFFF8FAFC),
             fontSize = 16.sp
         )
@@ -1377,7 +1434,9 @@ fun AboutProfileTab(
             Text(
                 text = if (user.location.isNotBlank()) user.location else "Location not specified",
                 color = Color(0xFFF8FAFC),
-                fontSize = 14.sp
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Normal,
+                fontFamily = InterFontFamily
             )
         }
 
@@ -1388,7 +1447,9 @@ fun AboutProfileTab(
             Text(
                 text = if (user.website.isNotBlank()) user.website else "No website link",
                 color = Color(0xFF38BDF8),
-                fontSize = 14.sp
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Normal,
+                fontFamily = InterFontFamily
             )
         }
     }
@@ -1415,7 +1476,8 @@ fun FollowersProfileTab(
         Text(
             text = "Followers (${followersList.size})",
             fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.SemiBold,
+            fontFamily = InterFontFamily,
             color = Color(0xFFF8FAFC),
             modifier = Modifier.padding(bottom = 12.dp)
         )
@@ -1452,6 +1514,7 @@ fun FollowersProfileTab(
                             Text(
                                 text = follower.name,
                                 fontWeight = FontWeight.Bold,
+                                fontFamily = InterFontFamily,
                                 color = Color(0xFFF8FAFC),
                                 fontSize = 13.sp,
                                 maxLines = 1,
@@ -1461,6 +1524,8 @@ fun FollowersProfileTab(
                                 text = follower.location,
                                 color = Color(0xFF94A3B8),
                                 fontSize = 11.sp,
+                                fontWeight = FontWeight.Normal,
+                                fontFamily = InterFontFamily,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
@@ -1499,13 +1564,16 @@ fun EmptyStateView(
         Text(
             text = title,
             fontSize = 17.sp,
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.SemiBold,
+            fontFamily = InterFontFamily,
             color = Color(0xFFF8FAFC)
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = subtitle,
             fontSize = 13.sp,
+            fontWeight = FontWeight.Normal,
+            fontFamily = InterFontFamily,
             color = Color(0xFF94A3B8),
             textAlign = TextAlign.Center
         )
@@ -1516,7 +1584,7 @@ fun EmptyStateView(
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1877F2)),
                 shape = RoundedCornerShape(8.dp)
             ) {
-                Text(buttonText, fontWeight = FontWeight.Bold)
+                Text(buttonText, fontWeight = FontWeight.Medium, fontFamily = InterFontFamily)
             }
         }
     }
@@ -1571,8 +1639,9 @@ fun EditProfileModal(
                     }
                     Text(
                         text = "Edit profile",
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.SemiBold,
                         fontSize = 19.sp,
+                        fontFamily = InterFontFamily,
                         color = Color(0xFFF8FAFC),
                         modifier = Modifier.weight(1f)
                     )
@@ -1585,8 +1654,9 @@ fun EditProfileModal(
                         Text(
                             text = "Save",
                             color = Color(0xFF1877F2),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 16.sp,
+                            fontFamily = InterFontFamily
                         )
                     }
                 }
@@ -1605,17 +1675,23 @@ fun EditProfileModal(
                         text = "Your profile details are shown to people across Feathered. Keep them updated to help people discover you.",
                         color = Color(0xFF94A3B8),
                         fontSize = 13.sp,
+                        fontWeight = FontWeight.Normal,
+                        fontFamily = InterFontFamily,
                         lineHeight = 18.sp
                     )
 
                     // Bio section
                     Column {
-                        Text("Bio", color = Color(0xFFCBD5E1), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                        Text("Bio", color = Color(0xFFCBD5E1), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, fontFamily = InterFontFamily)
                         Spacer(modifier = Modifier.height(6.dp))
                         OutlinedTextField(
                             value = bio,
                             onValueChange = { bio = it },
-                            placeholder = { Text("Tell people about yourself...", color = Color(0xFF64748B)) },
+                            textStyle = LocalTextStyle.current.copy(
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal
+                            ),
+                            placeholder = { Text("Tell people about yourself...", color = Color(0xFF64748B), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                             modifier = Modifier.fillMaxWidth(),
                             maxLines = 4,
                             colors = OutlinedTextFieldDefaults.colors(
@@ -1637,13 +1713,17 @@ fun EditProfileModal(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Filled.Work, null, tint = Color(0xFF1877F2), modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Work", color = Color(0xFFCBD5E1), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                            Text("Work", color = Color(0xFFCBD5E1), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, fontFamily = InterFontFamily)
                         }
                         Spacer(modifier = Modifier.height(6.dp))
                         OutlinedTextField(
                             value = work,
                             onValueChange = { work = it },
-                            placeholder = { Text("Add workplace or role", color = Color(0xFF64748B)) },
+                            textStyle = LocalTextStyle.current.copy(
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal
+                            ),
+                            placeholder = { Text("Add workplace or role", color = Color(0xFF64748B), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(
@@ -1665,13 +1745,17 @@ fun EditProfileModal(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Filled.School, null, tint = Color(0xFF1877F2), modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Education", color = Color(0xFFCBD5E1), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                            Text("Education", color = Color(0xFFCBD5E1), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, fontFamily = InterFontFamily)
                         }
                         Spacer(modifier = Modifier.height(6.dp))
                         OutlinedTextField(
                             value = education,
                             onValueChange = { education = it },
-                            placeholder = { Text("Add university or high school", color = Color(0xFF64748B)) },
+                            textStyle = LocalTextStyle.current.copy(
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal
+                            ),
+                            placeholder = { Text("Add university or high school", color = Color(0xFF64748B), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(
@@ -1693,13 +1777,17 @@ fun EditProfileModal(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Filled.Place, null, tint = Color(0xFF1877F2), modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Location", color = Color(0xFFCBD5E1), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                            Text("Location", color = Color(0xFFCBD5E1), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, fontFamily = InterFontFamily)
                         }
                         Spacer(modifier = Modifier.height(6.dp))
                         OutlinedTextField(
                             value = location,
                             onValueChange = { location = it },
-                            placeholder = { Text("Add current city and country", color = Color(0xFF64748B)) },
+                            textStyle = LocalTextStyle.current.copy(
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal
+                            ),
+                            placeholder = { Text("Add current city and country", color = Color(0xFF64748B), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(
@@ -1721,13 +1809,17 @@ fun EditProfileModal(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Filled.Link, null, tint = Color(0xFF1877F2), modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Website", color = Color(0xFFCBD5E1), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                            Text("Website", color = Color(0xFFCBD5E1), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, fontFamily = InterFontFamily)
                         }
                         Spacer(modifier = Modifier.height(6.dp))
                         OutlinedTextField(
                             value = website,
                             onValueChange = { website = it },
-                            placeholder = { Text("https://example.com", color = Color(0xFF64748B)) },
+                            textStyle = LocalTextStyle.current.copy(
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal
+                            ),
+                            placeholder = { Text("https://example.com", color = Color(0xFF64748B), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(

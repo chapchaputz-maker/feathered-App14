@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.unera.social.data.AnalyticsApiService
 import com.unera.social.model.*
+import com.unera.social.ui.theme.InterFontFamily
 import kotlinx.coroutines.launch
 import java.util.Locale
 import kotlin.math.abs
@@ -129,7 +130,8 @@ fun AnalyticsDashboardScreen(
                         text = "Analytics",
                         color = TextWhite,
                         fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         textAlign = TextAlign.Center
                     )
                 }
@@ -163,6 +165,7 @@ fun AnalyticsDashboardScreen(
                                 text = tab.title,
                                 color = pillTextColor,
                                 fontSize = 15.sp,
+                                fontFamily = InterFontFamily,
                                 fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
                             )
                         }
@@ -240,7 +243,8 @@ fun AnalyticsDashboardScreen(
                             Text(
                                 text = period.label,
                                 color = if (period == selectedPeriod) FeatheredBlue else TextWhite,
-                                fontWeight = if (period == selectedPeriod) FontWeight.Bold else FontWeight.Normal
+                                fontFamily = InterFontFamily,
+                                fontWeight = if (period == selectedPeriod) FontWeight.SemiBold else FontWeight.Medium
                             )
                         },
                         onClick = {
@@ -256,19 +260,21 @@ fun AnalyticsDashboardScreen(
                 AlertDialog(
                     onDismissRequest = { showInfoDialog = false },
                     title = {
-                        Text(infoDialogTitle, color = TextWhite, fontWeight = FontWeight.Bold)
+                        Text(infoDialogTitle, color = TextWhite, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
                     },
                     text = {
                         Text(
                             infoDialogMessage,
                             color = TextMuted,
                             fontSize = 14.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             lineHeight = 20.sp
                         )
                     },
                     confirmButton = {
                         TextButton(onClick = { showInfoDialog = false }) {
-                            Text("Got it", color = FeatheredBlue, fontWeight = FontWeight.SemiBold)
+                            Text("Got it", color = FeatheredBlue, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                         }
                     },
                     containerColor = FeatheredSurface,
@@ -329,7 +335,8 @@ private fun EngagementDashboardContent(
                         text = selectedPeriod.label,
                         color = Color(0xFF0F172A),
                         fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Medium
                     )
                     Icon(
                         imageVector = Icons.Default.ArrowDropDown,
@@ -344,7 +351,8 @@ private fun EngagementDashboardContent(
                     text = analytics.periodLabel,
                     color = TextWhite,
                     fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
         }
@@ -360,7 +368,8 @@ private fun EngagementDashboardContent(
                         text = "${analytics.totalEngagements} Engagement",
                         color = TextWhite,
                         fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.testTag("engagement_metric_value")
                     )
 
@@ -391,12 +400,15 @@ private fun EngagementDashboardContent(
                         text = "$sign${growth.roundToInt()}%",
                         color = growthColor,
                         fontSize = 15.sp,
+                        fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
                         text = "from previous ${selectedPeriod.days} days",
                         color = TextMuted,
-                        fontSize = 15.sp
+                        fontSize = 15.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal
                     )
                 }
             }
@@ -438,7 +450,8 @@ private fun EngagementDashboardContent(
                 text = "How people engage",
                 color = TextWhite,
                 fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(top = 4.dp)
             )
         }
@@ -469,6 +482,7 @@ private fun EngagementDashboardContent(
                             text = subTab.title,
                             color = txtColor,
                             fontSize = 15.sp,
+                            fontFamily = InterFontFamily,
                             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
                         )
                     }
@@ -497,12 +511,15 @@ private fun EngagementDashboardContent(
                         text = "${analytics.followersPercentage.roundToInt()}%",
                         color = TextWhite,
                         fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold
                     )
                     Text(
                         text = "Followers",
                         color = TextMuted,
-                        fontSize = 14.sp
+                        fontSize = 14.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal
                     )
                 }
 
@@ -520,12 +537,15 @@ private fun EngagementDashboardContent(
                         text = "${analytics.nonFollowersPercentage.roundToInt()}%",
                         color = TextWhite,
                         fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold
                     )
                     Text(
                         text = "Non-followers",
                         color = TextMuted,
-                        fontSize = 14.sp
+                        fontSize = 14.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal
                     )
                 }
             }
@@ -570,6 +590,7 @@ private fun DualSegmentProgressRow(
             text = item.title,
             color = TextWhite,
             fontSize = 15.sp,
+            fontFamily = InterFontFamily,
             fontWeight = FontWeight.Medium
         )
 
@@ -630,6 +651,7 @@ private fun DualSegmentProgressRow(
                 text = String.format(Locale.US, "%.1f%%", item.percentage),
                 color = TextWhite,
                 fontSize = 15.sp,
+                fontFamily = InterFontFamily,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.End,
                 modifier = Modifier.width(54.dp)
@@ -675,14 +697,17 @@ private fun EngagementLineChart(
                             text = "${pt.views} engagement",
                             color = Color.White,
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                         )
                     }
                     Text(
                         text = pt.label,
                         color = TextMuted,
-                        fontSize = 12.sp
+                        fontSize = 12.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal
                     )
                 }
             }
@@ -702,9 +727,9 @@ private fun EngagementLineChart(
                 verticalArrangement = Arrangement.SpaceBetween,
                 horizontalAlignment = Alignment.End
             ) {
-                Text("10", color = TextMuted, fontSize = 12.sp)
-                Text("5", color = TextMuted, fontSize = 12.sp)
-                Text("0", color = TextMuted, fontSize = 12.sp)
+                Text("10", color = TextMuted, fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
+                Text("5", color = TextMuted, fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
+                Text("0", color = TextMuted, fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
             }
 
             // Canvas & X-axis
@@ -827,7 +852,9 @@ private fun EngagementLineChart(
                             Text(
                                 text = points[idx].label,
                                 color = TextMuted,
-                                fontSize = 12.sp
+                                fontSize = 12.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal
                             )
                         }
                     }
@@ -875,7 +902,8 @@ private fun ViewsDashboardContent(
                         text = selectedPeriod.label,
                         color = Color(0xFF0F172A),
                         fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Medium
                     )
                     Icon(
                         imageVector = Icons.Default.ArrowDropDown,
@@ -889,7 +917,8 @@ private fun ViewsDashboardContent(
                     text = analytics.periodLabel,
                     color = TextWhite,
                     fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
         }
@@ -905,7 +934,8 @@ private fun ViewsDashboardContent(
                         text = "${analytics.totalViews} Views",
                         color = TextWhite,
                         fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold
                     )
                     IconButton(
                         onClick = onInfoClick,
@@ -934,12 +964,15 @@ private fun ViewsDashboardContent(
                         text = "$sign${abs(growth).roundToInt()}%",
                         color = col,
                         fontSize = 15.sp,
+                        fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
                         text = "from previous ${selectedPeriod.days} days",
                         color = TextMuted,
-                        fontSize = 15.sp
+                        fontSize = 15.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal
                     )
                 }
             }
@@ -976,7 +1009,8 @@ private fun ViewsDashboardContent(
                 text = "Performance by Format",
                 color = TextWhite,
                 fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.SemiBold
             )
         }
 
@@ -1014,8 +1048,8 @@ private fun FormatStatRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(title, color = TextWhite, fontSize = 14.sp, fontWeight = FontWeight.Medium)
-            Text(count, color = TextMuted, fontSize = 14.sp)
+            Text(title, color = TextWhite, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
+            Text(count, color = TextMuted, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
         }
         Spacer(modifier = Modifier.height(6.dp))
         LinearProgressIndicator(
@@ -1067,7 +1101,8 @@ private fun AudienceDashboardContent(
                         text = selectedPeriod.label,
                         color = Color(0xFF0F172A),
                         fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Medium
                     )
                     Icon(
                         imageVector = Icons.Default.ArrowDropDown,
@@ -1081,7 +1116,8 @@ private fun AudienceDashboardContent(
                     text = analytics.periodLabel,
                     color = TextWhite,
                     fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
         }
@@ -1093,7 +1129,8 @@ private fun AudienceDashboardContent(
                     text = "How people view your content",
                     color = TextWhite,
                     fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -1108,8 +1145,8 @@ private fun AudienceDashboardContent(
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(FeatheredBlue))
-                        Text("${analytics.followersPercentage.roundToInt()}%", color = TextWhite, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                        Text("Followers", color = TextMuted, fontSize = 14.sp)
+                        Text("${analytics.followersPercentage.roundToInt()}%", color = TextWhite, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                        Text("Followers", color = TextMuted, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                     }
 
                     Row(
@@ -1117,8 +1154,8 @@ private fun AudienceDashboardContent(
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(DarkNavyBlue))
-                        Text("${analytics.nonFollowersPercentage.roundToInt()}%", color = TextWhite, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                        Text("Non-followers", color = TextMuted, fontSize = 14.sp)
+                        Text("${analytics.nonFollowersPercentage.roundToInt()}%", color = TextWhite, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                        Text("Non-followers", color = TextMuted, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                     }
                 }
             }
@@ -1142,6 +1179,7 @@ private fun AudienceDashboardContent(
                         text = "Top Countries",
                         color = TextWhite,
                         fontSize = 16.sp,
+                        fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold
                     )
 
@@ -1172,7 +1210,8 @@ private fun AudienceDashboardContent(
                             Text(
                                 text = if (showAllCountries) "See less" else "See more (${countries.size - 4})",
                                 color = FeatheredBlue,
-                                fontWeight = FontWeight.SemiBold
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Medium
                             )
                         }
                     }
@@ -1198,6 +1237,7 @@ private fun AudienceDashboardContent(
                         text = "Gender",
                         color = TextWhite,
                         fontSize = 16.sp,
+                        fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold
                     )
 
@@ -1237,6 +1277,7 @@ private fun AudienceDashboardContent(
                         text = "Age Demographics",
                         color = TextWhite,
                         fontSize = 16.sp,
+                        fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold
                     )
 
@@ -1246,8 +1287,8 @@ private fun AudienceDashboardContent(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text(age.ageGroup, color = TextWhite, fontSize = 14.sp)
-                                Text("${age.percentage.roundToInt()}%", color = TextMuted, fontSize = 14.sp)
+                                Text(age.ageGroup, color = TextWhite, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
+                                Text("${age.percentage.roundToInt()}%", color = TextMuted, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
                             }
                             Spacer(modifier = Modifier.height(4.dp))
                             LinearProgressIndicator(
@@ -1279,10 +1320,10 @@ private fun CountryPercentageRow(country: CountryAnalytics, rank: Int) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(country.flag, fontSize = 18.sp)
-                Text(country.name, color = TextWhite, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                Text(country.flag, fontSize = 18.sp, fontFamily = InterFontFamily)
+                Text(country.name, color = TextWhite, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
             }
-            Text("${country.percentage}%", color = TextMuted, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+            Text("${country.percentage}%", color = TextMuted, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
         }
         Spacer(modifier = Modifier.height(6.dp))
         LinearProgressIndicator(
@@ -1305,8 +1346,8 @@ private fun GenderPercentageRow(item: GenderAnalytics) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(item.gender, color = TextWhite, fontSize = 14.sp, fontWeight = FontWeight.Medium)
-            Text("${item.percentage}%", color = TextMuted, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+            Text(item.gender, color = TextWhite, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
+            Text("${item.percentage}%", color = TextMuted, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
         }
         Spacer(modifier = Modifier.height(6.dp))
         val barColor = when (item.gender.lowercase()) {
@@ -1362,7 +1403,8 @@ private fun EarningsDashboardContent(
                         text = selectedPeriod.label,
                         color = Color(0xFF0F172A),
                         fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Medium
                     )
                     Icon(
                         imageVector = Icons.Default.ArrowDropDown,
@@ -1376,7 +1418,8 @@ private fun EarningsDashboardContent(
                     text = analytics.periodLabel,
                     color = TextWhite,
                     fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
         }
@@ -1388,12 +1431,15 @@ private fun EarningsDashboardContent(
                     text = "$0.00",
                     color = TextWhite,
                     fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold
                 )
                 Text(
                     text = "Approximate earnings for ${selectedPeriod.label.lowercase()}",
                     color = TextMuted,
-                    fontSize = 14.sp
+                    fontSize = 14.sp,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Normal
                 )
             }
         }
@@ -1426,8 +1472,8 @@ private fun EarningsDashboardContent(
                             Icon(imageVector = Icons.Default.MonetizationOn, contentDescription = null, tint = FeatheredBlue)
                         }
                         Column {
-                            Text("Creator Rewards Program", color = TextWhite, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                            Text("Track your progress toward monetization", color = TextMuted, fontSize = 13.sp)
+                            Text("Creator Rewards Program", color = TextWhite, fontSize = 16.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                            Text("Track your progress toward monetization", color = TextMuted, fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                         }
                     }
 
@@ -1436,8 +1482,8 @@ private fun EarningsDashboardContent(
                     // Criteria 1: Followers
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Followers", color = TextWhite, fontSize = 14.sp)
-                            Text("370 / 1,000", color = TextMuted, fontSize = 13.sp)
+                            Text("Followers", color = TextWhite, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
+                            Text("370 / 1,000", color = TextMuted, fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                         }
                         Spacer(modifier = Modifier.height(6.dp))
                         LinearProgressIndicator(
@@ -1451,8 +1497,8 @@ private fun EarningsDashboardContent(
                     // Criteria 2: Video Views
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Eligible Views (last 60 days)", color = TextWhite, fontSize = 14.sp)
-                            Text("${analytics.totalViews} / 10,000", color = TextMuted, fontSize = 13.sp)
+                            Text("Eligible Views (last 60 days)", color = TextWhite, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
+                            Text("${analytics.totalViews} / 10,000", color = TextMuted, fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                         }
                         Spacer(modifier = Modifier.height(6.dp))
                         LinearProgressIndicator(
@@ -1469,10 +1515,10 @@ private fun EarningsDashboardContent(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Partner Monetization Policies", color = TextWhite, fontSize = 14.sp)
+                        Text("Partner Monetization Policies", color = TextWhite, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Icon(imageVector = Icons.Default.CheckCircle, contentDescription = null, tint = GrowthGreen, modifier = Modifier.size(16.dp))
-                            Text("In compliance", color = GrowthGreen, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                            Text("In compliance", color = GrowthGreen, fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
                         }
                     }
                 }

@@ -57,6 +57,7 @@ import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.unera.social.model.*
 import com.unera.social.ui.screens.VideoItem
+import com.unera.social.ui.theme.InterFontFamily
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -455,6 +456,7 @@ fun InstagramVideoCard(
                     ) {
                         Text(
                             text = authorName,
+                            fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Bold,
                             fontSize = 21.sp,
                             color = Color(0xFFF8FAFC),
@@ -467,7 +469,13 @@ fun InstagramVideoCard(
                             VerifiedBadge(size = 18.dp)
                         }
 
-                        Text(text = "•", color = Color(0xFF64748B), fontSize = 14.sp)
+                        Text(
+                            text = "•",
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
+                            color = Color(0xFF64748B),
+                            fontSize = 14.sp
+                        )
 
                         if (isSponsored) {
                             Surface(
@@ -477,8 +485,9 @@ fun InstagramVideoCard(
                             ) {
                                 Text(
                                     text = "Sponsored",
+                                    fontFamily = InterFontFamily,
                                     fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.SemiBold,
                                     color = Color(0xFF38BDF8),
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                                 )
@@ -486,6 +495,8 @@ fun InstagramVideoCard(
                         } else {
                             Text(
                                 text = activePost.timestamp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 color = Color(0xFF94A3B8),
                                 fontSize = 12.sp
                             )
@@ -500,6 +511,8 @@ fun InstagramVideoCard(
                         if (isSponsored) {
                             Text(
                                 text = sponsoredHeadline,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 color = Color(0xFF94A3B8),
                                 fontSize = 11.5.sp,
                                 maxLines = 1,
@@ -514,6 +527,8 @@ fun InstagramVideoCard(
                             )
                             Text(
                                 text = "Original Audio • $authorName",
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 color = Color(0xFF94A3B8),
                                 fontSize = 11.5.sp,
                                 maxLines = 1,
@@ -557,8 +572,9 @@ fun InstagramVideoCard(
                         Text(
                             text = if (localFollowing) "Following" else "Follow",
                             color = if (localFollowing) Color(0xFFF8FAFC) else Color.White,
+                            fontFamily = InterFontFamily,
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.SemiBold
                         )
                     }
                 }
@@ -667,8 +683,9 @@ fun InstagramVideoCard(
             ) {
                 Text(
                     text = if (isHdEnabled) "1080p HD" else "720p",
+                    fontFamily = InterFontFamily,
                     fontSize = 10.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.SemiBold,
                     color = if (isHdEnabled) Color.White else Color(0xFF38BDF8)
                 )
             }
@@ -727,6 +744,8 @@ fun InstagramVideoCard(
                     )
                     Text(
                         text = "Original Audio - $authorName",
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = Color.White,
                         fontSize = 11.sp,
                         maxLines = 1,
@@ -794,13 +813,15 @@ fun InstagramVideoCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = destinationDomain,
+                        fontFamily = InterFontFamily,
                         fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.SemiBold,
                         color = Color.White.copy(alpha = 0.85f),
                         letterSpacing = 0.5.sp
                     )
                     Text(
                         text = sponsoredHeadline,
+                        fontFamily = InterFontFamily,
                         fontSize = 13.5.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color.White,
@@ -820,8 +841,9 @@ fun InstagramVideoCard(
                     ) {
                         Text(
                             text = sponsoredCtaText,
+                            fontFamily = InterFontFamily,
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color.White
                         )
                         Icon(
@@ -867,6 +889,7 @@ fun InstagramVideoCard(
             ) {
                 Text(
                     text = "$localCommentCount ${if (localCommentCount == 1) "Discussion" else "Discussions"}",
+                    fontFamily = InterFontFamily,
                     fontSize = 13.5.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color(0xFFCBD5E1),
@@ -880,6 +903,7 @@ fun InstagramVideoCard(
                 if (localShareCount > 0) {
                     Text(
                         text = "$localShareCount ${if (localShareCount == 1) "Share" else "Shares"}",
+                        fontFamily = InterFontFamily,
                         fontSize = 13.5.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color(0xFF94A3B8),
@@ -911,6 +935,7 @@ fun InstagramVideoCard(
                 REACTION_EMOJIS.forEach { (type, emoji) ->
                     Text(
                         text = emoji,
+                        fontFamily = InterFontFamily,
                         fontSize = 24.sp,
                         modifier = Modifier
                             .clip(CircleShape)
@@ -986,7 +1011,7 @@ fun InstagramVideoCard(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         val emoji = localReaction?.let { getReactionEmoji(it) }
                         if (emoji != null) {
-                            Text(text = emoji, fontSize = 20.sp)
+                            Text(text = emoji, fontFamily = InterFontFamily, fontSize = 20.sp)
                         } else {
                             Icon(
                                 imageVector = if (localReaction != null) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
@@ -999,6 +1024,7 @@ fun InstagramVideoCard(
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
                                 text = formatCount(localReactionCount),
+                                fontFamily = InterFontFamily,
                                 color = if (localReaction != null) Color(0xFFF43F5E) else Color(0xFFF8FAFC),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold
@@ -1049,6 +1075,7 @@ fun InstagramVideoCard(
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = formatCount(localShareCount),
+                            fontFamily = InterFontFamily,
                             color = Color(0xFFF8FAFC),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold
@@ -1115,7 +1142,7 @@ fun InstagramVideoCard(
 
                 val annotatedString = remember(displayedText, authorName) {
                     buildAnnotatedString {
-                        withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = Color(0xFFF8FAFC))) {
+                        withStyle(SpanStyle(fontFamily = InterFontFamily, fontWeight = FontWeight.Bold, color = Color(0xFFF8FAFC))) {
                             append("$authorName ")
                         }
                         val words = displayedText.split(" ")
@@ -1123,20 +1150,20 @@ fun InstagramVideoCard(
                             when {
                                 word.startsWith("#") && word.length > 1 -> {
                                     pushStringAnnotation(tag = "TAG", annotation = word)
-                                    withStyle(SpanStyle(color = Color(0xFF38BDF8), fontWeight = FontWeight.SemiBold)) {
+                                    withStyle(SpanStyle(fontFamily = InterFontFamily, color = Color(0xFF38BDF8), fontWeight = FontWeight.SemiBold)) {
                                         append(word)
                                     }
                                     pop()
                                 }
                                 word.startsWith("@") && word.length > 1 -> {
                                     pushStringAnnotation(tag = "MENTION", annotation = word)
-                                    withStyle(SpanStyle(color = Color(0xFF60A5FA), fontWeight = FontWeight.Medium)) {
+                                    withStyle(SpanStyle(fontFamily = InterFontFamily, color = Color(0xFF60A5FA), fontWeight = FontWeight.Medium)) {
                                         append(word)
                                     }
                                     pop()
                                 }
                                 else -> {
-                                    withStyle(SpanStyle(color = Color(0xFFE2E8F0))) {
+                                    withStyle(SpanStyle(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFFE2E8F0))) {
                                         append(word)
                                     }
                                 }
@@ -1148,7 +1175,12 @@ fun InstagramVideoCard(
 
                 ClickableText(
                     text = annotatedString,
-                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.5.sp, lineHeight = 19.sp),
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 13.5.sp,
+                        lineHeight = 19.sp
+                    ),
                     onClick = { offset ->
                         annotatedString.getStringAnnotations(tag = "TAG", start = offset, end = offset)
                             .firstOrNull()?.let { annotation ->
@@ -1160,6 +1192,7 @@ fun InstagramVideoCard(
                 if (fullText.length > 110) {
                     Text(
                         text = if (isCaptionExpanded) "less" else "more",
+                        fontFamily = InterFontFamily,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color(0xFF94A3B8),
@@ -1172,6 +1205,7 @@ fun InstagramVideoCard(
             if (localCommentCount > 0) {
                 Text(
                     text = "View all $localCommentCount ${if (localCommentCount == 1) "discussion" else "discussions"}",
+                    fontFamily = InterFontFamily,
                     fontSize = 12.5.sp,
                     color = Color(0xFF94A3B8),
                     fontWeight = FontWeight.Medium,
@@ -1216,6 +1250,8 @@ fun InstagramVideoCard(
 
                 Text(
                     text = "Add a discussion…",
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Normal,
                     color = Color(0xFF64748B),
                     fontSize = 13.5.sp,
                     modifier = Modifier.weight(1f)
@@ -1405,8 +1441,9 @@ fun VideoDiscussionModal(
                             )
                             Text(
                                 text = "Video Discussion",
+                                fontFamily = InterFontFamily,
                                 fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.SemiBold,
                                 color = Color(0xFFF8FAFC)
                             )
                             Surface(
@@ -1415,8 +1452,9 @@ fun VideoDiscussionModal(
                             ) {
                                 Text(
                                     text = "${comments.size}",
+                                    fontFamily = InterFontFamily,
                                     fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.SemiBold,
                                     color = Color(0xFF94A3B8),
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                                 )
@@ -1459,12 +1497,15 @@ fun VideoDiscussionModal(
                                         Spacer(modifier = Modifier.height(8.dp))
                                         Text(
                                             text = "No comments yet",
+                                            fontFamily = InterFontFamily,
                                             fontSize = 14.sp,
                                             fontWeight = FontWeight.SemiBold,
                                             color = Color(0xFFF8FAFC)
                                         )
                                         Text(
                                             text = "Be the first to start the discussion on this video!",
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.Normal,
                                             fontSize = 12.sp,
                                             color = Color(0xFF64748B)
                                         )
@@ -1502,12 +1543,15 @@ fun VideoDiscussionModal(
                                         ) {
                                             Text(
                                                 text = comment.author.name,
+                                                fontFamily = InterFontFamily,
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = 13.5.sp,
                                                 color = Color(0xFFF8FAFC)
                                             )
                                             Text(
                                                 text = comment.timestamp,
+                                                fontFamily = InterFontFamily,
+                                                fontWeight = FontWeight.Normal,
                                                 fontSize = 11.5.sp,
                                                 color = Color(0xFF64748B)
                                             )
@@ -1518,9 +1562,10 @@ fun VideoDiscussionModal(
                                                 ) {
                                                     Text(
                                                         text = "Hidden",
+                                                        fontFamily = InterFontFamily,
                                                         fontSize = 10.sp,
                                                         color = Color(0xFFFBBF24),
-                                                        fontWeight = FontWeight.Bold,
+                                                        fontWeight = FontWeight.SemiBold,
                                                         modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
                                                     )
                                                 }
@@ -1531,6 +1576,8 @@ fun VideoDiscussionModal(
 
                                         Text(
                                             text = comment.text,
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.Normal,
                                             fontSize = 13.5.sp,
                                             color = Color(0xFFCBD5E1),
                                             lineHeight = 18.sp
@@ -1559,6 +1606,8 @@ fun VideoDiscussionModal(
                                                 )
                                                 Text(
                                                     text = if (commentLikesCount > 0) "$commentLikesCount" else "Like",
+                                                    fontFamily = InterFontFamily,
+                                                    fontWeight = FontWeight.Medium,
                                                     fontSize = 14.sp,
                                                     color = if (commentLiked) Color(0xFFEF4444) else Color(0xFF94A3B8)
                                                 )
@@ -1566,6 +1615,8 @@ fun VideoDiscussionModal(
 
                                             Text(
                                                 text = "Reply",
+                                                fontFamily = InterFontFamily,
+                                                fontWeight = FontWeight.Medium,
                                                 fontSize = 14.sp,
                                                 color = Color(0xFF94A3B8),
                                                 modifier = Modifier.clickable {
@@ -1576,6 +1627,8 @@ fun VideoDiscussionModal(
 
                                             Text(
                                                 text = if (isHidden) "Unhide" else "Hide",
+                                                fontFamily = InterFontFamily,
+                                                fontWeight = FontWeight.Medium,
                                                 fontSize = 14.sp,
                                                 color = Color(0xFF94A3B8),
                                                 modifier = Modifier.clickable { isHidden = !isHidden }
@@ -1584,6 +1637,8 @@ fun VideoDiscussionModal(
                                             if (currentUser?.id == comment.author.id || currentUser?.id == 1L) {
                                                 Text(
                                                     text = "Delete",
+                                                    fontFamily = InterFontFamily,
+                                                    fontWeight = FontWeight.Medium,
                                                     fontSize = 11.5.sp,
                                                     color = Color(0xFFFB7185),
                                                     modifier = Modifier.clickable { onDeleteComment(comment.id) }
@@ -1609,6 +1664,7 @@ fun VideoDiscussionModal(
                         quickEmojis.forEach { emoji ->
                             Text(
                                 text = emoji,
+                                fontFamily = InterFontFamily,
                                 fontSize = 20.sp,
                                 modifier = Modifier
                                     .clip(CircleShape)
@@ -1630,6 +1686,8 @@ fun VideoDiscussionModal(
                         ) {
                             Text(
                                 text = "Replying to @$replyingToUser",
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 fontSize = 12.sp,
                                 color = Color(0xFF94A3B8)
                             )
@@ -1675,8 +1733,19 @@ fun VideoDiscussionModal(
                         OutlinedTextField(
                             value = commentText,
                             onValueChange = { commentText = it },
+                            textStyle = LocalTextStyle.current.copy(
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
+                                fontSize = 13.5.sp
+                            ),
                             placeholder = {
-                                Text("Share your thoughts on this video…", color = Color(0xFF64748B), fontSize = 13.5.sp)
+                                Text(
+                                    text = "Share your thoughts on this video…",
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
+                                    color = Color(0xFF64748B),
+                                    fontSize = 13.5.sp
+                                )
                             },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(24.dp),
@@ -1709,7 +1778,12 @@ fun VideoDiscussionModal(
                             contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp),
                             modifier = Modifier.height(38.dp)
                         ) {
-                            Text("Post", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                            Text(
+                                text = "Post",
+                                fontFamily = InterFontFamily,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
                         }
                     }
                 }

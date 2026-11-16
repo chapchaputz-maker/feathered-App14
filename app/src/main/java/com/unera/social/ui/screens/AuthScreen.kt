@@ -31,6 +31,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
 import com.unera.social.R
+import com.unera.social.ui.theme.InterFontFamily
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -95,8 +96,10 @@ fun BrandHeader(
         Text(
             text = APP_NAME,
             fontSize = size.sp,
+            fontFamily = InterFontFamily,
             fontWeight = FontWeight.Bold,
             style = LocalTextStyle.current.copy(
+                fontFamily = InterFontFamily,
                 brush = Brush.horizontalGradient(
                     listOf(Color(0xFF1877F2), Color(0xFF1D8AF2))
                 )
@@ -215,6 +218,8 @@ fun LoginView(
                 Text(
                     text = "Connect with friends and the world around you on Feathered.",
                     fontSize = 16.sp,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Normal,
                     color = AuthTextSecondary,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.widthIn(max = 380.dp)
@@ -239,7 +244,7 @@ fun LoginView(
                                 .padding(12.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(text = error, color = Color(0xFFFECACA), fontSize = 14.sp, textAlign = TextAlign.Center)
+                            Text(text = error, color = Color(0xFFFECACA), fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, textAlign = TextAlign.Center)
                         }
                     }
 
@@ -247,7 +252,8 @@ fun LoginView(
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it.replace(" ", "").lowercase() },
-                        placeholder = { Text("Email address", color = AuthTextSecondary, fontSize = 16.sp) },
+                        textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
+                        placeholder = { Text("Email address", color = AuthTextSecondary, fontSize = 16.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                         singleLine = true,
                         shape = RoundedCornerShape(8.dp),
                         colors = OutlinedTextFieldDefaults.colors(
@@ -267,7 +273,8 @@ fun LoginView(
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
-                        placeholder = { Text("Password", color = AuthTextSecondary, fontSize = 16.sp) },
+                        textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
+                        placeholder = { Text("Password", color = AuthTextSecondary, fontSize = 16.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                         singleLine = true,
                         visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
@@ -326,9 +333,9 @@ fun LoginView(
                         if (loading) {
                             CircularProgressIndicator(color = Color.White, modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Logging in...", fontSize = 17.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                            Text("Logging in...", fontSize = 17.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color.White)
                         } else {
-                            Text("Log In", fontSize = 17.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                            Text("Log In", fontSize = 17.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color.White)
                         }
                     }
 
@@ -343,6 +350,7 @@ fun LoginView(
                             text = "Forgot password?",
                             fontSize = 14.sp,
                             color = AuthBluePrimary,
+                            fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Medium,
                             modifier = Modifier
                                 .clickable { onNavigateToForgotPassword() }
@@ -362,7 +370,7 @@ fun LoginView(
                             .height(50.dp)
                             .testTag("login_create_account_btn")
                     ) {
-                        Text("Create new account", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text("Create new account", fontSize = 16.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color.White)
                     }
                 }
 
@@ -378,18 +386,23 @@ fun LoginView(
                     Text(
                         text = "Login to comment, like, and share posts. ",
                         fontSize = 12.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = AuthTextSecondary
                     )
                     Text(
                         text = "Continue as Guest",
                         fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Medium,
                         color = AuthTextPrimary,
                         modifier = Modifier.clickable { onClose() }
                     )
                     Text(
                         text = " to view.",
                         fontSize = 12.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = AuthTextSecondary
                     )
                 }
@@ -407,8 +420,9 @@ fun LoginView(
                         Text(
                             text = lang,
                             fontSize = 12.sp,
+                            fontFamily = InterFontFamily,
                             color = if (idx == 0) Color.White else Color(0xFF64748B),
-                            fontWeight = if (idx == 0) FontWeight.Bold else FontWeight.Normal,
+                            fontWeight = if (idx == 0) FontWeight.Medium else FontWeight.Normal,
                             modifier = Modifier.padding(horizontal = 6.dp)
                         )
                     }
@@ -468,8 +482,8 @@ fun RegisterView(
         item {
             BrandHeader(size = 44)
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Sign Up", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = AuthTextPrimary)
-            Text("It's quick and easy.", fontSize = 14.sp, color = AuthTextSecondary)
+            Text("Sign Up", fontSize = 22.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, color = AuthTextPrimary)
+            Text("It's quick and easy.", fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = AuthTextSecondary)
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -489,7 +503,7 @@ fun RegisterView(
                             .padding(12.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = error, color = Color(0xFFFECACA), fontSize = 13.sp, textAlign = TextAlign.Center)
+                        Text(text = error, color = Color(0xFFFECACA), fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, textAlign = TextAlign.Center)
                     }
                 }
 
@@ -501,7 +515,8 @@ fun RegisterView(
                     OutlinedTextField(
                         value = firstName,
                         onValueChange = { firstName = it },
-                        placeholder = { Text("First name", color = AuthTextSecondary, fontSize = 15.sp) },
+                        textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
+                        placeholder = { Text("First name", color = AuthTextSecondary, fontSize = 15.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                         singleLine = true,
                         shape = RoundedCornerShape(8.dp),
                         colors = OutlinedTextFieldDefaults.colors(
@@ -518,7 +533,8 @@ fun RegisterView(
                     OutlinedTextField(
                         value = surname,
                         onValueChange = { surname = it },
-                        placeholder = { Text("Surname", color = AuthTextSecondary, fontSize = 15.sp) },
+                        textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
+                        placeholder = { Text("Surname", color = AuthTextSecondary, fontSize = 15.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                         singleLine = true,
                         shape = RoundedCornerShape(8.dp),
                         colors = OutlinedTextFieldDefaults.colors(
@@ -547,9 +563,9 @@ fun RegisterView(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(selectedCountry.flag, fontSize = 18.sp)
+                            Text(selectedCountry.flag, fontSize = 18.sp, fontFamily = InterFontFamily)
                             Spacer(modifier = Modifier.width(10.dp))
-                            Text(selectedCountry.name, color = AuthTextPrimary, fontSize = 15.sp)
+                            Text(selectedCountry.name, color = AuthTextPrimary, fontSize = 15.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                         }
                         Icon(Icons.Default.ArrowDropDown, contentDescription = null, tint = AuthTextSecondary)
                     }
@@ -559,7 +575,8 @@ fun RegisterView(
                 OutlinedTextField(
                     value = region,
                     onValueChange = { region = it },
-                    placeholder = { Text("Region (e.g. Dar es Salaam)", color = AuthTextSecondary, fontSize = 15.sp) },
+                    textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
+                    placeholder = { Text("Region (e.g. Dar es Salaam)", color = AuthTextSecondary, fontSize = 15.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                     singleLine = true,
                     shape = RoundedCornerShape(8.dp),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -577,7 +594,8 @@ fun RegisterView(
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it.replace(" ", "").lowercase() },
-                    placeholder = { Text("Email address", color = AuthTextSecondary, fontSize = 15.sp) },
+                    textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
+                    placeholder = { Text("Email address", color = AuthTextSecondary, fontSize = 15.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                     singleLine = true,
                     shape = RoundedCornerShape(8.dp),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -595,7 +613,8 @@ fun RegisterView(
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    placeholder = { Text("Password (min 6 characters)", color = AuthTextSecondary, fontSize = 15.sp) },
+                    textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
+                    placeholder = { Text("Password (min 6 characters)", color = AuthTextSecondary, fontSize = 15.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                     singleLine = true,
                     visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
@@ -621,7 +640,7 @@ fun RegisterView(
 
                 // Date of Birth Dropdowns
                 Column {
-                    Text("Date of birth", fontSize = 12.sp, color = AuthTextSecondary, modifier = Modifier.padding(bottom = 4.dp))
+                    Text("Date of birth", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, color = AuthTextSecondary, modifier = Modifier.padding(bottom = 4.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -638,7 +657,7 @@ fun RegisterView(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(day.toString(), color = AuthTextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                Text(day.toString(), color = AuthTextPrimary, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, fontSize = 14.sp)
                                 Icon(Icons.Default.ArrowDropDown, contentDescription = null, tint = AuthTextSecondary, modifier = Modifier.size(18.dp))
                             }
                             DropdownMenu(
@@ -650,7 +669,7 @@ fun RegisterView(
                             ) {
                                 (1..31).forEach { d ->
                                     DropdownMenuItem(
-                                        text = { Text(d.toString(), color = AuthTextPrimary) },
+                                        text = { Text(d.toString(), color = AuthTextPrimary, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium) },
                                         onClick = {
                                             day = d
                                             showDayMenu = false
@@ -673,7 +692,7 @@ fun RegisterView(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(months[(month - 1).coerceIn(0, 11)], color = AuthTextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                Text(months[(month - 1).coerceIn(0, 11)], color = AuthTextPrimary, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, fontSize = 14.sp)
                                 Icon(Icons.Default.ArrowDropDown, contentDescription = null, tint = AuthTextSecondary, modifier = Modifier.size(18.dp))
                             }
                             DropdownMenu(
@@ -685,7 +704,7 @@ fun RegisterView(
                             ) {
                                 months.forEachIndexed { idx, m ->
                                     DropdownMenuItem(
-                                        text = { Text(m, color = AuthTextPrimary) },
+                                        text = { Text(m, color = AuthTextPrimary, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium) },
                                         onClick = {
                                             month = idx + 1
                                             showMonthMenu = false
@@ -707,7 +726,7 @@ fun RegisterView(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(year.toString(), color = AuthTextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                Text(year.toString(), color = AuthTextPrimary, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, fontSize = 14.sp)
                                 Icon(Icons.Default.ArrowDropDown, contentDescription = null, tint = AuthTextSecondary, modifier = Modifier.size(18.dp))
                             }
                             DropdownMenu(
@@ -719,7 +738,7 @@ fun RegisterView(
                             ) {
                                 (2012 downTo 1920).forEach { y ->
                                     DropdownMenuItem(
-                                        text = { Text(y.toString(), color = AuthTextPrimary) },
+                                        text = { Text(y.toString(), color = AuthTextPrimary, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium) },
                                         onClick = {
                                             year = y
                                             showYearMenu = false
@@ -733,7 +752,7 @@ fun RegisterView(
 
                 // Gender Selection Radio Cards matching web
                 Column {
-                    Text("Gender", fontSize = 12.sp, color = AuthTextSecondary, modifier = Modifier.padding(bottom = 4.dp))
+                    Text("Gender", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, color = AuthTextSecondary, modifier = Modifier.padding(bottom = 4.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -752,7 +771,7 @@ fun RegisterView(
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(opt, color = AuthTextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                                    Text(opt, color = AuthTextPrimary, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                                     RadioButton(
                                         selected = isSel,
                                         onClick = { gender = opt },
@@ -767,6 +786,8 @@ fun RegisterView(
                 Text(
                     text = "By clicking Sign Up, you agree to our Terms, Privacy Policy and Cookies Policy.",
                     fontSize = 11.sp,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Normal,
                     color = AuthTextSecondary,
                     lineHeight = 15.sp,
                     modifier = Modifier.padding(top = 4.dp)
@@ -819,9 +840,9 @@ fun RegisterView(
                     if (loading) {
                         CircularProgressIndicator(color = Color.White, modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Creating...", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text("Creating...", fontSize = 16.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color.White)
                     } else {
-                        Text("Sign Up", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text("Sign Up", fontSize = 16.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color.White)
                     }
                 }
 
@@ -833,6 +854,7 @@ fun RegisterView(
                         text = "Already have an account?",
                         fontSize = 14.sp,
                         color = AuthBluePrimary,
+                        fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier.clickable { onBackToLogin() }
                     )
@@ -853,7 +875,7 @@ fun RegisterView(
                 border = BorderStroke(1.dp, Color(0xFF1E293B))
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Select Nationality", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = AuthTextPrimary)
+                    Text("Select Nationality", fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 18.sp, color = AuthTextPrimary)
                     Spacer(modifier = Modifier.height(10.dp))
                     LazyColumn(modifier = Modifier.weight(1f)) {
                         items(COUNTRIES_LIST) { c ->
@@ -868,9 +890,9 @@ fun RegisterView(
                                     .padding(vertical = 10.dp, horizontal = 8.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(c.flag, fontSize = 20.sp)
+                                Text(c.flag, fontSize = 20.sp, fontFamily = InterFontFamily)
                                 Spacer(modifier = Modifier.width(12.dp))
-                                Text(c.name, color = AuthTextPrimary, fontSize = 15.sp)
+                                Text(c.name, color = AuthTextPrimary, fontSize = 15.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                             }
                         }
                     }
@@ -918,13 +940,16 @@ fun ForgotPasswordView(
                 Text(
                     text = "Reset Link Sent!",
                     fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold,
                     color = AuthTextPrimary
                 )
 
                 Text(
                     text = "If an account with $email exists, a reset link has been sent. Check your inbox and spam folder.",
                     fontSize = 14.sp,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Normal,
                     color = AuthTextSecondary,
                     textAlign = TextAlign.Center,
                     lineHeight = 20.sp
@@ -938,19 +963,22 @@ fun ForgotPasswordView(
                     colors = ButtonDefaults.buttonColors(containerColor = AuthCardDark),
                     modifier = Modifier.fillMaxWidth().height(48.dp)
                 ) {
-                    Text("Back to Login", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    Text("Back to Login", fontSize = 16.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color.White)
                 }
             } else {
                 Text(
                     text = "Find Your Account",
                     fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold,
                     color = AuthTextPrimary
                 )
 
                 Text(
                     text = "Enter your email to search for your account.",
                     fontSize = 15.sp,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Normal,
                     color = AuthTextSecondary,
                     textAlign = TextAlign.Center
                 )
@@ -958,7 +986,8 @@ fun ForgotPasswordView(
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it.replace(" ", "").lowercase() },
-                    placeholder = { Text("Email address", color = AuthTextSecondary, fontSize = 16.sp) },
+                    textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
+                    placeholder = { Text("Email address", color = AuthTextSecondary, fontSize = 16.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                     singleLine = true,
                     shape = RoundedCornerShape(8.dp),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -982,7 +1011,7 @@ fun ForgotPasswordView(
                         colors = ButtonDefaults.buttonColors(containerColor = AuthCardDark),
                         modifier = Modifier.weight(1f).height(48.dp)
                     ) {
-                        Text("Cancel", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text("Cancel", fontSize = 15.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color.White)
                     }
 
                     Button(
@@ -995,7 +1024,7 @@ fun ForgotPasswordView(
                         colors = ButtonDefaults.buttonColors(containerColor = AuthBluePrimary),
                         modifier = Modifier.weight(1f).height(48.dp)
                     ) {
-                        Text("Send Link", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text("Send Link", fontSize = 15.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color.White)
                     }
                 }
             }

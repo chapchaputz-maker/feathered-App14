@@ -38,6 +38,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.unera.social.model.*
+import com.unera.social.ui.theme.InterFontFamily
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -204,13 +205,16 @@ fun SavedPostsPage(
                         Text(
                             text = "Saved Posts",
                             fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             color = TextWhite,
                             lineHeight = 22.sp
                         )
                         Text(
                             text = "${allSavedItems.size} saved item${if (allSavedItems.size == 1) "" else "s"} • Stored locally",
                             fontSize = 12.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             color = TextGray
                         )
                     }
@@ -302,7 +306,8 @@ fun SavedPostsPage(
                             Text(
                                 text = "No saved posts yet",
                                 fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold,
                                 color = TextWhite
                             )
 
@@ -311,6 +316,8 @@ fun SavedPostsPage(
                             Text(
                                 text = "Tap the bookmark icon in the action bar of any post or reel to save it here. Your saved items are preserved locally on this device.",
                                 fontSize = 13.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 color = TextGray,
                                 textAlign = TextAlign.Center,
                                 lineHeight = 20.sp,
@@ -337,7 +344,8 @@ fun SavedPostsPage(
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
                                         text = "Explore Posts",
-                                        fontWeight = FontWeight.SemiBold,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 14.sp
                                     )
                                 }
@@ -581,12 +589,15 @@ fun SavedPostsPage(
                             Column {
                                 Text(
                                     text = videoItem.author.name,
+                                    fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White,
                                     fontSize = 14.sp
                                 )
                                 Text(
                                     text = "@${videoItem.author.username}",
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     color = TextGray,
                                     fontSize = 12.sp
                                 )
@@ -643,6 +654,8 @@ fun SavedPostsPage(
                                 text = videoItem.content,
                                 color = Color.White,
                                 fontSize = 14.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 maxLines = 3,
                                 overflow = TextOverflow.Ellipsis
                             )
@@ -666,7 +679,9 @@ fun SavedPostsPage(
                                     Text(
                                         text = "${videoItem.likesCount}",
                                         color = Color.White,
-                                        fontSize = 12.sp
+                                        fontSize = 12.sp,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Medium
                                     )
                                 }
 
@@ -681,7 +696,9 @@ fun SavedPostsPage(
                                     Text(
                                         text = "${videoItem.commentsCount}",
                                         color = Color.White,
-                                        fontSize = 12.sp
+                                        fontSize = 12.sp,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Medium
                                     )
                                 }
                             }
@@ -702,7 +719,7 @@ fun SavedPostsPage(
                                     modifier = Modifier.size(16.dp)
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Saved", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                                Text("Saved", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                             }
                         }
                     }
@@ -743,7 +760,8 @@ fun SavedPostsPage(
                             Text(
                                 text = "Comments (${commentsList.size})",
                                 fontSize = 17.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold,
                                 color = TextWhite
                             )
 
@@ -784,6 +802,8 @@ fun SavedPostsPage(
                                             text = "No comments yet. Start the conversation!",
                                             color = TextGray,
                                             fontSize = 13.sp,
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.Normal,
                                             textAlign = TextAlign.Center
                                         )
                                     }
@@ -816,6 +836,7 @@ fun SavedPostsPage(
                                             ) {
                                                 Text(
                                                     text = comment.author.name,
+                                                    fontFamily = InterFontFamily,
                                                     fontWeight = FontWeight.Bold,
                                                     fontSize = 13.sp,
                                                     color = TextWhite
@@ -823,6 +844,8 @@ fun SavedPostsPage(
                                                 Text(
                                                     text = comment.timestamp,
                                                     fontSize = 11.sp,
+                                                    fontFamily = InterFontFamily,
+                                                    fontWeight = FontWeight.Normal,
                                                     color = TextGray
                                                 )
                                             }
@@ -830,6 +853,8 @@ fun SavedPostsPage(
                                             Text(
                                                 text = comment.text,
                                                 fontSize = 13.sp,
+                                                fontFamily = InterFontFamily,
+                                                fontWeight = FontWeight.Normal,
                                                 color = TextWhite
                                             )
                                         }
@@ -849,7 +874,8 @@ fun SavedPostsPage(
                             OutlinedTextField(
                                 value = newCommentText,
                                 onValueChange = { newCommentText = it },
-                                placeholder = { Text("Write a comment...", color = TextGray, fontSize = 13.sp) },
+                                textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
+                                placeholder = { Text("Write a comment...", color = TextGray, fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                                 singleLine = true,
                                 shape = RoundedCornerShape(14.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
@@ -971,7 +997,8 @@ private fun SavedGridItemCard(
                             text = "Video",
                             color = TabActive,
                             fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold
                         )
                     }
                 }
@@ -986,6 +1013,8 @@ private fun SavedGridItemCard(
                     Text(
                         text = "\"${item.content.ifBlank { "Post" }}\"",
                         fontSize = 12.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         fontStyle = FontStyle.Italic,
                         color = TextGray,
                         textAlign = TextAlign.Center,
@@ -1070,7 +1099,8 @@ private fun SavedGridItemCard(
                     Text(
                         text = item.author.name,
                         fontSize = 11.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Bold,
                         color = Color.White,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -1137,6 +1167,7 @@ private fun SavedFeedItemCard(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = item.author.name,
+                            fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp,
                             color = TextWhite
@@ -1149,6 +1180,8 @@ private fun SavedFeedItemCard(
                     Text(
                         text = "@${item.author.username} • ${item.post?.timestamp ?: "Saved"}",
                         fontSize = 12.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = TextGray
                     )
                 }
@@ -1178,6 +1211,8 @@ private fun SavedFeedItemCard(
             Text(
                 text = item.content,
                 fontSize = 14.sp,
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.Normal,
                 lineHeight = 20.sp,
                 color = TextWhite,
                 modifier = Modifier.padding(horizontal = 14.dp)
@@ -1251,7 +1286,8 @@ private fun SavedFeedItemCard(
                             text = "Video",
                             color = TabActive,
                             fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold
                         )
                     }
                 }
@@ -1291,6 +1327,7 @@ private fun SavedFeedItemCard(
                     Text(
                         text = "$likesCountState",
                         fontSize = 13.sp,
+                        fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Medium,
                         color = if (isLikedState) LikeRed else TextGray
                     )
@@ -1311,6 +1348,7 @@ private fun SavedFeedItemCard(
                     Text(
                         text = "${item.commentsCount}",
                         fontSize = 13.sp,
+                        fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Medium,
                         color = TextGray
                     )
@@ -1331,6 +1369,7 @@ private fun SavedFeedItemCard(
                     Text(
                         text = "${item.sharesCount}",
                         fontSize = 13.sp,
+                        fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Medium,
                         color = TextGray
                     )
@@ -1355,6 +1394,7 @@ private fun SavedFeedItemCard(
                 Text(
                     text = "Saved",
                     fontSize = 12.sp,
+                    fontFamily = InterFontFamily,
                     fontWeight = FontWeight.SemiBold,
                     color = AccentGold
                 )
@@ -1400,14 +1440,16 @@ private fun SeeMoreButton(
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "Loading...",
-                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Medium,
                     fontSize = 13.sp,
                     color = TextWhite
                 )
             } else {
                 Text(
                     text = "See More",
-                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Medium,
                     fontSize = 13.sp,
                     color = TextWhite
                 )

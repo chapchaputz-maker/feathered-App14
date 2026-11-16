@@ -809,6 +809,12 @@ object PostsApiService {
         val myReaction = obj.optString("my_reaction").takeIf { it.isNotBlank() && it != "null" }
         val isLiked = myReaction != null || obj.optBoolean("is_liked", false) || obj.optInt("liked_by_me", 0) == 1
 
+        val parsedLocation = obj.optString("location").takeIf { it.isNotBlank() && it != "null" && it != "undefined" }
+            ?: rawObj.optString("location").takeIf { it.isNotBlank() && it != "null" && it != "undefined" }
+            ?: metaObj?.optString("location")?.takeIf { it.isNotBlank() && it != "null" && it != "undefined" }
+            ?: product?.location?.takeIf { it.isNotBlank() && it != "null" && it != "undefined" }
+            ?: event?.location?.takeIf { it.isNotBlank() && it != "null" && it != "undefined" }
+
         return Post(
             id = id,
             author = author,
@@ -825,6 +831,7 @@ object PostsApiService {
             isSaved = false,
             myReaction = myReaction,
             reactions = reactionsList,
+            location = parsedLocation,
             backgroundStyle = backgroundStyle,
             groupId = groupId,
             groupName = groupName,
@@ -989,6 +996,10 @@ object PostsApiService {
         val finalVideoUrl = videoUrlRaw ?: if (isVideo && isVideoExt) mediaUrl else null
         val finalMediaType = if (isVideo) "video" else if (mediaTypeRaw != null && mediaTypeRaw != "video") mediaTypeRaw else if (resolvedMediaUrls.isNotEmpty()) "image" else null
 
+        val parsedLocation = obj.optString("location").takeIf { it.isNotBlank() && it != "null" && it != "undefined" }
+            ?: rawObj.optString("location").takeIf { it.isNotBlank() && it != "null" && it != "undefined" }
+            ?: metaObj?.optString("location")?.takeIf { it.isNotBlank() && it != "null" && it != "undefined" }
+
         return Post(
             id = id,
             author = author,
@@ -1003,6 +1014,7 @@ object PostsApiService {
             sharesCount = sharesCount,
             isLiked = false,
             isSaved = false,
+            location = parsedLocation,
             backgroundStyle = backgroundStyle,
             groupId = groupId,
             postType = if (isVideo) "video" else "post",
@@ -1253,6 +1265,74 @@ object PostsApiService {
             height = height,
             duration = duration
         )
+    }
+
+    /**
+     * Fetch a single post by ID (used when opening a post from a notification).
+     */
+    suspend fun fetchPostById(postId: Long, viewerId: Long = 0L, token: String? = null): Post? = withContext(Dispatchers.IO) {
+        if (postId <= 0L) return@withContext null
+        val candidateUrls = listOf(
+            "$BASE_URL/api/posts/$postId?viewerId=$viewerId",
+            "$BASE_URL/api/posts?id=$postId&viewerId=$viewerId"
+        )
+        for (urlStr in candidateUrls) {
+            try {
+                val url = URL(urlStr)
+                val conn = (url.openConnection() as HttpURLConnection).apply {
+                    requestMethod = "GET"
+                    connectTimeout = 8000
+                    readTimeout = 8000
+                    setRequestProperty("Accept", "application/json")
+                    setRequestProperty("User-Agent", USER_AGENT)
+                    if (viewerId > 0L) {
+                        setRequestProperty("x-user-id", viewerId.toString())
+                    }
+                    if (!token.isNullOrBlank()) {
+                        setRequestProperty("Authorization", "Bearer $token")
+                    }
+                }
+                if (conn.responseCode in 200..299) {
+                    val responseText = BufferedReader(InputStreamReader(conn.inputStream)).use { it.readText() }.trim()
+                    conn.disconnect()
+                    if (responseText.startsWith("{")) {
+                        val root = JSONObject(responseText)
+                        val singleObj = root.optJSONObject("post") ?: root.optJSONObject("data")
+                        if (singleObj != null) {
+                            (parseFeedItemToPost(singleObj) ?: parsePostJson(singleObj))?.let {
+                                if (it.id == postId || it.id > 0L) return@withContext it
+                            }
+                        }
+                        val arr = root.optJSONArray("posts") ?: root.optJSONArray("data") ?: root.optJSONArray("feed")
+                        if (arr != null) {
+                            for (i in 0 until arr.length()) {
+                                val item = arr.optJSONObject(i) ?: continue
+                                val parsed = parseFeedItemToPost(item) ?: parsePostJson(item)
+                                if (parsed != null && parsed.id == postId) return@withContext parsed
+                            }
+                        }
+                        (parseFeedItemToPost(root) ?: parsePostJson(root))?.let {
+                            if (it.id == postId) return@withContext it
+                        }
+                    } else if (responseText.startsWith("[")) {
+                        val arr = JSONArray(responseText)
+                        for (i in 0 until arr.length()) {
+                            val item = arr.optJSONObject(i) ?: continue
+                            val parsed = parseFeedItemToPost(item) ?: parsePostJson(item)
+                            if (parsed != null && parsed.id == postId) return@withContext parsed
+                        }
+                    }
+                } else {
+                    conn.disconnect()
+                }
+            } catch (_: Exception) {}
+        }
+
+        // Fallback to user's own posts or wider feed
+        if (viewerId > 0L) {
+            fetchUserPosts(viewerId, limit = 100).find { it.id == postId }?.let { return@withContext it }
+        }
+        fetchFeedPosts(userId = viewerId.takeIf { it > 0L }, limit = 100).find { it.id == postId }
     }
 
     /**

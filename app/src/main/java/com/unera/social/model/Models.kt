@@ -625,6 +625,21 @@ data class ActiveCallState(
     val seconds: Int = 0
 )
 
+enum class NotificationPostMode {
+    DEFAULT_LATEST,
+    FOCUS_COMMENT,
+    VIEW_POST_TOP
+}
+
+data class NotificationPostTarget(
+    val mode: NotificationPostMode = NotificationPostMode.DEFAULT_LATEST,
+    val actorId: Long? = null,
+    val actorName: String? = null,
+    val reactionType: String? = null,
+    val commentId: Long? = null,
+    val commentPreview: String? = null
+)
+
 data class Notification(
     val id: String,
     val user: User,
@@ -636,6 +651,7 @@ data class Notification(
     val reactionType: String = "",
     val entityType: String = "",
     val entityId: Long? = null,
+    val commentId: Long? = null,
     val groupId: Long? = null,
     val groupName: String? = null,
     val inviteId: Long? = null,

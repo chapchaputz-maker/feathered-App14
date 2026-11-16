@@ -38,6 +38,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.unera.social.model.User
+import com.unera.social.ui.theme.InterFontFamily
 
 // Theme colors matching Feathered web design system
 private val HelpBgDark = Color(0xFF050B18)
@@ -378,7 +379,8 @@ private fun HelpSupportMainContent(
                         text = "Help & Support",
                         color = Color.White,
                         fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
 
@@ -446,7 +448,8 @@ private fun HelpSupportMainContent(
                                     text = "Feathered Help Center",
                                     color = HelpBlue,
                                     fontSize = 13.sp,
-                                    fontWeight = FontWeight.Bold
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold
                                 )
                             }
                             Spacer(modifier = Modifier.height(10.dp))
@@ -454,13 +457,16 @@ private fun HelpSupportMainContent(
                                 text = "How can we help you today?",
                                 color = Color.White,
                                 fontSize = 22.sp,
-                                fontWeight = FontWeight.ExtraBold
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold
                             )
                             Spacer(modifier = Modifier.height(6.dp))
                             Text(
                                 text = "Find step-by-step guides, troubleshoot common issues, or reach out to our team.",
                                 color = HelpTextSecondary,
                                 fontSize = 14.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 lineHeight = 20.sp
                             )
                         }
@@ -476,11 +482,18 @@ private fun HelpSupportMainContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("help_search_input"),
+                    textStyle = LocalTextStyle.current.copy(
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 14.sp
+                    ),
                     placeholder = {
                         Text(
                             text = "Search articles, guides, or keywords...",
                             color = HelpTextMuted,
-                            fontSize = 14.sp
+                            fontSize = 14.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal
                         )
                     },
                     leadingIcon = {
@@ -531,7 +544,8 @@ private fun HelpSupportMainContent(
                                 Text(
                                     text = category,
                                     fontSize = 13.sp,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Medium
                                 )
                             },
                             colors = FilterChipDefaults.filterChipColors(
@@ -561,14 +575,16 @@ private fun HelpSupportMainContent(
                         text = "Articles & Guides (${filteredArticles.size})",
                         color = Color.White,
                         fontSize = 17.sp,
-                        fontWeight = FontWeight.Bold
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold
                     )
                     if (searchQuery.isNotBlank() || selectedCategory != "All Topics") {
                         Text(
                             text = "Reset",
                             color = HelpBlue,
                             fontSize = 13.sp,
-                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Medium,
                             modifier = Modifier.clickable {
                                 onSearchQueryChange("")
                                 onSelectCategory("All Topics")
@@ -604,12 +620,15 @@ private fun HelpSupportMainContent(
                                 text = "No matching articles found",
                                 color = Color.White,
                                 fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold
                             )
                             Text(
                                 text = "Try adjusting your search terms or select another category.",
                                 color = HelpTextSecondary,
                                 fontSize = 13.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 textAlign = TextAlign.Center
                             )
                         }
@@ -631,7 +650,8 @@ private fun HelpSupportMainContent(
                     text = "Frequently Asked Questions",
                     color = Color.White,
                     fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
 
@@ -674,13 +694,16 @@ private fun HelpSupportMainContent(
                             text = "Still need help?",
                             color = Color.White,
                             fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "Our support team is available 24/7 to answer questions, resolve account issues, and hear your feedback.",
                             color = HelpTextSecondary,
                             fontSize = 13.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             textAlign = TextAlign.Center,
                             lineHeight = 18.sp
                         )
@@ -705,7 +728,8 @@ private fun HelpSupportMainContent(
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 text = "Contact Feathered Support",
-                                fontWeight = FontWeight.Bold,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 14.sp
                             )
                         }
@@ -713,7 +737,9 @@ private fun HelpSupportMainContent(
                         Text(
                             text = "Email: support@feathered.social",
                             color = HelpTextMuted,
-                            fontSize = 12.sp
+                            fontSize = 12.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal
                         )
                     }
                 }
@@ -783,7 +809,8 @@ private fun HelpArticleCard(
                         text = article.category,
                         color = HelpBlue,
                         fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                     )
                 }
@@ -792,7 +819,8 @@ private fun HelpArticleCard(
                     text = article.title,
                     color = Color.White,
                     fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -801,6 +829,8 @@ private fun HelpArticleCard(
                     text = article.preview,
                     color = HelpTextSecondary,
                     fontSize = 12.sp,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Normal,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     lineHeight = 16.sp
@@ -843,6 +873,7 @@ private fun FaqAccordionCard(faq: FaqItem) {
                     text = faq.question,
                     color = Color.White,
                     fontSize = 14.sp,
+                    fontFamily = InterFontFamily,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.weight(1f)
                 )
@@ -862,6 +893,8 @@ private fun FaqAccordionCard(faq: FaqItem) {
                         text = faq.answer,
                         color = HelpTextSecondary,
                         fontSize = 13.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         lineHeight = 19.sp
                     )
                 }
@@ -914,7 +947,8 @@ private fun HelpArticleDetailScreen(
                     text = article.category,
                     color = Color.White,
                     fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
         }
@@ -935,7 +969,8 @@ private fun HelpArticleDetailScreen(
                     text = article.category.uppercase(),
                     color = HelpBlue,
                     fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 )
             }
@@ -945,7 +980,8 @@ private fun HelpArticleDetailScreen(
                 text = article.title,
                 color = Color.White,
                 fontSize = 24.sp,
-                fontWeight = FontWeight.ExtraBold,
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.SemiBold,
                 lineHeight = 30.sp
             )
 
@@ -954,6 +990,8 @@ private fun HelpArticleDetailScreen(
                 text = article.preview,
                 color = HelpTextSecondary,
                 fontSize = 15.sp,
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.Normal,
                 lineHeight = 22.sp
             )
 
@@ -1015,7 +1053,8 @@ private fun HelpArticleDetailScreen(
                                     text = sub.title,
                                     color = Color.White,
                                     fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold
                                 )
                             }
                             Spacer(modifier = Modifier.height(10.dp))
@@ -1030,12 +1069,15 @@ private fun HelpArticleDetailScreen(
                                         text = "${idx + 1}.",
                                         color = HelpBlue,
                                         fontSize = 13.sp,
-                                        fontWeight = FontWeight.Bold
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.SemiBold
                                     )
                                     Text(
                                         text = step,
                                         color = HelpTextPrimary,
                                         fontSize = 13.sp,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Normal,
                                         lineHeight = 18.sp
                                     )
                                 }
@@ -1061,7 +1103,8 @@ private fun HelpArticleDetailScreen(
                         text = "Step-by-Step Guide",
                         color = Color.White,
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold
                     )
                     Spacer(modifier = Modifier.height(14.dp))
                     article.steps.forEachIndexed { index, step ->
@@ -1083,13 +1126,16 @@ private fun HelpArticleDetailScreen(
                                     text = "${index + 1}",
                                     color = HelpBlue,
                                     fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold
                                 )
                             }
                             Text(
                                 text = step,
                                 color = HelpTextPrimary,
                                 fontSize = 14.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 lineHeight = 20.sp,
                                 modifier = Modifier.weight(1f)
                             )
@@ -1124,13 +1170,16 @@ private fun HelpArticleDetailScreen(
                                 text = "Pro Tip",
                                 color = Color.White,
                                 fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = tipText,
                                 color = HelpTextPrimary,
                                 fontSize = 13.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 lineHeight = 19.sp
                             )
                         }
@@ -1155,7 +1204,8 @@ private fun HelpArticleDetailScreen(
                         text = "Was this article helpful?",
                         color = Color.White,
                         fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold
                     )
                     Spacer(modifier = Modifier.height(12.dp))
 
@@ -1178,7 +1228,7 @@ private fun HelpArticleDetailScreen(
                                     modifier = Modifier.size(16.dp)
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Yes")
+                                Text("Yes", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                             }
 
                             OutlinedButton(
@@ -1196,7 +1246,7 @@ private fun HelpArticleDetailScreen(
                                     modifier = Modifier.size(16.dp)
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("No")
+                                Text("No", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                             }
                         }
                     } else {
@@ -1214,6 +1264,7 @@ private fun HelpArticleDetailScreen(
                                 text = "Thank you for your feedback!",
                                 color = Color(0xFF34D399),
                                 fontSize = 13.sp,
+                                fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.SemiBold
                             )
                         }
@@ -1290,12 +1341,15 @@ private fun ContactSupportDialog(
                             text = "Ticket Submitted!",
                             color = Color.White,
                             fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold
                         )
                         Text(
                             text = "Thank you for reaching out. A Feathered support specialist will review your request and reply via email at ${currentUser?.email ?: "your registered email"}.",
                             color = HelpTextSecondary,
                             fontSize = 13.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             textAlign = TextAlign.Center,
                             lineHeight = 18.sp
                         )
@@ -1306,7 +1360,7 @@ private fun ContactSupportDialog(
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Done", fontWeight = FontWeight.Bold)
+                            Text("Done", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                         }
                     }
                 } else {
@@ -1319,7 +1373,8 @@ private fun ContactSupportDialog(
                             text = "Contact Feathered Support",
                             color = Color.White,
                             fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold
                         )
                         IconButton(onClick = onDismiss) {
                             Icon(
@@ -1336,7 +1391,8 @@ private fun ContactSupportDialog(
                         text = "Category",
                         color = HelpTextSecondary,
                         fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold
                     )
                     Spacer(modifier = Modifier.height(6.dp))
 
@@ -1351,7 +1407,14 @@ private fun ContactSupportDialog(
                             FilterChip(
                                 selected = isSel,
                                 onClick = { selectedCategory = cat },
-                                label = { Text(cat, fontSize = 12.sp) },
+                                label = {
+                                    Text(
+                                        cat,
+                                        fontSize = 12.sp,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                },
                                 colors = FilterChipDefaults.filterChipColors(
                                     containerColor = HelpCardElevated,
                                     labelColor = HelpTextSecondary,
@@ -1370,14 +1433,28 @@ private fun ContactSupportDialog(
                         text = "Subject",
                         color = HelpTextSecondary,
                         fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     OutlinedTextField(
                         value = subject,
                         onValueChange = { subject = it },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("Brief summary of your inquiry...", color = HelpTextMuted, fontSize = 13.sp) },
+                        textStyle = LocalTextStyle.current.copy(
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 13.sp
+                        ),
+                        placeholder = {
+                            Text(
+                                "Brief summary of your inquiry...",
+                                color = HelpTextMuted,
+                                fontSize = 13.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal
+                            )
+                        },
                         singleLine = true,
                         shape = RoundedCornerShape(8.dp),
                         colors = OutlinedTextFieldDefaults.colors(
@@ -1396,7 +1473,8 @@ private fun ContactSupportDialog(
                         text = "Description",
                         color = HelpTextSecondary,
                         fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     OutlinedTextField(
@@ -1405,7 +1483,20 @@ private fun ContactSupportDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(110.dp),
-                        placeholder = { Text("Describe the issue or feedback in detail...", color = HelpTextMuted, fontSize = 13.sp) },
+                        textStyle = LocalTextStyle.current.copy(
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 13.sp
+                        ),
+                        placeholder = {
+                            Text(
+                                "Describe the issue or feedback in detail...",
+                                color = HelpTextMuted,
+                                fontSize = 13.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal
+                            )
+                        },
                         maxLines = 4,
                         shape = RoundedCornerShape(8.dp),
                         colors = OutlinedTextFieldDefaults.colors(
@@ -1435,7 +1526,7 @@ private fun ContactSupportDialog(
                             .height(44.dp)
                             .testTag("help_submit_ticket_button")
                     ) {
-                        Text("Send Support Request", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text("Send Support Request", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, fontSize = 14.sp)
                     }
                 }
             }

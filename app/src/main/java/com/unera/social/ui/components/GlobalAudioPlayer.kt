@@ -222,6 +222,7 @@ fun GlobalAudioPlayer(
                         text = downloadToast,
                         color = Color.White,
                         fontSize = 13.sp,
+                        fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
@@ -305,7 +306,8 @@ fun MiniAudioPlayerBar(
                         text = track.title,
                         color = Color.White,
                         fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -317,6 +319,8 @@ fun MiniAudioPlayerBar(
                             text = track.artist,
                             color = Color(0xFF94A3B8),
                             fontSize = 12.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Bold,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -526,14 +530,16 @@ fun ExpandedAudioPlayerDialog(
                             text = "NOW PLAYING",
                             color = Color(0xFF64748B),
                             fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             letterSpacing = 1.sp
                         )
                         Text(
                             text = track.title,
                             color = Color.White,
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.widthIn(max = 220.dp)
@@ -611,7 +617,8 @@ fun ExpandedAudioPlayerDialog(
                             text = track.title,
                             color = Color.White,
                             fontSize = 22.sp,
-                            fontWeight = FontWeight.ExtraBold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -632,7 +639,8 @@ fun ExpandedAudioPlayerDialog(
                                 text = track.artist,
                                 color = Color(0xFFF8FAFC),
                                 fontSize = 14.sp,
-                                fontWeight = FontWeight.SemiBold
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Bold
                             )
                             if (track.isVerified) {
                                 VerifiedBadge(size = 14.dp)
@@ -640,7 +648,9 @@ fun ExpandedAudioPlayerDialog(
                             Text(
                                 text = "• Artist",
                                 color = Color(0xFF64748B),
-                                fontSize = 12.sp
+                                fontSize = 12.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal
                             )
                         }
 
@@ -664,7 +674,9 @@ fun ExpandedAudioPlayerDialog(
                             Text(
                                 text = "${formatPlayCount(displayPlays)} plays",
                                 color = Color(0xFF94A3B8),
-                                fontSize = 12.sp
+                                fontSize = 12.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal
                             )
                         }
                     }
@@ -694,12 +706,14 @@ fun ExpandedAudioPlayerDialog(
                                 text = formatSeconds(currentPosition),
                                 color = Color(0xFF94A3B8),
                                 fontSize = 12.sp,
+                                fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Medium
                             )
                             Text(
                                 text = formatSeconds(safeDuration),
                                 color = Color(0xFF94A3B8),
                                 fontSize = 12.sp,
+                                fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Medium
                             )
                         }
@@ -804,7 +818,7 @@ fun ExpandedAudioPlayerDialog(
                                     modifier = Modifier.size(14.dp)
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("Stop", fontSize = 12.sp)
+                                Text("Stop", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                             }
 
                             // Volume slider
@@ -858,7 +872,7 @@ fun ExpandedAudioPlayerDialog(
                                         strokeWidth = 2.dp
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    Text("$downloadProgress%", fontSize = 12.sp)
+                                    Text("$downloadProgress%", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                                 } else {
                                     Icon(
                                         imageVector = Icons.Default.Download,
@@ -866,7 +880,7 @@ fun ExpandedAudioPlayerDialog(
                                         modifier = Modifier.size(14.dp)
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    Text("Download", fontSize = 12.sp)
+                                    Text("Download", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                                 }
                             }
                         }
@@ -896,7 +910,7 @@ fun ExpandedAudioPlayerDialog(
                                     modifier = Modifier.size(18.dp)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Discussions", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                Text("Discussions", fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                             }
 
                             Button(
@@ -917,7 +931,7 @@ fun ExpandedAudioPlayerDialog(
                                     modifier = Modifier.size(18.dp)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Share Track", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                Text("Share Track", fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                             }
                         }
                     }

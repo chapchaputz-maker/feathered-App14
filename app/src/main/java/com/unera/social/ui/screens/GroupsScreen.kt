@@ -79,6 +79,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.SpanStyle
 import com.unera.social.data.CommentsCache
+import com.unera.social.ui.theme.InterFontFamily
 
 fun isCareerCategory(category: String?, name: String? = null): Boolean {
     val c = category?.lowercase() ?: ""
@@ -244,9 +245,10 @@ fun GroupsScreen(
                             }
                             Text(
                                 text = "Groups",
+                                fontFamily = InterFontFamily,
                                 color = Color.White,
                                 fontSize = 20.sp,
-                                fontWeight = FontWeight.ExtraBold
+                                fontWeight = FontWeight.SemiBold
                             )
                         }
 
@@ -281,8 +283,9 @@ fun GroupsScreen(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text(
                                         text = tab.label,
+                                        fontFamily = InterFontFamily,
                                         color = if (selected) Color.White else Color(0xFF94A3B8),
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 14.sp
                                     )
                                     if (tab == GroupsTab.INVITES && groupInvites.isNotEmpty()) {
@@ -295,9 +298,10 @@ fun GroupsScreen(
                                         ) {
                                             Text(
                                                 text = "${groupInvites.size}",
+                                                fontFamily = InterFontFamily,
                                                 color = Color.White,
                                                 fontSize = 11.sp,
-                                                fontWeight = FontWeight.Bold
+                                                fontWeight = FontWeight.SemiBold
                                             )
                                         }
                                     }
@@ -313,7 +317,20 @@ fun GroupsScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 8.dp),
-                        placeholder = { Text("Search Groups", color = Color(0xFF64748B), fontSize = 14.sp) },
+                        textStyle = LocalTextStyle.current.copy(
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 14.sp
+                        ),
+                        placeholder = {
+                            Text(
+                                "Search Groups",
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
+                                color = Color(0xFF64748B),
+                                fontSize = 14.sp
+                            )
+                        },
                         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color(0xFF94A3B8)) },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedContainerColor = Color(0xFF1E293B),
@@ -365,15 +382,17 @@ fun GroupsScreen(
                                 ) {
                                     Text(
                                         text = "Your groups (${userGroups.size})",
+                                        fontFamily = InterFontFamily,
                                         color = Color.White,
                                         fontSize = 18.sp,
-                                        fontWeight = FontWeight.ExtraBold
+                                        fontWeight = FontWeight.SemiBold
                                     )
                                     Text(
                                         text = "Sort",
+                                        fontFamily = InterFontFamily,
                                         color = Color(0xFF1877F2),
                                         fontSize = 15.sp,
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         modifier = Modifier.clickable { showSortDialog = true }
                                     )
                                 }
@@ -383,9 +402,10 @@ fun GroupsScreen(
                                 item {
                                     Text(
                                         text = "Created by you",
+                                        fontFamily = InterFontFamily,
                                         color = Color(0xFF94A3B8),
                                         fontSize = 14.sp,
-                                        fontWeight = FontWeight.Bold
+                                        fontWeight = FontWeight.SemiBold
                                     )
                                 }
                                 items(createdByMe) { group ->
@@ -400,9 +420,10 @@ fun GroupsScreen(
                                 item {
                                     Text(
                                         text = "Groups you joined",
+                                        fontFamily = InterFontFamily,
                                         color = Color(0xFF94A3B8),
                                         fontSize = 14.sp,
-                                        fontWeight = FontWeight.Bold
+                                        fontWeight = FontWeight.SemiBold
                                     )
                                 }
                                 items(joinedByMe) { group ->
@@ -427,15 +448,15 @@ fun GroupsScreen(
                                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                                 Icon(Icons.Default.Groups, contentDescription = null, tint = Color(0xFF64748B), modifier = Modifier.size(56.dp))
                                                 Spacer(modifier = Modifier.height(12.dp))
-                                                Text("No groups yet", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                                                Text("Create your first group or discover active ones!", color = Color(0xFF94A3B8), fontSize = 13.sp)
+                                                Text("No groups yet", fontFamily = InterFontFamily, color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                                                Text("Create your first group or discover active ones!", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8), fontSize = 13.sp)
                                                 Spacer(modifier = Modifier.height(16.dp))
                                                 Button(
                                                     onClick = { showCategoryDialog = true },
                                                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1877F2)),
                                                     shape = RoundedCornerShape(12.dp)
                                                 ) {
-                                                    Text("Create Group")
+                                                    Text("Create Group", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                                                 }
                                             }
                                         }
@@ -472,9 +493,10 @@ fun GroupsScreen(
                             item {
                                 Text(
                                     text = "Discover Groups (${combinedSuggestions.size})",
+                                    fontFamily = InterFontFamily,
                                     color = Color.White,
                                     fontSize = 18.sp,
-                                    fontWeight = FontWeight.ExtraBold,
+                                    fontWeight = FontWeight.SemiBold,
                                     modifier = Modifier.padding(top = 12.dp)
                                 )
                             }
@@ -508,7 +530,7 @@ fun GroupsScreen(
                                                 .padding(vertical = 48.dp),
                                             contentAlignment = Alignment.Center
                                         ) {
-                                            Text("No more groups to discover right now", color = Color(0xFF94A3B8), fontSize = 14.sp)
+                                            Text("No more groups to discover right now", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8), fontSize = 14.sp)
                                         }
                                     }
                                 }
@@ -526,9 +548,10 @@ fun GroupsScreen(
                             item {
                                 Text(
                                     text = "Group Invites (${groupInvites.size})",
+                                    fontFamily = InterFontFamily,
                                     color = Color.White,
                                     fontSize = 18.sp,
-                                    fontWeight = FontWeight.ExtraBold,
+                                    fontWeight = FontWeight.SemiBold,
                                     modifier = Modifier.padding(top = 12.dp)
                                 )
                             }
@@ -555,9 +578,9 @@ fun GroupsScreen(
                                             )
                                             Spacer(modifier = Modifier.width(12.dp))
                                             Column(modifier = Modifier.weight(1f)) {
-                                                Text(invite.group.name, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                                                Text("Invited by ${invite.inviter.name}", color = Color(0xFF45BD62), fontSize = 12.sp)
-                                                Text("${invite.group.membersCount} members", color = Color(0xFF94A3B8), fontSize = 12.sp)
+                                                Text(invite.group.name, fontFamily = InterFontFamily, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                                Text("Invited by ${invite.inviter.name}", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF45BD62), fontSize = 12.sp)
+                                                Text("${invite.group.membersCount} members", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8), fontSize = 12.sp)
                                             }
                                         }
 
@@ -572,7 +595,7 @@ fun GroupsScreen(
                                                 shape = RoundedCornerShape(10.dp),
                                                 modifier = Modifier.weight(1f)
                                             ) {
-                                                Text("Accept & Join")
+                                                Text("Accept & Join", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                                             }
                                             OutlinedButton(
                                                 onClick = { onDeclineInvite(invite.id) },
@@ -580,7 +603,7 @@ fun GroupsScreen(
                                                 shape = RoundedCornerShape(10.dp),
                                                 modifier = Modifier.weight(1f)
                                             ) {
-                                                Text("Decline")
+                                                Text("Decline", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                                             }
                                         }
                                     }
@@ -598,8 +621,8 @@ fun GroupsScreen(
                                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                             Icon(Icons.Default.MailOutline, contentDescription = null, tint = Color(0xFF64748B), modifier = Modifier.size(52.dp))
                                             Spacer(modifier = Modifier.height(10.dp))
-                                            Text("No pending invites", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                                            Text("When someone invites you to a group, it will show up here.", color = Color(0xFF94A3B8), fontSize = 13.sp)
+                                            Text("No pending invites", fontFamily = InterFontFamily, color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                                            Text("When someone invites you to a group, it will show up here.", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8), fontSize = 13.sp)
                                         }
                                     }
                                 }
@@ -646,7 +669,7 @@ fun GroupsScreen(
     if (showSortDialog) {
         AlertDialog(
             onDismissRequest = { showSortDialog = false },
-            title = { Text("Sort groups", color = Color.White, fontWeight = FontWeight.Bold) },
+            title = { Text("Sort groups", fontFamily = InterFontFamily, color = Color.White, fontWeight = FontWeight.SemiBold) },
             text = {
                 Column {
                     listOf("Most visited", "Recently active", "Alphabetical").forEach { mode ->
@@ -661,7 +684,7 @@ fun GroupsScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(mode, color = Color.White, fontSize = 16.sp)
+                            Text(mode, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color.White, fontSize = 16.sp)
                             if (sortMode == mode) {
                                 Icon(Icons.Default.Check, contentDescription = null, tint = Color(0xFF1877F2))
                             }
@@ -730,6 +753,7 @@ fun GroupListItem(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = group.name,
+                    fontFamily = InterFontFamily,
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp,
@@ -742,6 +766,8 @@ fun GroupListItem(
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = "${group.membersCount} members • ${if (group.isPrivate) "Private" else "Public"}",
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.Normal,
                 color = Color(0xFF94A3B8),
                 fontSize = 12.sp
             )
@@ -754,7 +780,7 @@ fun GroupListItem(
                 shape = RoundedCornerShape(10.dp),
                 contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp)
             ) {
-                Text("Join", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                Text("Join", fontFamily = InterFontFamily, fontSize = 13.sp, fontWeight = FontWeight.Medium)
             }
         } else {
             Icon(Icons.Default.ChevronRight, contentDescription = null, tint = Color(0xFF64748B))
@@ -903,13 +929,15 @@ fun GroupDetailScreen(
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = group.name,
+                            fontFamily = InterFontFamily,
                             color = Color.White,
                             fontSize = 20.sp,
-                            fontWeight = FontWeight.ExtraBold
+                            fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
                             text = "${when (group.category) { "recruitment" -> "Careers & Hiring"; "buy_sell" -> "Buy & Sell"; else -> "General" }} • ${if (group.isPrivate) "Private" else "Public"} • ${group.membersCount} members",
+                            fontFamily = InterFontFamily,
                             color = catColor,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold
@@ -933,7 +961,7 @@ fun GroupDetailScreen(
                         ) {
                             Icon(Icons.Default.Check, contentDescription = null, tint = Color(0xFF45BD62), modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Joined", color = Color.White, fontWeight = FontWeight.Bold)
+                            Text("Joined", fontFamily = InterFontFamily, color = Color.White, fontWeight = FontWeight.Medium)
                         }
 
                         Button(
@@ -944,7 +972,7 @@ fun GroupDetailScreen(
                         ) {
                             Icon(Icons.Default.PersonAdd, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Invite", color = Color.White, fontWeight = FontWeight.Bold)
+                            Text("Invite", fontFamily = InterFontFamily, color = Color.White, fontWeight = FontWeight.Medium)
                         }
                     } else {
                         Button(
@@ -953,7 +981,7 @@ fun GroupDetailScreen(
                             shape = RoundedCornerShape(10.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Join Group", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Text("Join Group", fontFamily = InterFontFamily, color = Color.White, fontWeight = FontWeight.Medium, fontSize = 16.sp)
                         }
                     }
                 }
@@ -975,8 +1003,9 @@ fun GroupDetailScreen(
                         ) {
                             Text(
                                 text = tab.label,
+                                fontFamily = InterFontFamily,
                                 color = if (selected) Color(0xFF1877F2) else Color(0xFF94A3B8),
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 14.sp
                             )
                             Spacer(modifier = Modifier.height(4.dp))
@@ -1036,6 +1065,8 @@ fun GroupDetailScreen(
                                             isCareerCategory(group.category, group.name) -> "Post a job opportunity in ${group.name}..."
                                             else -> "Write something to ${group.name}..."
                                         },
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Normal,
                                         color = Color(0xFF94A3B8),
                                         fontSize = 15.sp,
                                         modifier = Modifier.weight(1f),
@@ -1067,7 +1098,7 @@ fun GroupDetailScreen(
                                     ) {
                                         Icon(Icons.Default.AddPhotoAlternate, contentDescription = "Photo/Video", tint = Color(0xFF45BD62), modifier = Modifier.size(20.dp))
                                         Spacer(modifier = Modifier.width(6.dp))
-                                        Text("Photo/Video", color = Color(0xFFCBD5E1), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                        Text("Photo/Video", fontFamily = InterFontFamily, color = Color(0xFFCBD5E1), fontSize = 13.sp, fontWeight = FontWeight.Medium)
                                     }
 
                                     // Event action
@@ -1082,7 +1113,7 @@ fun GroupDetailScreen(
                                     ) {
                                         Icon(Icons.Default.Event, contentDescription = "Event", tint = Color(0xFF1877F2), modifier = Modifier.size(20.dp))
                                         Spacer(modifier = Modifier.width(6.dp))
-                                        Text("Event", color = Color(0xFFCBD5E1), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                        Text("Event", fontFamily = InterFontFamily, color = Color(0xFFCBD5E1), fontSize = 13.sp, fontWeight = FontWeight.Medium)
                                     }
 
                                     if (group.category == "buy_sell") {
@@ -1098,7 +1129,7 @@ fun GroupDetailScreen(
                                         ) {
                                             Icon(Icons.Default.Storefront, contentDescription = "Sell Item", tint = Color(0xFFF7B928), modifier = Modifier.size(20.dp))
                                             Spacer(modifier = Modifier.width(6.dp))
-                                            Text("Sell Item", color = Color(0xFFCBD5E1), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                            Text("Sell Item", fontFamily = InterFontFamily, color = Color(0xFFCBD5E1), fontSize = 13.sp, fontWeight = FontWeight.Medium)
                                         }
                                     } else if (isCareerCategory(group.category, group.name)) {
                                         Row(
@@ -1113,7 +1144,7 @@ fun GroupDetailScreen(
                                         ) {
                                             Icon(Icons.Default.Work, contentDescription = "Post Job", tint = Color(0xFF45BD62), modifier = Modifier.size(20.dp))
                                             Spacer(modifier = Modifier.width(6.dp))
-                                            Text("Post Job", color = Color(0xFFCBD5E1), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                            Text("Post Job", fontFamily = InterFontFamily, color = Color(0xFFCBD5E1), fontSize = 13.sp, fontWeight = FontWeight.Medium)
                                         }
                                     }
                                 }
@@ -1167,7 +1198,7 @@ fun GroupDetailScreen(
                             if (isPostsLoading) {
                                 CircularProgressIndicator(color = Color(0xFF1877F2))
                             } else {
-                                Text("No discussions yet. Be the first to start a conversation!", color = Color(0xFF94A3B8), fontSize = 14.sp)
+                                Text("No discussions yet. Be the first to start a conversation!", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8), fontSize = 14.sp)
                             }
                         }
                     }
@@ -1184,10 +1215,10 @@ fun GroupDetailScreen(
                             .padding(horizontal = 16.dp, vertical = 8.dp)
                     ) {
                         Column(modifier = Modifier.padding(14.dp)) {
-                            Text(event.title, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                            Text(event.date, color = Color(0xFF1877F2), fontSize = 13.sp)
+                            Text(event.title, fontFamily = InterFontFamily, color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                            Text(event.date, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color(0xFF1877F2), fontSize = 13.sp)
                             Spacer(modifier = Modifier.height(4.dp))
-                            Text(event.description, color = Color(0xFF94A3B8), fontSize = 14.sp)
+                            Text(event.description, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8), fontSize = 14.sp)
                         }
                     }
                 }
@@ -1200,7 +1231,7 @@ fun GroupDetailScreen(
                                 .padding(vertical = 48.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("No group events scheduled.", color = Color(0xFF94A3B8), fontSize = 14.sp)
+                            Text("No group events scheduled.", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8), fontSize = 14.sp)
                         }
                     }
                 }
@@ -1234,22 +1265,22 @@ fun GroupDetailScreen(
                             Spacer(modifier = Modifier.width(12.dp))
                             Column(modifier = Modifier.weight(1f)) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(member.name.ifBlank { "Member" }, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                    Text(member.name.ifBlank { "Member" }, fontFamily = InterFontFamily, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                                     if (member.isVerified) {
                                         Spacer(modifier = Modifier.width(4.dp))
                                         VerifiedBadge(size = 14.dp)
                                     }
                                     if (userIsAdmin) {
                                         Spacer(modifier = Modifier.width(6.dp))
-                                        Text("Admin", color = Color(0xFF1877F2), fontSize = 11.sp, fontWeight = FontWeight.ExtraBold)
+                                        Text("Admin", fontFamily = InterFontFamily, color = Color(0xFF1877F2), fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
                                     } else if (userIsMod) {
                                         Spacer(modifier = Modifier.width(6.dp))
-                                        Text("Moderator", color = Color(0xFF45BD62), fontSize = 11.sp, fontWeight = FontWeight.ExtraBold)
+                                        Text("Moderator", fontFamily = InterFontFamily, color = Color(0xFF45BD62), fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
                                     }
                                 }
-                                Text("@${member.username}", color = Color(0xFF94A3B8), fontSize = 12.sp)
+                                Text("@${member.username}", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8), fontSize = 12.sp)
                                 if (member.postingDisabled) {
-                                    Text("Posting muted", color = Color(0xFFF3425F), fontSize = 11.sp)
+                                    Text("Posting muted", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color(0xFFF3425F), fontSize = 11.sp)
                                 }
                             }
 
@@ -1267,6 +1298,8 @@ fun GroupDetailScreen(
                                             text = {
                                                 Text(
                                                     if (member.postingDisabled) "Enable Posting" else "Mute Posting",
+                                                    fontFamily = InterFontFamily,
+                                                    fontWeight = FontWeight.Medium,
                                                     color = Color.White
                                                 )
                                             },
@@ -1277,7 +1310,7 @@ fun GroupDetailScreen(
                                         )
                                         if (userIsAdmin) {
                                             DropdownMenuItem(
-                                                text = { Text("Demote from Admin", color = Color.White) },
+                                                text = { Text("Demote from Admin", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color.White) },
                                                 onClick = {
                                                     onSetMemberRole(member.userId, "remove-admin")
                                                     showActionMenu = false
@@ -1285,7 +1318,7 @@ fun GroupDetailScreen(
                                             )
                                         } else {
                                             DropdownMenuItem(
-                                                text = { Text("Promote to Admin", color = Color.White) },
+                                                text = { Text("Promote to Admin", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color.White) },
                                                 onClick = {
                                                     onSetMemberRole(member.userId, "make-admin")
                                                     showActionMenu = false
@@ -1294,7 +1327,7 @@ fun GroupDetailScreen(
                                         }
                                         if (!userIsMod) {
                                             DropdownMenuItem(
-                                                text = { Text("Promote to Moderator", color = Color.White) },
+                                                text = { Text("Promote to Moderator", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color.White) },
                                                 onClick = {
                                                     onSetMemberRole(member.userId, "make-moderator")
                                                     showActionMenu = false
@@ -1302,7 +1335,7 @@ fun GroupDetailScreen(
                                             )
                                         }
                                         DropdownMenuItem(
-                                            text = { Text("Remove from Group", color = Color(0xFFF3425F)) },
+                                            text = { Text("Remove from Group", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color(0xFFF3425F)) },
                                             onClick = {
                                                 onRemoveMember(member.userId)
                                                 showActionMenu = false
@@ -1340,13 +1373,13 @@ fun GroupDetailScreen(
                             Spacer(modifier = Modifier.width(12.dp))
                             Column(modifier = Modifier.weight(1f)) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(user.name, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                    Text(user.name, fontFamily = InterFontFamily, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                                     if (userIsOwner) {
                                         Spacer(modifier = Modifier.width(6.dp))
-                                        Text("Admin (Owner)", color = Color(0xFF1877F2), fontSize = 11.sp, fontWeight = FontWeight.ExtraBold)
+                                        Text("Admin (Owner)", fontFamily = InterFontFamily, color = Color(0xFF1877F2), fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
                                     }
                                 }
-                                Text("@${user.username}", color = Color(0xFF94A3B8), fontSize = 12.sp)
+                                Text("@${user.username}", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8), fontSize = 12.sp)
                             }
 
                             if (isOwner && !userIsOwner) {
@@ -1369,9 +1402,9 @@ fun GroupDetailScreen(
                             .padding(16.dp)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text("About this community", color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 18.sp)
+                            Text("About this community", fontFamily = InterFontFamily, color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text(group.description.ifBlank { "No description provided." }, color = Color(0xFFCBD5E1), fontSize = 14.sp, lineHeight = 20.sp)
+                            Text(group.description.ifBlank { "No description provided." }, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFFCBD5E1), fontSize = 14.sp, lineHeight = 20.sp)
                             Spacer(modifier = Modifier.height(16.dp))
                             Divider(color = Color(0xFF1E293B))
                             Spacer(modifier = Modifier.height(12.dp))
@@ -1379,8 +1412,8 @@ fun GroupDetailScreen(
                                 Icon(if (group.isPrivate) Icons.Default.Lock else Icons.Default.Public, contentDescription = null, tint = Color(0xFF94A3B8))
                                 Spacer(modifier = Modifier.width(10.dp))
                                 Column {
-                                    Text(if (group.isPrivate) "Private Group" else "Public Group", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                    Text(if (group.isPrivate) "Only members can see posts and members" else "Anyone can see who's in the group and what they post", color = Color(0xFF94A3B8), fontSize = 12.sp)
+                                    Text(if (group.isPrivate) "Private Group" else "Public Group", fontFamily = InterFontFamily, color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                                    Text(if (group.isPrivate) "Only members can see posts and members" else "Anyone can see who's in the group and what they post", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8), fontSize = 12.sp)
                                 }
                             }
                             Spacer(modifier = Modifier.height(12.dp))
@@ -1388,8 +1421,8 @@ fun GroupDetailScreen(
                                 Icon(Icons.Default.History, contentDescription = null, tint = Color(0xFF94A3B8))
                                 Spacer(modifier = Modifier.width(10.dp))
                                 Column {
-                                    Text("Created in 2026", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                    Text("Active East Africa Community", color = Color(0xFF94A3B8), fontSize = 12.sp)
+                                    Text("Created in 2026", fontFamily = InterFontFamily, color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                                    Text("Active East Africa Community", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8), fontSize = 12.sp)
                                 }
                             }
                         }
@@ -1667,6 +1700,7 @@ fun GroupPostCard(
                     ) {
                         Text(
                             text = post.author.name,
+                            fontFamily = InterFontFamily,
                             color = Color(0xFFF8FAFC),
                             fontWeight = FontWeight.Bold,
                             fontSize = 17.sp,
@@ -1682,17 +1716,17 @@ fun GroupPostCard(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        Text(PostsApiService.formatRelativeTime(post.createdAt), color = Color(0xFF94A3B8), fontSize = 12.sp)
-                        Text("•", color = Color(0xFF94A3B8), fontSize = 12.sp)
+                        Text(PostsApiService.formatRelativeTime(post.createdAt), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8), fontSize = 12.sp)
+                        Text("•", fontFamily = InterFontFamily, color = Color(0xFF94A3B8), fontSize = 12.sp)
                         if (isCareer) {
                             Icon(Icons.Default.Work, contentDescription = null, tint = Color(0xFF45BD62), modifier = Modifier.size(12.dp))
-                            Text("Recruitment", color = Color(0xFF45BD62), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                            Text("Recruitment", fontFamily = InterFontFamily, color = Color(0xFF45BD62), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                         } else if (isBuySell) {
                             Icon(Icons.Default.Storefront, contentDescription = null, tint = Color(0xFFF7B928), modifier = Modifier.size(12.dp))
-                            Text("Marketplace", color = Color(0xFFF7B928), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                            Text("Marketplace", fontFamily = InterFontFamily, color = Color(0xFFF7B928), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                         } else {
                             Icon(Icons.Default.Groups, contentDescription = null, tint = Color(0xFF1877F2), modifier = Modifier.size(12.dp))
-                            Text("Group Post", color = Color(0xFF94A3B8), fontSize = 12.sp)
+                            Text("Group Post", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8), fontSize = 12.sp)
                         }
                     }
                 }
@@ -1709,7 +1743,7 @@ fun GroupPostCard(
                     ) {
                         if (onDelete != null) {
                             DropdownMenuItem(
-                                text = { Text("Delete Post", color = Color(0xFFF3425F)) },
+                                text = { Text("Delete Post", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color(0xFFF3425F)) },
                                 leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null, tint = Color(0xFFF3425F)) },
                                 onClick = {
                                     showMoreMenu = false
@@ -1718,7 +1752,7 @@ fun GroupPostCard(
                             )
                         }
                         DropdownMenuItem(
-                            text = { Text("Report Post", color = Color(0xFFF8FAFC)) },
+                            text = { Text("Report Post", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color(0xFFF8FAFC)) },
                             leadingIcon = { Icon(Icons.Default.Flag, contentDescription = null, tint = Color(0xFF94A3B8)) },
                             onClick = {
                                 showMoreMenu = false
@@ -1743,7 +1777,7 @@ fun GroupPostCard(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Default.Work, contentDescription = null, tint = Color(0xFF45BD62), modifier = Modifier.size(12.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("JOB POSTING", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFF45BD62))
+                            Text("JOB POSTING", fontFamily = InterFontFamily, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF45BD62))
                         }
                     }
 
@@ -1759,8 +1793,9 @@ fun GroupPostCard(
                         Column(modifier = Modifier.padding(14.dp)) {
                             Text(
                                 text = post.jobTitle ?: "Job Opening",
+                                fontFamily = InterFontFamily,
                                 fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.SemiBold,
                                 color = Color(0xFFF8FAFC)
                             )
                             if (!post.company.isNullOrBlank()) {
@@ -1768,7 +1803,7 @@ fun GroupPostCard(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(Icons.Default.Business, contentDescription = null, tint = Color(0xFF45BD62), modifier = Modifier.size(16.dp))
                                     Spacer(modifier = Modifier.width(6.dp))
-                                    Text(post.company, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFFCBD5E1))
+                                    Text(post.company, fontFamily = InterFontFamily, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFFCBD5E1))
                                 }
                             }
 
@@ -1783,14 +1818,14 @@ fun GroupPostCard(
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Icon(Icons.Default.LocationOn, contentDescription = null, tint = Color(0xFF45BD62), modifier = Modifier.size(14.dp))
                                         Spacer(modifier = Modifier.width(3.dp))
-                                        Text(post.location, fontSize = 12.sp, color = Color(0xFF94A3B8))
+                                        Text(post.location, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = Color(0xFF94A3B8))
                                     }
                                 }
                                 if (!post.jobType.isNullOrBlank()) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Icon(Icons.Default.Schedule, contentDescription = null, tint = Color(0xFFF7B928), modifier = Modifier.size(14.dp))
                                         Spacer(modifier = Modifier.width(3.dp))
-                                        Text(post.jobType, fontSize = 12.sp, color = Color(0xFFF7B928), fontWeight = FontWeight.SemiBold)
+                                        Text(post.jobType, fontFamily = InterFontFamily, fontSize = 12.sp, color = Color(0xFFF7B928), fontWeight = FontWeight.SemiBold)
                                     }
                                 }
                             }
@@ -1800,7 +1835,7 @@ fun GroupPostCard(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(Icons.Default.AttachMoney, contentDescription = null, tint = Color(0xFF45BD62), modifier = Modifier.size(15.dp))
                                     Spacer(modifier = Modifier.width(2.dp))
-                                    Text(post.salary, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF45BD62))
+                                    Text(post.salary, fontFamily = InterFontFamily, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF45BD62))
                                 }
                             }
 
@@ -1835,7 +1870,7 @@ fun GroupPostCard(
                                 ) {
                                     Icon(Icons.AutoMirrored.Filled.Send, contentDescription = null, modifier = Modifier.size(16.dp))
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Apply Now", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                                    Text("Apply Now", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, fontSize = 15.sp)
                                 }
                             }
                         }
@@ -1853,8 +1888,9 @@ fun GroupPostCard(
                     ) {
                         Text(
                             text = "${post.currency} ${post.price ?: ""}",
+                            fontFamily = InterFontFamily,
                             color = Color(0xFF45BD62),
-                            fontWeight = FontWeight.ExtraBold,
+                            fontWeight = FontWeight.SemiBold,
                             fontSize = 22.sp
                         )
                         if (!post.condition.isNullOrBlank()) {
@@ -1864,7 +1900,7 @@ fun GroupPostCard(
                                     .background(Color(0xFFF7B928).copy(alpha = 0.15f))
                                     .padding(horizontal = 8.dp, vertical = 3.dp)
                             ) {
-                                Text(post.condition, color = Color(0xFFF7B928), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                Text(post.condition, fontFamily = InterFontFamily, color = Color(0xFFF7B928), fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
                             }
                         }
                     }
@@ -1873,7 +1909,7 @@ fun GroupPostCard(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Default.LocationOn, contentDescription = null, tint = Color(0xFFF7B928), modifier = Modifier.size(12.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text(post.location, color = Color(0xFF94A3B8), fontSize = 12.sp)
+                            Text(post.location, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8), fontSize = 12.sp)
                         }
                     }
                 }
@@ -1901,6 +1937,8 @@ fun GroupPostCard(
                 Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)) {
                     Text(
                         text = displayText,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = Color(0xFFF8FAFC),
                         fontSize = 16.sp,
                         lineHeight = 23.sp
@@ -1909,8 +1947,9 @@ fun GroupPostCard(
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = if (isExpandedText) "See Less" else "See More",
+                            fontFamily = InterFontFamily,
                             color = Color(0xFF1877F2),
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.SemiBold,
                             fontSize = 15.sp,
                             modifier = Modifier
                                 .clickable { isExpandedText = !isExpandedText }
@@ -1950,6 +1989,7 @@ fun GroupPostCard(
                         if (post.commentsCount > 0) {
                             Text(
                                 text = "${post.commentsCount} Discussions",
+                                fontFamily = InterFontFamily,
                                 color = Color(0xFF94A3B8),
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Medium,
@@ -1957,11 +1997,12 @@ fun GroupPostCard(
                             )
                         }
                         if (post.commentsCount > 0 && post.sharesCount > 0) {
-                            Text("•", color = Color(0xFF94A3B8), fontSize = 13.sp)
+                            Text("•", fontFamily = InterFontFamily, color = Color(0xFF94A3B8), fontSize = 13.sp)
                         }
                         if (post.sharesCount > 0) {
                             Text(
                                 text = "${post.sharesCount} Shares",
+                                fontFamily = InterFontFamily,
                                 color = Color(0xFF94A3B8),
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Medium,
@@ -2024,6 +2065,7 @@ fun GroupPostCard(
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
                                 text = formatCount(post.sharesCount),
+                                fontFamily = InterFontFamily,
                                 color = Color(0xFFF8FAFC),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold
@@ -2094,6 +2136,7 @@ fun GroupPostCard(
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Text(
                                             text = currentComment.author.name,
+                                            fontFamily = InterFontFamily,
                                             color = Color(0xFFF8FAFC),
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 19.sp
@@ -2106,6 +2149,8 @@ fun GroupPostCard(
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(
                                         text = currentComment.text,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Normal,
                                         color = Color(0xFFCBD5E1),
                                         fontSize = 20.sp,
                                         lineHeight = 26.sp,
@@ -2122,29 +2167,34 @@ fun GroupPostCard(
                             ) {
                                 Text(
                                     text = if (currentComment.timestamp.isNotBlank()) currentComment.timestamp else "Just now",
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     color = Color(0xFF64748B),
                                     fontSize = 11.sp
                                 )
                                 Text(
                                     text = if (currentComment.isLiked) "❤️ Liked" else "Like",
+                                    fontFamily = InterFontFamily,
                                     color = if (currentComment.isLiked) Color(0xFFF43F5E) else Color(0xFF94A3B8),
                                     fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     modifier = Modifier.clickable(onClick = onComment)
                                 )
                                 Text(
                                     text = "Reply",
+                                    fontFamily = InterFontFamily,
                                     color = Color(0xFF94A3B8),
                                     fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     modifier = Modifier.clickable(onClick = onComment)
                                 )
                                 if (currentComment.likesCount > 0) {
                                     Text(
                                         text = "❤️ ${currentComment.likesCount}",
+                                        fontFamily = InterFontFamily,
                                         color = Color(0xFFF43F5E),
                                         fontSize = 11.sp,
-                                        fontWeight = FontWeight.Bold
+                                        fontWeight = FontWeight.SemiBold
                                     )
                                 }
                             }
@@ -2210,18 +2260,18 @@ fun GroupPostCard(
                                         .padding(horizontal = 10.dp, vertical = 6.dp)
                                 ) {
                                     val annotatedString = buildAnnotatedString {
-                                        withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = Color(0xFFF8FAFC), fontSize = 13.sp)) {
+                                        withStyle(SpanStyle(fontFamily = InterFontFamily, fontWeight = FontWeight.Bold, color = Color(0xFFF8FAFC), fontSize = 13.sp)) {
                                             append(reply.author.name)
                                         }
                                         if (!targetUser.isNullOrBlank()) {
                                             append(" ")
-                                            withStyle(SpanStyle(fontWeight = FontWeight.Normal, color = Color(0xFF93C5FD), fontSize = 13.sp)) {
+                                            withStyle(SpanStyle(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF93C5FD), fontSize = 13.sp)) {
                                                 append(targetUser)
                                             }
                                         }
                                         if (cleanReplyText.isNotBlank()) {
                                             append(" ")
-                                            withStyle(SpanStyle(fontWeight = FontWeight.Normal, color = Color(0xFFCBD5E1), fontSize = 13.sp)) {
+                                            withStyle(SpanStyle(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFFCBD5E1), fontSize = 13.sp)) {
                                                 append(cleanReplyText)
                                             }
                                         }
@@ -2230,6 +2280,7 @@ fun GroupPostCard(
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Text(
                                             text = annotatedString,
+                                            fontFamily = InterFontFamily,
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis,
                                             modifier = Modifier.weight(1f, fill = false)
@@ -2248,26 +2299,31 @@ fun GroupPostCard(
                                 ) {
                                     Text(
                                         text = if (reply.timestamp.isNotBlank()) reply.timestamp else "Just now",
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Normal,
                                         fontSize = 11.sp,
                                         color = Color(0xFF94A3B8)
                                     )
                                     Text(
                                         text = if (reply.isLiked) "❤️ Liked" else "Like",
+                                        fontFamily = InterFontFamily,
                                         fontSize = 11.sp,
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         color = if (reply.isLiked) Color(0xFFF43F5E) else Color(0xFF94A3B8)
                                     )
                                     Text(
                                         text = "Reply",
+                                        fontFamily = InterFontFamily,
                                         fontSize = 11.sp,
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         color = Color(0xFF94A3B8)
                                     )
                                     if (reply.likesCount > 0) {
                                         Text(
                                             text = "❤️ ${reply.likesCount}",
+                                            fontFamily = InterFontFamily,
                                             fontSize = 10.sp,
-                                            fontWeight = FontWeight.Bold,
+                                            fontWeight = FontWeight.SemiBold,
                                             color = Color(0xFFF43F5E)
                                         )
                                     }
@@ -2381,9 +2437,10 @@ fun CategorySelectionDialog(
                             }
                             Text(
                                 text = "Choose Group Category",
+                                fontFamily = InterFontFamily,
                                 color = Color(0xFFF8FAFC),
                                 fontSize = 19.sp,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.SemiBold
                             )
                         }
 
@@ -2403,7 +2460,8 @@ fun CategorySelectionDialog(
                         ) {
                             Text(
                                 text = "Continue",
-                                fontWeight = FontWeight.Bold,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 14.sp
                             )
                         }
@@ -2422,13 +2480,16 @@ fun CategorySelectionDialog(
                 // Intro header
                 Text(
                     text = "Select a Category",
+                    fontFamily = InterFontFamily,
                     color = Color(0xFFF8FAFC),
                     fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.SemiBold
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Choose the category that best describes your group's mission. This configures specialized tools, custom post formats, and features for your community.",
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Normal,
                     color = Color(0xFF94A3B8),
                     fontSize = 13.sp,
                     lineHeight = 18.sp
@@ -2474,9 +2535,10 @@ fun CategorySelectionDialog(
                                 ) {
                                     Text(
                                         text = category.label,
+                                        fontFamily = InterFontFamily,
                                         color = Color(0xFFF8FAFC),
                                         fontSize = 17.sp,
-                                        fontWeight = FontWeight.Bold
+                                        fontWeight = FontWeight.SemiBold
                                     )
 
                                     // Selection circle checkmark
@@ -2506,6 +2568,8 @@ fun CategorySelectionDialog(
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     text = category.description,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     color = Color(0xFF94A3B8),
                                     fontSize = 13.sp,
                                     lineHeight = 18.sp
@@ -2530,6 +2594,7 @@ fun CategorySelectionDialog(
                                         ) {
                                             Text(
                                                 text = feature,
+                                                fontFamily = InterFontFamily,
                                                 color = Color(0xFFCBD5E1),
                                                 fontSize = 11.sp,
                                                 fontWeight = FontWeight.Medium
@@ -2599,9 +2664,10 @@ fun CreateGroupDialog(
                             }
                             Text(
                                 text = "Create ${categoryInfo.label} Group",
+                                fontFamily = InterFontFamily,
                                 color = Color(0xFFF8FAFC),
                                 fontSize = 19.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.SemiBold,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
@@ -2625,7 +2691,8 @@ fun CreateGroupDialog(
                         ) {
                             Text(
                                 text = "Create",
-                                fontWeight = FontWeight.Bold,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 14.sp
                             )
                         }
@@ -2665,12 +2732,15 @@ fun CreateGroupDialog(
                     Column {
                         Text(
                             text = "${categoryInfo.label} Community",
+                            fontFamily = InterFontFamily,
                             color = Color(0xFFF8FAFC),
                             fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.SemiBold
                         )
                         Text(
                             text = categoryInfo.description,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             color = Color(0xFF94A3B8),
                             fontSize = 12.sp
                         )
@@ -2683,18 +2753,26 @@ fun CreateGroupDialog(
                 Column {
                     Text(
                         text = "GROUP NAME *",
+                        fontFamily = InterFontFamily,
                         color = Color(0xFFCBD5E1),
                         fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.SemiBold,
                         letterSpacing = 1.sp
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
+                        textStyle = LocalTextStyle.current.copy(
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 16.sp
+                        ),
                         placeholder = {
                             Text(
                                 text = "What's the name of your community?",
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 color = Color(0xFF64748B),
                                 fontSize = 16.sp
                             )
@@ -2717,18 +2795,26 @@ fun CreateGroupDialog(
                 Column {
                     Text(
                         text = "DESCRIPTION (OPTIONAL)",
+                        fontFamily = InterFontFamily,
                         color = Color(0xFFCBD5E1),
                         fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.SemiBold,
                         letterSpacing = 1.sp
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     OutlinedTextField(
                         value = description,
                         onValueChange = { description = it },
+                        textStyle = LocalTextStyle.current.copy(
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 14.sp
+                        ),
                         placeholder = {
                             Text(
                                 text = "Tell people what this group is about (optional)...",
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 color = Color(0xFF64748B),
                                 fontSize = 14.sp
                             )
@@ -2752,9 +2838,10 @@ fun CreateGroupDialog(
                 Column {
                     Text(
                         text = "PRIVACY",
+                        fontFamily = InterFontFamily,
                         color = Color(0xFFCBD5E1),
                         fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.SemiBold,
                         letterSpacing = 1.sp
                     )
                     Spacer(modifier = Modifier.height(8.dp))
@@ -2790,12 +2877,15 @@ fun CreateGroupDialog(
                             Column {
                                 Text(
                                     text = if (isPrivate) "Private Group" else "Public Group",
+                                    fontFamily = InterFontFamily,
                                     color = Color(0xFFF8FAFC),
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.SemiBold
                                 )
                                 Text(
                                     text = if (isPrivate) "Only members can see who's in the group and what they post" else "Anyone can see who's in the group and what they post",
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     color = Color(0xFF94A3B8),
                                     fontSize = 12.sp
                                 )
@@ -2817,9 +2907,10 @@ fun CreateGroupDialog(
                 Column {
                     Text(
                         text = "GROUP FEATURES:",
+                        fontFamily = InterFontFamily,
                         color = Color(0xFF94A3B8),
                         fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.SemiBold,
                         letterSpacing = 1.sp
                     )
                     Spacer(modifier = Modifier.height(8.dp))
@@ -2845,6 +2936,7 @@ fun CreateGroupDialog(
                                 )
                                 Text(
                                     text = feature,
+                                    fontFamily = InterFontFamily,
                                     color = Color(0xFFCBD5E1),
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Medium
@@ -2966,7 +3058,8 @@ fun CreateGroupPostDialog(
                                 text = modalTitle,
                                 color = Color(0xFFF8FAFC),
                                 fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.SemiBold,
+                                fontFamily = InterFontFamily
                             )
                         }
 
@@ -3009,7 +3102,8 @@ fun CreateGroupPostDialog(
                             text = "Add to your post",
                             color = Color(0xFF94A3B8),
                             fontSize = 13.sp,
-                            fontWeight = FontWeight.SemiBold
+                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = InterFontFamily
                         )
 
                         Row(
@@ -3036,7 +3130,8 @@ fun CreateGroupPostDialog(
                                 text = if (selectedPhotos.isNotEmpty()) "${selectedPhotos.size} photo${if (selectedPhotos.size > 1) "s" else ""}" else "Photos",
                                 color = Color(0xFFCBD5E1),
                                 fontSize = 13.sp,
-                                fontWeight = FontWeight.SemiBold
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = InterFontFamily
                             )
                         }
                     }
@@ -3086,8 +3181,9 @@ fun CreateGroupPostDialog(
                         ) {
                             Text(
                                 text = submitButtonText,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 16.sp,
+                                fontFamily = InterFontFamily
                             )
                         }
                     }
@@ -3120,6 +3216,7 @@ fun CreateGroupPostDialog(
                             color = Color(0xFFF8FAFC),
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -3138,6 +3235,8 @@ fun CreateGroupPostDialog(
                                 text = "Posting to ${group.name}",
                                 color = Color(0xFF94A3B8),
                                 fontSize = 14.sp,
+                                fontWeight = FontWeight.Normal,
+                                fontFamily = InterFontFamily,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
@@ -3166,6 +3265,7 @@ fun CreateGroupPostDialog(
                                     color = Color(0xFF94A3B8),
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.SemiBold,
+                                    fontFamily = InterFontFamily,
                                     modifier = Modifier.padding(bottom = 6.dp)
                                 )
                                 Row(
@@ -3188,7 +3288,8 @@ fun CreateGroupPostDialog(
                                                 text = selectedCurrency,
                                                 color = Color(0xFFF8FAFC),
                                                 fontSize = 14.sp,
-                                                fontWeight = FontWeight.Bold
+                                                fontWeight = FontWeight.Medium,
+                                                fontFamily = InterFontFamily
                                             )
                                             Icon(
                                                 imageVector = Icons.Default.ArrowDropDown,
@@ -3209,7 +3310,9 @@ fun CreateGroupPostDialog(
                                                         Text(
                                                             "${curr.code} (${curr.name})",
                                                             color = Color(0xFFF8FAFC),
-                                                            fontSize = 13.sp
+                                                            fontSize = 13.sp,
+                                                            fontWeight = FontWeight.Medium,
+                                                            fontFamily = InterFontFamily
                                                         )
                                                     },
                                                     onClick = {
@@ -3225,7 +3328,11 @@ fun CreateGroupPostDialog(
                                     OutlinedTextField(
                                         value = priceStr,
                                         onValueChange = { priceStr = it },
-                                        placeholder = { Text("Price", color = Color(0xFF64748B), fontSize = 14.sp) },
+                                        textStyle = LocalTextStyle.current.copy(
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.Normal
+                                        ),
+                                        placeholder = { Text("Price", color = Color(0xFF64748B), fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                                         singleLine = true,
                                         colors = OutlinedTextFieldDefaults.colors(
@@ -3249,6 +3356,7 @@ fun CreateGroupPostDialog(
                                     color = Color(0xFF94A3B8),
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.SemiBold,
+                                    fontFamily = InterFontFamily,
                                     modifier = Modifier.padding(bottom = 6.dp)
                                 )
                                 Box {
@@ -3267,6 +3375,8 @@ fun CreateGroupPostDialog(
                                             text = condition,
                                             color = Color(0xFFF8FAFC),
                                             fontSize = 13.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            fontFamily = InterFontFamily,
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis
                                         )
@@ -3285,7 +3395,7 @@ fun CreateGroupPostDialog(
                                     ) {
                                         conditionOptions.forEach { opt ->
                                             DropdownMenuItem(
-                                                text = { Text(opt, color = Color(0xFFF8FAFC), fontSize = 13.sp) },
+                                                text = { Text(opt, color = Color(0xFFF8FAFC), fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium) },
                                                 onClick = {
                                                     condition = opt
                                                     showConditionMenu = false
@@ -3304,12 +3414,17 @@ fun CreateGroupPostDialog(
                                 color = Color(0xFF94A3B8),
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.SemiBold,
+                                fontFamily = InterFontFamily,
                                 modifier = Modifier.padding(bottom = 6.dp)
                             )
                             OutlinedTextField(
                                 value = location,
                                 onValueChange = { location = it },
-                                placeholder = { Text("City, State / Area", color = Color(0xFF64748B), fontSize = 14.sp) },
+                                textStyle = LocalTextStyle.current.copy(
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal
+                                ),
+                                placeholder = { Text("City, State / Area", color = Color(0xFF64748B), fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                                 singleLine = true,
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedContainerColor = Color(0xFF1E293B),
@@ -3342,12 +3457,17 @@ fun CreateGroupPostDialog(
                                 color = Color(0xFF94A3B8),
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.SemiBold,
+                                fontFamily = InterFontFamily,
                                 modifier = Modifier.padding(bottom = 6.dp)
                             )
                             OutlinedTextField(
                                 value = jobTitle,
                                 onValueChange = { jobTitle = it },
-                                placeholder = { Text("e.g. Senior Frontend Engineer", color = Color(0xFF64748B), fontSize = 14.sp) },
+                                textStyle = LocalTextStyle.current.copy(
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal
+                                ),
+                                placeholder = { Text("e.g. Senior Frontend Engineer", color = Color(0xFF64748B), fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                                 singleLine = true,
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedContainerColor = Color(0xFF1E293B),
@@ -3369,12 +3489,17 @@ fun CreateGroupPostDialog(
                                 color = Color(0xFF94A3B8),
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.SemiBold,
+                                fontFamily = InterFontFamily,
                                 modifier = Modifier.padding(bottom = 6.dp)
                             )
                             OutlinedTextField(
                                 value = company,
                                 onValueChange = { company = it },
-                                placeholder = { Text("Company name", color = Color(0xFF64748B), fontSize = 14.sp) },
+                                textStyle = LocalTextStyle.current.copy(
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal
+                                ),
+                                placeholder = { Text("Company name", color = Color(0xFF64748B), fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                                 singleLine = true,
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedContainerColor = Color(0xFF1E293B),
@@ -3401,6 +3526,7 @@ fun CreateGroupPostDialog(
                                     color = Color(0xFF94A3B8),
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.SemiBold,
+                                    fontFamily = InterFontFamily,
                                     modifier = Modifier.padding(bottom = 6.dp)
                                 )
                                 Box {
@@ -3419,6 +3545,8 @@ fun CreateGroupPostDialog(
                                             text = jobType,
                                             color = Color(0xFFF8FAFC),
                                             fontSize = 13.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            fontFamily = InterFontFamily,
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis
                                         )
@@ -3437,7 +3565,7 @@ fun CreateGroupPostDialog(
                                     ) {
                                         jobTypeOptions.forEach { opt ->
                                             DropdownMenuItem(
-                                                text = { Text(opt, color = Color(0xFFF8FAFC), fontSize = 13.sp) },
+                                                text = { Text(opt, color = Color(0xFFF8FAFC), fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium) },
                                                 onClick = {
                                                     jobType = opt
                                                     showJobTypeMenu = false
@@ -3455,12 +3583,17 @@ fun CreateGroupPostDialog(
                                     color = Color(0xFF94A3B8),
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.SemiBold,
+                                    fontFamily = InterFontFamily,
                                     modifier = Modifier.padding(bottom = 6.dp)
                                 )
                                 OutlinedTextField(
                                     value = salary,
                                     onValueChange = { salary = it },
-                                    placeholder = { Text("e.g. $70k - $90k", color = Color(0xFF64748B), fontSize = 13.sp) },
+                                    textStyle = LocalTextStyle.current.copy(
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Normal
+                                    ),
+                                    placeholder = { Text("e.g. $70k - $90k", color = Color(0xFF64748B), fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                                     singleLine = true,
                                     colors = OutlinedTextFieldDefaults.colors(
                                         focusedContainerColor = Color(0xFF1E293B),
@@ -3483,12 +3616,17 @@ fun CreateGroupPostDialog(
                                 color = Color(0xFF94A3B8),
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.SemiBold,
+                                fontFamily = InterFontFamily,
                                 modifier = Modifier.padding(bottom = 6.dp)
                             )
                             OutlinedTextField(
                                 value = jobLocation,
                                 onValueChange = { jobLocation = it },
-                                placeholder = { Text("e.g. San Francisco, CA / Remote", color = Color(0xFF64748B), fontSize = 14.sp) },
+                                textStyle = LocalTextStyle.current.copy(
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal
+                                ),
+                                placeholder = { Text("e.g. San Francisco, CA / Remote", color = Color(0xFF64748B), fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                                 singleLine = true,
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedContainerColor = Color(0xFF1E293B),
@@ -3509,12 +3647,15 @@ fun CreateGroupPostDialog(
                                 text = "How can candidates apply?",
                                 color = Color(0xFF94A3B8),
                                 fontSize = 12.sp,
-                                fontWeight = FontWeight.SemiBold
+                                fontWeight = FontWeight.SemiBold,
+                                fontFamily = InterFontFamily
                             )
                             Text(
                                 text = "Optional — if left empty, Apply button is hidden",
                                 color = Color(0xFF64748B),
                                 fontSize = 11.sp,
+                                fontWeight = FontWeight.Normal,
+                                fontFamily = InterFontFamily,
                                 modifier = Modifier.padding(bottom = 8.dp)
                             )
 
@@ -3548,8 +3689,9 @@ fun CreateGroupPostDialog(
                                     Text(
                                         text = "By Email",
                                         color = if (isEmailSelected) Color(0xFF1877F2) else Color(0xFF94A3B8),
-                                        fontWeight = FontWeight.SemiBold,
-                                        fontSize = 13.sp
+                                        fontWeight = FontWeight.Medium,
+                                        fontSize = 13.sp,
+                                        fontFamily = InterFontFamily
                                     )
                                 }
 
@@ -3579,8 +3721,9 @@ fun CreateGroupPostDialog(
                                     Text(
                                         text = "By External Link",
                                         color = if (isLinkSelected) Color(0xFF1877F2) else Color(0xFF94A3B8),
-                                        fontWeight = FontWeight.SemiBold,
-                                        fontSize = 13.sp
+                                        fontWeight = FontWeight.Medium,
+                                        fontSize = 13.sp,
+                                        fontFamily = InterFontFamily
                                     )
                                 }
                             }
@@ -3590,6 +3733,10 @@ fun CreateGroupPostDialog(
                                 OutlinedTextField(
                                     value = applicationValue,
                                     onValueChange = { applicationValue = it },
+                                    textStyle = LocalTextStyle.current.copy(
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Normal
+                                    ),
                                     leadingIcon = {
                                         Icon(
                                             imageVector = Icons.Default.Email,
@@ -3598,7 +3745,7 @@ fun CreateGroupPostDialog(
                                             modifier = Modifier.size(18.dp)
                                         )
                                     },
-                                    placeholder = { Text("e.g. jobs@company.com", color = Color(0xFF64748B), fontSize = 13.sp) },
+                                    placeholder = { Text("e.g. jobs@company.com", color = Color(0xFF64748B), fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                                     singleLine = true,
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                                     colors = OutlinedTextFieldDefaults.colors(
@@ -3619,6 +3766,10 @@ fun CreateGroupPostDialog(
                                 OutlinedTextField(
                                     value = applicationValue,
                                     onValueChange = { applicationValue = it },
+                                    textStyle = LocalTextStyle.current.copy(
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Normal
+                                    ),
                                     leadingIcon = {
                                         Icon(
                                             imageVector = Icons.Default.Link,
@@ -3627,7 +3778,7 @@ fun CreateGroupPostDialog(
                                             modifier = Modifier.size(18.dp)
                                         )
                                     },
-                                    placeholder = { Text("e.g. https://company.com/careers/apply", color = Color(0xFF64748B), fontSize = 13.sp) },
+                                    placeholder = { Text("e.g. https://company.com/careers/apply", color = Color(0xFF64748B), fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                                     singleLine = true,
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
                                     colors = OutlinedTextFieldDefaults.colors(
@@ -3653,6 +3804,8 @@ fun CreateGroupPostDialog(
                                         text = "Remove application method (hide Apply button)",
                                         color = Color(0xFF94A3B8),
                                         fontSize = 11.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        fontFamily = InterFontFamily,
                                         modifier = Modifier.clickable {
                                             applicationType = null
                                             applicationValue = ""
@@ -3674,6 +3827,12 @@ fun CreateGroupPostDialog(
                     TextField(
                         value = content,
                         onValueChange = { content = it },
+                        textStyle = LocalTextStyle.current.copy(
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 18.sp,
+                            lineHeight = 26.sp
+                        ),
                         placeholder = {
                             Text(
                                 text = when {
@@ -3683,7 +3842,9 @@ fun CreateGroupPostDialog(
                                 },
                                 color = Color(0xFF64748B),
                                 fontSize = 18.sp,
-                                lineHeight = 26.sp
+                                lineHeight = 26.sp,
+                                fontWeight = FontWeight.Normal,
+                                fontFamily = InterFontFamily
                             )
                         },
                         colors = TextFieldDefaults.colors(
@@ -3713,6 +3874,7 @@ fun CreateGroupPostDialog(
                             color = Color(0xFF94A3B8),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
+                            fontFamily = InterFontFamily,
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
 
@@ -3802,13 +3964,17 @@ fun InviteFollowersDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Invite Followers to ${group.name}", color = Color.White, fontWeight = FontWeight.Bold) },
+        title = { Text("Invite Followers to ${group.name}", color = Color.White, fontWeight = FontWeight.SemiBold, fontFamily = InterFontFamily) },
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
                     value = search,
                     onValueChange = { search = it },
-                    placeholder = { Text("Search users...", color = Color(0xFF94A3B8)) },
+                    textStyle = LocalTextStyle.current.copy(
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal
+                    ),
+                    placeholder = { Text("Search users...", color = Color(0xFF94A3B8), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
@@ -3834,8 +4000,8 @@ fun InviteFollowersDialog(
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Column {
-                                    Text(user.name, color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                                    Text("@${user.username}", color = Color(0xFF94A3B8), fontSize = 11.sp)
+                                    Text(user.name, color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold, fontFamily = InterFontFamily)
+                                    Text("@${user.username}", color = Color(0xFF94A3B8), fontSize = 11.sp, fontWeight = FontWeight.Normal, fontFamily = InterFontFamily)
                                 }
                             }
                             Button(
@@ -3850,7 +4016,7 @@ fun InviteFollowersDialog(
                                 shape = RoundedCornerShape(8.dp),
                                 contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
                             ) {
-                                Text(if (alreadyInvited) "Invited" else "Invite", fontSize = 12.sp)
+                                Text(if (alreadyInvited) "Invited" else "Invite", fontSize = 12.sp, fontWeight = FontWeight.Medium, fontFamily = InterFontFamily)
                             }
                         }
                     }
@@ -3858,7 +4024,7 @@ fun InviteFollowersDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = onDismiss) { Text("Done", color = Color(0xFF1877F2)) }
+            TextButton(onClick = onDismiss) { Text("Done", color = Color(0xFF1877F2), fontWeight = FontWeight.Medium, fontFamily = InterFontFamily) }
         },
         containerColor = Color(0xFF0F172A)
     )
@@ -3872,12 +4038,12 @@ fun ShareGroupDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Share Community", color = Color.White, fontWeight = FontWeight.Bold) },
+        title = { Text("Share Community", color = Color.White, fontWeight = FontWeight.SemiBold, fontFamily = InterFontFamily) },
         text = {
             Column {
-                Text(group.name, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(group.name, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp, fontFamily = InterFontFamily)
                 Spacer(modifier = Modifier.height(4.dp))
-                Text("https://unera.social/groups/${group.id}", color = Color(0xFF1877F2), fontSize = 13.sp)
+                Text("https://unera.social/groups/${group.id}", color = Color(0xFF1877F2), fontSize = 13.sp, fontWeight = FontWeight.Normal, fontFamily = InterFontFamily)
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = onCopyLink,
@@ -3887,13 +4053,13 @@ fun ShareGroupDialog(
                 ) {
                     Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Copy Group Link")
+                    Text("Copy Group Link", fontWeight = FontWeight.Medium, fontFamily = InterFontFamily)
                 }
             }
         },
         confirmButton = {},
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Close", color = Color(0xFF94A3B8)) }
+            TextButton(onClick = onDismiss) { Text("Close", color = Color(0xFF94A3B8), fontWeight = FontWeight.Medium, fontFamily = InterFontFamily) }
         },
         containerColor = Color(0xFF0F172A)
     )
@@ -3912,20 +4078,28 @@ fun GroupSettingsDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Group Settings", color = Color.White, fontWeight = FontWeight.Bold) },
+        title = { Text("Group Settings", color = Color.White, fontWeight = FontWeight.SemiBold, fontFamily = InterFontFamily) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Group Name", color = Color(0xFF94A3B8)) },
+                    textStyle = LocalTextStyle.current.copy(
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal
+                    ),
+                    label = { Text("Group Name", color = Color(0xFF94A3B8), fontFamily = InterFontFamily, fontWeight = FontWeight.Medium) },
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 OutlinedTextField(
                     value = desc,
                     onValueChange = { desc = it },
-                    label = { Text("Description", color = Color(0xFF94A3B8)) },
+                    textStyle = LocalTextStyle.current.copy(
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal
+                    ),
+                    label = { Text("Description", color = Color(0xFF94A3B8), fontFamily = InterFontFamily, fontWeight = FontWeight.Medium) },
                     modifier = Modifier.fillMaxWidth(),
                     maxLines = 3
                 )
@@ -3936,8 +4110,8 @@ fun GroupSettingsDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Allow Member Posting", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                        Text("When off, only admin can post", color = Color(0xFF94A3B8), fontSize = 11.sp)
+                        Text("Allow Member Posting", color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, fontFamily = InterFontFamily)
+                        Text("When off, only admin can post", color = Color(0xFF94A3B8), fontSize = 11.sp, fontWeight = FontWeight.Normal, fontFamily = InterFontFamily)
                     }
                     Switch(
                         checked = postingAllowed,
@@ -3952,7 +4126,7 @@ fun GroupSettingsDialog(
                     shape = RoundedCornerShape(10.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Delete Group", color = Color(0xFFF3425F), fontWeight = FontWeight.Bold)
+                    Text("Delete Group", color = Color(0xFFF3425F), fontWeight = FontWeight.Medium, fontFamily = InterFontFamily)
                 }
             }
         },
@@ -3961,11 +4135,11 @@ fun GroupSettingsDialog(
                 onClick = { onSave(name.trim(), desc.trim(), postingAllowed) },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1877F2))
             ) {
-                Text("Save")
+                Text("Save", fontWeight = FontWeight.Medium, fontFamily = InterFontFamily)
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel", color = Color(0xFF94A3B8)) }
+            TextButton(onClick = onDismiss) { Text("Cancel", color = Color(0xFF94A3B8), fontWeight = FontWeight.Medium, fontFamily = InterFontFamily) }
         },
         containerColor = Color(0xFF0F172A)
     )

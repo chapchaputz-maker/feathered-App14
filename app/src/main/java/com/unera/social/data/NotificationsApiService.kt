@@ -33,7 +33,7 @@ object NotificationsApiService {
     private const val USER_AGENT = "Mozilla/5.0 (Linux; Android 14; Mobile) Feathered/1.0"
 
     /**
-     * GET /api/notifications
+     * GET /api/notifications?limit={limit}&offset={offset}
      * Headers:
      *   x-user-id: <userId>
      *   Authorization: Bearer <token> (if available)
@@ -42,13 +42,15 @@ object NotificationsApiService {
         userId: Long,
         token: String? = null,
         knownUsers: List<User> = emptyList(),
-        knownGroups: List<Group> = emptyList()
+        knownGroups: List<Group> = emptyList(),
+        limit: Int = 10,
+        offset: Int = 0
     ): List<Notification> = withContext(Dispatchers.IO) {
         val result = mutableListOf<Notification>()
         if (userId <= 0L) return@withContext emptyList()
 
         try {
-            val url = URL("$BASE_URL/api/notifications")
+            val url = URL("$BASE_URL/api/notifications?limit=$limit&offset=$offset")
             val conn = (url.openConnection() as HttpURLConnection).apply {
                 requestMethod = "GET"
                 connectTimeout = 10000
@@ -325,7 +327,11 @@ object NotificationsApiService {
 
         val rawEntityId = obj.opt("entity_id")?.toString()?.toLongOrNull()
             ?: obj.opt("target_id")?.toString()?.toLongOrNull()
+            ?: obj.opt("post_id")?.toString()?.toLongOrNull()
             ?: obj.optLong("entity_id", 0L).takeIf { it > 0 }
+
+        val rawCommentId = obj.opt("comment_id")?.toString()?.toLongOrNull()
+            ?: obj.opt("reply_id")?.toString()?.toLongOrNull()
 
         val rawGroupId = obj.opt("group_id")?.toString()?.toLongOrNull()
             ?: if (entityType == "group" || entityType == "group_post" || entityType == "group_invite") rawEntityId else null
@@ -485,6 +491,7 @@ object NotificationsApiService {
             reactionType = reactionType,
             entityType = entityType,
             entityId = rawEntityId,
+            commentId = rawCommentId,
             groupId = rawGroupId,
             groupName = groupName,
             inviteId = rawInviteId,

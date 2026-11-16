@@ -40,6 +40,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.unera.social.data.audio.CallAudioEngine
+import com.unera.social.ui.theme.InterFontFamily
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
@@ -321,6 +322,7 @@ fun CallOverlay(
                             text = if (isVideoMode) "HD Video • Encrypted" else "Voice Call • Encrypted",
                             color = Color(0xFFE2E8F0),
                             fontSize = 11.sp,
+                            fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Medium
                         )
                     }
@@ -331,6 +333,7 @@ fun CallOverlay(
                         text = if (isConnected) timerText else status,
                         color = if (isConnected) Color(0xFF38BDF8) else Color(0xFF94A3B8),
                         fontSize = 13.sp,
+                        fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
@@ -435,6 +438,7 @@ fun CallOverlay(
                                     text = peerName.take(1).uppercase(),
                                     color = Color.White,
                                     fontSize = 44.sp,
+                                    fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Bold
                                 )
                             }
@@ -447,6 +451,7 @@ fun CallOverlay(
                         text = peerName,
                         color = Color.White,
                         fontSize = 28.sp,
+                        fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center
                     )
@@ -457,6 +462,7 @@ fun CallOverlay(
                         text = if (isConnected) "Active Call" else status,
                         color = Color(0xFF94A3B8),
                         fontSize = 15.sp,
+                        fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal
                     )
 
@@ -508,7 +514,9 @@ fun CallOverlay(
                             Text(
                                 text = "Camera off",
                                 color = Color(0xFF94A3B8),
-                                fontSize = 10.sp
+                                fontSize = 10.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal
                             )
                         }
                     } else {
@@ -541,7 +549,9 @@ fun CallOverlay(
                                     Text(
                                         text = if (isFrontCam) "Front" else "Back",
                                         color = Color.White.copy(alpha = 0.6f),
-                                        fontSize = 11.sp
+                                        fontSize = 11.sp,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Medium
                                     )
                                 }
                             }
@@ -557,7 +567,9 @@ fun CallOverlay(
                                 Text(
                                     text = "Tap to swap",
                                     color = Color.White.copy(alpha = 0.8f),
-                                    fontSize = 9.sp
+                                    fontSize = 9.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Medium
                                 )
                             }
                         }
@@ -723,6 +735,7 @@ private fun MinimizedCallPill(
                                 text = peerName.take(1).uppercase(),
                                 color = Color.White,
                                 fontSize = 14.sp,
+                                fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Bold
                             )
                         }
@@ -742,6 +755,7 @@ private fun MinimizedCallPill(
                         text = peerName,
                         color = Color.White,
                         fontSize = 12.sp,
+                        fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -750,6 +764,7 @@ private fun MinimizedCallPill(
                         text = timerText,
                         color = Color(0xFF38BDF8),
                         fontSize = 11.sp,
+                        fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -872,6 +887,7 @@ private fun CallActionButton(
             text = label,
             color = Color(0xFF94A3B8),
             fontSize = 11.sp,
+            fontFamily = InterFontFamily,
             fontWeight = FontWeight.Medium
         )
     }

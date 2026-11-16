@@ -45,6 +45,7 @@ import coil.request.ImageRequest
 import com.unera.social.R
 import com.unera.social.model.UserReaction
 import com.unera.social.ui.screens.formatCount
+import com.unera.social.ui.theme.InterFontFamily
 import kotlin.math.abs
 
 /**
@@ -237,7 +238,8 @@ fun FacebookReactionDock(
                                     text = reaction.label,
                                     color = Color.White,
                                     fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold
                                 )
                             }
                             Spacer(modifier = Modifier.height(6.dp))
@@ -285,7 +287,7 @@ fun FacebookReactionButton(
     onToggleReactionDock: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     fontSize: TextUnit = 14.sp,
-    fontFamily: FontFamily? = null
+    fontFamily: FontFamily? = InterFontFamily
 ) {
     val context = LocalContext.current
     val currentReaction = getFacebookReaction(myReaction)
@@ -367,7 +369,7 @@ fun FacebookReactionButton(
                         color = currentReaction.color,
                         fontSize = fontSize,
                         fontFamily = fontFamily,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.SemiBold
                     )
                 } else if (isLiked) {
                     Icon(
@@ -383,7 +385,7 @@ fun FacebookReactionButton(
                             color = Color(0xFFF43F5E),
                             fontSize = fontSize,
                             fontFamily = fontFamily,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.SemiBold
                         )
                     }
                 } else {
@@ -421,8 +423,8 @@ fun FacebookReactionSummaryRow(
     onOpenReactions: () -> Unit,
     modifier: Modifier = Modifier,
     fontSize: TextUnit = 13.sp,
-    fontWeight: FontWeight = FontWeight.Bold,
-    fontFamily: FontFamily? = null,
+    fontWeight: FontWeight = FontWeight.SemiBold,
+    fontFamily: FontFamily? = InterFontFamily,
     abbreviateLabel: Boolean = false
 ) {
     val context = LocalContext.current

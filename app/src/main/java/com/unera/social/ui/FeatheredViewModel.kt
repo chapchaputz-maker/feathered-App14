@@ -83,11 +83,13 @@ data class FeatheredUiState(
     val recipientLastSeen: String? = null,
     val notifications: List<Notification> = emptyList(),
     val isNotificationsLoading: Boolean = false,
+    val isLoadingMoreNotifications: Boolean = false,
     val hasMoreNotifications: Boolean = true,
     val searchQuery: String = "",
     val showCreatePostDialog: Boolean = false,
     val createPostInitialPicker: String? = null,
     val selectedPostForComments: Post? = null,
+    val notificationPostTarget: NotificationPostTarget? = null,
     val showSearchDialog: Boolean = false,
     val showNotificationsOverlay: Boolean = false,
     val showCreateEventDialog: Boolean = false,
@@ -1998,6 +2000,7 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
                     content = finalProduct.description,
                     mediaUrl = finalProduct.imageUrl,
                     mediaUrls = finalProduct.images,
+                    location = finalProduct.location.takeIf { it.isNotBlank() },
                     timestamp = "Just now",
                     postType = "product",
                     product = finalProduct
@@ -2478,6 +2481,29 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
         callTimerJob = null
     }
 
+    private fun sanitizeConversationPreview(raw: String?): String {
+        val trimmed = raw?.trim().orEmpty()
+        return if (
+            trimmed.equals("Started a conversation", ignoreCase = true) ||
+            trimmed.equals("Started conversation", ignoreCase = true) ||
+            trimmed.equals("null", ignoreCase = true)
+        ) "" else trimmed
+    }
+
+    private fun formatMessagePreview(msg: ChatMessage): String {
+        if (msg.text.isNotBlank()) return msg.text.trim()
+        if (msg.attachments.isNotEmpty()) {
+            val att = msg.attachments.first()
+            return when {
+                att.fileType.contains("audio", ignoreCase = true) || att.mimeType.startsWith("audio/") -> "🎤 Voice message"
+                att.fileType.contains("image", ignoreCase = true) || att.mimeType.startsWith("image/") -> "📷 Photo"
+                att.fileType.contains("video", ignoreCase = true) || att.mimeType.startsWith("video/") -> "🎥 Video"
+                else -> "📎 ${att.filename}"
+            }
+        }
+        return ""
+    }
+
     fun refreshConversations(silent: Boolean = false) {
         val uid = _uiState.value.currentUser.id
         if (uid <= 0L || _uiState.value.isGuest) return
@@ -2491,25 +2517,65 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
         launchSafe {
             val live = MessagesApiService.fetchConversations(uid, token)
             if (live.isNotEmpty()) {
+                val enriched = live.map { newConv ->
+                    val existing = _uiState.value.conversations.find {
+                        it.id == newConv.id || (it.rawConversationId > 0 && it.rawConversationId == newConv.rawConversationId) || (it.participant.id == newConv.participant.id)
+                    }
+                    val cachedMsgs = if (existing != null && existing.messages.isNotEmpty()) {
+                        existing.messages
+                    } else if (newConv.participant.id > 0L) {
+                        MessagesCache.getCachedMessages(context, uid, newConv.participant.id)
+                    } else {
+                        emptyList()
+                    }
+                    var preview = sanitizeConversationPreview(newConv.lastMessage)
+                    if (preview.isBlank()) {
+                        preview = cachedMsgs.lastOrNull()?.let { formatMessagePreview(it) }.orEmpty()
+                    }
+                    newConv.copy(
+                        lastMessage = preview,
+                        messages = cachedMsgs
+                    )
+                }
+                val distinctMerged = enriched.distinctBy {
+                    if (it.participant.id > 0L) it.participant.id else it.participant.name.trim().lowercase()
+                }
+                MessagesCache.setCachedConversations(context, uid, distinctMerged)
                 _uiState.update { state ->
-                    val merged = live.map { newConv ->
-                        val existing = state.conversations.find {
-                            it.id == newConv.id || (it.rawConversationId > 0 && it.rawConversationId == newConv.rawConversationId) || (it.participant.id == newConv.participant.id)
-                        }
-                        if (existing != null && existing.messages.isNotEmpty()) {
-                            newConv.copy(messages = existing.messages)
-                        } else {
-                            newConv
-                        }
-                    }
-                    val distinctMerged = merged.distinctBy {
-                        if (it.participant.id > 0L) it.participant.id else it.participant.name.trim().lowercase()
-                    }
-                    MessagesCache.setCachedConversations(context, uid, distinctMerged)
                     state.copy(
                         conversations = distinctMerged,
                         isConversationsLoading = false
                     )
+                }
+
+                // Backfill latest message for any top conversations whose API preview was blank
+                val needsLatest = distinctMerged.take(10).filter { it.lastMessage.isBlank() && it.rawConversationId > 0L }
+                if (needsLatest.isNotEmpty()) {
+                    for (conv in needsLatest) {
+                        try {
+                            val history = MessagesApiService.fetchMessageHistory(conv.rawConversationId, uid, token)
+                            val latest = history.lastOrNull()
+                            if (latest != null) {
+                                val latestPreview = formatMessagePreview(latest)
+                                if (conv.participant.id > 0L) {
+                                    MessagesCache.setCachedMessages(context, uid, conv.participant.id, history)
+                                }
+                                _uiState.update { state ->
+                                    val updated = state.conversations.map { c ->
+                                        if (c.id == conv.id || (c.rawConversationId > 0L && c.rawConversationId == conv.rawConversationId)) {
+                                            val mergedMsgs = mergeMessages(c.messages, history)
+                                            c.copy(
+                                                lastMessage = latestPreview.ifBlank { c.lastMessage },
+                                                messages = mergedMsgs
+                                            )
+                                        } else c
+                                    }
+                                    MessagesCache.setCachedConversations(context, uid, updated)
+                                    state.copy(conversations = updated)
+                                }
+                            }
+                        } catch (_: Exception) {}
+                    }
                 }
             } else {
                 _uiState.update { it.copy(isConversationsLoading = false) }
@@ -2614,7 +2680,12 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
                                         if (c.id == convId) {
                                             val merged = mergeMessages(c.messages, history)
                                             MessagesCache.setCachedMessages(context, uid, otherId, merged)
-                                            c.copy(messages = merged, rawConversationId = cid)
+                                            val latestPreview = merged.lastOrNull()?.let { formatMessagePreview(it) }.orEmpty()
+                                            c.copy(
+                                                messages = merged,
+                                                rawConversationId = cid,
+                                                lastMessage = latestPreview.ifBlank { sanitizeConversationPreview(c.lastMessage) }
+                                            )
                                         } else c
                                     }
                                     state.copy(conversations = updatedConvs)
@@ -2791,7 +2862,8 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
             val updated = state.conversations.map { c ->
                 if (c.id == convId) {
                     val msgs = c.messages.map { if (it.id == messageId) it.copy(text = trimmed, isEdited = true) else it }
-                    c.copy(messages = msgs)
+                    val latestPreview = msgs.lastOrNull()?.let { formatMessagePreview(it) }.orEmpty()
+                    c.copy(messages = msgs, lastMessage = latestPreview.ifBlank { sanitizeConversationPreview(c.lastMessage) })
                 } else c
             }
             state.copy(conversations = updated)
@@ -2815,7 +2887,8 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
             val updated = state.conversations.map { c ->
                 if (c.id == convId) {
                     val filtered = c.messages.filterNot { it.id == messageId }
-                    c.copy(messages = filtered)
+                    val latestPreview = filtered.lastOrNull()?.let { formatMessagePreview(it) } ?: ""
+                    c.copy(messages = filtered, lastMessage = latestPreview)
                 } else c
             }
             state.copy(conversations = updated)
@@ -2853,7 +2926,7 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
             val newConv = Conversation(
                 id = convId,
                 participant = user,
-                lastMessage = introMessage ?: "Started a conversation",
+                lastMessage = introMessage ?: "",
                 lastTimestamp = "Just now",
                 unreadCount = 0,
                 messages = emptyList(),
@@ -3068,19 +3141,28 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
             _uiState.update { it.copy(isNotificationsLoading = true) }
         }
 
+        val existingCount = _uiState.value.notifications.size
+        val fetchLimit = if (silent && existingCount > 10) existingCount else 10
+
         viewModelScope.launch {
             try {
                 val liveNotifs = NotificationsApiService.fetchNotifications(
                     userId = curUid,
                     token = token,
                     knownUsers = _uiState.value.users,
-                    knownGroups = _uiState.value.groups
+                    knownGroups = _uiState.value.groups,
+                    limit = fetchLimit,
+                    offset = 0
                 )
                 _uiState.update { state ->
                     state.copy(
                         notifications = liveNotifs,
                         isNotificationsLoading = false,
-                        hasMoreNotifications = liveNotifs.size >= 15
+                        hasMoreNotifications = if (silent && existingCount > 10) {
+                            state.hasMoreNotifications
+                        } else {
+                            liveNotifs.size >= 10
+                        }
                     )
                 }
             } catch (e: Exception) {
@@ -3093,8 +3175,12 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
     fun loadMoreNotifications() {
         val curUid = _uiState.value.currentUser.id
         if (curUid <= 0L || _uiState.value.isGuest) return
+        if (_uiState.value.isLoadingMoreNotifications) return
         val context = getApplication<Application>().applicationContext
         val token = UserSessionManager.getAuthToken(context)
+
+        val currentOffset = _uiState.value.notifications.size
+        _uiState.update { it.copy(isLoadingMoreNotifications = true) }
 
         viewModelScope.launch {
             try {
@@ -3102,27 +3188,43 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
                     userId = curUid,
                     token = token,
                     knownUsers = _uiState.value.users,
-                    knownGroups = _uiState.value.groups
+                    knownGroups = _uiState.value.groups,
+                    limit = 5,
+                    offset = currentOffset
                 )
                 if (liveNotifs.isNotEmpty()) {
                     _uiState.update { state ->
                         val existingIds = state.notifications.map { it.id }.toSet()
                         val newItems = liveNotifs.filter { !existingIds.contains(it.id) }
                         if (newItems.isEmpty()) {
-                            state.copy(hasMoreNotifications = false)
+                            state.copy(
+                                hasMoreNotifications = false,
+                                isLoadingMoreNotifications = false
+                            )
                         } else {
                             state.copy(
                                 notifications = state.notifications + newItems,
-                                hasMoreNotifications = true
+                                hasMoreNotifications = liveNotifs.size >= 5,
+                                isLoadingMoreNotifications = false
                             )
                         }
                     }
                 } else {
-                    _uiState.update { it.copy(hasMoreNotifications = false) }
+                    _uiState.update {
+                        it.copy(
+                            hasMoreNotifications = false,
+                            isLoadingMoreNotifications = false
+                        )
+                    }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                _uiState.update { it.copy(hasMoreNotifications = false) }
+                _uiState.update {
+                    it.copy(
+                        hasMoreNotifications = false,
+                        isLoadingMoreNotifications = false
+                    )
+                }
             }
         }
     }
@@ -3247,7 +3349,43 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
 
         val entityType = notification.entityType.lowercase(java.util.Locale.ROOT)
         val rawType = notification.rawType.lowercase(java.util.Locale.ROOT)
+        val lowerContent = notification.content.lowercase(java.util.Locale.ROOT)
         val entityId = notification.entityId
+
+        val isCommentAction = rawType in listOf("discuss", "comment", "reply", "comment_reply", "post_comment", "mention") ||
+            rawType.contains("comment") || rawType.contains("discuss") || rawType.contains("reply") ||
+            notification.type == NotificationType.COMMENT ||
+            lowerContent.contains("discussed") || lowerContent.contains("commented") || lowerContent.contains("replied")
+
+        val isReactionOrShareAction = rawType in listOf("react", "reaction", "like", "share", "post_reaction", "like_post") ||
+            rawType.contains("react") || rawType.contains("like") ||
+            notification.type in listOf(NotificationType.REACTION, NotificationType.LIKE, NotificationType.SHARE) ||
+            lowerContent.contains("reacted") || lowerContent.contains("liked") || lowerContent.contains("loved") || lowerContent.contains("shared")
+
+        val resolvedReactionOrActionType = when {
+            rawType == "share" || notification.type == NotificationType.SHARE || lowerContent.contains("shared") -> "share"
+            notification.reactionType.isNotBlank() -> notification.reactionType
+            else -> null
+        }
+
+        val postTarget = NotificationPostTarget(
+            mode = if (isCommentAction) NotificationPostMode.FOCUS_COMMENT else NotificationPostMode.VIEW_POST_TOP,
+            actorId = notification.user.id.takeIf { it > 0L },
+            actorName = notification.user.name.takeIf { it.isNotBlank() },
+            reactionType = resolvedReactionOrActionType,
+            commentId = notification.commentId,
+            commentPreview = notification.previewText?.takeIf { it.isNotBlank() }
+        )
+
+        fun openPostWithTarget(targetPost: Post) {
+            _uiState.update {
+                it.copy(
+                    selectedPostForComments = targetPost,
+                    notificationPostTarget = postTarget
+                )
+            }
+            setSelectedPostForComments(targetPost, preserveNotificationTarget = true)
+        }
 
         when {
             // 1. Group / Group Invite / Group Post
@@ -3268,6 +3406,23 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
                 } else {
                     setScreen(Screen.GROUPS)
                 }
+                if (entityId != null && entityId > 0L && (isCommentAction || isReactionOrShareAction)) {
+                    val foundPost = _uiState.value.posts.find { it.id == entityId }
+                        ?: _uiState.value.userProfilePosts.values.flatten().find { it.id == entityId }
+                    if (foundPost != null) {
+                        openPostWithTarget(foundPost)
+                    } else {
+                        launchSafe {
+                            val curUid = _uiState.value.currentUser.id
+                            val token = UserSessionManager.getAuthToken(getApplication<Application>().applicationContext)
+                            val fetched = PostsApiService.fetchPostById(entityId, curUid, token)
+                            if (fetched != null) {
+                                val enriched = enrichPostsWithAuthors(listOf(fetched), _uiState.value.users).firstOrNull() ?: fetched
+                                openPostWithTarget(enriched)
+                            }
+                        }
+                    }
+                }
             }
             // 2. Event
             entityType == "event" || rawType == "going" || rawType == "interested" -> {
@@ -3287,7 +3442,36 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
             }
             // 5. Reel / Video
             entityType == "reel" || entityType == "video" -> {
-                setScreen(Screen.REELS)
+                if (entityId != null && entityId > 0L && (isCommentAction || isReactionOrShareAction)) {
+                    val foundVideo = _uiState.value.videoPosts.find { it.id == entityId }
+                        ?: _uiState.value.posts.find { it.id == entityId }
+                        ?: _uiState.value.userProfilePosts.values.flatten().find { it.id == entityId }
+                    if (foundVideo != null) {
+                        if (isCommentAction) {
+                            openPostWithTarget(foundVideo)
+                        } else {
+                            openVideoReel(foundVideo)
+                        }
+                    } else {
+                        launchSafe {
+                            val curUid = _uiState.value.currentUser.id
+                            val token = UserSessionManager.getAuthToken(getApplication<Application>().applicationContext)
+                            val fetched = PostsApiService.fetchPostById(entityId, curUid, token)
+                            if (fetched != null) {
+                                val enriched = enrichPostsWithAuthors(listOf(fetched), _uiState.value.users).firstOrNull() ?: fetched
+                                if (isCommentAction) {
+                                    openPostWithTarget(enriched)
+                                } else {
+                                    openVideoReel(enriched)
+                                }
+                            } else {
+                                setScreen(Screen.REELS)
+                            }
+                        }
+                    }
+                } else {
+                    setScreen(Screen.REELS)
+                }
             }
             // 6. Direct Message
             rawType == "message" || notification.type == NotificationType.MESSAGE -> {
@@ -3296,20 +3480,31 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
                 }
             }
             // 7. Post / Comments / Reactions / Shares
-            entityType == "post" || rawType in listOf("discuss", "comment", "reply", "react", "reaction", "like", "share") -> {
+            entityType == "post" || entityType == "feed" || entityType == "status" || entityType == "photo" ||
+                isCommentAction || isReactionOrShareAction -> {
                 if (entityId != null && entityId > 0L) {
                     val targetPost = _uiState.value.posts.find { it.id == entityId }
                         ?: _uiState.value.videoPosts.find { it.id == entityId }
+                        ?: _uiState.value.userProfilePosts.values.flatten().find { it.id == entityId }
                     if (targetPost != null) {
-                        setSelectedPostForComments(targetPost)
-                        setScreen(Screen.FEED)
+                        openPostWithTarget(targetPost)
                     } else {
-                        if (notification.user.id > 0L && (entityType == "profile" || rawType == "follow")) {
-                            openUserProfileById(notification.user.id)
-                        } else {
-                            setScreen(Screen.FEED)
+                        launchSafe {
+                            val curUid = _uiState.value.currentUser.id
+                            val token = UserSessionManager.getAuthToken(getApplication<Application>().applicationContext)
+                            val fetched = PostsApiService.fetchPostById(entityId, curUid, token)
+                            if (fetched != null) {
+                                val enriched = enrichPostsWithAuthors(listOf(fetched), _uiState.value.users).firstOrNull() ?: fetched
+                                openPostWithTarget(enriched)
+                            } else if (notification.user.id > 0L) {
+                                openUserProfileById(notification.user.id)
+                            } else {
+                                setScreen(Screen.FEED)
+                            }
                         }
                     }
+                } else if (notification.user.id > 0L && (entityType == "profile" || rawType == "follow")) {
+                    openUserProfileById(notification.user.id)
                 } else {
                     setScreen(Screen.FEED)
                 }
@@ -3638,8 +3833,13 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
         _uiState.update { it.copy(showCreatePostDialog = show, createPostInitialPicker = if (show) initialPicker else null) }
     }
 
-    fun setSelectedPostForComments(post: Post?) {
-        _uiState.update { it.copy(selectedPostForComments = post) }
+    fun setSelectedPostForComments(post: Post?, preserveNotificationTarget: Boolean = false) {
+        _uiState.update {
+            it.copy(
+                selectedPostForComments = post,
+                notificationPostTarget = if (post == null || !preserveNotificationTarget) null else it.notificationPostTarget
+            )
+        }
         if (post != null) {
             val pid = post.product?.id ?: post.id
             if (post.product != null || post.postType == "product") {

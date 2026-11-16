@@ -39,6 +39,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.unera.social.model.User
+import com.unera.social.ui.theme.InterFontFamily
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -229,6 +230,7 @@ fun SettingsScreen(
                     text = "Please log in to access settings",
                     color = WebTextSecondary,
                     fontSize = 18.sp,
+                    fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Medium
                 )
             }
@@ -274,7 +276,8 @@ fun SettingsScreen(
                     Text(
                         text = "Settings & privacy",
                         fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         color = WebTextPrimary
                     )
                 }
@@ -302,6 +305,7 @@ fun SettingsScreen(
                         Text(
                             text = currentUser.name,
                             fontSize = 18.sp,
+                            fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Bold,
                             color = WebTextPrimary
                         )
@@ -309,6 +313,8 @@ fun SettingsScreen(
                         Text(
                             text = "Personal details, password, and preferences",
                             fontSize = 13.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             color = WebTextSecondary
                         )
                     }
@@ -334,13 +340,16 @@ fun SettingsScreen(
                     Text(
                         text = "Account Center",
                         fontSize = 17.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         color = WebTextPrimary
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = "Manage your password and account security",
                         fontSize = 13.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = WebTextSecondary
                     )
                 }
@@ -382,13 +391,16 @@ fun SettingsScreen(
                     Text(
                         text = "Profile Details",
                         fontSize = 17.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         color = WebTextPrimary
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = "Edit your name, bio, work, education, and details",
                         fontSize = 13.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = WebTextSecondary
                     )
                 }
@@ -423,6 +435,7 @@ fun SettingsScreen(
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = "Edit All Profile Details",
+                            fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 16.sp,
                             color = WebTextPrimary
@@ -431,6 +444,8 @@ fun SettingsScreen(
                         Text(
                             text = "Update your full profile information in one place",
                             fontSize = 13.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             color = WebTextSecondary
                         )
                     }
@@ -479,13 +494,16 @@ fun SettingsScreen(
                     Text(
                         text = "More Settings",
                         fontSize = 17.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         color = WebTextPrimary
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = "Privacy, notifications, and account management",
                         fontSize = 13.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = WebTextSecondary
                     )
                 }
@@ -550,7 +568,8 @@ fun SettingsScreen(
                         Text(
                             text = "Log Out",
                             fontSize = 15.sp,
-                            fontWeight = FontWeight.SemiBold
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Medium
                         )
                     }
 
@@ -558,6 +577,8 @@ fun SettingsScreen(
                     Text(
                         text = "Feathered © 2025",
                         fontSize = 13.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = WebTextSecondary
                     )
                 }
@@ -673,6 +694,7 @@ private fun SettingsItemRow(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = item.title,
+                fontFamily = InterFontFamily,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 16.sp,
                 color = if (item.isDestructive) Color(0xFFF87171) else WebTextPrimary
@@ -681,6 +703,8 @@ private fun SettingsItemRow(
             Text(
                 text = item.desc,
                 fontSize = 13.sp,
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.Normal,
                 color = WebTextSecondary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -760,7 +784,8 @@ fun ChangePasswordModalDialog(
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
                             text = "Change Password",
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             fontSize = 20.sp,
                             color = WebTextPrimary
                         )
@@ -796,7 +821,9 @@ fun ChangePasswordModalDialog(
                                 Text(
                                     text = error,
                                     color = Color(0xFFFCA5A5),
-                                    fontSize = 13.sp
+                                    fontSize = 13.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal
                                 )
                             }
                         }
@@ -822,7 +849,9 @@ fun ChangePasswordModalDialog(
                                 Text(
                                     text = success,
                                     color = Color(0xFF6EE7B7),
-                                    fontSize = 13.sp
+                                    fontSize = 13.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal
                                 )
                             }
                         }
@@ -832,6 +861,7 @@ fun ChangePasswordModalDialog(
                             Text(
                                 text = "Current Password",
                                 color = WebTextPrimary,
+                                fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.SemiBold,
                                 fontSize = 14.sp
                             )
@@ -839,8 +869,9 @@ fun ChangePasswordModalDialog(
                             OutlinedTextField(
                                 value = currentPassword,
                                 onValueChange = { currentPassword = it },
+                                textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
                                 placeholder = {
-                                    Text("Enter current password", color = Color(0xFF64748B), fontSize = 14.sp)
+                                    Text("Enter current password", color = Color(0xFF64748B), fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                                 },
                                 visualTransformation = if (showCurrent) VisualTransformation.None else PasswordVisualTransformation(),
                                 trailingIcon = {
@@ -872,6 +903,7 @@ fun ChangePasswordModalDialog(
                             Text(
                                 text = "New Password",
                                 color = WebTextPrimary,
+                                fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.SemiBold,
                                 fontSize = 14.sp
                             )
@@ -879,8 +911,9 @@ fun ChangePasswordModalDialog(
                             OutlinedTextField(
                                 value = newPassword,
                                 onValueChange = { newPassword = it },
+                                textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
                                 placeholder = {
-                                    Text("Enter new password", color = Color(0xFF64748B), fontSize = 14.sp)
+                                    Text("Enter new password", color = Color(0xFF64748B), fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                                 },
                                 visualTransformation = if (showNew) VisualTransformation.None else PasswordVisualTransformation(),
                                 trailingIcon = {
@@ -909,7 +942,9 @@ fun ChangePasswordModalDialog(
                             Text(
                                 text = "Minimum 6 characters",
                                 color = WebTextSecondary,
-                                fontSize = 12.sp
+                                fontSize = 12.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal
                             )
                         }
 
@@ -918,6 +953,7 @@ fun ChangePasswordModalDialog(
                             Text(
                                 text = "Confirm New Password",
                                 color = WebTextPrimary,
+                                fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.SemiBold,
                                 fontSize = 14.sp
                             )
@@ -925,8 +961,9 @@ fun ChangePasswordModalDialog(
                             OutlinedTextField(
                                 value = confirmPassword,
                                 onValueChange = { confirmPassword = it },
+                                textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
                                 placeholder = {
-                                    Text("Re-enter new password", color = Color(0xFF64748B), fontSize = 14.sp)
+                                    Text("Re-enter new password", color = Color(0xFF64748B), fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                                 },
                                 visualTransformation = if (showConfirm) VisualTransformation.None else PasswordVisualTransformation(),
                                 trailingIcon = {
@@ -1017,14 +1054,16 @@ fun ChangePasswordModalDialog(
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
                                     text = "Changing Password...",
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 15.sp,
                                     color = Color.White
                                 )
                             } else {
                                 Text(
                                     text = "Save Changes",
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 15.sp,
                                     color = Color.White
                                 )
@@ -1100,7 +1139,8 @@ fun DeleteAccountModalDialog(
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
                             text = "Delete Account",
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             fontSize = 20.sp,
                             color = WebTextPrimary
                         )
@@ -1129,6 +1169,7 @@ fun DeleteAccountModalDialog(
                                     Text(
                                         text = "⚠️ Warning: This action is irreversible!",
                                         color = Color(0xFFF87171),
+                                        fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.SemiBold,
                                         fontSize = 14.sp
                                     )
@@ -1136,7 +1177,9 @@ fun DeleteAccountModalDialog(
                                     Text(
                                         text = "Deleting your account will permanently remove:",
                                         color = WebTextSecondary,
-                                        fontSize = 13.sp
+                                        fontSize = 13.sp,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Normal
                                     )
                                     Spacer(modifier = Modifier.height(6.dp))
                                     val items = listOf(
@@ -1151,6 +1194,8 @@ fun DeleteAccountModalDialog(
                                             text = "• $bullet",
                                             color = WebTextSecondary,
                                             fontSize = 13.sp,
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.Normal,
                                             modifier = Modifier.padding(vertical = 1.dp)
                                         )
                                     }
@@ -1163,18 +1208,21 @@ fun DeleteAccountModalDialog(
                                     Text(
                                         text = "Type ",
                                         color = WebTextPrimary,
+                                        fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.SemiBold,
                                         fontSize = 14.sp
                                     )
                                     Text(
                                         text = "DELETE",
                                         color = Color(0xFFEF4444),
+                                        fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 14.sp
                                     )
                                     Text(
                                         text = " to confirm",
                                         color = WebTextPrimary,
+                                        fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.SemiBold,
                                         fontSize = 14.sp
                                     )
@@ -1183,8 +1231,9 @@ fun DeleteAccountModalDialog(
                                 OutlinedTextField(
                                     value = confirmText,
                                     onValueChange = { confirmText = it },
+                                    textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
                                     placeholder = {
-                                        Text("Type DELETE here", color = Color(0xFF64748B), fontSize = 14.sp)
+                                        Text("Type DELETE here", color = Color(0xFF64748B), fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                                     },
                                     shape = RoundedCornerShape(8.dp),
                                     colors = OutlinedTextFieldDefaults.colors(
@@ -1214,6 +1263,7 @@ fun DeleteAccountModalDialog(
                                     Text(
                                         text = "⚠️ Final Step: Confirm with Password",
                                         color = Color(0xFFF87171),
+                                        fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.SemiBold,
                                         fontSize = 14.sp
                                     )
@@ -1221,7 +1271,9 @@ fun DeleteAccountModalDialog(
                                     Text(
                                         text = "Please enter your password to permanently delete your account.",
                                         color = WebTextSecondary,
-                                        fontSize = 13.sp
+                                        fontSize = 13.sp,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Normal
                                     )
                                 }
                             }
@@ -1230,6 +1282,7 @@ fun DeleteAccountModalDialog(
                                 Text(
                                     text = "Your Password",
                                     color = WebTextPrimary,
+                                    fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 14.sp
                                 )
@@ -1237,8 +1290,9 @@ fun DeleteAccountModalDialog(
                                 OutlinedTextField(
                                     value = password,
                                     onValueChange = { password = it },
+                                    textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
                                     placeholder = {
-                                        Text("Enter your password", color = Color(0xFF64748B), fontSize = 14.sp)
+                                        Text("Enter your password", color = Color(0xFF64748B), fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                                     },
                                     visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                                     trailingIcon = {
@@ -1287,7 +1341,9 @@ fun DeleteAccountModalDialog(
                                 Text(
                                     text = error,
                                     color = Color(0xFFFCA5A5),
-                                    fontSize = 13.sp
+                                    fontSize = 13.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal
                                 )
                             }
                         }
@@ -1314,7 +1370,8 @@ fun DeleteAccountModalDialog(
                             Text(
                                 text = "Cancel",
                                 color = WebTextPrimary,
-                                fontWeight = FontWeight.Bold,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 14.sp
                             )
                         }
@@ -1361,13 +1418,15 @@ fun DeleteAccountModalDialog(
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
                                     text = "Deleting...",
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Medium,
                                     color = Color.White
                                 )
                             } else {
                                 Text(
                                     text = if (step == "confirm") "Confirm Deletion" else "Permanently Delete Account",
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 13.sp,
                                     color = Color.White
                                 )
@@ -1445,7 +1504,8 @@ fun EditProfileDetailsModalDialog(
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
                             text = "Edit Profile Details",
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             fontSize = 20.sp,
                             color = WebTextPrimary
                         )
@@ -1480,6 +1540,8 @@ fun EditProfileDetailsModalDialog(
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
                                         text = error,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Normal,
                                         color = Color(0xFFFCA5A5),
                                         fontSize = 13.sp
                                     )
@@ -1500,6 +1562,7 @@ fun EditProfileDetailsModalDialog(
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
                                         text = "Full Name",
+                                        fontFamily = InterFontFamily,
                                         color = WebTextPrimary,
                                         fontWeight = FontWeight.SemiBold,
                                         fontSize = 14.sp
@@ -1509,8 +1572,9 @@ fun EditProfileDetailsModalDialog(
                                 OutlinedTextField(
                                     value = name,
                                     onValueChange = { name = it },
+                                    textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
                                     placeholder = {
-                                        Text("Your full name", color = Color(0xFF64748B), fontSize = 14.sp)
+                                        Text("Your full name", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF64748B), fontSize = 14.sp)
                                     },
                                     singleLine = true,
                                     shape = RoundedCornerShape(8.dp),
@@ -1542,6 +1606,7 @@ fun EditProfileDetailsModalDialog(
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
                                         text = "Bio",
+                                        fontFamily = InterFontFamily,
                                         color = WebTextPrimary,
                                         fontWeight = FontWeight.SemiBold,
                                         fontSize = 14.sp
@@ -1551,8 +1616,9 @@ fun EditProfileDetailsModalDialog(
                                 OutlinedTextField(
                                     value = bio,
                                     onValueChange = { if (it.length <= 500) bio = it },
+                                    textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
                                     placeholder = {
-                                        Text("Tell people about yourself...", color = Color(0xFF64748B), fontSize = 14.sp)
+                                        Text("Tell people about yourself...", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF64748B), fontSize = 14.sp)
                                     },
                                     minLines = 3,
                                     maxLines = 4,
@@ -1572,6 +1638,8 @@ fun EditProfileDetailsModalDialog(
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     text = "${bio.length}/500 characters",
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     color = WebTextSecondary,
                                     fontSize = 12.sp
                                 )
@@ -1593,7 +1661,8 @@ fun EditProfileDetailsModalDialog(
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
                                         text = "Additional Details",
-                                        fontWeight = FontWeight.Bold,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.SemiBold,
                                         fontSize = 18.sp,
                                         color = WebTextPrimary
                                     )
@@ -1662,6 +1731,7 @@ fun EditProfileDetailsModalDialog(
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
                                         text = "Gender",
+                                        fontFamily = InterFontFamily,
                                         color = WebTextPrimary,
                                         fontWeight = FontWeight.SemiBold,
                                         fontSize = 14.sp
@@ -1688,8 +1758,9 @@ fun EditProfileDetailsModalDialog(
                                         ) {
                                             Text(
                                                 text = option,
+                                                fontFamily = InterFontFamily,
                                                 fontSize = 14.sp,
-                                                fontWeight = FontWeight.SemiBold
+                                                fontWeight = FontWeight.Medium
                                             )
                                         }
                                     }
@@ -1746,7 +1817,8 @@ fun EditProfileDetailsModalDialog(
                         ) {
                             Text(
                                 text = "Save Details",
-                                fontWeight = FontWeight.Bold,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold,
                                 fontSize = 15.sp,
                                 color = Color.White
                             )
@@ -1778,6 +1850,7 @@ private fun WebEditField(
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = label,
+                fontFamily = InterFontFamily,
                 color = WebTextPrimary,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 14.sp
@@ -1787,8 +1860,9 @@ private fun WebEditField(
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
+            textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
             placeholder = {
-                Text(placeholder, color = Color(0xFF64748B), fontSize = 14.sp)
+                Text(placeholder, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF64748B), fontSize = 14.sp)
             },
             singleLine = true,
             shape = RoundedCornerShape(8.dp),
@@ -1854,7 +1928,7 @@ fun EmailAddressModalDialog(
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = WebTextPrimary, modifier = Modifier.size(18.dp))
                         }
                         Spacer(modifier = Modifier.width(12.dp))
-                        Text("Email Address", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = WebTextPrimary)
+                        Text("Email Address", fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 20.sp, color = WebTextPrimary)
                     }
 
                     HorizontalDivider(color = WebBorderDark, thickness = 1.dp)
@@ -1878,6 +1952,8 @@ fun EmailAddressModalDialog(
                                 Spacer(modifier = Modifier.width(10.dp))
                                 Text(
                                     text = "Your primary email is verified and protected.",
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     color = Color(0xFFA7F3D0),
                                     fontSize = 13.sp
                                 )
@@ -1885,11 +1961,12 @@ fun EmailAddressModalDialog(
                         }
 
                         Column {
-                            Text("Registered Email", color = WebTextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                            Text("Registered Email", fontFamily = InterFontFamily, color = WebTextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                             Spacer(modifier = Modifier.height(8.dp))
                             OutlinedTextField(
                                 value = email,
                                 onValueChange = { email = it },
+                                textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
                                 singleLine = true,
                                 shape = RoundedCornerShape(8.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
@@ -1905,7 +1982,7 @@ fun EmailAddressModalDialog(
                         }
 
                         if (message.isNotBlank()) {
-                            Text(text = message, color = WebGreen, fontSize = 13.sp)
+                            Text(text = message, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = WebGreen, fontSize = 13.sp)
                         }
                     }
 
@@ -1922,7 +1999,7 @@ fun EmailAddressModalDialog(
                                 .fillMaxWidth()
                                 .height(46.dp)
                         ) {
-                            Text("Send Verification Link", fontWeight = FontWeight.Bold, color = Color.White)
+                            Text("Send Verification Link", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color.White)
                         }
                     }
                 }
@@ -1976,7 +2053,7 @@ fun TwoFactorModalDialog(
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = WebTextPrimary, modifier = Modifier.size(18.dp))
                         }
                         Spacer(modifier = Modifier.width(12.dp))
-                        Text("Two-Factor Authentication", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = WebTextPrimary)
+                        Text("Two-Factor Authentication", fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 20.sp, color = WebTextPrimary)
                     }
 
                     HorizontalDivider(color = WebBorderDark, thickness = 1.dp)
@@ -1998,6 +2075,7 @@ fun TwoFactorModalDialog(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = "Two-Factor Authentication",
+                                    fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 15.sp,
                                     color = WebTextPrimary
@@ -2005,6 +2083,8 @@ fun TwoFactorModalDialog(
                                 Spacer(modifier = Modifier.height(2.dp))
                                 Text(
                                     text = if (isEnabled) "Active via Authenticator App" else "Disabled (Not recommended)",
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     fontSize = 13.sp,
                                     color = if (isEnabled) WebGreen else Color(0xFFF87171)
                                 )
@@ -2023,6 +2103,8 @@ fun TwoFactorModalDialog(
 
                         Text(
                             text = "Two-factor authentication adds an extra layer of protection when logging in from an unrecognized device or browser.",
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             color = WebTextSecondary,
                             fontSize = 13.sp,
                             lineHeight = 18.sp
@@ -2040,7 +2122,7 @@ fun TwoFactorModalDialog(
                                 .fillMaxWidth()
                                 .height(46.dp)
                         ) {
-                            Text("Done", fontWeight = FontWeight.Bold, color = Color.White)
+                            Text("Done", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color.White)
                         }
                     }
                 }
@@ -2096,7 +2178,7 @@ fun PrivacySettingsModalDialog(
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = WebTextPrimary, modifier = Modifier.size(18.dp))
                         }
                         Spacer(modifier = Modifier.width(12.dp))
-                        Text("Privacy Settings", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = WebTextPrimary)
+                        Text("Privacy Settings", fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 20.sp, color = WebTextPrimary)
                     }
 
                     HorizontalDivider(color = WebBorderDark, thickness = 1.dp)
@@ -2107,7 +2189,7 @@ fun PrivacySettingsModalDialog(
                             .padding(24.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        Text("Default Post Audience", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = WebTextPrimary)
+                        Text("Default Post Audience", fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = WebTextPrimary)
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -2123,7 +2205,7 @@ fun PrivacySettingsModalDialog(
                                     ),
                                     modifier = Modifier.weight(1f)
                                 ) {
-                                    Text(opt, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                    Text(opt, fontFamily = InterFontFamily, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                                 }
                             }
                         }
@@ -2135,8 +2217,8 @@ fun PrivacySettingsModalDialog(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("Allow Photo Tagging", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = WebTextPrimary)
-                                Text("Let people tag you in photos and posts", fontSize = 12.sp, color = WebTextSecondary)
+                                Text("Allow Photo Tagging", fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = WebTextPrimary)
+                                Text("Let people tag you in photos and posts", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = WebTextSecondary)
                             }
                             Switch(
                                 checked = allowTagging,
@@ -2153,8 +2235,8 @@ fun PrivacySettingsModalDialog(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("Active Status", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = WebTextPrimary)
-                                Text("Show when you are currently online", fontSize = 12.sp, color = WebTextSecondary)
+                                Text("Active Status", fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = WebTextPrimary)
+                                Text("Show when you are currently online", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = WebTextSecondary)
                             }
                             Switch(
                                 checked = showActiveStatus,
@@ -2178,7 +2260,7 @@ fun PrivacySettingsModalDialog(
                                 .fillMaxWidth()
                                 .height(46.dp)
                         ) {
-                            Text("Save Preferences", fontWeight = FontWeight.Bold, color = Color.White)
+                            Text("Save Preferences", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color.White)
                         }
                     }
                 }
@@ -2235,7 +2317,7 @@ fun NotificationPreferencesModalDialog(
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = WebTextPrimary, modifier = Modifier.size(18.dp))
                         }
                         Spacer(modifier = Modifier.width(12.dp))
-                        Text("Notification Preferences", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = WebTextPrimary)
+                        Text("Notification Preferences", fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 20.sp, color = WebTextPrimary)
                     }
 
                     HorizontalDivider(color = WebBorderDark, thickness = 1.dp)
@@ -2251,8 +2333,8 @@ fun NotificationPreferencesModalDialog(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("Push Notifications", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = WebTextPrimary)
-                                Text("Receive alerts directly on this device", fontSize = 12.sp, color = WebTextSecondary)
+                                Text("Push Notifications", fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = WebTextPrimary)
+                                Text("Receive alerts directly on this device", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = WebTextSecondary)
                             }
                             Switch(checked = pushNotifs, onCheckedChange = { pushNotifs = it }, colors = SwitchDefaults.colors(checkedTrackColor = WebPrimaryBlue))
                         }
@@ -2262,8 +2344,8 @@ fun NotificationPreferencesModalDialog(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("Likes & Reactions", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = WebTextPrimary)
-                                Text("When someone likes your posts or comments", fontSize = 12.sp, color = WebTextSecondary)
+                                Text("Likes & Reactions", fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = WebTextPrimary)
+                                Text("When someone likes your posts or comments", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = WebTextSecondary)
                             }
                             Switch(checked = likesNotifs, onCheckedChange = { likesNotifs = it }, colors = SwitchDefaults.colors(checkedTrackColor = WebPrimaryBlue))
                         }
@@ -2273,8 +2355,8 @@ fun NotificationPreferencesModalDialog(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("Comments", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = WebTextPrimary)
-                                Text("When someone comments on your posts", fontSize = 12.sp, color = WebTextSecondary)
+                                Text("Comments", fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = WebTextPrimary)
+                                Text("When someone comments on your posts", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = WebTextSecondary)
                             }
                             Switch(checked = commentsNotifs, onCheckedChange = { commentsNotifs = it }, colors = SwitchDefaults.colors(checkedTrackColor = WebPrimaryBlue))
                         }
@@ -2284,8 +2366,8 @@ fun NotificationPreferencesModalDialog(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("Messages", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = WebTextPrimary)
-                                Text("When you receive direct chats", fontSize = 12.sp, color = WebTextSecondary)
+                                Text("Messages", fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = WebTextPrimary)
+                                Text("When you receive direct chats", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = WebTextSecondary)
                             }
                             Switch(checked = messagesNotifs, onCheckedChange = { messagesNotifs = it }, colors = SwitchDefaults.colors(checkedTrackColor = WebPrimaryBlue))
                         }
@@ -2302,7 +2384,7 @@ fun NotificationPreferencesModalDialog(
                                 .fillMaxWidth()
                                 .height(46.dp)
                         ) {
-                            Text("Done", fontWeight = FontWeight.Bold, color = Color.White)
+                            Text("Done", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color.White)
                         }
                     }
                 }
@@ -2354,7 +2436,7 @@ fun BlockedUsersModalDialog(
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = WebTextPrimary, modifier = Modifier.size(18.dp))
                         }
                         Spacer(modifier = Modifier.width(12.dp))
-                        Text("Blocked Users", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = WebTextPrimary)
+                        Text("Blocked Users", fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 20.sp, color = WebTextPrimary)
                     }
 
                     HorizontalDivider(color = WebBorderDark, thickness = 1.dp)
@@ -2377,13 +2459,16 @@ fun BlockedUsersModalDialog(
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
                             text = "No Blocked Accounts",
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             fontSize = 17.sp,
                             color = WebTextPrimary
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
                             text = "You haven't blocked anyone yet. Blocked accounts won't be able to view your profile, stories, or send you messages.",
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             fontSize = 13.sp,
                             color = WebTextSecondary,
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
@@ -2402,7 +2487,7 @@ fun BlockedUsersModalDialog(
                                 .fillMaxWidth()
                                 .height(46.dp)
                         ) {
-                            Text("Close", fontWeight = FontWeight.Bold, color = Color.White)
+                            Text("Close", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color.White)
                         }
                     }
                 }

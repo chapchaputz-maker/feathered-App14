@@ -38,6 +38,7 @@ import coil.compose.AsyncImage
 import com.unera.social.model.Post
 import com.unera.social.model.Story
 import com.unera.social.model.User
+import com.unera.social.ui.theme.InterFontFamily
 import java.util.Calendar
 
 // ============================================================
@@ -116,7 +117,8 @@ fun SuggestedProfilesPage(
                 Text(
                     text = "Discover People",
                     fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold,
                     color = Color(0xFFF8FAFC)
                 )
             }
@@ -193,6 +195,7 @@ fun SuggestedProfilesPage(
                             ) {
                                 Text(
                                     text = user.name,
+                                    fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 18.sp,
                                     color = Color(0xFFF8FAFC),
@@ -205,6 +208,8 @@ fun SuggestedProfilesPage(
                                 Text(
                                     text = "@${user.username}",
                                     fontSize = 12.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     color = Color(0xFF94A3B8),
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
@@ -215,6 +220,8 @@ fun SuggestedProfilesPage(
                                 Text(
                                     text = item.reason,
                                     fontSize = 12.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     color = Color(0xFF64748B),
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
@@ -237,7 +244,8 @@ fun SuggestedProfilesPage(
                                 ) {
                                     Text(
                                         text = if (isFollowed) "Following" else "Follow",
-                                        fontWeight = FontWeight.SemiBold,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 14.sp
                                     )
                                 }
@@ -257,6 +265,8 @@ fun SuggestedProfilesPage(
                     text = "No new suggestions at the moment.",
                     color = Color(0xFF94A3B8),
                     fontSize = 15.sp,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Normal,
                     textAlign = TextAlign.Center
                 )
             }
@@ -362,13 +372,16 @@ fun BirthdaysPage(
                     Text(
                         text = "Birthdays",
                         fontSize = 26.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         color = Color.White,
                         lineHeight = 30.sp
                     )
                     Text(
                         text = "Celebrate special moments with your community.",
                         fontSize = 13.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = Color(0xFF94A3B8)
                     )
                 }
@@ -389,7 +402,8 @@ fun BirthdaysPage(
                     Text(
                         text = "Today's Stars",
                         fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         color = Color.White
                     )
 
@@ -400,7 +414,8 @@ fun BirthdaysPage(
                         Text(
                             text = "LIVE",
                             fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color.White,
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                         )
@@ -458,6 +473,7 @@ fun BirthdaysPage(
                             Text(
                                 text = star.name,
                                 fontSize = 20.sp,
+                                fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White,
                                 modifier = Modifier.clickable { onProfileClick(star.id) }
@@ -477,6 +493,8 @@ fun BirthdaysPage(
                                 Text(
                                     text = star.location,
                                     fontSize = 13.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     color = Color(0xFF94A3B8)
                                 )
                             }
@@ -502,7 +520,8 @@ fun BirthdaysPage(
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
                                     text = "Wish Him/Her 🎉",
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 15.sp
                                 )
                             }
@@ -534,13 +553,16 @@ fun BirthdaysPage(
                             Text(
                                 text = "No Birthdays Today",
                                 fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold,
                                 color = Color.White
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = "Check back tomorrow or see upcoming birthdays below.",
                                 fontSize = 13.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 color = Color(0xFF94A3B8),
                                 textAlign = TextAlign.Center
                             )
@@ -555,7 +577,8 @@ fun BirthdaysPage(
                     Text(
                         text = "Upcoming Birthdays",
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         color = Color.White,
                         modifier = Modifier.padding(top = 8.dp)
                     )
@@ -595,13 +618,16 @@ fun BirthdaysPage(
                                 Column {
                                     Text(
                                         text = u.name,
-                                        fontWeight = FontWeight.SemiBold,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Bold,
                                         fontSize = 15.sp,
                                         color = Color(0xFFF8FAFC)
                                     )
                                     Text(
                                         text = u.birthDate ?: "",
                                         fontSize = 12.sp,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Normal,
                                         color = Color(0xFF94A3B8)
                                     )
                                 }
@@ -707,12 +733,15 @@ fun MemoriesPage(
                     Text(
                         text = "Memories",
                         fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         color = Color.White
                     )
                     Text(
                         text = "On this day in previous years",
                         fontSize = 12.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = Color(0xFF94A3B8)
                     )
                 }
@@ -748,13 +777,16 @@ fun MemoriesPage(
                         Text(
                             text = "No Memories Found",
                             fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color.White
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
                             text = "When you share posts and moments, your memories will appear here.",
                             fontSize = 13.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
                             color = Color(0xFF94A3B8),
                             textAlign = TextAlign.Center
                         )
@@ -786,6 +818,7 @@ fun MemoriesPage(
                                     Text(
                                         text = "1 year ago today",
                                         fontSize = 12.sp,
+                                        fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.SemiBold,
                                         color = Color(0xFF818CF8),
                                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
@@ -798,6 +831,8 @@ fun MemoriesPage(
                             Text(
                                 text = post.content,
                                 fontSize = 15.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
                                 color = Color(0xFFF8FAFC)
                             )
 
@@ -892,7 +927,8 @@ fun StoryFeedPage(
                     Text(
                         text = "Story Feed",
                         fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         color = Color.White
                     )
                 }
@@ -915,7 +951,8 @@ fun StoryFeedPage(
                         Text(
                             text = "Add Story",
                             fontSize = 13.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Medium,
                             color = Color.White
                         )
                     }
@@ -952,13 +989,16 @@ fun StoryFeedPage(
                     Text(
                         text = "No Stories Yet",
                         fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
                         color = Color.White
                     )
 
                     Text(
                         text = "Share a photo, video (up to 90s), or text story with your friends and followers!",
                         fontSize = 13.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
                         color = Color(0xFF94A3B8),
                         textAlign = TextAlign.Center
                     )
@@ -972,7 +1012,7 @@ fun StoryFeedPage(
                         ) {
                             Icon(Icons.Default.Add, contentDescription = null, tint = Color.White)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Create Story", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                            Text("Create Story", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, fontSize = 14.sp)
                         }
                     }
                 }
@@ -1012,6 +1052,7 @@ fun StoryFeedPage(
                             Column {
                                 Text(
                                     text = story.author.name,
+                                    fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 15.sp,
                                     color = Color(0xFFF8FAFC)
@@ -1019,6 +1060,8 @@ fun StoryFeedPage(
                                 Text(
                                     text = story.timestamp,
                                     fontSize = 12.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
                                     color = Color(0xFF94A3B8)
                                 )
                             }
@@ -1058,6 +1101,8 @@ fun StoryFeedPage(
                                     Text(
                                         text = "$emoji $label",
                                         fontSize = 13.sp,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Medium,
                                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                                         color = Color.White
                                     )
@@ -1076,7 +1121,8 @@ fun StoryFeedPage(
                             OutlinedTextField(
                                 value = commentText,
                                 onValueChange = { commentText = it },
-                                placeholder = { Text("Reply to story...", fontSize = 13.sp, color = Color(0xFF64748B)) },
+                                textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
+                                placeholder = { Text("Reply to story...", fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF64748B)) },
                                 modifier = Modifier
                                     .weight(1f)
                                     .height(48.dp),
