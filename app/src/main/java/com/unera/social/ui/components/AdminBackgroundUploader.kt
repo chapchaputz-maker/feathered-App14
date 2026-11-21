@@ -96,7 +96,7 @@ fun AdminBackgroundStudioCard(
     var pendingImageUri by remember { mutableStateOf<Uri?>(null) }
 
     LaunchedEffect(Unit) {
-        BackgroundsApiService.ensureLoaded(context)
+        BackgroundsApiService.fetchBackgrounds(context, forceRefresh = true)
     }
 
     val galleryLauncher = rememberLauncherForActivityResult(
@@ -756,7 +756,13 @@ private fun AdminBackgroundUploadDialog(
                                         dominantColor = bundle.dominantColor,
                                         textColor = bundle.recommendedTextColor,
                                         overlayColor = bundle.recommendedOverlayColor,
-                                        overlayOpacity = bundle.recommendedOverlayOpacity
+                                        overlayOpacity = bundle.recommendedOverlayOpacity,
+                                        format = bundle.format,
+                                        mimeType = bundle.mimeType,
+                                        fileSize = bundle.fileSize,
+                                        thumbWidth = bundle.thumbWidth,
+                                        thumbHeight = bundle.thumbHeight,
+                                        thumbFileSize = bundle.thumbFileSize
                                     )
 
                                     isUploading = false

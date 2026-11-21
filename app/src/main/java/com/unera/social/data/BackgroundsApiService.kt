@@ -308,19 +308,21 @@ object BackgroundsApiService {
             _isLoading.value = true
             _errorMessage.value = null
             try {
-                var parsed = requestEndpoint("$BASE_URL/api/backgrounds/animated")
+                val ts = System.currentTimeMillis()
+                var parsed = fetchAllPages(cacheBustTs = ts)
                 if (parsed.isEmpty()) {
-                    parsed = requestEndpoint("$BASE_URL/api/backgrounds/animated?category=reality")
+                    parsed = requestEndpoint("$BASE_URL/api/backgrounds/animated?category=reality&per_page=100&_t=$ts")
                 }
                 if (parsed.isEmpty()) {
-                    parsed = requestEndpoint("$BASE_URL/api/backgrounds/animated?all=true")
+                    parsed = requestEndpoint("$BASE_URL/api/backgrounds/animated?all=true&_t=$ts")
                 }
 
                 if (parsed.isNotEmpty()) {
                     hasFetchedFromNetwork = true
-                    _backgrounds.value = parsed
+                    val sorted = sortBackgrounds(parsed)
+                    _backgrounds.value = sorted
                     if (context != null) {
-                        saveToCache(context.applicationContext, parsed)
+                        saveToCache(context.applicationContext, sorted)
                     }
                 } else if (_backgrounds.value.isEmpty()) {
                     _errorMessage.value = "No backgrounds available right now."
@@ -337,7 +339,61 @@ object BackgroundsApiService {
     }
 
     /**
-     * Admin-only endpoint: POST /api/admin/backgrounds (JSON) -> D1 row in background_images.
+     * Fetches a single background record via GET /api/backgrounds/animated/:id (which uses Cache-Control: no-store)
+     * as a fallback if a published post references a newly added ID not yet in the list state.
+     */
+    suspend fun fetchBackgroundById(
+        context: Context? = null,
+        id: String
+    ): RemotePostBackground? = withContext(Dispatchers.IO) {
+        val cleanId = id.trim()
+        if (cleanId.isBlank() || cleanId.toLongOrNull() == null) return@withContext null
+        _backgrounds.value.find { it.id == cleanId }?.let { return@withContext it }
+
+        var conn: HttpURLConnection? = null
+        try {
+            val url = URL("$BASE_URL/api/backgrounds/animated/$cleanId?_t=${System.currentTimeMillis()}")
+            conn = (url.openConnection() as HttpURLConnection).apply {
+                requestMethod = "GET"
+                useCaches = false
+                connectTimeout = 12000
+                readTimeout = 12000
+                setRequestProperty("Accept", "application/json")
+                setRequestProperty("Cache-Control", "no-cache")
+                setRequestProperty("Pragma", "no-cache")
+                setRequestProperty("User-Agent", USER_AGENT)
+            }
+            if (conn.responseCode in 200..299) {
+                val raw = BufferedReader(InputStreamReader(conn.inputStream)).use { it.readText() }.trim()
+                if (raw.startsWith("{")) {
+                    val root = JSONObject(raw)
+                    val obj = root.optJSONObject("data")
+                        ?: root.optJSONObject("background")
+                        ?: root.optJSONObject("record")
+                        ?: root
+                    val parsed = parseItem(obj, 0)
+                    if (parsed != null) {
+                        val merged = sortBackgrounds(
+                            listOf(parsed) + _backgrounds.value.filterNot { it.id == parsed.id }
+                        )
+                        _backgrounds.value = merged
+                        if (context != null) {
+                            saveToCache(context.applicationContext, merged)
+                        }
+                        return@withContext parsed
+                    }
+                }
+            }
+            null
+        } catch (_: Exception) {
+            null
+        } finally {
+            conn?.disconnect()
+        }
+    }
+
+    /**
+     * Admin-only endpoint: POST /api/admin/backgrounds (JSON) -> D1 row in animated_backgrounds.
      * Immediately updates local StateFlow and cache so the new row appears in the picker.
      */
     suspend fun createAdminBackground(
@@ -354,21 +410,34 @@ object BackgroundsApiService {
         textColor: String? = null,
         overlayColor: String? = null,
         overlayOpacity: Float = 0.24f,
-        sortOrder: Int = 0
+        sortOrder: Int = 0,
+        format: String = "webp",
+        mimeType: String = "image/webp",
+        fileSize: Int = 0,
+        thumbWidth: Int = 0,
+        thumbHeight: Int = 0,
+        thumbFileSize: Int = 0
     ): Result<RemotePostBackground> = withContext(Dispatchers.IO) {
         var conn: HttpURLConnection? = null
         try {
             val token = UserSessionManager.getAuthToken(context)
-            val cleanName = name.trim().ifBlank { "Realistic Scene" }
-            val cleanCategory = category.trim().ifBlank { "realistic" }
+            val cleanName = name.trim().ifBlank { "Reality Scene" }
+            val cleanCategory = category.trim().ifBlank { "nature" }
             val payload = JSONObject().apply {
                 put("name", cleanName)
                 put("url", url)
                 put("thumbnail_url", thumbnailUrl)
                 put("poster_url", thumbnailUrl)
-                put("is_animated", isAnimated)
+                put("is_animated", if (isAnimated) 1 else 0)
+                put("is_active", 1)
                 if (width > 0) put("width", width)
                 if (height > 0) put("height", height)
+                if (format.isNotBlank()) put("format", format)
+                if (mimeType.isNotBlank()) put("mime_type", mimeType)
+                if (fileSize > 0) put("file_size", fileSize)
+                if (thumbWidth > 0) put("thumb_width", thumbWidth)
+                if (thumbHeight > 0) put("thumb_height", thumbHeight)
+                if (thumbFileSize > 0) put("thumb_file_size", thumbFileSize)
                 if (!dominantColor.isNullOrBlank()) put("dominant_color", dominantColor)
                 if (!textColor.isNullOrBlank()) put("text_color", textColor)
                 if (!overlayColor.isNullOrBlank()) put("overlay_color", overlayColor)
@@ -380,6 +449,7 @@ object BackgroundsApiService {
             conn = (URL("$BASE_URL/api/admin/backgrounds").openConnection() as HttpURLConnection).apply {
                 requestMethod = "POST"
                 doOutput = true
+                useCaches = false
                 connectTimeout = 20000
                 readTimeout = 20000
                 setRequestProperty("Content-Type", "application/json")
@@ -432,19 +502,23 @@ object BackgroundsApiService {
                     )
                 }
 
-                // Immediately merge into in-memory list & cache, then sync from /api/backgrounds/animated
-                val mergedImmediate = listOf(parsed) + _backgrounds.value.filterNot { it.id == parsed.id }
+                // Immediately merge into in-memory list & cache, then sync paginated + cache-busted from /api/backgrounds/animated
+                val mergedImmediate = sortBackgrounds(
+                    listOf(parsed) + _backgrounds.value.filterNot { it.id == parsed.id }
+                )
                 _backgrounds.value = mergedImmediate
                 saveToCache(context.applicationContext, mergedImmediate)
 
-                val refreshed = requestEndpoint("$BASE_URL/api/backgrounds/animated")
+                val refreshed = fetchAllPages(cacheBustTs = System.currentTimeMillis())
                 if (refreshed.isNotEmpty()) {
                     hasFetchedFromNetwork = true
-                    val finalList = if (refreshed.any { it.id == parsed.id }) {
-                        refreshed
-                    } else {
-                        listOf(parsed) + refreshed
-                    }
+                    val finalList = sortBackgrounds(
+                        if (refreshed.any { it.id == parsed.id }) {
+                            refreshed
+                        } else {
+                            listOf(parsed) + refreshed
+                        }
+                    )
                     _backgrounds.value = finalList
                     saveToCache(context.applicationContext, finalList)
                 }
@@ -468,15 +542,43 @@ object BackgroundsApiService {
         }
     }
 
+    /**
+     * Fetches all pages from GET /api/backgrounds/animated using per_page=100 and a cache-busting
+     * query parameter so newly added D1 rows (which have higher auto-increment IDs beyond row 50)
+     * are never truncated by the backend's 50-row default page size or stale edge Cache-Control.
+     */
+    private fun fetchAllPages(cacheBustTs: Long): List<RemotePostBackground> {
+        val collected = mutableListOf<RemotePostBackground>()
+        val seenIds = mutableSetOf<String>()
+        val perPage = 100
+        for (page in 1..20) {
+            val endpoint = "$BASE_URL/api/backgrounds/animated?page=$page&per_page=$perPage&_t=$cacheBustTs"
+            val pageItems = requestEndpoint(endpoint)
+            if (pageItems.isEmpty()) break
+            var addedNew = 0
+            for (item in pageItems) {
+                if (seenIds.add(item.id)) {
+                    collected.add(item)
+                    addedNew++
+                }
+            }
+            if (pageItems.size < perPage || addedNew == 0) break
+        }
+        return sortBackgrounds(collected)
+    }
+
     private fun requestEndpoint(endpoint: String): List<RemotePostBackground> {
         var conn: HttpURLConnection? = null
         return try {
             val url = URL(endpoint)
             conn = (url.openConnection() as HttpURLConnection).apply {
                 requestMethod = "GET"
+                useCaches = false
                 connectTimeout = 15000
                 readTimeout = 15000
                 setRequestProperty("Accept", "application/json")
+                setRequestProperty("Cache-Control", "no-cache")
+                setRequestProperty("Pragma", "no-cache")
                 setRequestProperty("User-Agent", USER_AGENT)
             }
             if (conn.responseCode in 200..299) {
@@ -498,8 +600,8 @@ object BackgroundsApiService {
             raw.startsWith("[") -> parseArray(JSONArray(raw))
             raw.startsWith("{") -> {
                 val root = JSONObject(raw)
-                val arr = root.optJSONArray("backgrounds")
-                    ?: root.optJSONArray("data")
+                val arr = root.optJSONArray("data")
+                    ?: root.optJSONArray("backgrounds")
                     ?: root.optJSONArray("items")
                     ?: root.optJSONArray("records")
                     ?: root.optJSONArray("results")
@@ -519,7 +621,15 @@ object BackgroundsApiService {
                 list.add(parsed)
             }
         }
-        return list.sortedWith(compareBy<RemotePostBackground> { it.sortOrder }.thenBy { it.name.lowercase() })
+        return sortBackgrounds(list)
+    }
+
+    private fun sortBackgrounds(list: List<RemotePostBackground>): List<RemotePostBackground> {
+        return list.sortedWith(
+            compareBy<RemotePostBackground> { it.sortOrder }
+                .thenByDescending { it.id.toLongOrNull() ?: 0L }
+                .thenBy { it.name.lowercase() }
+        )
     }
 
     private fun parseItem(obj: JSONObject, index: Int): RemotePostBackground? {
@@ -603,6 +713,21 @@ object BackgroundsApiService {
                 .apply()
         } catch (_: Exception) {
         }
+    }
+
+    fun extractBackgroundId(styleOrId: String?): String? {
+        if (styleOrId.isNullOrBlank()) return null
+        val clean = styleOrId.trim().removeSurrounding("\"").replace("\\\"", "\"")
+        val firstPart = clean.substringBefore("|").trim()
+        val extracted = when {
+            firstPart.startsWith("reality:", ignoreCase = true) -> firstPart.substringAfter(":").trim()
+            firstPart.startsWith("db:", ignoreCase = true) -> firstPart.substringAfter(":").trim()
+            firstPart.startsWith("remote:", ignoreCase = true) -> firstPart.substringAfter(":").trim()
+            firstPart.startsWith("bg:", ignoreCase = true) -> firstPart.substringAfter(":").trim()
+            firstPart.startsWith("realistic_db:", ignoreCase = true) -> firstPart.substringAfter(":").trim()
+            else -> firstPart
+        }
+        return extracted.takeIf { it.isNotBlank() && it.toLongOrNull() != null }
     }
 
     /**

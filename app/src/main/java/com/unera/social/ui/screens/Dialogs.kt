@@ -109,7 +109,7 @@ fun CreatePostModal(
     val remoteBgError by BackgroundsApiService.errorMessage.collectAsState()
 
     LaunchedEffect(Unit) {
-        BackgroundsApiService.ensureLoaded(context)
+        BackgroundsApiService.fetchBackgrounds(context, forceRefresh = true)
     }
 
     var view by remember { mutableStateOf(CreatePostView.MAIN) }
@@ -1271,7 +1271,7 @@ fun CreatePostModal(
                                                         .background(if (isCatSelected) AppColors.primaryBlue else AppColors.bgChip)
                                                         .clickable {
                                                             activeCategory = cat
-                                                            if (cat == AnimatedBgCategory.REALITY && remoteBackgrounds.isEmpty() && !isLoadingRemoteBgs) {
+                                                            if (cat == AnimatedBgCategory.REALITY && !isLoadingRemoteBgs) {
                                                                 coroutineScope.launch {
                                                                     BackgroundsApiService.fetchBackgrounds(context, forceRefresh = true)
                                                                 }
@@ -1310,6 +1310,48 @@ fun CreatePostModal(
                                                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                                                 verticalAlignment = Alignment.CenterVertically
                                             ) {
+                                                item(key = "reality_refresh_chip") {
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .clip(RoundedCornerShape(12.dp))
+                                                            .background(AppColors.bgCard)
+                                                            .border(1.dp, AppColors.borderStrong, RoundedCornerShape(12.dp))
+                                                            .clickable(enabled = !isLoadingRemoteBgs) {
+                                                                coroutineScope.launch {
+                                                                    BackgroundsApiService.fetchBackgrounds(context, forceRefresh = true)
+                                                                }
+                                                            }
+                                                            .padding(horizontal = 8.dp, vertical = 5.dp)
+                                                            .testTag("reality_refresh_chip")
+                                                    ) {
+                                                        Row(
+                                                            verticalAlignment = Alignment.CenterVertically,
+                                                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                                        ) {
+                                                            if (isLoadingRemoteBgs) {
+                                                                CircularProgressIndicator(
+                                                                    modifier = Modifier.size(12.dp),
+                                                                    strokeWidth = 1.5.dp,
+                                                                    color = AppColors.primaryBlue
+                                                                )
+                                                            } else {
+                                                                Icon(
+                                                                    imageVector = Icons.Default.Refresh,
+                                                                    contentDescription = "Refresh Reality backgrounds",
+                                                                    tint = AppColors.primaryBlue,
+                                                                    modifier = Modifier.size(13.dp)
+                                                                )
+                                                            }
+                                                            Text(
+                                                                text = "Sync",
+                                                                fontSize = 11.sp,
+                                                                fontFamily = InterFontFamily,
+                                                                fontWeight = FontWeight.Medium,
+                                                                color = AppColors.primaryBlue
+                                                            )
+                                                        }
+                                                    }
+                                                }
                                                 items(realitySubCats) { sub ->
                                                     val isSubSelected = activeRealitySubCategory == sub
                                                     val catCount = if (sub == "All") remoteBackgrounds.size else remoteBackgrounds.count { it.normalizedSubCategory().equals(sub, ignoreCase = true) }

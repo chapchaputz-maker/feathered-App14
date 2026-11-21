@@ -2688,6 +2688,11 @@ fun TextPostBackgroundView(
     LaunchedEffect(cleanStyle) {
         if (BackgroundsApiService.isRealityStyle(cleanStyle)) {
             BackgroundsApiService.ensureLoaded(context)
+            if (BackgroundsApiService.findRemoteBackground(cleanStyle) == null) {
+                BackgroundsApiService.extractBackgroundId(cleanStyle)?.let { bgId ->
+                    BackgroundsApiService.fetchBackgroundById(context, bgId)
+                }
+            }
         }
     }
 

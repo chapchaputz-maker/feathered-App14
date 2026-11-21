@@ -113,7 +113,13 @@ object MediaUploadHelper {
         val dominantColor: String,
         val recommendedTextColor: String,
         val recommendedOverlayColor: String,
-        val recommendedOverlayOpacity: Float
+        val recommendedOverlayOpacity: Float,
+        val format: String = "webp",
+        val mimeType: String = "image/webp",
+        val fileSize: Int = 0,
+        val thumbWidth: Int = 0,
+        val thumbHeight: Int = 0,
+        val thumbFileSize: Int = 0
     )
 
     data class VideoUploadResult(
@@ -835,7 +841,7 @@ object MediaUploadHelper {
                 feedMime = "image/webp"
             }
 
-            val (thumbBytes, _, _) = compressBitmapToWebp(bitmap, 420, 86)
+            val (thumbBytes, thumbW, thumbH) = compressBitmapToWebp(bitmap, 420, 86)
 
             val ts = System.currentTimeMillis()
             onProgress?.invoke("Uploading feed.$feedExt...", 0.45f)
@@ -869,7 +875,13 @@ object MediaUploadHelper {
                 dominantColor = domColor,
                 recommendedTextColor = textColor,
                 recommendedOverlayColor = overlayColor,
-                recommendedOverlayOpacity = overlayOpacity
+                recommendedOverlayOpacity = overlayOpacity,
+                format = feedExt,
+                mimeType = feedMime,
+                fileSize = feedBytes.size,
+                thumbWidth = thumbW,
+                thumbHeight = thumbH,
+                thumbFileSize = thumbBytes.size
             )
         } catch (e: Exception) {
             e.printStackTrace()

@@ -430,6 +430,12 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
             refreshGroups()
         }
         launchSafe {
+            BackgroundsApiService.fetchBackgrounds(
+                getApplication<Application>().applicationContext,
+                forceRefresh = true
+            )
+        }
+        launchSafe {
             _uiState.update { it.copy(isFeedLoading = true) }
             val isUserLoggedIn = _uiState.value.isLoggedIn && !_uiState.value.isGuest
             val livePosts = if (isUserLoggedIn) {
