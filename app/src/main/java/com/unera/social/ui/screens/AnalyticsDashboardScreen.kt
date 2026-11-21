@@ -41,23 +41,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.unera.social.data.AnalyticsApiService
 import com.unera.social.model.*
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 import kotlinx.coroutines.launch
 import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
-private val FeatheredBlue = Color(0xFF1877F2)
-private val SkyBlueAccent = Color(0xFF38BDF8)
-private val DarkNavyBlue = Color(0xFF0369A1)
-private val FeatheredDarkBg = Color(0xFF0F172A)
-private val FeatheredSurface = Color(0xFF1E293B)
-private val FeatheredSurfaceVariant = Color(0xFF27354A)
-private val FeatheredBorder = Color(0xFF334155)
-private val TextWhite = Color(0xFFF8FAFC)
-private val TextMuted = Color(0xFF94A3B8)
-private val GrowthGreen = Color(0xFF22C55E)
-private val DeclineRed = Color(0xFFEF4444)
+private val FeatheredBlue: Color @Composable get() = AppColors.primaryBlue
+private val SkyBlueAccent: Color @Composable get() = if (AppColors.isLight) Color(0xFF0284C7) else Color(0xFF38BDF8)
+private val DarkNavyBlue: Color @Composable get() = if (AppColors.isLight) Color(0xFF1E40AF) else Color(0xFF0369A1)
+private val FeatheredDarkBg: Color @Composable get() = AppColors.bgScreen
+private val FeatheredSurface: Color @Composable get() = AppColors.bgCard
+private val FeatheredSurfaceVariant: Color @Composable get() = AppColors.bgCardElevated
+private val FeatheredBorder: Color @Composable get() = AppColors.border
+private val TextWhite: Color @Composable get() = AppColors.textPrimary
+private val TextMuted: Color @Composable get() = AppColors.textSecondary
+private val GrowthGreen: Color @Composable get() = AppColors.successText
+private val DeclineRed: Color @Composable get() = AppColors.dangerText
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -102,7 +103,7 @@ fun AnalyticsDashboardScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(FeatheredDarkBg)
+                    .background(AppColors.headerBg)
                     .statusBarsPadding()
             ) {
                 // Top App Bar
@@ -122,13 +123,13 @@ fun AnalyticsDashboardScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back to Profile",
-                            tint = TextWhite
+                            tint = AppColors.headerIconTint
                         )
                     }
 
                     Text(
                         text = "Analytics",
-                        color = TextWhite,
+                        color = AppColors.headerText,
                         fontSize = 20.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
@@ -142,14 +143,28 @@ fun AnalyticsDashboardScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .horizontalScroll(tabScrollState)
-                        .padding(horizontal = 16.dp, vertical = 6.dp),
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     AnalyticsTab.values().forEach { tab ->
                         val isSelected = selectedTab == tab
-                        val pillBg = if (isSelected) Color(0xFFE2E8F0) else FeatheredSurface
-                        val pillTextColor = if (isSelected) Color(0xFF0F172A) else TextMuted
-                        val borderMod = if (isSelected) Modifier else Modifier.border(1.dp, FeatheredBorder, RoundedCornerShape(20.dp))
+                        val pillBg = when {
+                            isSelected && AppColors.isLight -> Color.White
+                            isSelected -> Color(0xFFE2E8F0)
+                            AppColors.isLight -> AppColors.headerIconBg
+                            else -> FeatheredSurface
+                        }
+                        val pillTextColor = when {
+                            isSelected && AppColors.isLight -> AppColors.primaryBlue
+                            isSelected -> Color(0xFF0F172A)
+                            AppColors.isLight -> Color.White
+                            else -> TextMuted
+                        }
+                        val borderMod = when {
+                            isSelected -> Modifier
+                            AppColors.isLight -> Modifier.border(1.dp, AppColors.headerIconBorder, RoundedCornerShape(20.dp))
+                            else -> Modifier.border(1.dp, FeatheredBorder, RoundedCornerShape(20.dp))
+                        }
 
                         Box(
                             modifier = Modifier
@@ -172,7 +187,7 @@ fun AnalyticsDashboardScreen(
                     }
                 }
 
-                HorizontalDivider(color = FeatheredBorder.copy(alpha = 0.5f), thickness = 0.8.dp)
+                HorizontalDivider(color = AppColors.headerDivider, thickness = 0.8.dp)
             }
         }
     ) { innerPadding ->
@@ -320,11 +335,15 @@ private fun EngagementDashboardContent(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Dropdown Pill (Light styled button like the reference screenshot)
+                // Dropdown Pill
                 Row(
                     modifier = Modifier
                         .clip(RoundedCornerShape(20.dp))
-                        .background(Color(0xFFE2E8F0))
+                        .background(if (AppColors.isLight) AppColors.bgCard else Color(0xFFE2E8F0))
+                        .then(
+                            if (AppColors.isLight) Modifier.border(1.dp, AppColors.borderStrong, RoundedCornerShape(20.dp))
+                            else Modifier
+                        )
                         .clickable { onPeriodClick() }
                         .padding(horizontal = 14.dp, vertical = 8.dp)
                         .testTag("engagement_period_selector"),
@@ -464,8 +483,16 @@ private fun EngagementDashboardContent(
             ) {
                 EngagementSubTab.values().forEach { subTab ->
                     val isSelected = selectedSubTab == subTab
-                    val bg = if (isSelected) Color(0xFFDDE8F8) else FeatheredSurface
-                    val txtColor = if (isSelected) Color(0xFF0F172A) else TextWhite
+                    val bg = when {
+                        isSelected && AppColors.isLight -> AppColors.primaryBlue
+                        isSelected -> Color(0xFFDDE8F8)
+                        else -> FeatheredSurface
+                    }
+                    val txtColor = when {
+                        isSelected && AppColors.isLight -> Color.White
+                        isSelected -> Color(0xFF0F172A)
+                        else -> TextWhite
+                    }
                     val border = if (isSelected) Modifier else Modifier.border(1.dp, FeatheredBorder, RoundedCornerShape(20.dp))
 
                     Box(
@@ -607,7 +634,7 @@ private fun DualSegmentProgressRow(
                     .weight(1f)
                     .height(8.dp)
                     .clip(RoundedCornerShape(4.dp))
-                    .background(Color(0xFF1E293B))
+                    .background(AppColors.bgChip)
             ) {
                 // Width fraction of this total item (e.g. 70.0% -> 0.70f)
                 val totalFraction = (item.percentage / 100f).coerceIn(0f, 1f)
@@ -673,6 +700,10 @@ private fun EngagementLineChart(
 ) {
     var selectedIndex by remember { mutableStateOf<Int?>(null) }
     val maxVal = points.maxOfOrNull { it.views }?.coerceAtLeast(10L) ?: 10L
+    val chartGridColor = AppColors.borderStrong.copy(alpha = 0.55f)
+    val chartCurveColor = SkyBlueAccent
+    val chartNodeBlue = FeatheredBlue
+    val chartScrubLineColor = AppColors.textPrimary.copy(alpha = 0.45f)
 
     Column(modifier = modifier) {
         // Tooltip display on hover/scrub
@@ -767,10 +798,9 @@ private fun EngagementLineChart(
                         val h = size.height
 
                         // Horizontal grid lines corresponding to 10, 5, 0
-                        val gridColor = Color(0xFF334155).copy(alpha = 0.45f)
-                        drawLine(color = gridColor, start = Offset(0f, 0f), end = Offset(w, 0f), strokeWidth = 1f)
-                        drawLine(color = gridColor, start = Offset(0f, h / 2f), end = Offset(w, h / 2f), strokeWidth = 1f)
-                        drawLine(color = gridColor, start = Offset(0f, h), end = Offset(w, h), strokeWidth = 1f)
+                        drawLine(color = chartGridColor, start = Offset(0f, 0f), end = Offset(w, 0f), strokeWidth = 1f)
+                        drawLine(color = chartGridColor, start = Offset(0f, h / 2f), end = Offset(w, h / 2f), strokeWidth = 1f)
+                        drawLine(color = chartGridColor, start = Offset(0f, h), end = Offset(w, h), strokeWidth = 1f)
 
                         if (points.size < 2) return@Canvas
 
@@ -803,7 +833,7 @@ private fun EngagementLineChart(
                             path = fillPath,
                             brush = Brush.verticalGradient(
                                 colors = listOf(
-                                    SkyBlueAccent.copy(alpha = 0.30f),
+                                    chartCurveColor.copy(alpha = 0.25f),
                                     Color.Transparent
                                 ),
                                 startY = 0f,
@@ -814,7 +844,7 @@ private fun EngagementLineChart(
                         // Curve line
                         drawPath(
                             path = path,
-                            color = SkyBlueAccent,
+                            color = chartCurveColor,
                             style = Stroke(width = 2.5.dp.toPx(), cap = StrokeCap.Round)
                         )
 
@@ -823,12 +853,12 @@ private fun EngagementLineChart(
                         if (activeIdx != null && activeIdx in coords.indices) {
                             val activePt = coords[activeIdx]
                             drawLine(
-                                color = Color.White.copy(alpha = 0.5f),
+                                color = chartScrubLineColor,
                                 start = Offset(activePt.x, 0f),
                                 end = Offset(activePt.x, h),
                                 strokeWidth = 1.dp.toPx()
                             )
-                            drawCircle(color = FeatheredBlue, radius = 5.dp.toPx(), center = activePt)
+                            drawCircle(color = chartNodeBlue, radius = 5.dp.toPx(), center = activePt)
                             drawCircle(color = Color.White, radius = 2.5.dp.toPx(), center = activePt)
                         }
                     }
@@ -892,7 +922,11 @@ private fun ViewsDashboardContent(
                 Row(
                     modifier = Modifier
                         .clip(RoundedCornerShape(20.dp))
-                        .background(Color(0xFFE2E8F0))
+                        .background(if (AppColors.isLight) AppColors.bgCard else Color(0xFFE2E8F0))
+                        .then(
+                            if (AppColors.isLight) Modifier.border(1.dp, AppColors.borderStrong, RoundedCornerShape(20.dp))
+                            else Modifier
+                        )
                         .clickable { onPeriodClick() }
                         .padding(horizontal = 14.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -1059,7 +1093,7 @@ private fun FormatStatRow(
                 .height(6.dp)
                 .clip(RoundedCornerShape(3.dp)),
             color = color,
-            trackColor = Color(0xFF334155)
+            trackColor = AppColors.bgChip
         )
     }
 }
@@ -1091,7 +1125,11 @@ private fun AudienceDashboardContent(
                 Row(
                     modifier = Modifier
                         .clip(RoundedCornerShape(20.dp))
-                        .background(Color(0xFFE2E8F0))
+                        .background(if (AppColors.isLight) AppColors.bgCard else Color(0xFFE2E8F0))
+                        .then(
+                            if (AppColors.isLight) Modifier.border(1.dp, AppColors.borderStrong, RoundedCornerShape(20.dp))
+                            else Modifier
+                        )
                         .clickable { onPeriodClick() }
                         .padding(horizontal = 14.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -1298,7 +1336,7 @@ private fun AudienceDashboardContent(
                                     .height(6.dp)
                                     .clip(RoundedCornerShape(3.dp)),
                                 color = FeatheredBlue,
-                                trackColor = Color(0xFF334155)
+                                trackColor = AppColors.bgChip
                             )
                         }
                     }
@@ -1333,7 +1371,7 @@ private fun CountryPercentageRow(country: CountryAnalytics, rank: Int) {
                 .height(6.dp)
                 .clip(RoundedCornerShape(3.dp)),
             color = FeatheredBlue,
-            trackColor = Color(0xFF334155)
+            trackColor = AppColors.bgChip
         )
     }
 }
@@ -1354,7 +1392,7 @@ private fun GenderPercentageRow(item: GenderAnalytics) {
             "male" -> FeatheredBlue
             "female" -> Color(0xFFEC4899)
             "other" -> Color(0xFFA855F7)
-            else -> Color(0xFF64748B)
+            else -> AppColors.textMuted
         }
         LinearProgressIndicator(
             progress = { (item.percentage / 100f).coerceIn(0f, 1f) },
@@ -1363,7 +1401,7 @@ private fun GenderPercentageRow(item: GenderAnalytics) {
                 .height(6.dp)
                 .clip(RoundedCornerShape(3.dp)),
             color = barColor,
-            trackColor = Color(0xFF334155)
+            trackColor = AppColors.bgChip
         )
     }
 }
@@ -1393,7 +1431,11 @@ private fun EarningsDashboardContent(
                 Row(
                     modifier = Modifier
                         .clip(RoundedCornerShape(20.dp))
-                        .background(Color(0xFFE2E8F0))
+                        .background(if (AppColors.isLight) AppColors.bgCard else Color(0xFFE2E8F0))
+                        .then(
+                            if (AppColors.isLight) Modifier.border(1.dp, AppColors.borderStrong, RoundedCornerShape(20.dp))
+                            else Modifier
+                        )
                         .clickable { onPeriodClick() }
                         .padding(horizontal = 14.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -1490,7 +1532,7 @@ private fun EarningsDashboardContent(
                             progress = { 0.37f },
                             modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
                             color = FeatheredBlue,
-                            trackColor = Color(0xFF334155)
+                            trackColor = AppColors.bgChip
                         )
                     }
 
@@ -1505,7 +1547,7 @@ private fun EarningsDashboardContent(
                             progress = { (analytics.totalViews.toFloat() / 10000f).coerceIn(0f, 1f) },
                             modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
                             color = SkyBlueAccent,
-                            trackColor = Color(0xFF334155)
+                            trackColor = AppColors.bgChip
                         )
                     }
 

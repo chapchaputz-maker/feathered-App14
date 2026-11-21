@@ -45,6 +45,7 @@ import coil.request.ImageRequest
 import com.unera.social.R
 import com.unera.social.model.UserReaction
 import com.unera.social.ui.screens.formatCount
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 import kotlin.math.abs
 
@@ -126,10 +127,11 @@ fun FacebookReactionDock(
     }
 
     // Floating Dock container
+    val colors = AppColors
     Surface(
         shape = RoundedCornerShape(36.dp),
-        color = Color(0xFF0F172A).copy(alpha = 0.98f),
-        border = BorderStroke(1.2.dp, Color(0xFF334155)),
+        color = colors.bgCard.copy(alpha = 0.98f),
+        border = BorderStroke(1.2.dp, colors.borderStrong),
         shadowElevation = 22.dp,
         modifier = modifier
             .graphicsLayer {
@@ -392,14 +394,14 @@ fun FacebookReactionButton(
                     Icon(
                         imageVector = Icons.Outlined.FavoriteBorder,
                         contentDescription = "Like",
-                        tint = Color(0xFFF8FAFC),
+                        tint = AppColors.textPrimary,
                         modifier = Modifier.size(22.dp)
                     )
                     if (likesCount > 0) {
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = likesCount.toString(),
-                            color = Color(0xFFF8FAFC),
+                            color = AppColors.textPrimary,
                             fontSize = fontSize,
                             fontFamily = fontFamily,
                             fontWeight = FontWeight.SemiBold
@@ -477,8 +479,8 @@ fun FacebookReactionSummaryRow(
                         .zIndex((4 - index).toFloat())
                         .size(20.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFF0F172A))
-                        .border(1.2.dp, Color(0xFF0B1120), CircleShape),
+                        .background(AppColors.bgCard)
+                        .border(1.2.dp, AppColors.bgSurface, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     AsyncImage(
@@ -503,7 +505,7 @@ fun FacebookReactionSummaryRow(
             } else {
                 if (likesCount == 1) "1 Reaction" else "$likesCount Reactions"
             },
-            color = Color(0xFFF8FAFC),
+            color = AppColors.textPrimary,
             fontWeight = fontWeight,
             fontSize = fontSize,
             fontFamily = fontFamily,

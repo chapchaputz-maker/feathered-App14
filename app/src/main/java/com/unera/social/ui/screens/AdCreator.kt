@@ -36,6 +36,7 @@ import com.unera.social.model.Post
 import com.unera.social.model.User
 import com.unera.social.ui.components.AdPreview
 import com.unera.social.ui.components.AdPreviewData
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 import kotlinx.coroutines.delay
 
@@ -128,10 +129,12 @@ fun AdCreator(
         }
     }
 
+    val promoGreen = if (AppColors.isLight) Color(0xFF059669) else Color(0xFF34D399)
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFF050B18))
+            .background(AppColors.bgScreen)
             .testTag("ad_creator_screen")
     ) {
         LazyColumn(
@@ -140,108 +143,116 @@ fun AdCreator(
         ) {
             // Header with Back Button and Steps Indicator
             item(key = "header") {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 20.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(AppColors.headerBg)
+                            .statusBarsPadding()
+                            .padding(horizontal = 16.dp, vertical = 14.dp)
                     ) {
-                        IconButton(
-                            onClick = {
-                                if (step > 1) {
-                                    step -= 1
-                                } else {
-                                    onBack()
-                                }
-                            },
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFF1E293B))
-                        ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Go Back",
-                                tint = Color(0xFFF8FAFC),
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.width(12.dp))
-
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = if (initialPost != null) "Boost Your Post" else "Create New Campaign",
-                                fontFamily = InterFontFamily,
-                                fontSize = 22.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = Color.White
-                            )
-                            Text(
-                                text = if (initialPost != null) "Configure your ad settings below"
-                                else "Boost your posts and reach more people for FREE",
-                                fontFamily = InterFontFamily,
-                                fontWeight = FontWeight.Normal,
-                                fontSize = 13.sp,
-                                color = Color(0xFFA1A1AA)
-                            )
-                        }
-
-                        // Steps Circles: 1, 2, 3, 4
                         Row(
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            (1..4).forEach { s ->
-                                Box(
-                                    modifier = Modifier
-                                        .size(28.dp)
-                                        .clip(CircleShape)
-                                        .background(
-                                            when {
-                                                step == s -> Color(0xFF2563EB)
-                                                step > s -> Color(0xFF10B981)
-                                                else -> Color(0xFF1E293B)
-                                            }
-                                        ),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    if (step > s) {
-                                        Icon(
-                                            imageVector = Icons.Default.Check,
-                                            contentDescription = null,
-                                            tint = Color.White,
-                                            modifier = Modifier.size(16.dp)
-                                        )
+                            IconButton(
+                                onClick = {
+                                    if (step > 1) {
+                                        step -= 1
                                     } else {
-                                        Text(
-                                            text = s.toString(),
-                                            fontFamily = InterFontFamily,
-                                            fontSize = 12.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            color = if (step == s) Color.White else Color(0xFF71717A)
-                                        )
+                                        onBack()
+                                    }
+                                },
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(CircleShape)
+                                    .background(AppColors.headerIconBg)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Go Back",
+                                    tint = AppColors.headerIconTint,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.width(12.dp))
+
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = if (initialPost != null) "Boost Your Post" else "Create New Campaign",
+                                    fontFamily = InterFontFamily,
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = AppColors.headerText
+                                )
+                                Text(
+                                    text = if (initialPost != null) "Configure your ad settings below"
+                                    else "Boost your posts and reach more people for FREE",
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
+                                    fontSize = 12.sp,
+                                    color = AppColors.headerSubtext
+                                )
+                            }
+
+                            // Steps Circles: 1, 2, 3, 4
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                (1..4).forEach { s ->
+                                    Box(
+                                        modifier = Modifier
+                                            .size(28.dp)
+                                            .clip(CircleShape)
+                                            .background(
+                                                when {
+                                                    step == s -> if (AppColors.isLight) Color.White else AppColors.primaryBlue
+                                                    step > s -> Color(0xFF10B981)
+                                                    else -> AppColors.headerIconBg
+                                                }
+                                            ),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        if (step > s) {
+                                            Icon(
+                                                imageVector = Icons.Default.Check,
+                                                contentDescription = null,
+                                                tint = Color.White,
+                                                modifier = Modifier.size(16.dp)
+                                            )
+                                        } else {
+                                            Text(
+                                                text = s.toString(),
+                                                fontFamily = InterFontFamily,
+                                                fontSize = 12.sp,
+                                                fontWeight = FontWeight.SemiBold,
+                                                color = when {
+                                                    step == s -> if (AppColors.isLight) AppColors.primaryBlue else Color.White
+                                                    else -> if (AppColors.isLight) Color.White.copy(alpha = 0.85f) else Color(0xFF94A3B8)
+                                                }
+                                            )
+                                        }
                                     }
                                 }
                             }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    HorizontalDivider(color = AppColors.headerDivider, thickness = 1.dp)
 
                     // Free Promotion Banner
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 14.dp)
                             .clip(RoundedCornerShape(12.dp))
                             .background(
                                 Brush.horizontalGradient(
                                     listOf(
-                                        Color(0xFF10B981).copy(alpha = 0.15f),
-                                        Color(0xFF2563EB).copy(alpha = 0.15f)
+                                        Color(0xFF10B981).copy(alpha = if (AppColors.isLight) 0.12f else 0.15f),
+                                        AppColors.primaryBlue.copy(alpha = if (AppColors.isLight) 0.10f else 0.15f)
                                     )
                                 )
                             )
@@ -262,7 +273,7 @@ fun AdCreator(
                                 Icon(
                                     imageVector = Icons.Default.Star,
                                     contentDescription = null,
-                                    tint = Color(0xFF34D399),
+                                    tint = promoGreen,
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
@@ -272,14 +283,14 @@ fun AdCreator(
                                     fontFamily = InterFontFamily,
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = Color(0xFF34D399)
+                                    color = promoGreen
                                 )
                                 Text(
                                     text = "All ad campaigns are completely free. No costs, no hidden fees!",
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
                                     fontSize = 12.sp,
-                                    color = Color(0xFFA1A1AA)
+                                    color = AppColors.textSecondary
                                 )
                             }
                         }
@@ -309,13 +320,14 @@ fun AdCreator(
                                 fontFamily = InterFontFamily,
                                 fontSize = 17.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color.White
+                                color = AppColors.textPrimary
                             )
 
                             Row(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(8.dp))
-                                    .background(Color(0xFF1E293B))
+                                    .background(AppColors.bgCard)
+                                    .border(1.dp, AppColors.border, RoundedCornerShape(8.dp))
                                     .padding(2.dp),
                                 horizontalArrangement = Arrangement.spacedBy(2.dp)
                             ) {
@@ -324,12 +336,12 @@ fun AdCreator(
                                     modifier = Modifier
                                         .size(32.dp)
                                         .clip(RoundedCornerShape(6.dp))
-                                        .background(if (displayMode == "grid") Color(0xFF2563EB) else Color.Transparent)
+                                        .background(if (displayMode == "grid") AppColors.primaryBlue else Color.Transparent)
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.GridView,
                                         contentDescription = "Grid",
-                                        tint = if (displayMode == "grid") Color.White else Color(0xFFA1A1AA),
+                                        tint = if (displayMode == "grid") Color.White else AppColors.textSecondary,
                                         modifier = Modifier.size(16.dp)
                                     )
                                 }
@@ -339,12 +351,12 @@ fun AdCreator(
                                     modifier = Modifier
                                         .size(32.dp)
                                         .clip(RoundedCornerShape(6.dp))
-                                        .background(if (displayMode == "list") Color(0xFF2563EB) else Color.Transparent)
+                                        .background(if (displayMode == "list") AppColors.primaryBlue else Color.Transparent)
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.List,
                                         contentDescription = "List",
-                                        tint = if (displayMode == "list") Color.White else Color(0xFFA1A1AA),
+                                        tint = if (displayMode == "list") Color.White else AppColors.textSecondary,
                                         modifier = Modifier.size(16.dp)
                                     )
                                 }
@@ -365,14 +377,14 @@ fun AdCreator(
                                 Icon(
                                     imageVector = Icons.Default.Image,
                                     contentDescription = null,
-                                    tint = Color(0xFF71717A),
+                                    tint = AppColors.textMuted,
                                     modifier = Modifier.size(56.dp)
                                 )
                                 Spacer(modifier = Modifier.height(12.dp))
                                 Text(
                                     text = "No posts available to boost",
                                     fontFamily = InterFontFamily,
-                                    color = Color(0xFFA1A1AA),
+                                    color = AppColors.textSecondary,
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.Medium
                                 )
@@ -444,8 +456,8 @@ fun AdCreator(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(Color(0xFF2563EB).copy(alpha = 0.12f))
-                                .border(1.dp, Color(0xFF2563EB).copy(alpha = 0.35f), RoundedCornerShape(12.dp))
+                                .background(AppColors.bgBlueTint)
+                                .border(1.dp, AppColors.primaryBlue.copy(alpha = 0.35f), RoundedCornerShape(12.dp))
                                 .padding(12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -453,7 +465,7 @@ fun AdCreator(
                                 modifier = Modifier
                                     .size(48.dp)
                                     .clip(RoundedCornerShape(8.dp))
-                                    .background(Color(0xFF1E293B)),
+                                    .background(AppColors.bgCardElevated),
                                 contentAlignment = Alignment.Center
                             ) {
                                 if (currentPostMedia.isNotEmpty()) {
@@ -467,7 +479,7 @@ fun AdCreator(
                                     Icon(
                                         imageVector = Icons.Default.Image,
                                         contentDescription = null,
-                                        tint = Color(0xFFA1A1AA),
+                                        tint = AppColors.textSecondary,
                                         modifier = Modifier.size(24.dp)
                                     )
                                 }
@@ -481,21 +493,21 @@ fun AdCreator(
                                     fontFamily = InterFontFamily,
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = Color(0xFF60A5FA)
+                                    color = AppColors.primaryBlue
                                 )
                                 Text(
                                     text = selectedPost?.content?.ifBlank { "Post media" } ?: "",
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
                                     fontSize = 12.sp,
-                                    color = Color(0xFFD4D4D8),
+                                    color = AppColors.textBody,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
                             }
 
                             TextButton(onClick = { step = 1 }) {
-                                Text("Change", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color(0xFFA1A1AA), fontSize = 13.sp)
+                                Text("Change", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = AppColors.primaryBlue, fontSize = 13.sp)
                             }
                         }
 
@@ -506,22 +518,22 @@ fun AdCreator(
                                 fontFamily = InterFontFamily,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFFE4E4E7)
+                                color = AppColors.textPrimary
                             )
                             Spacer(modifier = Modifier.height(6.dp))
                             OutlinedTextField(
                                 value = campaignName,
                                 onValueChange = { campaignName = it },
                                 textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
-                                placeholder = { Text("e.g. Summer Sale 2026", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF71717A)) },
+                                placeholder = { Text("e.g. Summer Sale 2026", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = AppColors.textMuted) },
                                 shape = RoundedCornerShape(10.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedContainerColor = Color(0xFF0F172A),
-                                    unfocusedContainerColor = Color(0xFF0F172A),
-                                    focusedTextColor = Color.White,
-                                    unfocusedTextColor = Color.White,
-                                    focusedBorderColor = Color(0xFF2563EB),
-                                    unfocusedBorderColor = Color(0xFF1E293B)
+                                    focusedContainerColor = AppColors.bgCard,
+                                    unfocusedContainerColor = AppColors.bgCard,
+                                    focusedTextColor = AppColors.textPrimary,
+                                    unfocusedTextColor = AppColors.textPrimary,
+                                    focusedBorderColor = AppColors.primaryBlue,
+                                    unfocusedBorderColor = AppColors.borderStrong
                                 ),
                                 singleLine = true,
                                 modifier = Modifier.fillMaxWidth()
@@ -535,7 +547,7 @@ fun AdCreator(
                                 fontFamily = InterFontFamily,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFFE4E4E7)
+                                color = AppColors.textPrimary
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Row(
@@ -550,8 +562,8 @@ fun AdCreator(
                                             contactValue = method.placeholder
                                         },
                                         shape = RoundedCornerShape(10.dp),
-                                        color = if (isSel) Color(0xFF2563EB) else Color(0xFF0F172A),
-                                        border = BorderStroke(1.dp, if (isSel) Color(0xFF3B82F6) else Color(0xFF1E293B)),
+                                        color = if (isSel) AppColors.primaryBlue else AppColors.bgCard,
+                                        border = BorderStroke(1.dp, if (isSel) AppColors.primaryBlue else AppColors.border),
                                         modifier = Modifier.weight(1f)
                                     ) {
                                         Row(
@@ -562,7 +574,7 @@ fun AdCreator(
                                             Icon(
                                                 imageVector = method.icon,
                                                 contentDescription = null,
-                                                tint = if (isSel) Color.White else Color(0xFFA1A1AA),
+                                                tint = if (isSel) Color.White else AppColors.textSecondary,
                                                 modifier = Modifier.size(16.dp)
                                             )
                                             Spacer(modifier = Modifier.width(6.dp))
@@ -571,7 +583,7 @@ fun AdCreator(
                                                 fontFamily = InterFontFamily,
                                                 fontSize = 12.sp,
                                                 fontWeight = FontWeight.Medium,
-                                                color = if (isSel) Color.White else Color(0xFFA1A1AA)
+                                                color = if (isSel) Color.White else AppColors.textSecondary
                                             )
                                         }
                                     }
@@ -584,15 +596,15 @@ fun AdCreator(
                                 value = contactValue,
                                 onValueChange = { contactValue = it },
                                 textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
-                                placeholder = { Text(contactType.placeholder, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF71717A)) },
+                                placeholder = { Text(contactType.placeholder, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = AppColors.textMuted) },
                                 shape = RoundedCornerShape(10.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedContainerColor = Color(0xFF0F172A),
-                                    unfocusedContainerColor = Color(0xFF0F172A),
-                                    focusedTextColor = Color.White,
-                                    unfocusedTextColor = Color.White,
-                                    focusedBorderColor = Color(0xFF2563EB),
-                                    unfocusedBorderColor = Color(0xFF1E293B)
+                                    focusedContainerColor = AppColors.bgCard,
+                                    unfocusedContainerColor = AppColors.bgCard,
+                                    focusedTextColor = AppColors.textPrimary,
+                                    unfocusedTextColor = AppColors.textPrimary,
+                                    focusedBorderColor = AppColors.primaryBlue,
+                                    unfocusedBorderColor = AppColors.borderStrong
                                 ),
                                 singleLine = true,
                                 modifier = Modifier.fillMaxWidth()
@@ -606,7 +618,7 @@ fun AdCreator(
                                 fontFamily = InterFontFamily,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFFE4E4E7)
+                                color = AppColors.textPrimary
                             )
                             Spacer(modifier = Modifier.height(6.dp))
                             var ctaExpanded by remember { mutableStateOf(false) }
@@ -623,12 +635,12 @@ fun AdCreator(
                                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = ctaExpanded) },
                                     shape = RoundedCornerShape(10.dp),
                                     colors = OutlinedTextFieldDefaults.colors(
-                                        focusedContainerColor = Color(0xFF0F172A),
-                                        unfocusedContainerColor = Color(0xFF0F172A),
-                                        focusedTextColor = Color.White,
-                                        unfocusedTextColor = Color.White,
-                                        focusedBorderColor = Color(0xFF2563EB),
-                                        unfocusedBorderColor = Color(0xFF1E293B)
+                                        focusedContainerColor = AppColors.bgCard,
+                                        unfocusedContainerColor = AppColors.bgCard,
+                                        focusedTextColor = AppColors.textPrimary,
+                                        unfocusedTextColor = AppColors.textPrimary,
+                                        focusedBorderColor = AppColors.primaryBlue,
+                                        unfocusedBorderColor = AppColors.borderStrong
                                     ),
                                     modifier = Modifier
                                         .menuAnchor()
@@ -638,11 +650,11 @@ fun AdCreator(
                                 ExposedDropdownMenu(
                                     expanded = ctaExpanded,
                                     onDismissRequest = { ctaExpanded = false },
-                                    modifier = Modifier.background(Color(0xFF0B1120))
+                                    modifier = Modifier.background(AppColors.bgCard)
                                 ) {
                                     CTA_OPTIONS.forEach { opt ->
                                         DropdownMenuItem(
-                                            text = { Text(opt, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color.White) },
+                                            text = { Text(opt, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = AppColors.textPrimary) },
                                             onClick = {
                                                 selectedCta = opt
                                                 ctaExpanded = false
@@ -660,22 +672,22 @@ fun AdCreator(
                                 fontFamily = InterFontFamily,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFFE4E4E7)
+                                color = AppColors.textPrimary
                             )
                             Spacer(modifier = Modifier.height(6.dp))
                             OutlinedTextField(
                                 value = targetLocation,
                                 onValueChange = { targetLocation = it },
                                 textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
-                                placeholder = { Text("e.g. Tanzania, Nairobi, Global", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF71717A)) },
+                                placeholder = { Text("e.g. Tanzania, Nairobi, Global", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = AppColors.textMuted) },
                                 shape = RoundedCornerShape(10.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedContainerColor = Color(0xFF0F172A),
-                                    unfocusedContainerColor = Color(0xFF0F172A),
-                                    focusedTextColor = Color.White,
-                                    unfocusedTextColor = Color.White,
-                                    focusedBorderColor = Color(0xFF2563EB),
-                                    unfocusedBorderColor = Color(0xFF1E293B)
+                                    focusedContainerColor = AppColors.bgCard,
+                                    unfocusedContainerColor = AppColors.bgCard,
+                                    focusedTextColor = AppColors.textPrimary,
+                                    unfocusedTextColor = AppColors.textPrimary,
+                                    focusedBorderColor = AppColors.primaryBlue,
+                                    unfocusedBorderColor = AppColors.borderStrong
                                 ),
                                 singleLine = true,
                                 modifier = Modifier.fillMaxWidth()
@@ -691,14 +703,15 @@ fun AdCreator(
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text("Daily Budget ($)", fontFamily = InterFontFamily, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFFE4E4E7))
+                                    Text("Daily Budget ($)", fontFamily = InterFontFamily, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = AppColors.textPrimary)
                                     Box(
                                         modifier = Modifier
                                             .clip(RoundedCornerShape(8.dp))
-                                            .background(Color(0xFF1E293B))
+                                            .background(AppColors.bgCard)
+                                            .border(1.dp, AppColors.border, RoundedCornerShape(8.dp))
                                             .padding(horizontal = 12.dp, vertical = 6.dp)
                                     ) {
-                                        Text("$${dailyBudget.toInt()}", fontFamily = InterFontFamily, color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                                        Text("$${dailyBudget.toInt()}", fontFamily = InterFontFamily, color = AppColors.textPrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                                     }
                                 }
                                 Slider(
@@ -706,12 +719,12 @@ fun AdCreator(
                                     onValueChange = { dailyBudget = it },
                                     valueRange = 1f..100f,
                                     colors = SliderDefaults.colors(
-                                        thumbColor = Color(0xFF2563EB),
-                                        activeTrackColor = Color(0xFF2563EB),
-                                        inactiveTrackColor = Color(0xFF1E293B)
+                                        thumbColor = AppColors.primaryBlue,
+                                        activeTrackColor = AppColors.primaryBlue,
+                                        inactiveTrackColor = AppColors.bgChip
                                     )
                                 )
-                                Text("✨ Free promotion - No actual charges", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF34D399), fontSize = 12.sp)
+                                Text("✨ Free promotion - No actual charges", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = promoGreen, fontSize = 12.sp)
                             }
 
                             // Duration slider
@@ -721,14 +734,15 @@ fun AdCreator(
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text("Duration (Days)", fontFamily = InterFontFamily, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFFE4E4E7))
+                                    Text("Duration (Days)", fontFamily = InterFontFamily, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = AppColors.textPrimary)
                                     Box(
                                         modifier = Modifier
                                             .clip(RoundedCornerShape(8.dp))
-                                            .background(Color(0xFF1E293B))
+                                            .background(AppColors.bgCard)
+                                            .border(1.dp, AppColors.border, RoundedCornerShape(8.dp))
                                             .padding(horizontal = 12.dp, vertical = 6.dp)
                                     ) {
-                                        Text("${durationDays.toInt()}d", fontFamily = InterFontFamily, color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                                        Text("${durationDays.toInt()}d", fontFamily = InterFontFamily, color = AppColors.textPrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                                     }
                                 }
                                 Slider(
@@ -736,9 +750,9 @@ fun AdCreator(
                                     onValueChange = { durationDays = it },
                                     valueRange = 1f..30f,
                                     colors = SliderDefaults.colors(
-                                        thumbColor = Color(0xFF2563EB),
-                                        activeTrackColor = Color(0xFF2563EB),
-                                        inactiveTrackColor = Color(0xFF1E293B)
+                                        thumbColor = AppColors.primaryBlue,
+                                        activeTrackColor = AppColors.primaryBlue,
+                                        inactiveTrackColor = AppColors.bgChip
                                     )
                                 )
                             }
@@ -749,16 +763,16 @@ fun AdCreator(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(Color(0xFF10B981).copy(alpha = 0.12f))
+                                .background(Color(0xFF10B981).copy(alpha = if (AppColors.isLight) 0.10f else 0.12f))
                                 .border(1.dp, Color(0xFF10B981).copy(alpha = 0.30f), RoundedCornerShape(12.dp))
                                 .padding(16.dp)
                         ) {
                             Column {
-                                Text("Total Campaign Cost", fontFamily = InterFontFamily, fontSize = 13.sp, color = Color(0xFF34D399), fontWeight = FontWeight.Medium)
+                                Text("Total Campaign Cost", fontFamily = InterFontFamily, fontSize = 13.sp, color = promoGreen, fontWeight = FontWeight.Medium)
                                 Spacer(modifier = Modifier.height(2.dp))
-                                Text("$0.00", fontFamily = InterFontFamily, fontSize = 26.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                                Text("$0.00", fontFamily = InterFontFamily, fontSize = 26.sp, fontWeight = FontWeight.SemiBold, color = AppColors.textPrimary)
                                 Spacer(modifier = Modifier.height(2.dp))
-                                Text("✨ Completely free on Feathered", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = Color(0xFF34D399))
+                                Text("✨ Completely free on Feathered", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = promoGreen)
                             }
                         }
 
@@ -769,7 +783,7 @@ fun AdCreator(
                                 fontFamily = InterFontFamily,
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color.White,
+                                color = AppColors.textPrimary,
                                 modifier = Modifier.padding(bottom = 10.dp)
                             )
                             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
@@ -793,18 +807,18 @@ fun AdCreator(
                             Button(
                                 onClick = { step = 1 },
                                 shape = RoundedCornerShape(10.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E293B)),
+                                colors = ButtonDefaults.buttonColors(containerColor = AppColors.bgChip, contentColor = AppColors.textPrimary),
                                 modifier = Modifier
                                     .weight(1f)
                                     .height(48.dp)
                             ) {
-                                Text("Back", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color.White)
+                                Text("Back", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = AppColors.textPrimary)
                             }
 
                             Button(
                                 onClick = { step = 3 },
                                 shape = RoundedCornerShape(10.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2563EB)),
+                                colors = ButtonDefaults.buttonColors(containerColor = AppColors.primaryBlue),
                                 modifier = Modifier
                                     .weight(2f)
                                     .height(48.dp)
@@ -834,7 +848,7 @@ fun AdCreator(
                                 fontFamily = InterFontFamily,
                                 fontSize = 22.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color.White
+                                color = AppColors.textPrimary
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
@@ -842,7 +856,7 @@ fun AdCreator(
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
                                 fontSize = 13.sp,
-                                color = Color(0xFFA1A1AA)
+                                color = AppColors.textSecondary
                             )
                         }
 
@@ -858,8 +872,8 @@ fun AdCreator(
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(14.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
-                            border = BorderStroke(1.dp, Color(0xFF1E293B))
+                            colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+                            border = BorderStroke(1.dp, AppColors.border)
                         ) {
                             Column(
                                 modifier = Modifier.padding(18.dp),
@@ -874,7 +888,7 @@ fun AdCreator(
                                 SummaryRow(label = "Target Location", value = targetLocation)
                                 SummaryRow(label = "Call to Action", value = selectedCta)
 
-                                HorizontalDivider(color = Color(0xFF1E293B), thickness = 1.dp)
+                                HorizontalDivider(color = AppColors.border, thickness = 1.dp)
 
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
@@ -882,10 +896,10 @@ fun AdCreator(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Column {
-                                        Text("Total Cost", fontFamily = InterFontFamily, fontSize = 12.sp, color = Color(0xFF71717A), fontWeight = FontWeight.SemiBold)
-                                        Text("$0.00", fontFamily = InterFontFamily, fontSize = 22.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                                        Text("Total Cost", fontFamily = InterFontFamily, fontSize = 12.sp, color = AppColors.textSecondary, fontWeight = FontWeight.SemiBold)
+                                        Text("$0.00", fontFamily = InterFontFamily, fontSize = 22.sp, fontWeight = FontWeight.SemiBold, color = AppColors.textPrimary)
                                     }
-                                    Text("✨ Free promotion on Feathered", fontFamily = InterFontFamily, color = Color(0xFF34D399), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                                    Text("✨ Free promotion on Feathered", fontFamily = InterFontFamily, color = promoGreen, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                                 }
                             }
                         }
@@ -898,12 +912,12 @@ fun AdCreator(
                             Button(
                                 onClick = { step = 2 },
                                 shape = RoundedCornerShape(10.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E293B)),
+                                colors = ButtonDefaults.buttonColors(containerColor = AppColors.bgChip, contentColor = AppColors.textPrimary),
                                 modifier = Modifier
                                     .weight(1f)
                                     .height(50.dp)
                             ) {
-                                Text("Edit Details", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color.White)
+                                Text("Edit Details", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = AppColors.textPrimary)
                             }
 
                             Button(
@@ -976,7 +990,7 @@ fun AdCreator(
                             fontFamily = InterFontFamily,
                             fontSize = 26.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color.White
+                            color = AppColors.textPrimary
                         )
 
                         Text(
@@ -984,7 +998,7 @@ fun AdCreator(
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal,
                             fontSize = 14.sp,
-                            color = Color(0xFFA1A1AA),
+                            color = AppColors.textSecondary,
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center
                         )
                     }
@@ -1001,8 +1015,8 @@ private fun SummaryRow(label: String, value: String) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = label, fontFamily = InterFontFamily, fontSize = 12.sp, color = Color(0xFF71717A), fontWeight = FontWeight.SemiBold)
-        Text(text = value, fontFamily = InterFontFamily, fontSize = 13.sp, color = Color.White, fontWeight = FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(text = label, fontFamily = InterFontFamily, fontSize = 12.sp, color = AppColors.textSecondary, fontWeight = FontWeight.SemiBold)
+        Text(text = value, fontFamily = InterFontFamily, fontSize = 13.sp, color = AppColors.textPrimary, fontWeight = FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 
@@ -1016,15 +1030,15 @@ private fun PostSelectionCard(
             .fillMaxWidth()
             .clickable(onClick = onSelect),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
-        border = BorderStroke(1.dp, Color(0xFF1E293B))
+        colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+        border = BorderStroke(1.dp, AppColors.border)
     ) {
         Column {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(16f / 9f)
-                    .background(Color(0xFF1E293B))
+                    .background(AppColors.bgCardElevated)
             ) {
                 val mediaUrl = post.mediaUrls.firstOrNull() ?: post.mediaUrl
                 if (!mediaUrl.isNullOrBlank()) {
@@ -1036,7 +1050,7 @@ private fun PostSelectionCard(
                     )
                 } else {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Icon(Icons.Default.Image, contentDescription = null, tint = Color(0xFF71717A), modifier = Modifier.size(28.dp))
+                        Icon(Icons.Default.Image, contentDescription = null, tint = AppColors.textMuted, modifier = Modifier.size(28.dp))
                     }
                 }
 
@@ -1060,7 +1074,7 @@ private fun PostSelectionCard(
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Normal,
                     fontSize = 13.sp,
-                    color = Color.White,
+                    color = AppColors.textPrimary,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -1069,8 +1083,8 @@ private fun PostSelectionCard(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(post.timestamp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 11.sp, color = Color(0xFF71717A))
-                    Text("❤️ ${post.likesCount}", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 11.sp, color = Color(0xFF71717A))
+                    Text(post.timestamp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 11.sp, color = AppColors.textSecondary)
+                    Text("❤️ ${post.likesCount}", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 11.sp, color = AppColors.textSecondary)
                 }
             }
         }
@@ -1087,8 +1101,8 @@ private fun PostSelectionRow(
             .fillMaxWidth()
             .clickable(onClick = onSelect),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
-        border = BorderStroke(1.dp, Color(0xFF1E293B))
+        colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+        border = BorderStroke(1.dp, AppColors.border)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(10.dp),
@@ -1098,7 +1112,7 @@ private fun PostSelectionRow(
                 modifier = Modifier
                     .size(60.dp)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(Color(0xFF1E293B))
+                    .background(AppColors.bgCardElevated)
             ) {
                 val mediaUrl = post.mediaUrls.firstOrNull() ?: post.mediaUrl
                 if (!mediaUrl.isNullOrBlank()) {
@@ -1110,7 +1124,7 @@ private fun PostSelectionRow(
                     )
                 } else {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Icon(Icons.Default.Image, contentDescription = null, tint = Color(0xFF71717A), modifier = Modifier.size(24.dp))
+                        Icon(Icons.Default.Image, contentDescription = null, tint = AppColors.textMuted, modifier = Modifier.size(24.dp))
                     }
                 }
             }
@@ -1123,7 +1137,7 @@ private fun PostSelectionRow(
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Normal,
                     fontSize = 14.sp,
-                    color = Color.White,
+                    color = AppColors.textPrimary,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -1133,7 +1147,7 @@ private fun PostSelectionRow(
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Normal,
                     fontSize = 12.sp,
-                    color = Color(0xFF71717A)
+                    color = AppColors.textSecondary
                 )
             }
         }

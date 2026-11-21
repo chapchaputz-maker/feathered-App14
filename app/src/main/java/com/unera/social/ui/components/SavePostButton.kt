@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.unera.social.model.Post
 import com.unera.social.model.Reel
+import com.unera.social.ui.theme.AppColors
 import kotlinx.coroutines.launch
 
 /**
@@ -80,7 +81,11 @@ fun SavePostButton(
         1f
     }
 
-    val bookmarkColor = if (isSaved) Color(0xFFF59E0B) else Color(0xFFF8FAFC)
+    val bookmarkColor = when {
+        isSaved -> Color(0xFFF59E0B)
+        isVideo -> Color.White
+        else -> AppColors.textPrimary
+    }
     val actionDesc = if (isSaved) "Remove from saved" else "Save post"
 
     Box(

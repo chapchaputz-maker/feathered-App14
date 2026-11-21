@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 import kotlin.math.roundToInt
 
@@ -42,15 +43,15 @@ data class PostUploadState(
     val error: String? = null
 )
 
-private val BannerBgDark = Color(0xFF0F172A)
-private val BannerBorderBottom = Color(0xFF050B18)
-private val CardBorderDark = Color(0xFF1E293B)
-private val ThumbnailBg = Color(0xFF141E33)
-private val BrandBlue = Color(0xFF1877F2)
+private val BannerBgDark @Composable get() = AppColors.bgCard
+private val BannerBorderBottom @Composable get() = AppColors.sectionDivider
+private val CardBorderDark @Composable get() = AppColors.border
+private val ThumbnailBg @Composable get() = AppColors.bgInput
+private val BrandBlue @Composable get() = AppColors.primaryBlue
 private val SuccessGreen = Color(0xFF10B981)
-private val TextWhite = Color(0xFFF8FAFC)
-private val TextMuted = Color(0xFF94A3B8)
-private val TrackBg = Color(0xFF1E293B)
+private val TextWhite @Composable get() = AppColors.textPrimary
+private val TextMuted @Composable get() = AppColors.textSecondary
+private val TrackBg @Composable get() = AppColors.bgChip
 
 /**
  * PostUploadProgressBanner - Top feed upload banner matching the Facebook mobile upload interface.
@@ -345,7 +346,7 @@ fun PostUploadBottomPill(
                     ) {
                         Text(
                             text = uploadState.title,
-                            color = Color.White,
+                            color = AppColors.textPrimary,
                             fontSize = 13.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,

@@ -38,19 +38,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.unera.social.model.User
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
-
-// Theme colors matching Feathered web design system
-private val HelpBgDark = Color(0xFF050B18)
-private val HelpCardDark = Color(0xFF0F172A)
-private val HelpCardElevated = Color(0xFF141E33)
-private val HelpBorderDark = Color(0xFF1E293B)
-private val HelpBlue = Color(0xFF1877F2)
-private val HelpBlueHover = Color(0xFF166FE5)
-private val HelpBlueDark = Color(0xFF263951)
-private val HelpTextPrimary = Color(0xFFF8FAFC)
-private val HelpTextSecondary = Color(0xFF94A3B8)
-private val HelpTextMuted = Color(0xFF64748B)
 
 data class HelpArticle(
     val id: String,
@@ -342,58 +331,59 @@ private fun HelpSupportMainContent(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(HelpBgDark)
-            .statusBarsPadding()
+            .background(AppColors.bgScreen)
             .navigationBarsPadding()
             .testTag("help_support_screen")
     ) {
         // Top App Bar matching Feathered standard header
         Surface(
-            color = HelpCardDark,
-            modifier = Modifier.fillMaxWidth(),
-            border = BorderStroke(1.dp, HelpBorderDark)
+            color = AppColors.headerBg,
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(60.dp)
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
+            Column(modifier = Modifier.fillMaxWidth().statusBarsPadding()) {
                 Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp)
+                        .padding(horizontal = 16.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    IconButton(
-                        onClick = onBack,
-                        modifier = Modifier.testTag("help_back_button")
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color.White
+                        IconButton(
+                            onClick = onBack,
+                            modifier = Modifier.testTag("help_back_button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                tint = AppColors.headerIconTint
+                            )
+                        }
+                        Text(
+                            text = "Help & Support",
+                            color = AppColors.headerText,
+                            fontSize = 20.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold
                         )
                     }
-                    Text(
-                        text = "Help & Support",
-                        color = Color.White,
-                        fontSize = 20.sp,
-                        fontFamily = InterFontFamily,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
 
-                IconButton(
-                    onClick = onOpenContact,
-                    modifier = Modifier.testTag("help_contact_top_button")
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.HeadsetMic,
-                        contentDescription = "Contact Support",
-                        tint = HelpBlue
-                    )
+                    IconButton(
+                        onClick = onOpenContact,
+                        modifier = Modifier.testTag("help_contact_top_button")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.HeadsetMic,
+                            contentDescription = "Contact Support",
+                            tint = if (AppColors.isLight) Color.White else AppColors.primaryBlue
+                        )
+                    }
                 }
+                HorizontalDivider(color = AppColors.headerDivider)
             }
         }
 
@@ -409,18 +399,19 @@ private fun HelpSupportMainContent(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = HelpCardDark),
-                    border = BorderStroke(1.dp, HelpBorderDark)
+                    colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+                    border = BorderStroke(1.dp, AppColors.border)
                 ) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(
                                 Brush.verticalGradient(
-                                    colors = listOf(
-                                        Color(0xFF1E293B),
-                                        HelpCardDark
-                                    )
+                                    colors = if (AppColors.isLight) {
+                                        listOf(AppColors.bgBlueTint, AppColors.bgCard)
+                                    } else {
+                                        listOf(Color(0xFF1E293B), AppColors.bgCard)
+                                    }
                                 )
                             )
                             .padding(20.dp)
@@ -434,19 +425,19 @@ private fun HelpSupportMainContent(
                                     modifier = Modifier
                                         .size(36.dp)
                                         .clip(CircleShape)
-                                        .background(HelpBlue.copy(alpha = 0.2f)),
+                                        .background(AppColors.bgBlueTint),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.HelpOutline,
                                         contentDescription = null,
-                                        tint = HelpBlue,
+                                        tint = AppColors.primaryBlue,
                                         modifier = Modifier.size(20.dp)
                                     )
                                 }
                                 Text(
                                     text = "Feathered Help Center",
-                                    color = HelpBlue,
+                                    color = AppColors.primaryBlue,
                                     fontSize = 13.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.SemiBold
@@ -455,7 +446,7 @@ private fun HelpSupportMainContent(
                             Spacer(modifier = Modifier.height(10.dp))
                             Text(
                                 text = "How can we help you today?",
-                                color = Color.White,
+                                color = AppColors.textPrimary,
                                 fontSize = 22.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.SemiBold
@@ -463,7 +454,7 @@ private fun HelpSupportMainContent(
                             Spacer(modifier = Modifier.height(6.dp))
                             Text(
                                 text = "Find step-by-step guides, troubleshoot common issues, or reach out to our team.",
-                                color = HelpTextSecondary,
+                                color = AppColors.textSecondary,
                                 fontSize = 14.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
@@ -490,7 +481,7 @@ private fun HelpSupportMainContent(
                     placeholder = {
                         Text(
                             text = "Search articles, guides, or keywords...",
-                            color = HelpTextMuted,
+                            color = AppColors.textMuted,
                             fontSize = 14.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal
@@ -500,7 +491,7 @@ private fun HelpSupportMainContent(
                         Icon(
                             imageVector = Icons.Default.Search,
                             contentDescription = "Search",
-                            tint = HelpTextSecondary
+                            tint = AppColors.textSecondary
                         )
                     },
                     trailingIcon = {
@@ -509,7 +500,7 @@ private fun HelpSupportMainContent(
                                 Icon(
                                     imageVector = Icons.Default.Clear,
                                     contentDescription = "Clear",
-                                    tint = HelpTextSecondary
+                                    tint = AppColors.textSecondary
                                 )
                             }
                         }
@@ -517,12 +508,12 @@ private fun HelpSupportMainContent(
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = HelpCardDark,
-                        unfocusedContainerColor = HelpCardDark,
-                        focusedBorderColor = HelpBlue,
-                        unfocusedBorderColor = HelpBorderDark,
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White
+                        focusedContainerColor = AppColors.bgCard,
+                        unfocusedContainerColor = AppColors.bgCard,
+                        focusedBorderColor = AppColors.primaryBlue,
+                        unfocusedBorderColor = AppColors.border,
+                        focusedTextColor = AppColors.textPrimary,
+                        unfocusedTextColor = AppColors.textPrimary
                     )
                 )
             }
@@ -549,14 +540,14 @@ private fun HelpSupportMainContent(
                                 )
                             },
                             colors = FilterChipDefaults.filterChipColors(
-                                containerColor = HelpCardDark,
-                                labelColor = HelpTextSecondary,
-                                selectedContainerColor = HelpBlue,
+                                containerColor = AppColors.bgCard,
+                                labelColor = AppColors.textSecondary,
+                                selectedContainerColor = AppColors.primaryBlue,
                                 selectedLabelColor = Color.White
                             ),
                             border = BorderStroke(
                                 1.dp,
-                                if (isSelected) HelpBlue else HelpBorderDark
+                                if (isSelected) AppColors.primaryBlue else AppColors.border
                             ),
                             shape = RoundedCornerShape(20.dp)
                         )
@@ -573,7 +564,7 @@ private fun HelpSupportMainContent(
                 ) {
                     Text(
                         text = "Articles & Guides (${filteredArticles.size})",
-                        color = Color.White,
+                        color = AppColors.textPrimary,
                         fontSize = 17.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold
@@ -581,7 +572,7 @@ private fun HelpSupportMainContent(
                     if (searchQuery.isNotBlank() || selectedCategory != "All Topics") {
                         Text(
                             text = "Reset",
-                            color = HelpBlue,
+                            color = AppColors.primaryBlue,
                             fontSize = 13.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Medium,
@@ -600,8 +591,8 @@ private fun HelpSupportMainContent(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = HelpCardDark),
-                        border = BorderStroke(1.dp, HelpBorderDark)
+                        colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+                        border = BorderStroke(1.dp, AppColors.border)
                     ) {
                         Column(
                             modifier = Modifier
@@ -613,19 +604,19 @@ private fun HelpSupportMainContent(
                             Icon(
                                 imageVector = Icons.Default.SearchOff,
                                 contentDescription = null,
-                                tint = HelpTextMuted,
+                                tint = AppColors.textMuted,
                                 modifier = Modifier.size(40.dp)
                             )
                             Text(
                                 text = "No matching articles found",
-                                color = Color.White,
+                                color = AppColors.textPrimary,
                                 fontSize = 16.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.SemiBold
                             )
                             Text(
                                 text = "Try adjusting your search terms or select another category.",
-                                color = HelpTextSecondary,
+                                color = AppColors.textSecondary,
                                 fontSize = 13.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
@@ -648,7 +639,7 @@ private fun HelpSupportMainContent(
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "Frequently Asked Questions",
-                    color = Color.White,
+                    color = AppColors.textPrimary,
                     fontSize = 17.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.SemiBold
@@ -666,8 +657,8 @@ private fun HelpSupportMainContent(
                         .fillMaxWidth()
                         .padding(top = 8.dp),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = HelpCardDark),
-                    border = BorderStroke(1.dp, HelpBorderDark)
+                    colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+                    border = BorderStroke(1.dp, AppColors.border)
                 ) {
                     Column(
                         modifier = Modifier
@@ -679,20 +670,20 @@ private fun HelpSupportMainContent(
                             modifier = Modifier
                                 .size(50.dp)
                                 .clip(CircleShape)
-                                .background(HelpBlue.copy(alpha = 0.15f)),
+                                .background(AppColors.bgBlueTint),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.SupportAgent,
                                 contentDescription = null,
-                                tint = HelpBlue,
+                                tint = AppColors.primaryBlue,
                                 modifier = Modifier.size(28.dp)
                             )
                         }
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
                             text = "Still need help?",
-                            color = Color.White,
+                            color = AppColors.textPrimary,
                             fontSize = 18.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold
@@ -700,7 +691,7 @@ private fun HelpSupportMainContent(
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "Our support team is available 24/7 to answer questions, resolve account issues, and hear your feedback.",
-                            color = HelpTextSecondary,
+                            color = AppColors.textSecondary,
                             fontSize = 13.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal,
@@ -711,7 +702,7 @@ private fun HelpSupportMainContent(
                         Button(
                             onClick = onOpenContact,
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = HelpBlue,
+                                containerColor = AppColors.primaryBlue,
                                 contentColor = Color.White
                             ),
                             shape = RoundedCornerShape(10.dp),
@@ -736,7 +727,7 @@ private fun HelpSupportMainContent(
                         Spacer(modifier = Modifier.height(10.dp))
                         Text(
                             text = "Email: support@feathered.social",
-                            color = HelpTextMuted,
+                            color = AppColors.textMuted,
                             fontSize = 12.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal
@@ -763,8 +754,8 @@ private fun HelpArticleCard(
             .clickable(onClick = onClick)
             .testTag("help_article_${article.id}"),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = HelpCardDark),
-        border = BorderStroke(1.dp, HelpBorderDark)
+        colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+        border = BorderStroke(1.dp, AppColors.border)
     ) {
         Row(
             modifier = Modifier
@@ -778,7 +769,7 @@ private fun HelpArticleCard(
                 modifier = Modifier
                     .size(46.dp)
                     .clip(RoundedCornerShape(10.dp))
-                    .background(HelpCardElevated),
+                    .background(AppColors.bgCardElevated),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -793,7 +784,7 @@ private fun HelpArticleCard(
                         else -> Icons.Default.Security
                     },
                     contentDescription = null,
-                    tint = HelpBlue,
+                    tint = AppColors.primaryBlue,
                     modifier = Modifier.size(24.dp)
                 )
             }
@@ -802,12 +793,12 @@ private fun HelpArticleCard(
                 modifier = Modifier.weight(1f)
             ) {
                 Surface(
-                    color = HelpBlue.copy(alpha = 0.12f),
+                    color = AppColors.bgBlueTint,
                     shape = RoundedCornerShape(4.dp)
                 ) {
                     Text(
                         text = article.category,
-                        color = HelpBlue,
+                        color = AppColors.primaryBlue,
                         fontSize = 10.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
@@ -817,7 +808,7 @@ private fun HelpArticleCard(
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = article.title,
-                    color = Color.White,
+                    color = AppColors.textPrimary,
                     fontSize = 15.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.SemiBold,
@@ -827,7 +818,7 @@ private fun HelpArticleCard(
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = article.preview,
-                    color = HelpTextSecondary,
+                    color = AppColors.textSecondary,
                     fontSize = 12.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Normal,
@@ -840,7 +831,7 @@ private fun HelpArticleCard(
             Icon(
                 imageVector = Icons.Default.ChevronRight,
                 contentDescription = "Read Article",
-                tint = HelpTextMuted,
+                tint = AppColors.textMuted,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -856,8 +847,8 @@ private fun FaqAccordionCard(faq: FaqItem) {
             .fillMaxWidth()
             .clickable { expanded = !expanded },
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = HelpCardDark),
-        border = BorderStroke(1.dp, HelpBorderDark)
+        colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+        border = BorderStroke(1.dp, AppColors.border)
     ) {
         Column(
             modifier = Modifier
@@ -871,7 +862,7 @@ private fun FaqAccordionCard(faq: FaqItem) {
             ) {
                 Text(
                     text = faq.question,
-                    color = Color.White,
+                    color = AppColors.textPrimary,
                     fontSize = 14.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.SemiBold,
@@ -880,18 +871,18 @@ private fun FaqAccordionCard(faq: FaqItem) {
                 Icon(
                     imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                     contentDescription = if (expanded) "Collapse" else "Expand",
-                    tint = HelpTextSecondary
+                    tint = AppColors.textSecondary
                 )
             }
 
             AnimatedVisibility(visible = expanded) {
                 Column {
                     Spacer(modifier = Modifier.height(10.dp))
-                    HorizontalDivider(color = HelpBorderDark, thickness = 1.dp)
+                    HorizontalDivider(color = AppColors.border, thickness = 1.dp)
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
                         text = faq.answer,
-                        color = HelpTextSecondary,
+                        color = AppColors.textSecondary,
                         fontSize = 13.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal,
@@ -914,42 +905,43 @@ private fun HelpArticleDetailScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(HelpBgDark)
-            .statusBarsPadding()
+            .background(AppColors.bgScreen)
             .navigationBarsPadding()
             .testTag("help_article_detail_${article.id}")
     ) {
         // Detail Header
         Surface(
-            color = HelpCardDark,
-            modifier = Modifier.fillMaxWidth(),
-            border = BorderStroke(1.dp, HelpBorderDark)
+            color = AppColors.headerBg,
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(60.dp)
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                IconButton(
-                    onClick = onBack,
-                    modifier = Modifier.testTag("help_detail_back_button")
+            Column(modifier = Modifier.fillMaxWidth().statusBarsPadding()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp)
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
-                        tint = Color.White
+                    IconButton(
+                        onClick = onBack,
+                        modifier = Modifier.testTag("help_detail_back_button")
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = AppColors.headerIconTint
+                        )
+                    }
+                    Text(
+                        text = article.category,
+                        color = AppColors.headerText,
+                        fontSize = 18.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
-                Text(
-                    text = article.category,
-                    color = Color.White,
-                    fontSize = 18.sp,
-                    fontFamily = InterFontFamily,
-                    fontWeight = FontWeight.SemiBold
-                )
+                HorizontalDivider(color = AppColors.headerDivider)
             }
         }
 
@@ -962,12 +954,12 @@ private fun HelpArticleDetailScreen(
         ) {
             // Category Badge
             Surface(
-                color = HelpBlue.copy(alpha = 0.15f),
+                color = AppColors.bgBlueTint,
                 shape = RoundedCornerShape(6.dp)
             ) {
                 Text(
                     text = article.category.uppercase(),
-                    color = HelpBlue,
+                    color = AppColors.primaryBlue,
                     fontSize = 11.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.SemiBold,
@@ -978,7 +970,7 @@ private fun HelpArticleDetailScreen(
             // Article Title
             Text(
                 text = article.title,
-                color = Color.White,
+                color = AppColors.textPrimary,
                 fontSize = 24.sp,
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.SemiBold,
@@ -988,7 +980,7 @@ private fun HelpArticleDetailScreen(
             // Article Intro
             Text(
                 text = article.preview,
-                color = HelpTextSecondary,
+                color = AppColors.textSecondary,
                 fontSize = 15.sp,
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.Normal,
@@ -1003,7 +995,7 @@ private fun HelpArticleDetailScreen(
                     .fillMaxWidth()
                     .height(200.dp)
                     .clip(RoundedCornerShape(14.dp))
-                    .border(1.dp, HelpBorderDark, RoundedCornerShape(14.dp)),
+                    .border(1.dp, AppColors.border, RoundedCornerShape(14.dp)),
                 contentScale = ContentScale.Crop
             )
 
@@ -1013,8 +1005,8 @@ private fun HelpArticleDetailScreen(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = HelpCardDark),
-                        border = BorderStroke(1.dp, HelpBorderDark)
+                        colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+                        border = BorderStroke(1.dp, AppColors.border)
                     ) {
                         Column(
                             modifier = Modifier
@@ -1039,19 +1031,19 @@ private fun HelpArticleDetailScreen(
                                     modifier = Modifier
                                         .size(32.dp)
                                         .clip(CircleShape)
-                                        .background(HelpCardElevated),
+                                        .background(AppColors.bgCardElevated),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
                                         imageVector = sub.icon,
                                         contentDescription = null,
-                                        tint = HelpBlue,
+                                        tint = AppColors.primaryBlue,
                                         modifier = Modifier.size(18.dp)
                                     )
                                 }
                                 Text(
                                     text = sub.title,
-                                    color = Color.White,
+                                    color = AppColors.textPrimary,
                                     fontSize = 16.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.SemiBold
@@ -1067,14 +1059,14 @@ private fun HelpArticleDetailScreen(
                                 ) {
                                     Text(
                                         text = "${idx + 1}.",
-                                        color = HelpBlue,
+                                        color = AppColors.primaryBlue,
                                         fontSize = 13.sp,
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.SemiBold
                                     )
                                     Text(
                                         text = step,
-                                        color = HelpTextPrimary,
+                                        color = AppColors.textBody,
                                         fontSize = 13.sp,
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Normal,
@@ -1091,8 +1083,8 @@ private fun HelpArticleDetailScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = HelpCardDark),
-                border = BorderStroke(1.dp, HelpBorderDark)
+                colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+                border = BorderStroke(1.dp, AppColors.border)
             ) {
                 Column(
                     modifier = Modifier
@@ -1101,7 +1093,7 @@ private fun HelpArticleDetailScreen(
                 ) {
                     Text(
                         text = "Step-by-Step Guide",
-                        color = Color.White,
+                        color = AppColors.textPrimary,
                         fontSize = 16.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold
@@ -1119,12 +1111,12 @@ private fun HelpArticleDetailScreen(
                                 modifier = Modifier
                                     .size(24.dp)
                                     .clip(CircleShape)
-                                    .background(HelpBlue.copy(alpha = 0.2f)),
+                                    .background(AppColors.bgBlueTint),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
                                     text = "${index + 1}",
-                                    color = HelpBlue,
+                                    color = AppColors.primaryBlue,
                                     fontSize = 12.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.SemiBold
@@ -1132,7 +1124,7 @@ private fun HelpArticleDetailScreen(
                             }
                             Text(
                                 text = step,
-                                color = HelpTextPrimary,
+                                color = AppColors.textBody,
                                 fontSize = 14.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
@@ -1149,8 +1141,10 @@ private fun HelpArticleDetailScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = HelpBlueDark),
-                    border = BorderStroke(1.dp, HelpBlue.copy(alpha = 0.3f))
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (AppColors.isLight) AppColors.bgBlueTint else Color(0xFF263951)
+                    ),
+                    border = BorderStroke(1.dp, AppColors.primaryBlue.copy(alpha = 0.3f))
                 ) {
                     Row(
                         modifier = Modifier
@@ -1162,13 +1156,13 @@ private fun HelpArticleDetailScreen(
                         Icon(
                             imageVector = Icons.Default.Info,
                             contentDescription = "Tip",
-                            tint = HelpBlue,
+                            tint = AppColors.primaryBlue,
                             modifier = Modifier.size(22.dp)
                         )
                         Column {
                             Text(
                                 text = "Pro Tip",
-                                color = Color.White,
+                                color = AppColors.textPrimary,
                                 fontSize = 14.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.SemiBold
@@ -1176,7 +1170,7 @@ private fun HelpArticleDetailScreen(
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = tipText,
-                                color = HelpTextPrimary,
+                                color = AppColors.textBody,
                                 fontSize = 13.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
@@ -1191,8 +1185,8 @@ private fun HelpArticleDetailScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = HelpCardDark),
-                border = BorderStroke(1.dp, HelpBorderDark)
+                colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+                border = BorderStroke(1.dp, AppColors.border)
             ) {
                 Column(
                     modifier = Modifier
@@ -1202,7 +1196,7 @@ private fun HelpArticleDetailScreen(
                 ) {
                     Text(
                         text = "Was this article helpful?",
-                        color = Color.White,
+                        color = AppColors.textPrimary,
                         fontSize = 15.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold
@@ -1219,8 +1213,8 @@ private fun HelpArticleDetailScreen(
                                     Toast.makeText(context, "Thank you for your feedback!", Toast.LENGTH_SHORT).show()
                                 },
                                 shape = RoundedCornerShape(8.dp),
-                                border = BorderStroke(1.dp, HelpBorderDark),
-                                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)
+                                border = BorderStroke(1.dp, AppColors.borderStrong),
+                                colors = ButtonDefaults.outlinedButtonColors(contentColor = AppColors.textPrimary)
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.ThumbUp,
@@ -1237,8 +1231,8 @@ private fun HelpArticleDetailScreen(
                                     Toast.makeText(context, "Thanks for the feedback. We'll improve this guide.", Toast.LENGTH_SHORT).show()
                                 },
                                 shape = RoundedCornerShape(8.dp),
-                                border = BorderStroke(1.dp, HelpBorderDark),
-                                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)
+                                border = BorderStroke(1.dp, AppColors.borderStrong),
+                                colors = ButtonDefaults.outlinedButtonColors(contentColor = AppColors.textPrimary)
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.ThumbDown,
@@ -1257,12 +1251,12 @@ private fun HelpArticleDetailScreen(
                             Icon(
                                 imageVector = Icons.Default.CheckCircle,
                                 contentDescription = null,
-                                tint = Color(0xFF34D399),
+                                tint = AppColors.successText,
                                 modifier = Modifier.size(18.dp)
                             )
                             Text(
                                 text = "Thank you for your feedback!",
-                                color = Color(0xFF34D399),
+                                color = AppColors.successText,
                                 fontSize = 13.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.SemiBold
@@ -1307,8 +1301,8 @@ private fun ContactSupportDialog(
                 .wrapContentHeight()
                 .padding(16.dp),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = HelpCardDark),
-            border = BorderStroke(1.dp, HelpBorderDark)
+            colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+            border = BorderStroke(1.dp, AppColors.border)
         ) {
             Column(
                 modifier = Modifier
@@ -1327,26 +1321,26 @@ private fun ContactSupportDialog(
                             modifier = Modifier
                                 .size(56.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFF34D399).copy(alpha = 0.2f)),
+                                .background(AppColors.successText.copy(alpha = 0.16f)),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Check,
                                 contentDescription = null,
-                                tint = Color(0xFF34D399),
+                                tint = AppColors.successText,
                                 modifier = Modifier.size(32.dp)
                             )
                         }
                         Text(
                             text = "Ticket Submitted!",
-                            color = Color.White,
+                            color = AppColors.textPrimary,
                             fontSize = 20.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold
                         )
                         Text(
                             text = "Thank you for reaching out. A Feathered support specialist will review your request and reply via email at ${currentUser?.email ?: "your registered email"}.",
-                            color = HelpTextSecondary,
+                            color = AppColors.textSecondary,
                             fontSize = 13.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal,
@@ -1356,7 +1350,7 @@ private fun ContactSupportDialog(
                         Spacer(modifier = Modifier.height(12.dp))
                         Button(
                             onClick = onDismiss,
-                            colors = ButtonDefaults.buttonColors(containerColor = HelpBlue),
+                            colors = ButtonDefaults.buttonColors(containerColor = AppColors.primaryBlue, contentColor = Color.White),
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
@@ -1371,7 +1365,7 @@ private fun ContactSupportDialog(
                     ) {
                         Text(
                             text = "Contact Feathered Support",
-                            color = Color.White,
+                            color = AppColors.textPrimary,
                             fontSize = 18.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold
@@ -1380,7 +1374,7 @@ private fun ContactSupportDialog(
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = "Close",
-                                tint = HelpTextSecondary
+                                tint = AppColors.textSecondary
                             )
                         }
                     }
@@ -1389,7 +1383,7 @@ private fun ContactSupportDialog(
 
                     Text(
                         text = "Category",
-                        color = HelpTextSecondary,
+                        color = AppColors.textSecondary,
                         fontSize = 12.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold
@@ -1416,12 +1410,12 @@ private fun ContactSupportDialog(
                                     )
                                 },
                                 colors = FilterChipDefaults.filterChipColors(
-                                    containerColor = HelpCardElevated,
-                                    labelColor = HelpTextSecondary,
-                                    selectedContainerColor = HelpBlue,
+                                    containerColor = AppColors.bgInput,
+                                    labelColor = AppColors.textSecondary,
+                                    selectedContainerColor = AppColors.primaryBlue,
                                     selectedLabelColor = Color.White
                                 ),
-                                border = BorderStroke(1.dp, if (isSel) HelpBlue else HelpBorderDark),
+                                border = BorderStroke(1.dp, if (isSel) AppColors.primaryBlue else AppColors.borderStrong),
                                 shape = RoundedCornerShape(16.dp)
                             )
                         }
@@ -1431,7 +1425,7 @@ private fun ContactSupportDialog(
 
                     Text(
                         text = "Subject",
-                        color = HelpTextSecondary,
+                        color = AppColors.textSecondary,
                         fontSize = 12.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold
@@ -1449,7 +1443,7 @@ private fun ContactSupportDialog(
                         placeholder = {
                             Text(
                                 "Brief summary of your inquiry...",
-                                color = HelpTextMuted,
+                                color = AppColors.textMuted,
                                 fontSize = 13.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal
@@ -1458,12 +1452,12 @@ private fun ContactSupportDialog(
                         singleLine = true,
                         shape = RoundedCornerShape(8.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = HelpCardElevated,
-                            unfocusedContainerColor = HelpCardElevated,
-                            focusedBorderColor = HelpBlue,
-                            unfocusedBorderColor = HelpBorderDark,
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White
+                            focusedContainerColor = AppColors.bgInput,
+                            unfocusedContainerColor = AppColors.bgInput,
+                            focusedBorderColor = AppColors.primaryBlue,
+                            unfocusedBorderColor = AppColors.borderStrong,
+                            focusedTextColor = AppColors.textPrimary,
+                            unfocusedTextColor = AppColors.textPrimary
                         )
                     )
 
@@ -1471,7 +1465,7 @@ private fun ContactSupportDialog(
 
                     Text(
                         text = "Description",
-                        color = HelpTextSecondary,
+                        color = AppColors.textSecondary,
                         fontSize = 12.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold
@@ -1491,7 +1485,7 @@ private fun ContactSupportDialog(
                         placeholder = {
                             Text(
                                 "Describe the issue or feedback in detail...",
-                                color = HelpTextMuted,
+                                color = AppColors.textMuted,
                                 fontSize = 13.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal
@@ -1500,12 +1494,12 @@ private fun ContactSupportDialog(
                         maxLines = 4,
                         shape = RoundedCornerShape(8.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = HelpCardElevated,
-                            unfocusedContainerColor = HelpCardElevated,
-                            focusedBorderColor = HelpBlue,
-                            unfocusedBorderColor = HelpBorderDark,
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White
+                            focusedContainerColor = AppColors.bgInput,
+                            unfocusedContainerColor = AppColors.bgInput,
+                            focusedBorderColor = AppColors.primaryBlue,
+                            unfocusedBorderColor = AppColors.borderStrong,
+                            focusedTextColor = AppColors.textPrimary,
+                            unfocusedTextColor = AppColors.textPrimary
                         )
                     )
 
@@ -1519,7 +1513,7 @@ private fun ContactSupportDialog(
                                 isSubmitted = true
                             }
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = HelpBlue),
+                        colors = ButtonDefaults.buttonColors(containerColor = AppColors.primaryBlue, contentColor = Color.White),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier
                             .fillMaxWidth()

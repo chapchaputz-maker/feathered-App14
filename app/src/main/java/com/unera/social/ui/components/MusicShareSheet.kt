@@ -27,6 +27,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.unera.social.model.AudioTrack
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 
 private const val DEFAULT_MUSIC_COVER = "https://media.featheredsocial.site/task_01kftb3024ed7bm84gy6j485fh_1769336848_img_0.webp"
@@ -47,7 +48,7 @@ fun MusicShareSheet(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.65f))
+                .background(AppColors.scrim)
                 .clickable { onClose() },
             contentAlignment = Alignment.BottomCenter
         ) {
@@ -57,8 +58,8 @@ fun MusicShareSheet(
                     .clickable(enabled = false) {}
                     .testTag("music_share_sheet"),
                 shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-                color = Color(0xFF0F172A),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B))
+                color = AppColors.bgCard,
+                border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border)
             ) {
                 Column(
                     modifier = Modifier
@@ -77,16 +78,16 @@ fun MusicShareSheet(
                                 .width(40.dp)
                                 .height(4.dp)
                                 .clip(RoundedCornerShape(2.dp))
-                                .background(Color(0xFF1E293B))
+                                .background(AppColors.borderStrong)
                         )
                     }
 
                     // Track Preview Card
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
-                        color = Color(0xFF0B1120),
+                        color = AppColors.bgCardElevated,
                         shape = RoundedCornerShape(14.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B))
+                        border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border)
                     ) {
                         Row(
                             modifier = Modifier.padding(12.dp),
@@ -104,7 +105,7 @@ fun MusicShareSheet(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = track.title,
-                                    color = Color(0xFFE4E6EB),
+                                    color = AppColors.textPrimary,
                                     fontSize = 15.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.SemiBold,
@@ -113,7 +114,7 @@ fun MusicShareSheet(
                                 )
                                 Text(
                                     text = track.artist,
-                                    color = Color(0xFF94A3B8),
+                                    color = AppColors.textSecondary,
                                     fontSize = 13.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Bold,
@@ -183,8 +184,8 @@ fun MusicShareSheet(
                         onClick = onClose,
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF1E293B),
-                            contentColor = Color(0xFFE4E6EB)
+                            containerColor = AppColors.bgChip,
+                            contentColor = AppColors.textPrimary
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -236,14 +237,14 @@ private fun ShareOptionItem(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
-                    color = Color(0xFFE4E6EB),
+                    color = AppColors.textPrimary,
                     fontSize = 15.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Medium
                 )
                 Text(
                     text = subtitle,
-                    color = Color(0xFF94A3B8),
+                    color = AppColors.textSecondary,
                     fontSize = 12.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Normal
@@ -253,7 +254,7 @@ private fun ShareOptionItem(
             Icon(
                 imageVector = Icons.Default.ChevronRight,
                 contentDescription = null,
-                tint = Color(0xFF64748B),
+                tint = AppColors.textMuted,
                 modifier = Modifier.size(18.dp)
             )
         }

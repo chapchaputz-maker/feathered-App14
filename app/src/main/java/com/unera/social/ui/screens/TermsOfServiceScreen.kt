@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 
 /**
@@ -42,12 +43,12 @@ fun TermsOfServiceScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFF050B18))
+            .background(AppColors.bgScreen)
             .testTag("terms_of_service_screen")
     ) {
-        // Sticky Header
+        // Sticky Header (Blue in Light Mode)
         Surface(
-            color = Color(0xFF0F172A),
+            color = AppColors.headerBg,
             shadowElevation = 3.dp,
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -72,9 +73,8 @@ fun TermsOfServiceScreen(
                             .size(36.dp)
                             .clip(CircleShape)
                             .background(
-                                Brush.linearGradient(
-                                    listOf(Color(0xFF1877F2), Color(0xFF1D8AF2))
-                                )
+                                if (AppColors.isLight) Brush.linearGradient(listOf(Color.White.copy(alpha = 0.25f), Color.White.copy(alpha = 0.15f)))
+                                else Brush.linearGradient(listOf(Color(0xFF1877F2), Color(0xFF1D8AF2)))
                             ),
                         contentAlignment = Alignment.Center
                     ) {
@@ -91,7 +91,7 @@ fun TermsOfServiceScreen(
                         fontSize = 18.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF1877F2)
+                        color = if (AppColors.isLight) AppColors.headerText else AppColors.primaryBlue
                     )
                 }
 
@@ -99,7 +99,7 @@ fun TermsOfServiceScreen(
                 Surface(
                     onClick = onBack,
                     shape = RoundedCornerShape(20.dp),
-                    color = Color(0xFF1E293B).copy(alpha = 0.7f)
+                    color = if (AppColors.isLight) Color.White else AppColors.bgChip
                 ) {
                     Row(
                         modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
@@ -109,15 +109,15 @@ fun TermsOfServiceScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = null,
-                            tint = Color(0xFF94A3B8),
+                            tint = if (AppColors.isLight) AppColors.primaryBlue else AppColors.textSecondary,
                             modifier = Modifier.size(14.dp)
                         )
                         Text(
                             text = "Back",
                             fontSize = 13.sp,
                             fontFamily = InterFontFamily,
-                            fontWeight = FontWeight.Medium,
-                            color = Color(0xFFF8FAFC)
+                            fontWeight = FontWeight.SemiBold,
+                            color = if (AppColors.isLight) AppColors.primaryBlue else AppColors.textPrimary
                         )
                     }
                 }
@@ -144,7 +144,7 @@ fun TermsOfServiceScreen(
                         fontSize = 28.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White
+                        color = AppColors.textPrimary
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
@@ -152,19 +152,19 @@ fun TermsOfServiceScreen(
                         fontSize = 13.5.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal,
-                        color = Color(0xFF94A3B8)
+                        color = AppColors.textSecondary
                     )
                     Spacer(modifier = Modifier.height(14.dp))
-                    HorizontalDivider(color = Color(0xFF1E293B))
+                    HorizontalDivider(color = AppColors.border)
                 }
             }
 
             // Important Notice Banner
             item {
                 Surface(
-                    color = Color(0xFF1A2B42),
+                    color = AppColors.bgBlueTint,
                     shape = RoundedCornerShape(12.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF2D88FF).copy(alpha = 0.35f)),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.primaryBlue.copy(alpha = 0.35f)),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
@@ -175,7 +175,7 @@ fun TermsOfServiceScreen(
                         Icon(
                             imageVector = Icons.Default.Info,
                             contentDescription = null,
-                            tint = Color(0xFF1877F2),
+                            tint = AppColors.primaryBlue,
                             modifier = Modifier.size(24.dp)
                         )
                         Column {
@@ -184,7 +184,7 @@ fun TermsOfServiceScreen(
                                 fontSize = 14.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFFE4E6EB)
+                                color = AppColors.textPrimary
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
@@ -192,7 +192,7 @@ fun TermsOfServiceScreen(
                                 fontSize = 13.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
-                                color = Color(0xFFCBD5E1),
+                                color = AppColors.textBody,
                                 lineHeight = 19.sp
                             )
                         }
@@ -216,7 +216,7 @@ fun TermsOfServiceScreen(
                         fontSize = 18.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White
+                        color = AppColors.textPrimary
                     )
 
                     BulletPointRow(
@@ -245,14 +245,14 @@ fun TermsOfServiceScreen(
                         fontSize = 18.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White
+                        color = AppColors.textPrimary
                     )
                     Text(
                         text = "When you create an account with us, you must provide us information that is accurate, complete, and current at all times. Failure to do so constitutes a breach of the Terms, which may result in immediate termination of your account on our Service.",
                         fontSize = 14.5.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal,
-                        color = Color(0xFFD0D2D6),
+                        color = AppColors.textBody,
                         lineHeight = 21.sp
                     )
                     Text(
@@ -260,14 +260,14 @@ fun TermsOfServiceScreen(
                         fontSize = 14.5.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal,
-                        color = Color(0xFFD0D2D6),
+                        color = AppColors.textBody,
                         lineHeight = 21.sp
                     )
 
                     Surface(
-                        color = Color(0xFF0F172A),
+                        color = AppColors.bgCard,
                         shape = RoundedCornerShape(10.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B)),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(
@@ -279,7 +279,7 @@ fun TermsOfServiceScreen(
                                 fontSize = 14.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFFF8FAFC)
+                                color = AppColors.textPrimary
                             )
                             BulletItem("You must notify us immediately upon becoming aware of any breach of security.")
                             BulletItem("You may not use another user's account without permission.")
@@ -298,22 +298,22 @@ fun TermsOfServiceScreen(
                         fontSize = 18.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White
+                        color = AppColors.textPrimary
                     )
                     Text(
                         text = "Our Service allows you to post, link, store, share and otherwise make available certain information, text, graphics, videos, music, or other material (\"Content\"). You are responsible for the Content that you post to the Service, including its legality, reliability, and appropriateness.",
                         fontSize = 14.5.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal,
-                        color = Color(0xFFD0D2D6),
+                        color = AppColors.textBody,
                         lineHeight = 21.sp
                     )
 
                     // Prohibited Content Box
                     Surface(
-                        color = Color(0xFF0F172A),
+                        color = AppColors.bgCard,
                         shape = RoundedCornerShape(10.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B)),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(
@@ -335,7 +335,7 @@ fun TermsOfServiceScreen(
                                     fontSize = 14.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = Color(0xFFF8FAFC)
+                                    color = AppColors.textPrimary
                                 )
                             }
 
@@ -366,7 +366,7 @@ fun TermsOfServiceScreen(
                                         fontSize = 13.sp,
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Normal,
-                                        color = Color(0xFF94A3B8)
+                                        color = AppColors.textSecondary
                                     )
                                 }
                             }
@@ -378,7 +378,7 @@ fun TermsOfServiceScreen(
                         fontSize = 14.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal,
-                        color = Color(0xFFD0D2D6),
+                        color = AppColors.textBody,
                         lineHeight = 20.sp
                     )
                 }
@@ -392,21 +392,21 @@ fun TermsOfServiceScreen(
                         fontSize = 18.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White
+                        color = AppColors.textPrimary
                     )
                     Text(
                         text = "The Service and its original content, features, and functionality are and will remain the exclusive property of UNERA and its licensors. The Service is protected by copyright, trademark, and other laws of Tanzania and international jurisdictions.",
                         fontSize = 14.5.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal,
-                        color = Color(0xFFD0D2D6),
+                        color = AppColors.textBody,
                         lineHeight = 21.sp
                     )
 
                     Surface(
-                        color = Color(0xFF0F172A),
+                        color = AppColors.bgCard,
                         shape = RoundedCornerShape(10.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B)),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(
@@ -418,7 +418,7 @@ fun TermsOfServiceScreen(
                                 fontSize = 14.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFFF8FAFC)
+                                color = AppColors.textPrimary
                             )
                             BulletItem("The UNERA name, logo, and brand identity")
                             BulletItem("Our application design, user interface, and graphics")
@@ -437,7 +437,7 @@ fun TermsOfServiceScreen(
                         fontSize = 18.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White
+                        color = AppColors.textPrimary
                     )
 
                     FeatureCard(
@@ -495,13 +495,13 @@ fun TermsOfServiceScreen(
                         fontSize = 18.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White
+                        color = AppColors.textPrimary
                     )
 
                     Surface(
-                        color = Color(0xFF281518),
+                        color = AppColors.dangerBg,
                         shape = RoundedCornerShape(10.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE41E3F).copy(alpha = 0.3f)),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.dangerText.copy(alpha = 0.35f)),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(
@@ -513,14 +513,14 @@ fun TermsOfServiceScreen(
                                 fontSize = 13.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFFE4E6EB)
+                                color = if (AppColors.isLight) AppColors.dangerText else Color(0xFFE4E6EB)
                             )
                             Text(
                                 text = "In no event shall UNERA, nor its directors, employees, or affiliates, be liable for any indirect, incidental, special, or consequential damages resulting from your access to or inability to use the Service, any conduct of third parties, or unauthorized access to your transmissions.",
                                 fontSize = 12.5.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
-                                color = Color(0xFFCBD5E1),
+                                color = AppColors.textBody,
                                 lineHeight = 18.sp
                             )
                         }
@@ -572,20 +572,20 @@ fun TermsOfServiceScreen(
                         fontSize = 18.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White
+                        color = AppColors.textPrimary
                     )
                     Text(
                         text = "If you have any questions about these Terms, please contact us:",
                         fontSize = 14.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal,
-                        color = Color(0xFFD0D2D6)
+                        color = AppColors.textBody
                     )
 
                     Surface(
-                        color = Color(0xFF0F172A),
+                        color = AppColors.bgCard,
                         shape = RoundedCornerShape(12.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B)),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(
@@ -630,7 +630,7 @@ fun TermsOfServiceScreen(
                         fontSize = 12.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal,
-                        color = Color(0xFF94A3B8),
+                        color = AppColors.textSecondary,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )
 
@@ -640,7 +640,7 @@ fun TermsOfServiceScreen(
                     ) {
                         Button(
                             onClick = onBack,
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1877F2)),
+                            colors = ButtonDefaults.buttonColors(containerColor = AppColors.primaryBlue),
                             shape = RoundedCornerShape(20.dp),
                             contentPadding = PaddingValues(horizontal = 20.dp, vertical = 10.dp)
                         ) {
@@ -652,13 +652,13 @@ fun TermsOfServiceScreen(
                         if (onOpenPrivacy != null) {
                             Button(
                                 onClick = onOpenPrivacy,
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E293B)),
+                                colors = ButtonDefaults.buttonColors(containerColor = AppColors.bgChip),
                                 shape = RoundedCornerShape(20.dp),
                                 contentPadding = PaddingValues(horizontal = 18.dp, vertical = 10.dp)
                             ) {
-                                Icon(Icons.Default.Shield, contentDescription = null, modifier = Modifier.size(16.dp), tint = Color(0xFFF8FAFC))
+                                Icon(Icons.Default.Shield, contentDescription = null, modifier = Modifier.size(16.dp), tint = AppColors.textPrimary)
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Privacy Policy", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, fontSize = 13.sp, color = Color(0xFFF8FAFC))
+                                Text("Privacy Policy", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, fontSize = 13.sp, color = AppColors.textPrimary)
                             }
                         }
                     }
@@ -679,14 +679,14 @@ private fun TermsSection(
             fontSize = 18.sp,
             fontFamily = InterFontFamily,
             fontWeight = FontWeight.SemiBold,
-            color = Color.White
+            color = AppColors.textPrimary
         )
         Text(
             text = content,
             fontSize = 14.5.sp,
             fontFamily = InterFontFamily,
             fontWeight = FontWeight.Normal,
-            color = Color(0xFFD0D2D6),
+            color = AppColors.textBody,
             lineHeight = 21.sp
         )
     }
@@ -716,7 +716,7 @@ private fun BulletPointRow(
             fontSize = 14.sp,
             fontFamily = InterFontFamily,
             fontWeight = FontWeight.Normal,
-            color = Color(0xFFCBD5E1),
+            color = AppColors.textBody,
             lineHeight = 20.sp,
             modifier = Modifier.weight(1f)
         )
@@ -733,14 +733,14 @@ private fun BulletItem(text: String) {
             modifier = Modifier
                 .size(5.dp)
                 .clip(CircleShape)
-                .background(Color(0xFF1877F2))
+                .background(AppColors.primaryBlue)
         )
         Text(
             text = text,
             fontSize = 13.sp,
             fontFamily = InterFontFamily,
             fontWeight = FontWeight.Normal,
-            color = Color(0xFF94A3B8)
+            color = AppColors.textSecondary
         )
     }
 }
@@ -753,9 +753,9 @@ private fun FeatureCard(
     desc: String
 ) {
     Surface(
-        color = Color(0xFF0F172A),
+        color = AppColors.bgCard,
         shape = RoundedCornerShape(10.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B)),
+        border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
@@ -777,7 +777,7 @@ private fun FeatureCard(
                     fontSize = 14.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFFF8FAFC)
+                    color = AppColors.textPrimary
                 )
             }
             Text(
@@ -785,7 +785,7 @@ private fun FeatureCard(
                 fontSize = 13.sp,
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.Normal,
-                color = Color(0xFF94A3B8),
+                color = AppColors.textSecondary,
                 lineHeight = 18.sp
             )
         }
@@ -810,7 +810,7 @@ private fun ContactRow(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = Color(0xFF1877F2),
+            tint = AppColors.primaryBlue,
             modifier = Modifier.size(20.dp)
         )
         Column {
@@ -819,14 +819,14 @@ private fun ContactRow(
                 fontSize = 12.sp,
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.Normal,
-                color = Color(0xFF94A3B8)
+                color = AppColors.textSecondary
             )
             Text(
                 text = subtitle,
                 fontSize = 14.sp,
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.SemiBold,
-                color = if (isAction) Color(0xFF1877F2) else Color(0xFFF8FAFC)
+                color = if (isAction) AppColors.primaryBlue else AppColors.textPrimary
             )
         }
     }

@@ -1,6 +1,5 @@
 package com.unera.social.ui.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -9,7 +8,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -18,27 +16,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import com.unera.social.R
 import com.unera.social.model.User
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 
-/**
- * FeatheredTopBar - Matches web Header in Layout.tsx exactly.
- *
- * Left: Feathered Brand Button (Logo box + Bold Title)
- * Right:
- * 1. MarketPoint circular frosted button (with carrot orange badge)
- * 2. Search circular frosted button
- * 3. Notifications circular frosted button (with carrot orange badge)
- * 4. Profile Avatar button
- */
 @Composable
 fun FeatheredTopBar(
     currentUser: User,
@@ -54,14 +41,22 @@ fun FeatheredTopBar(
     onLoginClick: () -> Unit = {},
     onMenuClick: () -> Unit = {}
 ) {
+    val colors = AppColors
+    val headerBrush = Brush.horizontalGradient(
+        listOf(colors.headerBg, colors.headerBgEnd)
+    )
+
     Surface(
-        color = Color(0xFF0B1120),
+        color = colors.headerBg,
         modifier = Modifier
             .fillMaxWidth()
+            .background(headerBrush)
             .statusBarsPadding()
             .testTag("feathered_top_header")
     ) {
-        Column {
+        Column(
+            modifier = Modifier.background(headerBrush)
+        ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -70,7 +65,7 @@ fun FeatheredTopBar(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // LEFT: Brand Button (Name only, lowercase "feathered", app logo removed)
+                // LEFT: Brand Button
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
@@ -83,7 +78,7 @@ fun FeatheredTopBar(
                         fontSize = 27.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White,
+                        color = colors.headerText,
                         letterSpacing = (-0.5).sp
                     )
                 }
@@ -93,15 +88,19 @@ fun FeatheredTopBar(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    // 1. MarketPoint Button: restored previous Storefront design, no shade border, layout shade color, sized to feathered text (24.dp)
+                    // 1. MarketPoint Button
                     Box {
                         Box(
                             modifier = Modifier
                                 .size(44.dp)
                                 .clip(CircleShape)
                                 .background(
-                                    if (isMarketplaceActive) Color(0xFF1E2D4A)
-                                    else Color(0xFF131D33)
+                                    if (isMarketplaceActive) colors.headerIconBgActive
+                                    else colors.headerIconBg
+                                )
+                                .then(
+                                    if (colors.isLight) Modifier.border(1.dp, colors.headerIconBorder, CircleShape)
+                                    else Modifier
                                 )
                                 .clickable { onMarketplaceClick() }
                                 .testTag("top_bar_marketplace_btn"),
@@ -110,7 +109,7 @@ fun FeatheredTopBar(
                             Icon(
                                 imageVector = Icons.Default.Storefront,
                                 contentDescription = "MarketPoint",
-                                tint = Color.White,
+                                tint = colors.headerIconTint,
                                 modifier = Modifier.size(25.5.dp)
                             )
                         }
@@ -124,7 +123,7 @@ fun FeatheredTopBar(
                                     .defaultMinSize(minWidth = 19.dp, minHeight = 19.dp)
                                     .clip(CircleShape)
                                     .background(Color(0xFFE41E3F))
-                                    .border(1.5.dp, Color(0xFF0B1120), CircleShape)
+                                    .border(1.5.dp, colors.headerBadgeBorder, CircleShape)
                                     .padding(horizontal = if (badgeStr.length > 1) 4.5.dp else 0.dp),
                                 contentAlignment = Alignment.Center
                             ) {
@@ -139,12 +138,16 @@ fun FeatheredTopBar(
                         }
                     }
 
-                    // 2. Search Button: no shade border, layout shade color, bold borders, sized to feathered text (24.dp)
+                    // 2. Search Button
                     Box(
                         modifier = Modifier
                             .size(44.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFF131D33))
+                            .background(colors.headerIconBg)
+                            .then(
+                                if (colors.isLight) Modifier.border(1.dp, colors.headerIconBorder, CircleShape)
+                                else Modifier
+                            )
                             .clickable { onSearchClick() }
                             .testTag("top_bar_search_btn"),
                         contentAlignment = Alignment.Center
@@ -152,28 +155,41 @@ fun FeatheredTopBar(
                         Icon(
                             painter = painterResource(id = R.drawable.ic_search_bold),
                             contentDescription = "Search",
-                            tint = Color.Unspecified,
+                            tint = if (colors.isLight) Color.White else Color.Unspecified,
                             modifier = Modifier.size(25.5.dp)
                         )
                     }
 
-                    // 3. Notification Button: no shade border, layout shade color, dark in middle + bold white borders, sized to feathered text (24.dp)
+                    // 3. Notification Button
                     Box {
                         Box(
                             modifier = Modifier
                                 .size(44.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFF131D33))
+                                .background(colors.headerIconBg)
+                                .then(
+                                    if (colors.isLight) Modifier.border(1.dp, colors.headerIconBorder, CircleShape)
+                                    else Modifier
+                                )
                                 .clickable { onNotificationsClick() }
                                 .testTag("top_bar_notifications_btn"),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_bell),
-                                contentDescription = "Notifications",
-                                tint = Color.Unspecified,
-                                modifier = Modifier.size(25.5.dp)
-                            )
+                            if (colors.isLight) {
+                                Icon(
+                                    imageVector = Icons.Default.Notifications,
+                                    contentDescription = "Notifications",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            } else {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_bell),
+                                    contentDescription = "Notifications",
+                                    tint = Color.Unspecified,
+                                    modifier = Modifier.size(25.5.dp)
+                                )
+                            }
                         }
 
                         if (unreadNotificationsCount > 0) {
@@ -190,7 +206,7 @@ fun FeatheredTopBar(
                                     .defaultMinSize(minWidth = 19.dp, minHeight = 19.dp)
                                     .clip(CircleShape)
                                     .background(Color(0xFFE41E3F))
-                                    .border(1.5.dp, Color(0xFF0B1120), CircleShape)
+                                    .border(1.5.dp, colors.headerBadgeBorder, CircleShape)
                                     .padding(horizontal = if (badgeStr.length > 1) 4.5.dp else 0.dp),
                                 contentAlignment = Alignment.Center
                             ) {
@@ -205,15 +221,14 @@ fun FeatheredTopBar(
                         }
                     }
 
-                    // 4. If guest: Small "Log In" button on top right
-                    //    If logged in: User Profile Avatar button
+                    // 4. Guest Log In button or User Profile Avatar
                     if (isGuest || currentUser.id <= 0L) {
                         Button(
                             onClick = onLoginClick,
                             shape = RoundedCornerShape(20.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF1877F2),
-                                contentColor = Color.White
+                                containerColor = if (colors.isLight) Color.White else Color(0xFF1877F2),
+                                contentColor = if (colors.isLight) Color(0xFF1877F2) else Color.White
                             ),
                             contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
                             modifier = Modifier
@@ -224,19 +239,18 @@ fun FeatheredTopBar(
                                 text = "Log In",
                                 fontSize = 13.sp,
                                 fontFamily = InterFontFamily,
-                                fontWeight = FontWeight.Medium,
-                                color = Color.White
+                                fontWeight = FontWeight.SemiBold,
+                                color = if (colors.isLight) Color(0xFF1877F2) else Color.White
                             )
                         }
                     } else {
-                        // User Profile Avatar with Initials fallback: w-10 h-10 rounded-full
                         FeatheredAvatar(
                             name = currentUser.name,
                             username = currentUser.username,
                             imageUrl = currentUser.profileImageUrl,
                             size = 40.dp,
                             borderWidth = 2.dp,
-                            borderColor = Color(0xFF334155).copy(alpha = 0.8f),
+                            borderColor = if (colors.isLight) Color.White.copy(alpha = 0.85f) else Color(0xFF334155).copy(alpha = 0.8f),
                             fontSize = 15.sp,
                             onClick = onProfileClick,
                             modifier = Modifier.testTag("top_bar_profile_btn")
@@ -245,8 +259,7 @@ fun FeatheredTopBar(
                 }
             }
 
-            // Bottom subtle border border-[#1E293B]
-            HorizontalDivider(color = Color(0xFF1E293B), thickness = 1.dp)
+            HorizontalDivider(color = colors.headerDivider, thickness = 1.dp)
         }
     }
 }

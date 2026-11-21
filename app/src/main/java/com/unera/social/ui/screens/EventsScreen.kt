@@ -37,14 +37,10 @@ import coil.compose.AsyncImage
 import com.unera.social.data.PostsApiService
 import com.unera.social.model.*
 import com.unera.social.ui.components.*
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 
-// Feathered Design Tokens
-private val BgDark = Color(0xFF050B18)
-private val CardBgDark = Color(0xFF0B1120)
-private val BorderDark = Color(0xFF1E293B)
-private val TextWhite = Color(0xFFF8FAFC)
-private val TextMuted = Color(0xFF94A3B8)
+// Feathered Semantic Tokens
 private val BrandBlue = Color(0xFF1877F2)
 private val BrandBlueHover = Color(0xFF166FE5)
 private val GoingGreen = Color(0xFF45BD62)
@@ -138,80 +134,91 @@ fun EventsScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(BgDark)
+            .background(AppColors.bgScreen)
             .testTag("events_screen")
     ) {
         LazyColumn(
             contentPadding = PaddingValues(bottom = 96.dp),
             modifier = Modifier.fillMaxSize()
         ) {
-            // 1. Top Header Bar
+            // 1. Top Header Bar (Blue in Light Mode)
             item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 14.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                Surface(
+                    color = AppColors.headerBg,
+                    shadowElevation = if (AppColors.isLight) 2.dp else 0.dp,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = "Events",
-                                fontFamily = InterFontFamily,
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = TextWhite
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            // Live Discovery Pulse Indicator
-                            Box(
-                                modifier = Modifier
-                                    .size(8.dp)
-                                    .clip(CircleShape)
-                                    .background(GoingGreen)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = "Live",
-                                fontFamily = InterFontFamily,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = GoingGreen
-                            )
-                        }
-                        Text(
-                            text = "Discover conferences, sessions & meetups",
-                            fontFamily = InterFontFamily,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Normal,
-                            color = TextMuted
-                        )
-                    }
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 14.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = "Events",
+                                        fontFamily = InterFontFamily,
+                                        fontSize = 24.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = AppColors.headerText
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    // Live Discovery Pulse Indicator
+                                    Box(
+                                        modifier = Modifier
+                                            .size(8.dp)
+                                            .clip(CircleShape)
+                                            .background(if (AppColors.isLight) Color(0xFF86EFAC) else GoingGreen)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = "Live",
+                                        fontFamily = InterFontFamily,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = if (AppColors.isLight) Color(0xFFDCFCE7) else GoingGreen
+                                    )
+                                }
+                                Text(
+                                    text = "Discover conferences, sessions & meetups",
+                                    fontFamily = InterFontFamily,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    color = AppColors.headerSubtext
+                                )
+                            }
 
-                    Button(
-                        onClick = onOpenCreateEvent,
-                        colors = ButtonDefaults.buttonColors(containerColor = BrandBlue),
-                        shape = RoundedCornerShape(20.dp),
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                        modifier = Modifier.testTag("create_event_btn")
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Create Event",
-                            modifier = Modifier.size(16.dp),
-                            tint = Color.White
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = "Create",
-                            fontFamily = InterFontFamily,
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 13.sp,
-                            color = Color.White
-                        )
+                            Button(
+                                onClick = onOpenCreateEvent,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (AppColors.isLight) Color.White else BrandBlue,
+                                    contentColor = if (AppColors.isLight) BrandBlue else Color.White
+                                ),
+                                shape = RoundedCornerShape(20.dp),
+                                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                                modifier = Modifier.testTag("create_event_btn")
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = "Create Event",
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "Create",
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 13.sp
+                                )
+                            }
+                        }
+                        HorizontalDivider(color = AppColors.headerDivider, thickness = 1.dp)
                     }
                 }
+                Spacer(modifier = Modifier.height(10.dp))
             }
 
             // 2. Search Input Field
@@ -234,7 +241,7 @@ fun EventsScreen(
                                 text = "Search events by title, venue, or city...",
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
-                                color = TextMuted,
+                                color = AppColors.textSecondary,
                                 fontSize = 13.sp
                             )
                         },
@@ -242,7 +249,7 @@ fun EventsScreen(
                             Icon(
                                 imageVector = Icons.Default.Search,
                                 contentDescription = "Search",
-                                tint = TextMuted,
+                                tint = AppColors.textSecondary,
                                 modifier = Modifier.size(18.dp)
                             )
                         },
@@ -252,7 +259,7 @@ fun EventsScreen(
                                     Icon(
                                         imageVector = Icons.Default.Close,
                                         contentDescription = "Clear",
-                                        tint = TextMuted,
+                                        tint = AppColors.textSecondary,
                                         modifier = Modifier.size(16.dp)
                                     )
                                 }
@@ -261,12 +268,12 @@ fun EventsScreen(
                         singleLine = true,
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = CardBgDark,
-                            unfocusedContainerColor = CardBgDark,
+                            focusedContainerColor = AppColors.bgCard,
+                            unfocusedContainerColor = AppColors.bgCard,
                             focusedBorderColor = BrandBlue,
-                            unfocusedBorderColor = BorderDark,
-                            focusedTextColor = TextWhite,
-                            unfocusedTextColor = TextWhite,
+                            unfocusedBorderColor = AppColors.border,
+                            focusedTextColor = AppColors.textPrimary,
+                            unfocusedTextColor = AppColors.textPrimary,
                             cursorColor = BrandBlue
                         ),
                         modifier = Modifier
@@ -289,8 +296,8 @@ fun EventsScreen(
                         val isCountrySelected = countryFilterMode == "country"
                         Surface(
                             shape = RoundedCornerShape(12.dp),
-                            color = if (isCountrySelected) BrandBlue.copy(alpha = 0.2f) else CardBgDark,
-                            border = BorderStroke(1.dp, if (isCountrySelected) BrandBlue else BorderDark),
+                            color = if (isCountrySelected) AppColors.bgBlueTint else AppColors.bgCard,
+                            border = BorderStroke(1.dp, if (isCountrySelected) BrandBlue else AppColors.border),
                             modifier = Modifier
                                 .clickable { countryFilterMode = "country" }
                                 .testTag("events_country_scope_btn")
@@ -306,7 +313,9 @@ fun EventsScreen(
                                     fontFamily = InterFontFamily,
                                     fontSize = 12.sp,
                                     fontWeight = if (isCountrySelected) FontWeight.SemiBold else FontWeight.Medium,
-                                    color = if (isCountrySelected) Color(0xFF38BDF8) else TextMuted
+                                    color = if (isCountrySelected) {
+                                        if (AppColors.isLight) BrandBlue else Color(0xFF38BDF8)
+                                    } else AppColors.textSecondary
                                 )
                             }
                         }
@@ -314,8 +323,8 @@ fun EventsScreen(
                         val isWorldwideSelected = countryFilterMode == "worldwide"
                         Surface(
                             shape = RoundedCornerShape(12.dp),
-                            color = if (isWorldwideSelected) BrandBlue.copy(alpha = 0.2f) else CardBgDark,
-                            border = BorderStroke(1.dp, if (isWorldwideSelected) BrandBlue else BorderDark),
+                            color = if (isWorldwideSelected) AppColors.bgBlueTint else AppColors.bgCard,
+                            border = BorderStroke(1.dp, if (isWorldwideSelected) BrandBlue else AppColors.border),
                             modifier = Modifier
                                 .clickable { countryFilterMode = "worldwide" }
                                 .testTag("events_worldwide_scope_btn")
@@ -331,7 +340,9 @@ fun EventsScreen(
                                     fontFamily = InterFontFamily,
                                     fontSize = 12.sp,
                                     fontWeight = if (isWorldwideSelected) FontWeight.SemiBold else FontWeight.Medium,
-                                    color = if (isWorldwideSelected) Color(0xFF38BDF8) else TextMuted
+                                    color = if (isWorldwideSelected) {
+                                        if (AppColors.isLight) BrandBlue else Color(0xFF38BDF8)
+                                    } else AppColors.textSecondary
                                 )
                             }
                         }
@@ -347,8 +358,8 @@ fun EventsScreen(
                             val isSelected = filter == selectedFilter
                             Surface(
                                 shape = RoundedCornerShape(20.dp),
-                                color = if (isSelected) BrandBlue else CardBgDark,
-                                border = if (isSelected) null else BorderStroke(1.dp, BorderDark),
+                                color = if (isSelected) BrandBlue else AppColors.bgCard,
+                                border = if (isSelected) null else BorderStroke(1.dp, AppColors.border),
                                 modifier = Modifier
                                     .clickable { selectedFilter = filter }
                                     .testTag("event_filter_$filter")
@@ -358,7 +369,7 @@ fun EventsScreen(
                                     fontFamily = InterFontFamily,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Medium,
-                                    color = if (isSelected) Color.White else TextMuted,
+                                    color = if (isSelected) Color.White else AppColors.textSecondary,
                                     modifier = Modifier.padding(horizontal = 14.dp, vertical = 7.dp)
                                 )
                             }
@@ -378,7 +389,7 @@ fun EventsScreen(
                             fontFamily = InterFontFamily,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium,
-                            color = TextMuted
+                            color = AppColors.textSecondary
                         )
 
                         Row(
@@ -390,13 +401,13 @@ fun EventsScreen(
                                 fontFamily = InterFontFamily,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Normal,
-                                color = TextMuted
+                                color = AppColors.textSecondary
                             )
                             listOf("Date", "Popular").forEach { sortOption ->
                                 val isSortActive = selectedSort == sortOption
                                 Surface(
                                     shape = RoundedCornerShape(12.dp),
-                                    color = if (isSortActive) BrandBlue.copy(alpha = 0.2f) else Color.Transparent,
+                                    color = if (isSortActive) AppColors.bgBlueTint else Color.Transparent,
                                     modifier = Modifier.clickable { selectedSort = sortOption }
                                 ) {
                                     Text(
@@ -404,7 +415,7 @@ fun EventsScreen(
                                         fontFamily = InterFontFamily,
                                         fontSize = 11.sp,
                                         fontWeight = if (isSortActive) FontWeight.Medium else FontWeight.Normal,
-                                        color = if (isSortActive) BrandBlue else TextMuted,
+                                        color = if (isSortActive) BrandBlue else AppColors.textSecondary,
                                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                                     )
                                 }
@@ -427,13 +438,13 @@ fun EventsScreen(
                             modifier = Modifier
                                 .size(64.dp)
                                 .clip(CircleShape)
-                                .background(CardBgDark),
+                                .background(AppColors.bgCard),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.EventBusy,
                                 contentDescription = null,
-                                tint = TextMuted,
+                                tint = AppColors.textSecondary,
                                 modifier = Modifier.size(32.dp)
                             )
                         }
@@ -443,7 +454,7 @@ fun EventsScreen(
                             fontFamily = InterFontFamily,
                             fontSize = 17.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = TextWhite
+                            color = AppColors.textPrimary
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
@@ -451,7 +462,7 @@ fun EventsScreen(
                             fontFamily = InterFontFamily,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Normal,
-                            color = TextMuted
+                            color = AppColors.textSecondary
                         )
                         Spacer(modifier = Modifier.height(18.dp))
                         Button(
@@ -514,7 +525,7 @@ fun EventsScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(8.dp)
-                            .background(Color(0xFF050B18))
+                            .background(AppColors.bgScreen)
                     )
                 }
             }
@@ -655,7 +666,7 @@ fun EventFeedItemCard(
             .fillMaxWidth()
             .testTag("event_post_card_${event.id}"),
         shape = RoundedCornerShape(0.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A))
+        colors = CardDefaults.cardColors(containerColor = AppColors.bgCard)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             // 1. Post Header matching Feeds
@@ -694,7 +705,7 @@ fun EventFeedItemCard(
                     modifier = Modifier
                         .size(42.dp)
                         .clip(CircleShape)
-                        .border(1.dp, Color(0xFF1E293B), CircleShape)
+                        .border(1.dp, AppColors.border, CircleShape)
                         .clickable { onProfileClick?.invoke(event.organizer.id) }
                 )
 
@@ -710,7 +721,7 @@ fun EventFeedItemCard(
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Bold,
                             fontSize = 21.sp,
-                            color = Color(0xFFF8FAFC),
+                            color = AppColors.textPrimary,
                             modifier = Modifier.clickable { onProfileClick?.invoke(event.organizer.id) }
                         )
                         Spacer(modifier = Modifier.width(6.dp))
@@ -719,7 +730,7 @@ fun EventFeedItemCard(
 
                     Spacer(modifier = Modifier.height(2.dp))
 
-                    // Below name: REMOVED event date and time! Displays relative post timestamp and public globe icon like feed posts
+                    // Below name: Displays relative post timestamp and public globe icon like feed posts
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -731,13 +742,13 @@ fun EventFeedItemCard(
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal,
                             fontSize = 13.sp,
-                            color = Color(0xFF94A3B8)
+                            color = AppColors.textSecondary
                         )
-                        Text("•", fontFamily = InterFontFamily, fontSize = 13.sp, color = Color(0xFF94A3B8))
+                        Text("•", fontFamily = InterFontFamily, fontSize = 13.sp, color = AppColors.textSecondary)
                         Icon(
                             imageVector = Icons.Default.Public,
                             contentDescription = "Public",
-                            tint = Color(0xFF94A3B8),
+                            tint = AppColors.textSecondary,
                             modifier = Modifier.size(12.dp)
                         )
                     }
@@ -761,7 +772,7 @@ fun EventFeedItemCard(
                         fontWeight = FontWeight.Normal,
                         fontSize = 20.sp,
                         lineHeight = 28.sp,
-                        color = Color(0xFFE4E6EB)
+                        color = AppColors.textBody
                     )
                     if (hasMoreThan8Words) {
                         Spacer(modifier = Modifier.height(4.dp))
@@ -775,7 +786,7 @@ fun EventFeedItemCard(
                             Text(
                                 text = if (isExpandedText) "See Less" else "See More",
                                 fontFamily = InterFontFamily,
-                                color = Color(0xFF1877F2),
+                                color = BrandBlue,
                                 fontWeight = FontWeight.SemiBold,
                                 fontSize = 16.sp
                             )
@@ -783,7 +794,7 @@ fun EventFeedItemCard(
                             Icon(
                                 imageVector = if (isExpandedText) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                                 contentDescription = null,
-                                tint = Color(0xFF1877F2),
+                                tint = BrandBlue,
                                 modifier = Modifier.size(18.dp)
                             )
                         }
@@ -820,16 +831,16 @@ fun EventFeedItemCard(
                     Text(
                         text = "${post.commentsCount} Discussions",
                         fontFamily = InterFontFamily,
-                        color = Color(0xFF94A3B8),
+                        color = AppColors.textSecondary,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier.clickable(onClick = onDiscuss)
                     )
-                    Text("•", fontFamily = InterFontFamily, color = Color(0xFF94A3B8), fontSize = 13.sp)
+                    Text("•", fontFamily = InterFontFamily, color = AppColors.textSecondary, fontSize = 13.sp)
                     Text(
                         text = "${post.sharesCount} Shares",
                         fontFamily = InterFontFamily,
-                        color = Color(0xFF94A3B8),
+                        color = AppColors.textSecondary,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier.clickable(onClick = onShare)
@@ -837,7 +848,7 @@ fun EventFeedItemCard(
                 }
             }
 
-            HorizontalDivider(color = Color(0xFF1E293B), thickness = 1.dp)
+            HorizontalDivider(color = AppColors.border, thickness = 1.dp)
 
             // 5. Action Buttons Row: React, Discuss, Share
             Row(
@@ -879,7 +890,7 @@ fun EventFeedItemCard(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.Send,
                             contentDescription = "Share",
-                            tint = Color(0xFF94A3B8),
+                            tint = AppColors.textSecondary,
                             modifier = Modifier
                                 .size(19.dp)
                                 .graphicsLayer(rotationZ = -35f)
@@ -888,7 +899,7 @@ fun EventFeedItemCard(
                         Text(
                             text = "Share",
                             fontFamily = InterFontFamily,
-                            color = Color(0xFF94A3B8),
+                            color = AppColors.textSecondary,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium
                         )
@@ -950,7 +961,7 @@ fun EventDetailModal(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(BgDark)
+                .background(AppColors.bgScreen)
                 .testTag("event_detail_modal")
         ) {
             Column(
@@ -1015,8 +1026,8 @@ fun EventDetailModal(
                 ) {
                     Card(
                         shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = CardBgDark),
-                        border = BorderStroke(1.dp, BorderDark),
+                        colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+                        border = BorderStroke(1.dp, AppColors.border),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(modifier = Modifier.padding(18.dp)) {
@@ -1026,7 +1037,7 @@ fun EventDetailModal(
                                 fontFamily = InterFontFamily,
                                 fontSize = 22.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = TextWhite
+                                color = AppColors.textPrimary
                             )
 
                             Spacer(modifier = Modifier.height(14.dp))
@@ -1039,7 +1050,7 @@ fun EventDetailModal(
                                 Box(
                                     modifier = Modifier
                                         .size(36.dp)
-                                        .background(Color(0xFF1E293B), CircleShape),
+                                        .background(AppColors.bgInput, CircleShape),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
@@ -1056,14 +1067,14 @@ fun EventDetailModal(
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.SemiBold,
                                         fontSize = 14.sp,
-                                        color = TextWhite
+                                        color = AppColors.textPrimary
                                     )
                                     Text(
                                         text = if (event.time.isNotBlank()) event.time else "Scheduled time",
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Normal,
                                         fontSize = 12.sp,
-                                        color = TextMuted
+                                        color = AppColors.textSecondary
                                     )
                                 }
                             }
@@ -1076,7 +1087,7 @@ fun EventDetailModal(
                                 Box(
                                     modifier = Modifier
                                         .size(36.dp)
-                                        .background(Color(0xFF1E293B), CircleShape),
+                                        .background(AppColors.bgInput, CircleShape),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
@@ -1093,14 +1104,14 @@ fun EventDetailModal(
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.SemiBold,
                                         fontSize = 14.sp,
-                                        color = TextWhite
+                                        color = AppColors.textPrimary
                                     )
                                     Text(
                                         text = event.location,
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Normal,
                                         fontSize = 12.sp,
-                                        color = TextMuted
+                                        color = AppColors.textSecondary
                                     )
                                 }
                             }
@@ -1121,7 +1132,7 @@ fun EventDetailModal(
                                     modifier = Modifier
                                         .size(36.dp)
                                         .clip(CircleShape)
-                                        .background(Color(0xFF1E293B))
+                                        .background(AppColors.bgInput)
                                 )
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Column {
@@ -1130,7 +1141,7 @@ fun EventDetailModal(
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.SemiBold,
                                         fontSize = 14.sp,
-                                        color = TextWhite
+                                        color = AppColors.textPrimary
                                     )
                                     Text(
                                         text = event.organizer.name,
@@ -1143,7 +1154,7 @@ fun EventDetailModal(
                             }
 
                             Spacer(modifier = Modifier.height(10.dp))
-                            HorizontalDivider(color = BorderDark, thickness = 1.dp)
+                            HorizontalDivider(color = AppColors.border, thickness = 1.dp)
                             Spacer(modifier = Modifier.height(10.dp))
 
                             // Social Attendees counters
@@ -1172,7 +1183,7 @@ fun EventDetailModal(
                                             fontFamily = InterFontFamily,
                                             fontWeight = FontWeight.Normal,
                                             fontSize = 11.sp,
-                                            color = TextMuted
+                                            color = AppColors.textSecondary
                                         )
                                     }
                                 }
@@ -1198,7 +1209,7 @@ fun EventDetailModal(
                                             fontFamily = InterFontFamily,
                                             fontWeight = FontWeight.Normal,
                                             fontSize = 11.sp,
-                                            color = TextMuted
+                                            color = AppColors.textSecondary
                                         )
                                     }
                                 }
@@ -1230,7 +1241,7 @@ fun EventDetailModal(
                                 Button(
                                     onClick = onToggleInterested,
                                     colors = ButtonDefaults.buttonColors(
-                                        containerColor = if (event.isInterested) InterestedGold else Color(0xFF1E293B)
+                                        containerColor = if (event.isInterested) InterestedGold else AppColors.bgChip
                                     ),
                                     shape = RoundedCornerShape(12.dp),
                                     modifier = Modifier.weight(1f)
@@ -1240,7 +1251,7 @@ fun EventDetailModal(
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Medium,
                                         fontSize = 14.sp,
-                                        color = if (event.isInterested) Color.Black else TextWhite
+                                        color = if (event.isInterested) Color.Black else AppColors.textPrimary
                                     )
                                 }
                             }
@@ -1252,7 +1263,7 @@ fun EventDetailModal(
                                     fontFamily = InterFontFamily,
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = TextWhite
+                                    color = AppColors.textPrimary
                                 )
                                 Spacer(modifier = Modifier.height(6.dp))
                                 Text(
@@ -1260,7 +1271,7 @@ fun EventDetailModal(
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
                                     fontSize = 13.sp,
-                                    color = TextMuted,
+                                    color = AppColors.textSecondary,
                                     lineHeight = 19.sp
                                 )
                             }

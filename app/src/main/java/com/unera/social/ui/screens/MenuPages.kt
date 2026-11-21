@@ -38,6 +38,7 @@ import coil.compose.AsyncImage
 import com.unera.social.model.Post
 import com.unera.social.model.Story
 import com.unera.social.model.User
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 import java.util.Calendar
 
@@ -80,47 +81,50 @@ fun SuggestedProfilesPage(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFF0B1120))
+            .background(AppColors.bgScreen)
             .testTag("suggested_profiles_page")
     ) {
         // Header matching web: flex items-center gap-3 mb-6
         Surface(
-            color = Color(0xFF0B1120),
+            color = AppColors.headerBg,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(64.dp)
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                if (onBack != null) {
-                    IconButton(
-                        onClick = onBack,
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFF1E293B))
-                            .testTag("discover_people_back_btn")
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color(0xFFF8FAFC),
-                            modifier = Modifier.size(20.dp)
-                        )
+            Column {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(64.dp)
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    if (onBack != null) {
+                        IconButton(
+                            onClick = onBack,
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .background(AppColors.headerIconBg)
+                                .testTag("discover_people_back_btn")
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                tint = AppColors.headerIconTint,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     }
-                }
 
-                Text(
-                    text = "Discover People",
-                    fontSize = 24.sp,
-                    fontFamily = InterFontFamily,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFFF8FAFC)
-                )
+                    Text(
+                        text = "Discover People",
+                        fontSize = 24.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
+                        color = AppColors.headerText
+                    )
+                }
+                HorizontalDivider(color = AppColors.headerDivider)
             }
         }
 
@@ -136,23 +140,25 @@ fun SuggestedProfilesPage(
                     val user = item.user
                     val isFollowed = user.isFollowing
 
-                    // Card: bg-[#0B1120] rounded-xl border border-[#1E293B] overflow-hidden flex flex-col shadow-sm
                     Surface(
                         shape = RoundedCornerShape(16.dp),
-                        color = Color(0xFF0B1120),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B)),
+                        color = AppColors.bgCard,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
                         shadowElevation = 2.dp,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column {
-                            // Cover banner: h-20 bg-gradient-to-r from-blue-900 to-slate-900 relative
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(84.dp)
                                     .background(
                                         Brush.horizontalGradient(
-                                            colors = listOf(Color(0xFF1E3A8A), Color(0xFF0F172A))
+                                            colors = if (AppColors.isLight) {
+                                                listOf(AppColors.headerBg, Color(0xFF2563EB))
+                                            } else {
+                                                listOf(Color(0xFF1E3A8A), Color(0xFF0F172A))
+                                            }
                                         )
                                     )
                             ) {
@@ -163,19 +169,18 @@ fun SuggestedProfilesPage(
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
                                             .fillMaxSize()
-                                            .background(Color.Black.copy(alpha = 0.4f))
+                                            .background(Color.Black.copy(alpha = 0.2f))
                                     )
                                 }
 
-                                // Avatar: -bottom-6 left-4, w-16 h-16 rounded-full border-4 border-[#0B1120]
                                 Box(
                                     modifier = Modifier
                                         .align(Alignment.BottomStart)
                                         .offset(x = 16.dp, y = 28.dp)
                                         .size(64.dp)
                                         .clip(CircleShape)
-                                        .background(Color(0xFF0B1120))
-                                        .border(4.dp, Color(0xFF0B1120), CircleShape)
+                                        .background(AppColors.bgCard)
+                                        .border(4.dp, AppColors.bgCard, CircleShape)
                                         .clickable { onProfileClick(user.id) }
                                 ) {
                                     AsyncImage(
@@ -187,7 +192,6 @@ fun SuggestedProfilesPage(
                                 }
                             }
 
-                            // Card Body: pt-8 px-4 pb-4 flex-1 flex flex-col
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -198,7 +202,7 @@ fun SuggestedProfilesPage(
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 18.sp,
-                                    color = Color(0xFFF8FAFC),
+                                    color = AppColors.textPrimary,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                     modifier = Modifier
@@ -210,7 +214,7 @@ fun SuggestedProfilesPage(
                                     fontSize = 12.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
-                                    color = Color(0xFF94A3B8),
+                                    color = AppColors.textSecondary,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -222,19 +226,18 @@ fun SuggestedProfilesPage(
                                     fontSize = 12.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
-                                    color = Color(0xFF64748B),
+                                    color = AppColors.textMuted,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
 
                                 Spacer(modifier = Modifier.height(14.dp))
 
-                                // Follow Button: w-full bg-[#1877F2] text-white py-2 rounded-lg font-semibold hover:bg-[#166FE5]
                                 Button(
                                     onClick = { onFollow(user.id) },
                                     colors = ButtonDefaults.buttonColors(
-                                        containerColor = if (isFollowed) Color(0xFF1E293B) else Color(0xFF1877F2),
-                                        contentColor = Color.White
+                                        containerColor = if (isFollowed) AppColors.bgChip else AppColors.primaryBlue,
+                                        contentColor = if (isFollowed) AppColors.textPrimary else Color.White
                                     ),
                                     shape = RoundedCornerShape(10.dp),
                                     modifier = Modifier
@@ -263,7 +266,7 @@ fun SuggestedProfilesPage(
             ) {
                 Text(
                     text = "No new suggestions at the moment.",
-                    color = Color(0xFF94A3B8),
+                    color = AppColors.textSecondary,
                     fontSize = 15.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Normal,
@@ -314,77 +317,79 @@ fun BirthdaysPage(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFF0B1120))
+            .background(AppColors.bgScreen)
             .testTag("birthdays_page")
     ) {
         // Header matching web: flex items-center gap-4 mb-8
         Surface(
-            color = Color(0xFF0B1120),
+            color = AppColors.headerBg,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                if (onBack != null) {
-                    IconButton(
-                        onClick = onBack,
+            Column {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    if (onBack != null) {
+                        IconButton(
+                            onClick = onBack,
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .background(AppColors.headerIconBg)
+                                .testTag("birthdays_back_btn")
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                tint = AppColors.headerIconTint,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+
+                    Box(
                         modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFF1E293B))
-                            .testTag("birthdays_back_btn")
+                            .size(56.dp)
+                            .rotate(-3f)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(
+                                Brush.linearGradient(
+                                    colors = listOf(Color(0xFFFF0080), Color(0xFF7928CA))
+                                )
+                            ),
+                        contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color(0xFFF8FAFC),
-                            modifier = Modifier.size(20.dp)
+                            imageVector = Icons.Default.Cake,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+
+                    Column {
+                        Text(
+                            text = "Birthdays",
+                            fontSize = 26.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
+                            color = AppColors.headerText,
+                            lineHeight = 30.sp
+                        )
+                        Text(
+                            text = "Celebrate special moments with your community.",
+                            fontSize = 13.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
+                            color = AppColors.headerSubtext
                         )
                     }
                 }
-
-                // Birthday icon box: w-14 h-14 bg-gradient-to-tr from-[#FF0080] to-[#7928CA] rounded-2xl
-                Box(
-                    modifier = Modifier
-                        .size(56.dp)
-                        .rotate(-3f)
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(
-                            Brush.linearGradient(
-                                colors = listOf(Color(0xFFFF0080), Color(0xFF7928CA))
-                            )
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Cake,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
-
-                Column {
-                    Text(
-                        text = "Birthdays",
-                        fontSize = 26.sp,
-                        fontFamily = InterFontFamily,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color.White,
-                        lineHeight = 30.sp
-                    )
-                    Text(
-                        text = "Celebrate special moments with your community.",
-                        fontSize = 13.sp,
-                        fontFamily = InterFontFamily,
-                        fontWeight = FontWeight.Normal,
-                        color = Color(0xFF94A3B8)
-                    )
-                }
+                HorizontalDivider(color = AppColors.headerDivider)
             }
         }
 
@@ -404,7 +409,7 @@ fun BirthdaysPage(
                         fontSize = 20.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White
+                        color = AppColors.textPrimary
                     )
 
                     Surface(
@@ -425,11 +430,10 @@ fun BirthdaysPage(
 
             if (todayStars.isNotEmpty()) {
                 items(todayStars, key = { it.id }) { star ->
-                    // Card: rounded-3xl bg-[#0B1120] border border-[#1E293B] hover:border-[#1877F2]/50 shadow-xl p-6 flex flex-col items-center
                     Surface(
                         shape = RoundedCornerShape(24.dp),
-                        color = Color(0xFF0B1120),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B)),
+                        color = AppColors.bgCard,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
                         shadowElevation = 4.dp,
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -439,7 +443,6 @@ fun BirthdaysPage(
                                 .fillMaxWidth()
                                 .padding(24.dp)
                         ) {
-                            // Avatar with rainbow glow halo
                             Box(
                                 modifier = Modifier
                                     .size(96.dp)
@@ -464,7 +467,7 @@ fun BirthdaysPage(
                                     modifier = Modifier
                                         .fillMaxSize()
                                         .clip(CircleShape)
-                                        .border(3.dp, Color(0xFF0B1120), CircleShape)
+                                        .border(3.dp, AppColors.bgCard, CircleShape)
                                 )
                             }
 
@@ -475,7 +478,7 @@ fun BirthdaysPage(
                                 fontSize = 20.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Bold,
-                                color = Color.White,
+                                color = AppColors.textPrimary,
                                 modifier = Modifier.clickable { onProfileClick(star.id) }
                             )
 
@@ -487,7 +490,7 @@ fun BirthdaysPage(
                                 Icon(
                                     imageVector = Icons.Default.LocationOn,
                                     contentDescription = null,
-                                    tint = Color(0xFF94A3B8),
+                                    tint = AppColors.textSecondary,
                                     modifier = Modifier.size(14.dp)
                                 )
                                 Text(
@@ -495,15 +498,14 @@ fun BirthdaysPage(
                                     fontSize = 13.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
-                                    color = Color(0xFF94A3B8)
+                                    color = AppColors.textSecondary
                                 )
                             }
 
-                            // Wish button: w-full bg-[#1877F2] hover:bg-[#166FE5] text-white py-2.5 rounded-xl font-bold
                             Button(
                                 onClick = { onMessage(star.id) },
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFF1877F2),
+                                    containerColor = AppColors.primaryBlue,
                                     contentColor = Color.White
                                 ),
                                 shape = RoundedCornerShape(14.dp),
@@ -530,11 +532,10 @@ fun BirthdaysPage(
                 }
             } else {
                 item {
-                    // Empty state: bg-[#0B1120] rounded-3xl p-10 text-center border border-[#1E293B]
                     Surface(
                         shape = RoundedCornerShape(24.dp),
-                        color = Color(0xFF0B1120),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B)),
+                        color = AppColors.bgCard,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(
@@ -546,7 +547,7 @@ fun BirthdaysPage(
                             Icon(
                                 imageVector = Icons.Default.CalendarToday,
                                 contentDescription = null,
-                                tint = Color(0xFF94A3B8).copy(alpha = 0.5f),
+                                tint = AppColors.textSecondary.copy(alpha = 0.5f),
                                 modifier = Modifier.size(48.dp)
                             )
                             Spacer(modifier = Modifier.height(12.dp))
@@ -555,7 +556,7 @@ fun BirthdaysPage(
                                 fontSize = 18.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color.White
+                                color = AppColors.textPrimary
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
@@ -563,7 +564,7 @@ fun BirthdaysPage(
                                 fontSize = 13.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
-                                color = Color(0xFF94A3B8),
+                                color = AppColors.textSecondary,
                                 textAlign = TextAlign.Center
                             )
                         }
@@ -579,7 +580,7 @@ fun BirthdaysPage(
                         fontSize = 18.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White,
+                        color = AppColors.textPrimary,
                         modifier = Modifier.padding(top = 8.dp)
                     )
                 }
@@ -587,8 +588,8 @@ fun BirthdaysPage(
                 items(upcomingBirthdays, key = { it.id }) { u ->
                     Surface(
                         shape = RoundedCornerShape(16.dp),
-                        color = Color(0xFF162137).copy(alpha = 0.65f),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B).copy(alpha = 0.6f)),
+                        color = AppColors.bgCard,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Row(
@@ -612,7 +613,7 @@ fun BirthdaysPage(
                                     modifier = Modifier
                                         .size(44.dp)
                                         .clip(CircleShape)
-                                        .border(1.dp, Color(0xFF1877F2).copy(alpha = 0.3f), CircleShape)
+                                        .border(1.dp, AppColors.primaryBlue.copy(alpha = 0.3f), CircleShape)
                                 )
 
                                 Column {
@@ -621,14 +622,14 @@ fun BirthdaysPage(
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 15.sp,
-                                        color = Color(0xFFF8FAFC)
+                                        color = AppColors.textPrimary
                                     )
                                     Text(
                                         text = u.birthDate ?: "",
                                         fontSize = 12.sp,
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Normal,
-                                        color = Color(0xFF94A3B8)
+                                        color = AppColors.textSecondary
                                     )
                                 }
                             }
@@ -638,12 +639,12 @@ fun BirthdaysPage(
                                 modifier = Modifier
                                     .size(36.dp)
                                     .clip(CircleShape)
-                                    .background(Color(0xFF1877F2).copy(alpha = 0.15f))
+                                    .background(AppColors.bgBlueTint)
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.ChatBubble,
                                     contentDescription = "Message",
-                                    tint = Color(0xFF1877F2),
+                                    tint = AppColors.primaryBlue,
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
@@ -681,70 +682,73 @@ fun MemoriesPage(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFF0B1120))
+            .background(AppColors.bgScreen)
             .testTag("memories_page")
     ) {
         Surface(
-            color = Color(0xFF0B1120),
+            color = AppColors.headerBg,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(64.dp)
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                if (onBack != null) {
-                    IconButton(
-                        onClick = onBack,
+            Column {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(64.dp)
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    if (onBack != null) {
+                        IconButton(
+                            onClick = onBack,
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .background(AppColors.headerIconBg)
+                                .testTag("memories_back_btn")
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                tint = AppColors.headerIconTint,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+
+                    Box(
                         modifier = Modifier
-                            .size(40.dp)
+                            .size(36.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFF1E293B))
-                            .testTag("memories_back_btn")
+                            .background(if (AppColors.isLight) AppColors.headerIconBg else Color(0xFF818CF8).copy(alpha = 0.15f)),
+                        contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color(0xFFF8FAFC),
+                            imageVector = Icons.Default.History,
+                            contentDescription = null,
+                            tint = if (AppColors.isLight) Color.White else Color(0xFF818CF8),
                             modifier = Modifier.size(20.dp)
                         )
                     }
-                }
 
-                Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFF818CF8).copy(alpha = 0.15f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.History,
-                        contentDescription = null,
-                        tint = Color(0xFF818CF8),
-                        modifier = Modifier.size(20.dp)
-                    )
+                    Column {
+                        Text(
+                            text = "Memories",
+                            fontSize = 20.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
+                            color = AppColors.headerText
+                        )
+                        Text(
+                            text = "On this day in previous years",
+                            fontSize = 12.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
+                            color = AppColors.headerSubtext
+                        )
+                    }
                 }
-
-                Column {
-                    Text(
-                        text = "Memories",
-                        fontSize = 20.sp,
-                        fontFamily = InterFontFamily,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color.White
-                    )
-                    Text(
-                        text = "On this day in previous years",
-                        fontSize = 12.sp,
-                        fontFamily = InterFontFamily,
-                        fontWeight = FontWeight.Normal,
-                        color = Color(0xFF94A3B8)
-                    )
-                }
+                HorizontalDivider(color = AppColors.headerDivider)
             }
         }
 
@@ -757,8 +761,8 @@ fun MemoriesPage(
             ) {
                 Surface(
                     shape = RoundedCornerShape(24.dp),
-                    color = Color(0xFF0B1120),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B)),
+                    color = AppColors.bgCard,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(
@@ -770,7 +774,7 @@ fun MemoriesPage(
                         Icon(
                             imageVector = Icons.Default.AccessTime,
                             contentDescription = null,
-                            tint = Color(0xFF94A3B8).copy(alpha = 0.5f),
+                            tint = AppColors.textSecondary.copy(alpha = 0.5f),
                             modifier = Modifier.size(48.dp)
                         )
                         Spacer(modifier = Modifier.height(14.dp))
@@ -779,7 +783,7 @@ fun MemoriesPage(
                             fontSize = 18.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color.White
+                            color = AppColors.textPrimary
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
@@ -787,7 +791,7 @@ fun MemoriesPage(
                             fontSize = 13.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal,
-                            color = Color(0xFF94A3B8),
+                            color = AppColors.textSecondary,
                             textAlign = TextAlign.Center
                         )
                     }
@@ -802,8 +806,8 @@ fun MemoriesPage(
                 items(memoryPosts, key = { it.id }) { post ->
                     Surface(
                         shape = RoundedCornerShape(16.dp),
-                        color = Color(0xFF162137).copy(alpha = 0.65f),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B)),
+                        color = AppColors.bgCard,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
@@ -813,14 +817,14 @@ fun MemoriesPage(
                             ) {
                                 Surface(
                                     shape = RoundedCornerShape(8.dp),
-                                    color = Color(0xFF818CF8).copy(alpha = 0.15f)
+                                    color = Color(0xFF6366F1).copy(alpha = 0.14f)
                                 ) {
                                     Text(
                                         text = "1 year ago today",
                                         fontSize = 12.sp,
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.SemiBold,
-                                        color = Color(0xFF818CF8),
+                                        color = if (AppColors.isLight) Color(0xFF4F46E5) else Color(0xFF818CF8),
                                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                                     )
                                 }
@@ -833,7 +837,7 @@ fun MemoriesPage(
                                 fontSize = 15.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
-                                color = Color(0xFFF8FAFC)
+                                color = AppColors.textPrimary
                             )
 
                             if (post.mediaUrl != null) {
@@ -872,91 +876,97 @@ fun StoryFeedPage(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFF0B1120))
+            .background(AppColors.bgScreen)
             .testTag("story_feed_page")
     ) {
         Surface(
-            color = Color(0xFF0B1120),
+            color = AppColors.headerBg,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(64.dp)
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
+            Column {
                 Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(64.dp)
+                        .padding(horizontal = 16.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    if (onBack != null) {
-                        IconButton(
-                            onClick = onBack,
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        if (onBack != null) {
+                            IconButton(
+                                onClick = onBack,
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(CircleShape)
+                                    .background(AppColors.headerIconBg)
+                                    .testTag("story_feed_back_btn")
+                            ) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Back",
+                                    tint = AppColors.headerIconTint,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+
+                        Box(
                             modifier = Modifier
-                                .size(40.dp)
+                                .size(36.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFF1E293B))
-                                .testTag("story_feed_back_btn")
+                                .background(if (AppColors.isLight) AppColors.headerIconBg else Color(0xFF34D399).copy(alpha = 0.15f)),
+                            contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back",
-                                tint = Color(0xFFF8FAFC),
+                                imageVector = Icons.Default.Layers,
+                                contentDescription = null,
+                                tint = if (AppColors.isLight) Color.White else Color(0xFF34D399),
                                 modifier = Modifier.size(20.dp)
                             )
                         }
-                    }
 
-                    Box(
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFF34D399).copy(alpha = 0.15f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Layers,
-                            contentDescription = null,
-                            tint = Color(0xFF34D399),
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-
-                    Text(
-                        text = "Story Feed",
-                        fontSize = 20.sp,
-                        fontFamily = InterFontFamily,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color.White
-                    )
-                }
-
-                if (onAddStoryClick != null) {
-                    Button(
-                        onClick = onAddStoryClick,
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1877F2)),
-                        shape = RoundedCornerShape(20.dp),
-                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
-                        modifier = Modifier.testTag("story_feed_add_story_btn")
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "Add Story",
-                            fontSize = 13.sp,
+                            text = "Story Feed",
+                            fontSize = 20.sp,
                             fontFamily = InterFontFamily,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.White
+                            fontWeight = FontWeight.SemiBold,
+                            color = AppColors.headerText
                         )
                     }
+
+                    if (onAddStoryClick != null) {
+                        Button(
+                            onClick = onAddStoryClick,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (AppColors.isLight) Color.White else AppColors.primaryBlue,
+                                contentColor = if (AppColors.isLight) AppColors.primaryBlue else Color.White
+                            ),
+                            shape = RoundedCornerShape(20.dp),
+                            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
+                            modifier = Modifier.testTag("story_feed_add_story_btn")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = null,
+                                tint = if (AppColors.isLight) AppColors.primaryBlue else Color.White,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "Add Story",
+                                fontSize = 13.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold,
+                                color = if (AppColors.isLight) AppColors.primaryBlue else Color.White
+                            )
+                        }
+                    }
                 }
+                HorizontalDivider(color = AppColors.headerDivider)
             }
         }
 
@@ -975,13 +985,13 @@ fun StoryFeedPage(
                         modifier = Modifier
                             .size(80.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFF1877F2).copy(alpha = 0.15f)),
+                            .background(AppColors.bgBlueTint),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.AutoAwesome,
                             contentDescription = null,
-                            tint = Color(0xFF1877F2),
+                            tint = AppColors.primaryBlue,
                             modifier = Modifier.size(40.dp)
                         )
                     }
@@ -991,7 +1001,7 @@ fun StoryFeedPage(
                         fontSize = 20.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White
+                        color = AppColors.textPrimary
                     )
 
                     Text(
@@ -999,14 +1009,14 @@ fun StoryFeedPage(
                         fontSize = 13.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal,
-                        color = Color(0xFF94A3B8),
+                        color = AppColors.textSecondary,
                         textAlign = TextAlign.Center
                     )
 
                     if (onAddStoryClick != null) {
                         Button(
                             onClick = onAddStoryClick,
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1877F2)),
+                            colors = ButtonDefaults.buttonColors(containerColor = AppColors.primaryBlue),
                             shape = RoundedCornerShape(24.dp),
                             contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp)
                         ) {
@@ -1029,8 +1039,8 @@ fun StoryFeedPage(
 
                     Surface(
                         shape = RoundedCornerShape(18.dp),
-                        color = Color(0xFF162137).copy(alpha = 0.65f),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B)),
+                        color = AppColors.bgCard,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { onStoryClick?.invoke(story) }
@@ -1047,7 +1057,7 @@ fun StoryFeedPage(
                                 modifier = Modifier
                                     .size(42.dp)
                                     .clip(CircleShape)
-                                    .border(2.dp, Color(0xFF1877F2), CircleShape)
+                                    .border(2.dp, AppColors.primaryBlue, CircleShape)
                             )
                             Column {
                                 Text(
@@ -1055,14 +1065,14 @@ fun StoryFeedPage(
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 15.sp,
-                                    color = Color(0xFFF8FAFC)
+                                    color = AppColors.textPrimary
                                 )
                                 Text(
                                     text = story.timestamp,
                                     fontSize = 12.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
-                                    color = Color(0xFF94A3B8)
+                                    color = AppColors.textSecondary
                                 )
                             }
                         }
@@ -1091,10 +1101,10 @@ fun StoryFeedPage(
                                 Surface(
                                     onClick = { selectedEmoji = if (isSelected) null else emoji },
                                     shape = RoundedCornerShape(10.dp),
-                                    color = if (isSelected) Color(0xFF1877F2).copy(alpha = 0.25f) else Color(0xFF0F172A),
+                                    color = if (isSelected) AppColors.bgBlueTint else AppColors.bgInput,
                                     border = androidx.compose.foundation.BorderStroke(
                                         1.dp,
-                                        if (isSelected) Color(0xFF1877F2) else Color(0xFF1E293B)
+                                        if (isSelected) AppColors.primaryBlue else AppColors.border
                                     ),
                                     modifier = Modifier.padding(2.dp)
                                 ) {
@@ -1104,7 +1114,7 @@ fun StoryFeedPage(
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Medium,
                                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                                        color = Color.White
+                                        color = if (isSelected) AppColors.primaryBlue else AppColors.textPrimary
                                     )
                                 }
                             }
@@ -1122,18 +1132,18 @@ fun StoryFeedPage(
                                 value = commentText,
                                 onValueChange = { commentText = it },
                                 textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
-                                placeholder = { Text("Reply to story...", fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF64748B)) },
+                                placeholder = { Text("Reply to story...", fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = AppColors.textMuted) },
                                 modifier = Modifier
                                     .weight(1f)
                                     .height(48.dp),
                                 shape = RoundedCornerShape(24.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = Color(0xFF1877F2),
-                                    unfocusedBorderColor = Color(0xFF1E293B),
-                                    focusedContainerColor = Color(0xFF0B1120),
-                                    unfocusedContainerColor = Color(0xFF0B1120),
-                                    focusedTextColor = Color.White,
-                                    unfocusedTextColor = Color.White
+                                    focusedBorderColor = AppColors.primaryBlue,
+                                    unfocusedBorderColor = AppColors.border,
+                                    focusedContainerColor = AppColors.bgInput,
+                                    unfocusedContainerColor = AppColors.bgInput,
+                                    focusedTextColor = AppColors.textPrimary,
+                                    unfocusedTextColor = AppColors.textPrimary
                                 )
                             )
 
@@ -1142,7 +1152,7 @@ fun StoryFeedPage(
                                 modifier = Modifier
                                     .size(40.dp)
                                     .clip(CircleShape)
-                                    .background(Color(0xFF1877F2))
+                                    .background(AppColors.primaryBlue)
                             ) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.Send,

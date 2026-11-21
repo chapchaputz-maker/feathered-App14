@@ -31,6 +31,7 @@ import com.unera.social.data.CallEvent
 import com.unera.social.model.*
 import com.unera.social.ui.components.PostUploadState
 import com.unera.social.ui.screens.toPost
+import com.unera.social.ui.theme.ThemePreferences
 import org.json.JSONObject
 import android.util.Log
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -218,7 +219,8 @@ data class FeatheredUiState(
     val authMode: String = "login", // "login", "register", "forgot"
     val postUploadState: PostUploadState? = null,
     val fullScreenImageViewerUrl: String? = null,
-    val isAppLoading: Boolean = false
+    val isAppLoading: Boolean = false,
+    val isLightMode: Boolean = false
 )
 
 class FeatheredViewModel(application: Application) : AndroidViewModel(application) {
@@ -243,6 +245,8 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
     init {
         // Session restore on app load matching App.tsx auto-on-app-load
         val context = getApplication<Application>().applicationContext
+        ThemePreferences.init(context)
+        _uiState.update { it.copy(isLightMode = ThemePreferences.isLightModeFlow.value) }
         val savedUser = UserSessionManager.getSavedUser(context)
         val savedToken = UserSessionManager.getAuthToken(context)
         if (savedUser != null && savedUser.id > 0L) {
@@ -5827,5 +5831,11 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
         }
         refreshFeed()
         refreshGroups()
+    }
+
+    fun setLightMode(enabled: Boolean) {
+        val context = getApplication<Application>().applicationContext
+        ThemePreferences.setLightMode(context, enabled)
+        _uiState.update { it.copy(isLightMode = enabled) }
     }
 }

@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
+import com.unera.social.ui.theme.AppColors
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
@@ -144,7 +145,7 @@ fun SeamlessImage(
         )
         .clip(shape)
         .clipToBounds()
-        .background(Color(0xFF0A0F1D))
+        .background(AppColors.bgCardElevated)
 
     Box(modifier = containerModifier) {
         // 1. Placeholder / Low Quality Layer (if available)

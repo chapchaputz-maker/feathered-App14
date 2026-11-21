@@ -172,73 +172,82 @@ fun MessagesScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFF0F172A))
+            .background(if (AppColors.isLight) AppColors.bgSurface else Color(0xFF0F172A))
             .testTag("messages_screen")
     ) {
         // 1. Top Header: Title + Action Buttons
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+        Surface(
+            color = if (AppColors.isLight) AppColors.headerBg else Color(0xFF0F172A),
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "Chats",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    fontFamily = InterFontFamily,
-                    color = Color.White
-                )
-                if (isConversationsLoading) {
-                    Spacer(modifier = Modifier.width(8.dp))
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(16.dp),
-                        color = Carrot500,
-                        strokeWidth = 2.dp
-                    )
-                }
-            }
-
             Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                if (onRefresh != null) {
-                    IconButton(
-                        onClick = onRefresh,
-                        modifier = Modifier
-                            .size(38.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFF1E293B))
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = "Refresh",
-                            tint = Color(0xFF94A3B8),
-                            modifier = Modifier.size(18.dp)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "Chats",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = InterFontFamily,
+                        color = if (AppColors.isLight) AppColors.headerText else Color.White
+                    )
+                    if (isConversationsLoading) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(16.dp),
+                            color = if (AppColors.isLight) Color.White else Carrot500,
+                            strokeWidth = 2.dp
                         )
                     }
                 }
 
-                // Compose / New Chat button
-                IconButton(
-                    onClick = { showNewChatDialog = true },
-                    modifier = Modifier
-                        .size(38.dp)
-                        .clip(CircleShape)
-                        .background(Carrot500)
-                        .testTag("new_chat_btn")
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Edit,
-                        contentDescription = "New Message",
-                        tint = Color.White,
-                        modifier = Modifier.size(18.dp)
-                    )
+                    if (onRefresh != null) {
+                        IconButton(
+                            onClick = onRefresh,
+                            modifier = Modifier
+                                .size(38.dp)
+                                .clip(CircleShape)
+                                .background(if (AppColors.isLight) AppColors.headerIconBg else Color(0xFF1E293B))
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Refresh,
+                                contentDescription = "Refresh",
+                                tint = if (AppColors.isLight) Color.White else Color(0xFF94A3B8),
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                    }
+
+                    // Compose / New Chat button
+                    IconButton(
+                        onClick = { showNewChatDialog = true },
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(if (AppColors.isLight) Color.White else Carrot500)
+                            .testTag("new_chat_btn")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Edit,
+                            contentDescription = "New Message",
+                            tint = if (AppColors.isLight) AppColors.primaryBlue else Color.White,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
                 }
             }
+        }
+
+        if (AppColors.isLight) {
+            Spacer(modifier = Modifier.height(10.dp))
         }
 
         // 2. Search Conversations Bar
@@ -247,14 +256,15 @@ fun MessagesScreen(
             onValueChange = { query = it },
             textStyle = LocalTextStyle.current.copy(
                 fontFamily = InterFontFamily,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Normal,
+                color = AppColors.textPrimary
             ),
-            placeholder = { Text("Search messages and friends…", color = Color(0xFF64748B), fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
+            placeholder = { Text("Search messages and friends…", color = AppColors.textMuted, fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = null,
-                    tint = Color(0xFF64748B),
+                    tint = AppColors.textMuted,
                     modifier = Modifier.size(18.dp)
                 )
             },
@@ -264,7 +274,7 @@ fun MessagesScreen(
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = "Clear",
-                            tint = Color(0xFF94A3B8),
+                            tint = AppColors.textSecondary,
                             modifier = Modifier.size(16.dp)
                         )
                     }
@@ -273,12 +283,12 @@ fun MessagesScreen(
             singleLine = true,
             shape = RoundedCornerShape(24.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = Color(0xFF1E293B),
-                unfocusedContainerColor = Color(0xFF1E293B),
-                focusedBorderColor = Carrot500,
-                unfocusedBorderColor = Color(0xFF334155),
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White
+                focusedContainerColor = AppColors.bgInput,
+                unfocusedContainerColor = AppColors.bgInput,
+                focusedBorderColor = if (AppColors.isLight) AppColors.primaryBlue else Carrot500,
+                unfocusedBorderColor = AppColors.border,
+                focusedTextColor = AppColors.textPrimary,
+                unfocusedTextColor = AppColors.textPrimary
             ),
             modifier = Modifier
                 .fillMaxWidth()
@@ -296,7 +306,7 @@ fun MessagesScreen(
                     fontSize = 11.sp,
                     fontWeight = FontWeight.SemiBold,
                     fontFamily = InterFontFamily,
-                    color = Color(0xFF94A3B8),
+                    color = AppColors.textSecondary,
                     letterSpacing = 0.5.sp,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
                 )
@@ -321,7 +331,7 @@ fun MessagesScreen(
                 HorizontalDivider(
                     modifier = Modifier.padding(top = 10.dp, bottom = 4.dp),
                     thickness = 0.5.dp,
-                    color = Color(0xFF1E293B)
+                    color = AppColors.border
                 )
             }
         }
@@ -340,13 +350,13 @@ fun MessagesScreen(
                         modifier = Modifier
                             .size(64.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFF1E293B)),
+                            .background(AppColors.bgChip),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.Chat,
                             contentDescription = null,
-                            tint = Carrot500,
+                            tint = if (AppColors.isLight) AppColors.primaryBlue else Carrot500,
                             modifier = Modifier.size(32.dp)
                         )
                     }
@@ -356,7 +366,7 @@ fun MessagesScreen(
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
                         fontFamily = InterFontFamily,
-                        color = Color.White
+                        color = AppColors.textPrimary
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
@@ -364,14 +374,17 @@ fun MessagesScreen(
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Normal,
                         fontFamily = InterFontFamily,
-                        color = Color(0xFF94A3B8),
+                        color = AppColors.textSecondary,
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(
                         onClick = { showNewChatDialog = true },
                         shape = RoundedCornerShape(20.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Carrot500)
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (AppColors.isLight) AppColors.primaryBlue else Carrot500,
+                            contentColor = Color.White
+                        )
                     ) {
                         Icon(imageVector = Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(6.dp))
@@ -403,7 +416,7 @@ fun MessagesScreen(
                         ) {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(24.dp),
-                                color = Carrot500,
+                                color = if (AppColors.isLight) AppColors.primaryBlue else Carrot500,
                                 strokeWidth = 2.dp
                             )
                         }
@@ -449,7 +462,7 @@ fun ActiveNowItem(
                 username = user.username,
                 imageUrl = user.profileImageUrl,
                 size = 50.dp,
-                borderColor = if (user.isOnline) Color(0xFF10B981) else Color(0xFF334155),
+                borderColor = if (user.isOnline) Color(0xFF10B981) else AppColors.avatarBorder,
                 borderWidth = 2.dp
             )
             if (user.isOnline) {
@@ -459,7 +472,7 @@ fun ActiveNowItem(
                         .size(13.dp)
                         .clip(CircleShape)
                         .background(Color(0xFF10B981))
-                        .border(2.dp, Color(0xFF0F172A), CircleShape)
+                        .border(2.dp, if (AppColors.isLight) AppColors.bgSurface else Color(0xFF0F172A), CircleShape)
                 )
             }
         }
@@ -471,7 +484,7 @@ fun ActiveNowItem(
             fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
             fontFamily = InterFontFamily,
-            color = Color(0xFFE2E8F0),
+            color = AppColors.textPrimary,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -486,6 +499,9 @@ fun ConversationItem(
     conversation: Conversation,
     onClick: () -> Unit
 ) {
+    val accentColor = if (AppColors.isLight) AppColors.primaryBlue else Carrot500
+    val rowSurfaceBg = if (AppColors.isLight) AppColors.bgSurface else Color(0xFF0F172A)
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -500,7 +516,7 @@ fun ConversationItem(
                 username = conversation.participant.username,
                 imageUrl = conversation.participant.profileImageUrl,
                 size = 54.dp,
-                borderColor = Color(0xFF334155),
+                borderColor = AppColors.avatarBorder,
                 borderWidth = 1.dp
             )
             if (conversation.participant.isOnline) {
@@ -510,7 +526,7 @@ fun ConversationItem(
                         .size(14.dp)
                         .clip(CircleShape)
                         .background(Color(0xFF10B981))
-                        .border(2.dp, Color(0xFF0F172A), CircleShape)
+                        .border(2.dp, rowSurfaceBg, CircleShape)
                 )
             }
         }
@@ -533,7 +549,7 @@ fun ConversationItem(
                         fontWeight = FontWeight.Bold,
                         fontSize = 19.sp,
                         fontFamily = InterFontFamily,
-                        color = Color.White,
+                        color = AppColors.textPrimary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -546,7 +562,7 @@ fun ConversationItem(
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Normal,
                     fontFamily = InterFontFamily,
-                    color = if (conversation.unreadCount > 0) Carrot500 else Color(0xFF94A3B8)
+                    color = if (conversation.unreadCount > 0) accentColor else AppColors.textSecondary
                 )
             }
 
@@ -588,7 +604,7 @@ fun ConversationItem(
                         Text(
                             text = latestMessageText,
                             fontSize = 20.sp,
-                            color = if (conversation.unreadCount > 0) Color.White else Color(0xFF94A3B8),
+                            color = if (conversation.unreadCount > 0) AppColors.textPrimary else AppColors.textSecondary,
                             fontWeight = if (conversation.unreadCount > 0) FontWeight.SemiBold else FontWeight.Normal,
                             fontFamily = InterFontFamily,
                             maxLines = 1,
@@ -602,7 +618,7 @@ fun ConversationItem(
                     if (conversation.unreadCount > 0) {
                         Spacer(modifier = Modifier.width(8.dp))
                         Badge(
-                            containerColor = Carrot500,
+                            containerColor = accentColor,
                             contentColor = Color.White
                         ) {
                             Text(
@@ -641,8 +657,8 @@ fun NewChatPickerModal(
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = RoundedCornerShape(20.dp),
-            color = Color(0xFF1E293B),
-            border = BorderStroke(1.dp, Color(0xFF334155)),
+            color = if (AppColors.isLight) AppColors.bgCard else Color(0xFF1E293B),
+            border = BorderStroke(1.dp, AppColors.borderStrong),
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(max = 500.dp)
@@ -662,10 +678,10 @@ fun NewChatPickerModal(
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
                         fontFamily = InterFontFamily,
-                        color = Color.White
+                        color = AppColors.textPrimary
                     )
                     IconButton(onClick = onDismiss, modifier = Modifier.size(28.dp)) {
-                        Icon(Icons.Default.Close, contentDescription = "Close", tint = Color(0xFF94A3B8))
+                        Icon(Icons.Default.Close, contentDescription = "Close", tint = AppColors.textSecondary)
                     }
                 }
 
@@ -676,21 +692,22 @@ fun NewChatPickerModal(
                     onValueChange = { searchQuery = it },
                     textStyle = LocalTextStyle.current.copy(
                         fontFamily = InterFontFamily,
-                        fontWeight = FontWeight.Normal
+                        fontWeight = FontWeight.Normal,
+                        color = AppColors.textPrimary
                     ),
-                    placeholder = { Text("Search friends…", color = Color(0xFF64748B), fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
+                    placeholder = { Text("Search friends…", color = AppColors.textMuted, fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                     leadingIcon = {
-                        Icon(Icons.Default.Search, contentDescription = null, tint = Color(0xFF64748B), modifier = Modifier.size(18.dp))
+                        Icon(Icons.Default.Search, contentDescription = null, tint = AppColors.textMuted, modifier = Modifier.size(18.dp))
                     },
                     singleLine = true,
                     shape = RoundedCornerShape(16.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFF0F172A),
-                        unfocusedContainerColor = Color(0xFF0F172A),
-                        focusedBorderColor = Carrot500,
-                        unfocusedBorderColor = Color(0xFF334155),
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White
+                        focusedContainerColor = AppColors.bgInput,
+                        unfocusedContainerColor = AppColors.bgInput,
+                        focusedBorderColor = if (AppColors.isLight) AppColors.primaryBlue else Carrot500,
+                        unfocusedBorderColor = AppColors.borderStrong,
+                        focusedTextColor = AppColors.textPrimary,
+                        unfocusedTextColor = AppColors.textPrimary
                     ),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -709,7 +726,7 @@ fun NewChatPickerModal(
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Normal,
                             fontFamily = InterFontFamily,
-                            color = Color(0xFF94A3B8)
+                            color = AppColors.textSecondary
                         )
                     }
                 } else {
@@ -742,7 +759,7 @@ fun NewChatPickerModal(
                                                 .size(10.dp)
                                                 .clip(CircleShape)
                                                 .background(Color(0xFF10B981))
-                                                .border(1.5.dp, Color(0xFF1E293B), CircleShape)
+                                                .border(1.5.dp, if (AppColors.isLight) AppColors.bgCard else Color(0xFF1E293B), CircleShape)
                                         )
                                     }
                                 }
@@ -755,21 +772,21 @@ fun NewChatPickerModal(
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 14.sp,
                                         fontFamily = InterFontFamily,
-                                        color = Color.White
+                                        color = AppColors.textPrimary
                                     )
                                     Text(
                                         text = user.username,
                                         fontSize = 12.sp,
                                         fontWeight = FontWeight.Normal,
                                         fontFamily = InterFontFamily,
-                                        color = Color(0xFF94A3B8)
+                                        color = AppColors.textSecondary
                                     )
                                 }
 
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.Send,
                                     contentDescription = "Message",
-                                    tint = Carrot500,
+                                    tint = if (AppColors.isLight) AppColors.primaryBlue else Carrot500,
                                     modifier = Modifier.size(16.dp)
                                 )
                             }

@@ -31,6 +31,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
 import com.unera.social.R
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -38,11 +39,11 @@ import kotlinx.coroutines.launch
 private val APP_NAME = "Feathered"
 private val APP_LOGO = "https://media.featheredsocial.site/file_00000000fcd8820ebece7f0c251fccf1.png"
 
-private val AuthBgDark = Color(0xFF050B18)
-private val AuthCardDark = Color(0xFF1E293B)
-private val AuthHoverDark = Color(0xFF334155)
-private val AuthTextPrimary = Color(0xFFF8FAFC)
-private val AuthTextSecondary = Color(0xFF94A3B8)
+private val AuthBgDark: Color @Composable get() = AppColors.bgScreen
+private val AuthCardDark: Color @Composable get() = if (AppColors.isLight) AppColors.bgCard else Color(0xFF1E293B)
+private val AuthBorderDark: Color @Composable get() = if (AppColors.isLight) AppColors.borderStrong else Color(0xFF1E293B)
+private val AuthTextPrimary: Color @Composable get() = AppColors.textPrimary
+private val AuthTextSecondary: Color @Composable get() = AppColors.textSecondary
 private val AuthBluePrimary = Color(0xFF1877F2)
 private val AuthBlueHover = Color(0xFF166FE5)
 private val AuthGreenSignup = Color(0xFF42B72A)
@@ -183,7 +184,7 @@ fun LoginView(
     val coroutineScope = rememberCoroutineScope()
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // Close button: top right w-10 h-10 bg-[#1E293B] rounded-full
+        // Close button
         IconButton(
             onClick = onClose,
             modifier = Modifier
@@ -192,6 +193,7 @@ fun LoginView(
                 .size(40.dp)
                 .clip(CircleShape)
                 .background(AuthCardDark)
+                .border(1.dp, AuthBorderDark, CircleShape)
                 .testTag("auth_close_guest_btn")
         ) {
             Icon(
@@ -239,12 +241,12 @@ fun LoginView(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(Color(0xFF7F1D1D).copy(alpha = 0.50f))
-                                .border(1.dp, Color(0xFFEF4444), RoundedCornerShape(8.dp))
+                                .background(AppColors.dangerBg)
+                                .border(1.dp, AppColors.dangerText, RoundedCornerShape(8.dp))
                                 .padding(12.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(text = error, color = Color(0xFFFECACA), fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, textAlign = TextAlign.Center)
+                            Text(text = error, color = AppColors.dangerText, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, textAlign = TextAlign.Center)
                         }
                     }
 
@@ -262,7 +264,7 @@ fun LoginView(
                             focusedTextColor = AuthTextPrimary,
                             unfocusedTextColor = AuthTextPrimary,
                             focusedBorderColor = AuthBluePrimary,
-                            unfocusedBorderColor = AuthCardDark
+                            unfocusedBorderColor = AuthBorderDark
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -293,7 +295,7 @@ fun LoginView(
                             focusedTextColor = AuthTextPrimary,
                             unfocusedTextColor = AuthTextPrimary,
                             focusedBorderColor = AuthBluePrimary,
-                            unfocusedBorderColor = AuthCardDark
+                            unfocusedBorderColor = AuthBorderDark
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -358,7 +360,7 @@ fun LoginView(
                         )
                     }
 
-                    HorizontalDivider(color = AuthCardDark, thickness = 1.dp, modifier = Modifier.padding(vertical = 4.dp))
+                    HorizontalDivider(color = AppColors.border, thickness = 1.dp, modifier = Modifier.padding(vertical = 4.dp))
 
                     // Create New Account Button: bg-[#42B72A] font-bold text-[17px]
                     Button(
@@ -410,7 +412,7 @@ fun LoginView(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Language Switcher matching web
-                HorizontalDivider(color = AuthCardDark, thickness = 1.dp)
+                HorizontalDivider(color = AppColors.border, thickness = 1.dp)
                 Spacer(modifier = Modifier.height(14.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -421,7 +423,7 @@ fun LoginView(
                             text = lang,
                             fontSize = 12.sp,
                             fontFamily = InterFontFamily,
-                            color = if (idx == 0) Color.White else Color(0xFF64748B),
+                            color = if (idx == 0) AuthTextPrimary else AppColors.textMuted,
                             fontWeight = if (idx == 0) FontWeight.Medium else FontWeight.Normal,
                             modifier = Modifier.padding(horizontal = 6.dp)
                         )
@@ -498,12 +500,12 @@ fun RegisterView(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(8.dp))
-                            .background(Color(0xFF7F1D1D).copy(alpha = 0.50f))
-                            .border(1.dp, Color(0xFFEF4444), RoundedCornerShape(8.dp))
+                            .background(AppColors.dangerBg)
+                            .border(1.dp, AppColors.dangerText, RoundedCornerShape(8.dp))
                             .padding(12.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = error, color = Color(0xFFFECACA), fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, textAlign = TextAlign.Center)
+                        Text(text = error, color = AppColors.dangerText, fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, textAlign = TextAlign.Center)
                     }
                 }
 
@@ -525,7 +527,7 @@ fun RegisterView(
                             focusedTextColor = AuthTextPrimary,
                             unfocusedTextColor = AuthTextPrimary,
                             focusedBorderColor = AuthBluePrimary,
-                            unfocusedBorderColor = AuthCardDark
+                            unfocusedBorderColor = AuthBorderDark
                         ),
                         modifier = Modifier.weight(1f).testTag("register_first_name_input")
                     )
@@ -543,7 +545,7 @@ fun RegisterView(
                             focusedTextColor = AuthTextPrimary,
                             unfocusedTextColor = AuthTextPrimary,
                             focusedBorderColor = AuthBluePrimary,
-                            unfocusedBorderColor = AuthCardDark
+                            unfocusedBorderColor = AuthBorderDark
                         ),
                         modifier = Modifier.weight(1f).testTag("register_surname_input")
                     )
@@ -554,7 +556,7 @@ fun RegisterView(
                     onClick = { showCountryPicker = true },
                     shape = RoundedCornerShape(8.dp),
                     color = AuthCardDark,
-                    border = BorderStroke(1.dp, AuthCardDark),
+                    border = BorderStroke(1.dp, AuthBorderDark),
                     modifier = Modifier.fillMaxWidth().height(52.dp)
                 ) {
                     Row(
@@ -652,6 +654,7 @@ fun RegisterView(
                                     .fillMaxWidth()
                                     .clip(RoundedCornerShape(8.dp))
                                     .background(AuthCardDark)
+                                    .border(1.dp, AuthBorderDark, RoundedCornerShape(8.dp))
                                     .clickable { showDayMenu = true }
                                     .padding(horizontal = 10.dp, vertical = 12.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -664,7 +667,7 @@ fun RegisterView(
                                 expanded = showDayMenu,
                                 onDismissRequest = { showDayMenu = false },
                                 modifier = Modifier
-                                    .background(Color(0xFF0B1120))
+                                    .background(AppColors.bgCard)
                                     .heightIn(max = 240.dp)
                             ) {
                                 (1..31).forEach { d ->
@@ -687,6 +690,7 @@ fun RegisterView(
                                     .fillMaxWidth()
                                     .clip(RoundedCornerShape(8.dp))
                                     .background(AuthCardDark)
+                                    .border(1.dp, AuthBorderDark, RoundedCornerShape(8.dp))
                                     .clickable { showMonthMenu = true }
                                     .padding(horizontal = 10.dp, vertical = 12.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -699,7 +703,7 @@ fun RegisterView(
                                 expanded = showMonthMenu,
                                 onDismissRequest = { showMonthMenu = false },
                                 modifier = Modifier
-                                    .background(Color(0xFF0B1120))
+                                    .background(AppColors.bgCard)
                                     .heightIn(max = 240.dp)
                             ) {
                                 months.forEachIndexed { idx, m ->
@@ -721,6 +725,7 @@ fun RegisterView(
                                     .fillMaxWidth()
                                     .clip(RoundedCornerShape(8.dp))
                                     .background(AuthCardDark)
+                                    .border(1.dp, AuthBorderDark, RoundedCornerShape(8.dp))
                                     .clickable { showYearMenu = true }
                                     .padding(horizontal = 10.dp, vertical = 12.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -733,7 +738,7 @@ fun RegisterView(
                                 expanded = showYearMenu,
                                 onDismissRequest = { showYearMenu = false },
                                 modifier = Modifier
-                                    .background(Color(0xFF0B1120))
+                                    .background(AppColors.bgCard)
                                     .heightIn(max = 240.dp)
                             ) {
                                 (2012 downTo 1920).forEach { y ->
@@ -763,7 +768,7 @@ fun RegisterView(
                                 onClick = { gender = opt },
                                 shape = RoundedCornerShape(8.dp),
                                 color = AuthCardDark,
-                                border = BorderStroke(1.dp, if (isSel) AuthBluePrimary else AuthCardDark),
+                                border = BorderStroke(1.dp, if (isSel) AuthBluePrimary else AuthBorderDark),
                                 modifier = Modifier.weight(1f)
                             ) {
                                 Row(
@@ -871,8 +876,8 @@ fun RegisterView(
                     .fillMaxWidth()
                     .heightIn(max = 450.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF0B1120)),
-                border = BorderStroke(1.dp, Color(0xFF1E293B))
+                colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+                border = BorderStroke(1.dp, AppColors.border)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text("Select Nationality", fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 18.sp, color = AuthTextPrimary)
@@ -960,10 +965,10 @@ fun ForgotPasswordView(
                 Button(
                     onClick = onBackToLogin,
                     shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = AuthCardDark),
+                    colors = ButtonDefaults.buttonColors(containerColor = AppColors.bgChip, contentColor = AuthTextPrimary),
                     modifier = Modifier.fillMaxWidth().height(48.dp)
                 ) {
-                    Text("Back to Login", fontSize = 16.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color.White)
+                    Text("Back to Login", fontSize = 16.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = AuthTextPrimary)
                 }
             } else {
                 Text(
@@ -996,7 +1001,7 @@ fun ForgotPasswordView(
                         focusedTextColor = AuthTextPrimary,
                         unfocusedTextColor = AuthTextPrimary,
                         focusedBorderColor = AuthBluePrimary,
-                        unfocusedBorderColor = AuthCardDark
+                        unfocusedBorderColor = AuthBorderDark
                     ),
                     modifier = Modifier.fillMaxWidth().testTag("forgot_email_input")
                 )
@@ -1008,10 +1013,10 @@ fun ForgotPasswordView(
                     Button(
                         onClick = onBackToLogin,
                         shape = RoundedCornerShape(8.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = AuthCardDark),
+                        colors = ButtonDefaults.buttonColors(containerColor = AppColors.bgChip, contentColor = AuthTextPrimary),
                         modifier = Modifier.weight(1f).height(48.dp)
                     ) {
-                        Text("Cancel", fontSize = 15.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color.White)
+                        Text("Cancel", fontSize = 15.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = AuthTextPrimary)
                     }
 
                     Button(

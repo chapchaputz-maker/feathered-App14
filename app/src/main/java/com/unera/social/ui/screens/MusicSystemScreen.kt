@@ -41,6 +41,7 @@ import com.unera.social.model.AlbumTrackInput
 import com.unera.social.model.AudioTrack
 import com.unera.social.model.Song
 import com.unera.social.model.User
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 import kotlinx.coroutines.delay
 
@@ -178,13 +179,13 @@ fun MusicSystemScreen(
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        containerColor = Color(0xFF050B18),
+        containerColor = AppColors.bgScreen,
         topBar = {
             // Sticky Top Navigation Tabs (Flat Facebook Style)
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFF050B18))
+                    .background(AppColors.headerBg)
             ) {
                 Row(
                     modifier = Modifier
@@ -207,12 +208,12 @@ fun MusicSystemScreen(
                         modifier = Modifier
                             .size(36.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFF0F172A))
+                            .background(AppColors.headerIconBg)
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color.White,
+                            tint = AppColors.headerIconTint,
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -227,7 +228,7 @@ fun MusicSystemScreen(
                         },
                         edgePadding = 0.dp,
                         containerColor = Color.Transparent,
-                        contentColor = Color(0xFF1877F2),
+                        contentColor = if (AppColors.isLight) Color.White else AppColors.primaryBlue,
                         divider = {},
                         modifier = Modifier.weight(1f)
                     ) {
@@ -240,7 +241,11 @@ fun MusicSystemScreen(
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Medium,
                                     fontSize = 13.sp,
-                                    color = if (activeView == MusicView.MUSIC) Color(0xFF1877F2) else Color(0xFF94A3B8)
+                                    color = if (activeView == MusicView.MUSIC) {
+                                        if (AppColors.isLight) Color.White else AppColors.primaryBlue
+                                    } else {
+                                        if (AppColors.isLight) AppColors.headerSubtext else AppColors.textSecondary
+                                    }
                                 )
                             }
                         )
@@ -254,7 +259,11 @@ fun MusicSystemScreen(
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Medium,
                                     fontSize = 13.sp,
-                                    color = if (activeView == MusicView.ALBUMS || activeView == MusicView.ALBUM) Color(0xFF1877F2) else Color(0xFF94A3B8)
+                                    color = if (activeView == MusicView.ALBUMS || activeView == MusicView.ALBUM) {
+                                        if (AppColors.isLight) Color.White else AppColors.primaryBlue
+                                    } else {
+                                        if (AppColors.isLight) AppColors.headerSubtext else AppColors.textSecondary
+                                    }
                                 )
                             }
                         )
@@ -268,7 +277,11 @@ fun MusicSystemScreen(
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Medium,
                                     fontSize = 13.sp,
-                                    color = if (activeView == MusicView.DASHBOARD || activeView == MusicView.UPLOAD) Color(0xFF1877F2) else Color(0xFF94A3B8)
+                                    color = if (activeView == MusicView.DASHBOARD || activeView == MusicView.UPLOAD) {
+                                        if (AppColors.isLight) Color.White else AppColors.primaryBlue
+                                    } else {
+                                        if (AppColors.isLight) AppColors.headerSubtext else AppColors.textSecondary
+                                    }
                                 )
                             }
                         )
@@ -283,14 +296,18 @@ fun MusicSystemScreen(
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Medium,
                                         fontSize = 13.sp,
-                                        color = if (activeView == MusicView.ARTIST) Color(0xFF1877F2) else Color(0xFF94A3B8)
+                                        color = if (activeView == MusicView.ARTIST) {
+                                            if (AppColors.isLight) Color.White else AppColors.primaryBlue
+                                        } else {
+                                            if (AppColors.isLight) AppColors.headerSubtext else AppColors.textSecondary
+                                        }
                                     )
                                 }
                             )
                         }
                     }
                 }
-                HorizontalDivider(color = Color(0xFF1E293B), thickness = 0.8.dp)
+                HorizontalDivider(color = AppColors.headerDivider, thickness = 0.8.dp)
             }
         }
     ) { innerPadding ->
@@ -368,7 +385,7 @@ fun MusicSystemScreen(
                         )
                     } else {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text("Album not found", color = Color.White, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
+                            Text("Album not found", color = AppColors.textPrimary, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                         }
                     }
                 }
@@ -480,14 +497,14 @@ private fun MusicFeedContent(
                     Column {
                         Text(
                             text = "F-Music",
-                            color = Color.White,
+                            color = AppColors.textPrimary,
                             fontSize = 28.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold
                         )
                         Text(
                             text = "Discover trending sounds, creators and fresh vibes",
-                            color = Color(0xFF94A3B8),
+                            color = AppColors.textSecondary,
                             fontSize = 13.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal
@@ -498,7 +515,7 @@ private fun MusicFeedContent(
                         onClick = onOpenStudio,
                         shape = RoundedCornerShape(20.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF1877F2),
+                            containerColor = AppColors.primaryBlue,
                             contentColor = Color.White
                         ),
                         contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp)
@@ -514,25 +531,25 @@ private fun MusicFeedContent(
                     value = searchQuery,
                     onValueChange = onSearchQueryChange,
                     textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 14.sp),
-                    placeholder = { Text("Search songs, artists...", color = Color(0xFF8D96A8), fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
+                    placeholder = { Text("Search songs, artists...", color = AppColors.textMuted, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                     leadingIcon = {
-                        Icon(imageVector = Icons.Default.Search, contentDescription = null, tint = Color(0xFF8D96A8))
+                        Icon(imageVector = Icons.Default.Search, contentDescription = null, tint = AppColors.textMuted)
                     },
                     trailingIcon = {
                         if (searchQuery.isNotBlank()) {
                             IconButton(onClick = { onSearchQueryChange("") }) {
-                                Icon(imageVector = Icons.Default.Close, contentDescription = "Clear", tint = Color(0xFF8D96A8))
+                                Icon(imageVector = Icons.Default.Close, contentDescription = "Clear", tint = AppColors.textMuted)
                             }
                         }
                     },
                     shape = RoundedCornerShape(16.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFF0F172A),
-                        unfocusedContainerColor = Color(0xFF0F172A),
-                        focusedBorderColor = Color(0xFF1877F2),
-                        unfocusedBorderColor = Color(0xFF1E293B),
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White
+                        focusedContainerColor = AppColors.bgCard,
+                        unfocusedContainerColor = AppColors.bgCard,
+                        focusedBorderColor = AppColors.primaryBlue,
+                        unfocusedBorderColor = AppColors.border,
+                        focusedTextColor = AppColors.textPrimary,
+                        unfocusedTextColor = AppColors.textPrimary
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -574,13 +591,13 @@ private fun MusicFeedContent(
                         val isSelected = selectedGenre == genre
                         Surface(
                             shape = RoundedCornerShape(20.dp),
-                            color = if (isSelected) Color(0xFF1877F2) else Color(0xFF0F172A),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, if (isSelected) Color(0xFF1877F2) else Color(0xFF1E293B)),
+                            color = if (isSelected) AppColors.primaryBlue else AppColors.bgCard,
+                            border = androidx.compose.foundation.BorderStroke(1.dp, if (isSelected) AppColors.primaryBlue else AppColors.border),
                             modifier = Modifier.clickable { onSelectGenre(genre) }
                         ) {
                             Text(
                                 text = genre,
-                                color = if (isSelected) Color.White else Color(0xFF94A3B8),
+                                color = if (isSelected) Color.White else AppColors.textSecondary,
                                 fontSize = 12.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Medium,
@@ -591,7 +608,7 @@ private fun MusicFeedContent(
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
-                HorizontalDivider(color = Color(0xFF1E293B), thickness = 0.8.dp)
+                HorizontalDivider(color = AppColors.border, thickness = 0.8.dp)
             }
         }
 
@@ -603,7 +620,8 @@ private fun MusicFeedContent(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF0F172A))
+                        .background(AppColors.bgCard)
+                        .border(1.dp, AppColors.border, RoundedCornerShape(12.dp))
                 ) {
                     Row(
                         modifier = Modifier.padding(12.dp),
@@ -624,10 +642,10 @@ private fun MusicFeedContent(
                                 contentScale = ContentScale.Crop
                             )
                             Column {
-                                Text("Now Playing", color = Color(0xFF8D96A8), fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
+                                Text("Now Playing", color = AppColors.textMuted, fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                                 Text(
                                     currentTrack.title,
-                                    color = Color.White,
+                                    color = AppColors.textPrimary,
                                     fontSize = 14.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.SemiBold,
@@ -636,7 +654,7 @@ private fun MusicFeedContent(
                                 )
                                 Text(
                                     currentTrack.artist,
-                                    color = Color(0xFFB8BCC7),
+                                    color = AppColors.textSecondary,
                                     fontSize = 12.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Bold,
@@ -651,12 +669,12 @@ private fun MusicFeedContent(
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(CircleShape)
-                                .background(if (isPlaying) Color(0xFF1877F2) else Color(0xFF2A2F39))
+                                .background(if (isPlaying) AppColors.primaryBlue else AppColors.bgChip)
                         ) {
                             Icon(
                                 imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                                 contentDescription = if (isPlaying) "Pause" else "Play",
-                                tint = Color.White
+                                tint = if (isPlaying) Color.White else AppColors.textPrimary
                             )
                         }
                     }
@@ -670,7 +688,7 @@ private fun MusicFeedContent(
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     Text(
                         text = if (searchQuery.isNotBlank()) "Search Results (${filteredSongs.size})" else "$selectedGenre Tracks (${filteredSongs.size})",
-                        color = Color.White,
+                        color = AppColors.textPrimary,
                         fontSize = 20.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold
@@ -704,30 +722,30 @@ private fun MusicFeedContent(
                     ) {
                         if (isLoading) {
                             CircularProgressIndicator(
-                                color = Color(0xFF1877F2),
+                                color = AppColors.primaryBlue,
                                 modifier = Modifier.size(36.dp)
                             )
                             Spacer(modifier = Modifier.height(14.dp))
-                            Text("Loading music catalog...", color = Color.White, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+                            Text("Loading music catalog...", color = AppColors.textPrimary, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
                         } else {
                             Box(
                                 modifier = Modifier
                                     .size(68.dp)
                                     .clip(CircleShape)
-                                    .background(Color(0xFF1877F2).copy(alpha = 0.15f)),
+                                    .background(AppColors.bgBlueTint),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.MusicNote,
                                     contentDescription = null,
-                                    tint = Color(0xFF1877F2),
+                                    tint = AppColors.primaryBlue,
                                     modifier = Modifier.size(34.dp)
                                 )
                             }
                             Spacer(modifier = Modifier.height(16.dp))
                             Text(
                                 text = "No Songs Available Yet",
-                                color = Color.White,
+                                color = AppColors.textPrimary,
                                 fontSize = 18.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.SemiBold
@@ -735,7 +753,7 @@ private fun MusicFeedContent(
                             Spacer(modifier = Modifier.height(6.dp))
                             Text(
                                 text = "Be the first creator to distribute your music to the Feathered community!",
-                                color = Color(0xFF94A3B8),
+                                color = AppColors.textSecondary,
                                 fontSize = 13.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
@@ -747,7 +765,7 @@ private fun MusicFeedContent(
                                     onClick = onOpenStudio,
                                     shape = RoundedCornerShape(12.dp),
                                     colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color(0xFF1877F2),
+                                        containerColor = AppColors.primaryBlue,
                                         contentColor = Color.White
                                     )
                                 ) {
@@ -758,8 +776,9 @@ private fun MusicFeedContent(
                                 OutlinedButton(
                                     onClick = onRefresh,
                                     shape = RoundedCornerShape(12.dp),
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.borderStrong),
                                     colors = ButtonDefaults.outlinedButtonColors(
-                                        contentColor = Color.White
+                                        contentColor = AppColors.textPrimary
                                     )
                                 ) {
                                     Icon(imageVector = Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -837,14 +856,14 @@ private fun MusicFeedContent(
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     Text(
                         text = "All Songs",
-                        color = Color.White,
+                        color = AppColors.textPrimary,
                         fontSize = 22.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
                         text = "A fresh ranked mix from all Feathered creators",
-                        color = Color(0xFF9CA3AF),
+                        color = AppColors.textSecondary,
                         fontSize = 13.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal
@@ -928,7 +947,7 @@ private fun HeroBannerCard(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = "FEATURED",
-                    color = Color(0xFF1877F2),
+                    color = if (AppColors.isLight) Color(0xFF93C5FD) else AppColors.primaryBlue,
                     fontSize = 11.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.SemiBold,
@@ -1007,7 +1026,7 @@ private fun QuickActionItem(
             modifier = Modifier
                 .size(54.dp)
                 .clip(CircleShape)
-                .background(Color(0xFF1877F2)),
+                .background(AppColors.primaryBlue),
             contentAlignment = Alignment.Center
         ) {
             Icon(
@@ -1020,7 +1039,7 @@ private fun QuickActionItem(
         Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = label,
-            color = Color.White,
+            color = AppColors.textPrimary,
             fontSize = 12.sp,
             fontFamily = InterFontFamily,
             fontWeight = FontWeight.Medium
@@ -1044,14 +1063,14 @@ private fun HorizontalMusicSection(
         Column(modifier = Modifier.padding(horizontal = 16.dp)) {
             Text(
                 text = title,
-                color = Color.White,
+                color = AppColors.textPrimary,
                 fontSize = 22.sp,
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.SemiBold
             )
             Text(
                 text = subtitle,
-                color = Color(0xFF9CA3AF),
+                color = AppColors.textSecondary,
                 fontSize = 13.sp,
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.Normal
@@ -1201,7 +1220,7 @@ private fun MusicFeedCard(
         // Title
         Text(
             text = song.title,
-            color = Color.White,
+            color = AppColors.textPrimary,
             fontSize = 14.sp,
             fontFamily = InterFontFamily,
             fontWeight = FontWeight.SemiBold,
@@ -1217,7 +1236,7 @@ private fun MusicFeedCard(
         ) {
             Text(
                 text = song.artist,
-                color = Color(0xFF94A3B8),
+                color = AppColors.textSecondary,
                 fontSize = 12.sp,
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.Bold,
@@ -1244,7 +1263,7 @@ private fun SongRankedListItem(
 ) {
     Surface(
         onClick = onPlay,
-        color = if (isCurrent) Color(0xFF1877F2).copy(alpha = 0.15f) else Color.Transparent,
+        color = if (isCurrent) AppColors.bgBlueTint else Color.Transparent,
         shape = RoundedCornerShape(8.dp),
         modifier = modifier.fillMaxWidth()
     ) {
@@ -1255,7 +1274,7 @@ private fun SongRankedListItem(
         ) {
             Text(
                 text = "$index",
-                color = Color(0xFF9CA3AF),
+                color = AppColors.textSecondary,
                 fontSize = 14.sp,
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.SemiBold,
@@ -1275,7 +1294,7 @@ private fun SongRankedListItem(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = song.title,
-                    color = Color.White,
+                    color = AppColors.textPrimary,
                     fontSize = 14.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.SemiBold,
@@ -1284,7 +1303,7 @@ private fun SongRankedListItem(
                 )
                 Text(
                     text = song.artist,
-                    color = Color(0xFF9CA3AF),
+                    color = AppColors.textSecondary,
                     fontSize = 12.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Bold,
@@ -1295,7 +1314,7 @@ private fun SongRankedListItem(
 
             Text(
                 text = "${formatCompactNumber(song.stats.plays)} plays",
-                color = Color(0xFF9CA3AF),
+                color = AppColors.textSecondary,
                 fontSize = 12.sp,
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.Normal
@@ -1305,7 +1324,7 @@ private fun SongRankedListItem(
                 Icon(
                     imageVector = if (isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                     contentDescription = "Like",
-                    tint = if (isLiked) Color(0xFFFF4D8D) else Color.White,
+                    tint = if (isLiked) Color(0xFFFF4D8D) else AppColors.textSecondary,
                     modifier = Modifier.size(18.dp)
                 )
             }
@@ -1343,7 +1362,7 @@ private fun SongRowItem(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = song.title,
-                    color = Color.White,
+                    color = AppColors.textPrimary,
                     fontSize = 15.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.SemiBold,
@@ -1352,7 +1371,7 @@ private fun SongRowItem(
                 )
                 Text(
                     text = "${song.artist} • ${song.genre}",
-                    color = Color(0xFF94A3B8),
+                    color = AppColors.textSecondary,
                     fontSize = 13.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Normal,
@@ -1365,7 +1384,7 @@ private fun SongRowItem(
                 Icon(
                     imageVector = if (isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                     contentDescription = "Like",
-                    tint = if (isLiked) Color(0xFFFF4D8D) else Color.White,
+                    tint = if (isLiked) Color(0xFFFF4D8D) else AppColors.textSecondary,
                     modifier = Modifier.size(18.dp)
                 )
             }
@@ -1391,14 +1410,14 @@ private fun AlbumsListContent(
             Column {
                 Text(
                     text = "Albums",
-                    color = Color.White,
+                    color = AppColors.textPrimary,
                     fontSize = 28.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
                     text = "Browse music projects from Feathered creators",
-                    color = Color(0xFFA8AFBC),
+                    color = AppColors.textSecondary,
                     fontSize = 14.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Normal
@@ -1423,13 +1442,13 @@ private fun AlbumsListContent(
                             modifier = Modifier
                                 .size(170.dp)
                                 .clip(RoundedCornerShape(16.dp))
-                                .background(Color(0xFF0B1120)),
+                                .background(AppColors.bgCardElevated),
                             contentScale = ContentScale.Crop
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = album.name,
-                            color = Color.White,
+                            color = AppColors.textPrimary,
                             fontSize = 15.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
@@ -1438,7 +1457,7 @@ private fun AlbumsListContent(
                         )
                         Text(
                             text = album.artist,
-                            color = Color(0xFFB8BCC7),
+                            color = AppColors.textSecondary,
                             fontSize = 13.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Bold,
@@ -1447,7 +1466,7 @@ private fun AlbumsListContent(
                         )
                         Text(
                             text = "${album.totalTracks} songs",
-                            color = Color(0xFF888888),
+                            color = AppColors.textMuted,
                             fontSize = 12.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal
@@ -1461,7 +1480,7 @@ private fun AlbumsListContent(
             Spacer(modifier = Modifier.height(10.dp))
             Text(
                 text = "All Projects",
-                color = Color.White,
+                color = AppColors.textPrimary,
                 fontSize = 20.sp,
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.SemiBold
@@ -1491,21 +1510,21 @@ private fun AlbumsListContent(
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = album.name,
-                            color = Color.White,
+                            color = AppColors.textPrimary,
                             fontSize = 16.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold
                         )
                         Text(
                             text = album.artist,
-                            color = Color(0xFF94A3B8),
+                            color = AppColors.textSecondary,
                             fontSize = 13.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
                             text = "${album.totalTracks} tracks",
-                            color = Color(0xFF64748B),
+                            color = AppColors.textMuted,
                             fontSize = 12.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal
@@ -1515,7 +1534,7 @@ private fun AlbumsListContent(
                     Icon(
                         imageVector = Icons.Default.ChevronRight,
                         contentDescription = null,
-                        tint = Color(0xFF64748B)
+                        tint = AppColors.textMuted
                     )
                 }
             }
@@ -1553,7 +1572,11 @@ private fun AlbumDetailContent(
                         .fillMaxWidth()
                         .background(
                             Brush.verticalGradient(
-                                colors = listOf(Color(0xFF0B1528), Color(0xFF070D1D))
+                                colors = if (AppColors.isLight) {
+                                    listOf(AppColors.headerBg, AppColors.headerBgEnd)
+                                } else {
+                                    listOf(Color(0xFF0B1528), Color(0xFF070D1D))
+                                }
                             )
                         )
                         .padding(16.dp)
@@ -1563,12 +1586,12 @@ private fun AlbumDetailContent(
                         modifier = Modifier
                             .size(40.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFF1E293B))
+                            .background(AppColors.headerIconBg)
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back to Albums",
-                            tint = Color.White
+                            tint = AppColors.headerIconTint
                         )
                     }
 
@@ -1600,14 +1623,14 @@ private fun AlbumDetailContent(
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = album.artist,
-                                color = Color.White.copy(alpha = 0.8f),
+                                color = Color.White.copy(alpha = 0.85f),
                                 fontSize = 15.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
                                 text = "${album.totalTracks} songs",
-                                color = Color.White.copy(alpha = 0.6f),
+                                color = Color.White.copy(alpha = 0.7f),
                                 fontSize = 13.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal
@@ -1621,8 +1644,8 @@ private fun AlbumDetailContent(
                         onClick = onPlayAll,
                         shape = RoundedCornerShape(24.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF1877F2),
-                            contentColor = Color.White
+                            containerColor = if (AppColors.isLight) Color.White else AppColors.primaryBlue,
+                            contentColor = if (AppColors.isLight) AppColors.primaryBlue else Color.White
                         )
                     ) {
                         Icon(imageVector = Icons.Default.PlayArrow, contentDescription = null)
@@ -1638,7 +1661,7 @@ private fun AlbumDetailContent(
             val isCurrent = currentTrack?.id == song.id
             Surface(
                 onClick = { onPlaySong(song) },
-                color = if (isCurrent) Color(0xFF1877F2).copy(alpha = 0.15f) else Color.Transparent,
+                color = if (isCurrent) AppColors.bgBlueTint else Color.Transparent,
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -1651,7 +1674,7 @@ private fun AlbumDetailContent(
                 ) {
                     Text(
                         text = "${index + 1}",
-                        color = Color(0xFFB0B3B8),
+                        color = AppColors.textSecondary,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 14.sp,
@@ -1671,7 +1694,7 @@ private fun AlbumDetailContent(
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = song.title,
-                            color = Color.White,
+                            color = AppColors.textPrimary,
                             fontSize = 15.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
@@ -1680,7 +1703,7 @@ private fun AlbumDetailContent(
                         )
                         Text(
                             text = song.artist,
-                            color = Color(0xFF888888),
+                            color = AppColors.textSecondary,
                             fontSize = 12.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Bold,
@@ -1691,7 +1714,7 @@ private fun AlbumDetailContent(
 
                     Text(
                         text = song.duration,
-                        color = Color(0xFFB0B3B8),
+                        color = AppColors.textSecondary,
                         fontSize = 13.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal
@@ -1701,7 +1724,7 @@ private fun AlbumDetailContent(
                         Icon(
                             imageVector = if ("music:${song.id}" in likedTrackKeys) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                             contentDescription = "Like",
-                            tint = if ("music:${song.id}" in likedTrackKeys) Color(0xFFFF4D8D) else Color.White,
+                            tint = if ("music:${song.id}" in likedTrackKeys) Color(0xFFFF4D8D) else AppColors.textSecondary,
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -1744,7 +1767,7 @@ private fun CreatorStudioDashboard(
             ) {
                 Text(
                     text = "Creator Studio",
-                    color = Color.White,
+                    color = AppColors.textPrimary,
                     fontSize = 26.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.SemiBold
@@ -1752,7 +1775,7 @@ private fun CreatorStudioDashboard(
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Upload your music and albums. Monitor your listener analytics.",
-                    color = Color(0xFF888888),
+                    color = AppColors.textSecondary,
                     fontSize = 13.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Normal,
@@ -1765,7 +1788,7 @@ private fun CreatorStudioDashboard(
                     onClick = onOpenUpload,
                     shape = RoundedCornerShape(24.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF1877F2),
+                        containerColor = AppColors.primaryBlue,
                         contentColor = Color.White
                     ),
                     contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp)
@@ -1787,7 +1810,7 @@ private fun CreatorStudioDashboard(
                     title = "Your Uploads",
                     value = "${userSongs.size}",
                     icon = Icons.Default.Upload,
-                    iconTint = Color(0xFF45BD62),
+                    iconTint = if (AppColors.isLight) Color(0xFF059669) else Color(0xFF45BD62),
                     modifier = Modifier.weight(1f)
                 )
 
@@ -1795,7 +1818,7 @@ private fun CreatorStudioDashboard(
                     title = "Total Plays",
                     value = formatCompactNumber(myTotalPlays),
                     icon = Icons.Default.PlayCircle,
-                    iconTint = Color(0xFF07E8F8),
+                    iconTint = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF07E8F8),
                     modifier = Modifier.weight(1f)
                 )
 
@@ -1816,8 +1839,8 @@ private fun CreatorStudioDashboard(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
-                Text("Your Catalog", color = Color.White, fontSize = 18.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
-                Text("Manage your uploaded music tracks", color = Color(0xFF888888), fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
+                Text("Your Catalog", color = AppColors.textPrimary, fontSize = 18.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                Text("Manage your uploaded music tracks", color = AppColors.textSecondary, fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
             }
         }
 
@@ -1826,7 +1849,7 @@ private fun CreatorStudioDashboard(
                 Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
                     Text(
                         text = "No uploads yet. Tap 'Upload New Content' above to distribute your first song!",
-                        color = Color(0xFF666666),
+                        color = AppColors.textMuted,
                         textAlign = TextAlign.Center,
                         fontSize = 13.sp,
                         fontFamily = InterFontFamily,
@@ -1857,13 +1880,13 @@ private fun CreatorStudioDashboard(
                         )
 
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(song.title, color = Color.White, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
-                            Text("${song.artist} • ${song.album}", color = Color(0xFF888888), fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
+                            Text(song.title, color = AppColors.textPrimary, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                            Text("${song.artist} • ${song.album}", color = AppColors.textSecondary, fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                         }
 
                         Column(horizontalAlignment = Alignment.End) {
-                            Text("${formatCompactNumber(plays)} plays", color = Color.White, fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
-                            Text("${song.stats.likes} likes", color = Color(0xFF888888), fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
+                            Text("${formatCompactNumber(plays)} plays", color = AppColors.textPrimary, fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                            Text("${song.stats.likes} likes", color = AppColors.textSecondary, fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                         }
 
                         IconButton(
@@ -1873,7 +1896,7 @@ private fun CreatorStudioDashboard(
                             Icon(
                                 imageVector = Icons.Default.Delete,
                                 contentDescription = "Delete",
-                                tint = Color(0xFFEF4444),
+                                tint = AppColors.dangerText,
                                 modifier = Modifier.size(18.dp)
                             )
                         }
@@ -1895,7 +1918,8 @@ private fun MetricStatCard(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(Color(0xFF0F172A))
+            .background(AppColors.bgCard)
+            .border(1.dp, AppColors.border, RoundedCornerShape(12.dp))
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             Row(
@@ -1903,11 +1927,11 @@ private fun MetricStatCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(title, color = Color(0xFFB0B3B8), fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
+                Text(title, color = AppColors.textSecondary, fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                 Icon(imageVector = icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(16.dp))
             }
             Spacer(modifier = Modifier.height(4.dp))
-            Text(value, color = Color.White, fontSize = 18.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+            Text(value, color = AppColors.textPrimary, fontSize = 18.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
         }
     }
 }
@@ -1987,14 +2011,15 @@ private fun UploadSongStudio(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFF0F172A))
+                        .background(AppColors.bgCard)
+                        .border(1.dp, AppColors.border, CircleShape)
                 ) {
-                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = AppColors.textPrimary)
                 }
 
                 Column {
-                    Text("Creator Upload Studio", color = Color.White, fontSize = 22.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
-                    Text("Distribute high-fidelity singles or albums to F-Music", color = Color(0xFFA8AFBC), fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
+                    Text("Creator Upload Studio", color = AppColors.textPrimary, fontSize = 22.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                    Text("Distribute high-fidelity singles or albums to F-Music", color = AppColors.textSecondary, fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                 }
             }
         }
@@ -2006,21 +2031,22 @@ private fun UploadSongStudio(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF0F172A))
+                        .background(AppColors.bgCard)
+                        .border(1.dp, AppColors.border, RoundedCornerShape(12.dp))
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text(uploadStatus ?: "Uploading...", color = Color.White, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
-                            Text("$uploadProgress%", color = Color(0xFF38BDF8), fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                            Text(uploadStatus ?: "Uploading...", color = AppColors.textPrimary, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                            Text("$uploadProgress%", color = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8), fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         LinearProgressIndicator(
                             progress = { uploadProgress / 100f },
-                            color = Color(0xFF1877F2),
-                            trackColor = Color(0xFF1E293B),
+                            color = AppColors.primaryBlue,
+                            trackColor = AppColors.bgChip,
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
@@ -2035,7 +2061,8 @@ private fun UploadSongStudio(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(10.dp))
-                            .background(Color(0xFF070D1D))
+                            .background(AppColors.bgCard)
+                            .border(1.dp, AppColors.border, RoundedCornerShape(10.dp))
                             .padding(4.dp)
                     ) {
                         Button(
@@ -2044,8 +2071,8 @@ private fun UploadSongStudio(
                                 formError = null
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = if (mode == "single") Color(0xFF1877F2) else Color.Transparent,
-                                contentColor = if (mode == "single") Color.White else Color(0xFF888888)
+                                containerColor = if (mode == "single") AppColors.primaryBlue else Color.Transparent,
+                                contentColor = if (mode == "single") Color.White else AppColors.textSecondary
                             ),
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.weight(1f)
@@ -2059,8 +2086,8 @@ private fun UploadSongStudio(
                                 formError = null
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = if (mode == "album") Color(0xFF1877F2) else Color.Transparent,
-                                contentColor = if (mode == "album") Color.White else Color(0xFF888888)
+                                containerColor = if (mode == "album") AppColors.primaryBlue else Color.Transparent,
+                                contentColor = if (mode == "album") Color.White else AppColors.textSecondary
                             ),
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.weight(1f)
@@ -2071,7 +2098,7 @@ private fun UploadSongStudio(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Text("MAIN ARTIST NAME", color = Color(0xFF888888), fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                    Text("MAIN ARTIST NAME", color = AppColors.textSecondary, fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
                     Spacer(modifier = Modifier.height(6.dp))
                     OutlinedTextField(
                         value = artistName,
@@ -2080,33 +2107,33 @@ private fun UploadSongStudio(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
-                            focusedContainerColor = Color(0xFF070D1D),
-                            unfocusedContainerColor = Color(0xFF070D1D),
-                            focusedBorderColor = Color(0xFF1877F2),
-                            unfocusedBorderColor = Color(0xFF1E293B)
+                            focusedTextColor = AppColors.textPrimary,
+                            unfocusedTextColor = AppColors.textPrimary,
+                            focusedContainerColor = AppColors.bgCard,
+                            unfocusedContainerColor = AppColors.bgCard,
+                            focusedBorderColor = AppColors.primaryBlue,
+                            unfocusedBorderColor = AppColors.borderStrong
                         )
                     )
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    Text("GENRE / CATEGORY", color = Color(0xFF888888), fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                    Text("GENRE / CATEGORY", color = AppColors.textSecondary, fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
                     Spacer(modifier = Modifier.height(6.dp))
                     OutlinedTextField(
                         value = genre,
                         onValueChange = { genre = it },
                         textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
-                        placeholder = { Text("Afrobeats, Bongo Fleva, Amapiano, Hip Hop...", color = Color(0xFF6B7280), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
+                        placeholder = { Text("Afrobeats, Bongo Fleva, Amapiano, Hip Hop...", color = AppColors.textMuted, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
-                            focusedContainerColor = Color(0xFF070D1D),
-                            unfocusedContainerColor = Color(0xFF070D1D),
-                            focusedBorderColor = Color(0xFF1877F2),
-                            unfocusedBorderColor = Color(0xFF1E293B)
+                            focusedTextColor = AppColors.textPrimary,
+                            unfocusedTextColor = AppColors.textPrimary,
+                            focusedContainerColor = AppColors.bgCard,
+                            unfocusedContainerColor = AppColors.bgCard,
+                            focusedBorderColor = AppColors.primaryBlue,
+                            unfocusedBorderColor = AppColors.borderStrong
                         )
                     )
 
@@ -2118,18 +2145,21 @@ private fun UploadSongStudio(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("COVER ARTWORK", color = Color(0xFF888888), fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
-                        Text("* MANDATORY", color = Color(0xFFEF4444), fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                        Text("COVER ARTWORK", color = AppColors.textSecondary, fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                        Text("* MANDATORY", color = AppColors.dangerText, fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
                     }
                     Spacer(modifier = Modifier.height(8.dp))
+
+                    val uploadGreen = if (AppColors.isLight) Color(0xFF059669) else Color(0xFF10B981)
+                    val uploadAccent = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8)
 
                     if (selectedCoverUri != null) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(Color(0xFF070D1D))
-                                .border(1.dp, Color(0xFF10B981), RoundedCornerShape(12.dp))
+                                .background(AppColors.bgCard)
+                                .border(1.dp, uploadGreen, RoundedCornerShape(12.dp))
                                 .padding(12.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(14.dp)
@@ -2143,8 +2173,8 @@ private fun UploadSongStudio(
                                 contentScale = ContentScale.Crop
                             )
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("Artwork Ready", color = Color(0xFF10B981), fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                                Text("Will be auto-compressed to 900x900 WebP for optimal streaming", color = Color(0xFF94A3B8), fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
+                                Text("Artwork Ready", color = uploadGreen, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                                Text("Will be auto-compressed to 900x900 WebP for optimal streaming", color = AppColors.textSecondary, fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                                 Spacer(modifier = Modifier.height(6.dp))
                                 OutlinedButton(
                                     onClick = {
@@ -2152,7 +2182,7 @@ private fun UploadSongStudio(
                                     },
                                     contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
                                     shape = RoundedCornerShape(8.dp),
-                                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF38BDF8))
+                                    colors = ButtonDefaults.outlinedButtonColors(contentColor = uploadAccent)
                                 ) {
                                     Text("Change Artwork", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                                 }
@@ -2163,11 +2193,11 @@ private fun UploadSongStudio(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(12.dp))
-                                .border(1.5.dp, Color(0xFFEF4444).copy(alpha = 0.7f), RoundedCornerShape(12.dp))
+                                .border(1.5.dp, AppColors.dangerText.copy(alpha = 0.7f), RoundedCornerShape(12.dp))
                                 .clickable {
                                     coverPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                                 },
-                            color = Color(0xFF070D1D)
+                            color = AppColors.bgCard
                         ) {
                             Column(
                                 modifier = Modifier.padding(20.dp),
@@ -2178,27 +2208,27 @@ private fun UploadSongStudio(
                                     modifier = Modifier
                                         .size(48.dp)
                                         .clip(CircleShape)
-                                        .background(Color(0xFFEF4444).copy(alpha = 0.15f)),
+                                        .background(AppColors.dangerText.copy(alpha = 0.15f)),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.AddPhotoAlternate,
                                         contentDescription = "Upload Cover",
-                                        tint = Color(0xFFEF4444),
+                                        tint = AppColors.dangerText,
                                         modifier = Modifier.size(26.dp)
                                     )
                                 }
                                 Spacer(modifier = Modifier.height(10.dp))
                                 Text(
                                     text = "Upload Cover Artwork *",
-                                    color = Color.White,
+                                    color = AppColors.textPrimary,
                                     fontSize = 14.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.SemiBold
                                 )
                                 Text(
                                     text = "Cover photo is required to publish music on F-Music",
-                                    color = Color(0xFFEF4444).copy(alpha = 0.9f),
+                                    color = AppColors.dangerText.copy(alpha = 0.9f),
                                     fontSize = 12.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
@@ -2211,7 +2241,7 @@ private fun UploadSongStudio(
                     Spacer(modifier = Modifier.height(18.dp))
 
                     if (mode == "single") {
-                        Text("SONG TITLE", color = Color(0xFF888888), fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                        Text("SONG TITLE", color = AppColors.textSecondary, fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
                         Spacer(modifier = Modifier.height(6.dp))
                         OutlinedTextField(
                             value = songTitle,
@@ -2220,16 +2250,16 @@ private fun UploadSongStudio(
                                 formError = null
                             },
                             textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
-                            placeholder = { Text("Enter track title...", color = Color(0xFF6B7280), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
+                            placeholder = { Text("Enter track title...", color = AppColors.textMuted, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(10.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White,
-                                focusedContainerColor = Color(0xFF070D1D),
-                                unfocusedContainerColor = Color(0xFF070D1D),
-                                focusedBorderColor = Color(0xFF1877F2),
-                                unfocusedBorderColor = Color(0xFF1E293B)
+                                focusedTextColor = AppColors.textPrimary,
+                                unfocusedTextColor = AppColors.textPrimary,
+                                focusedContainerColor = AppColors.bgCard,
+                                unfocusedContainerColor = AppColors.bgCard,
+                                focusedBorderColor = AppColors.primaryBlue,
+                                unfocusedBorderColor = AppColors.borderStrong
                             )
                         )
 
@@ -2241,8 +2271,8 @@ private fun UploadSongStudio(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("AUDIO FILE", color = Color(0xFF888888), fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
-                            Text("* MANDATORY", color = Color(0xFFEF4444), fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                            Text("AUDIO FILE", color = AppColors.textSecondary, fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                            Text("* MANDATORY", color = AppColors.dangerText, fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
                         }
                         Spacer(modifier = Modifier.height(8.dp))
 
@@ -2251,8 +2281,8 @@ private fun UploadSongStudio(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clip(RoundedCornerShape(12.dp))
-                                    .background(Color(0xFF070D1D))
-                                    .border(1.dp, Color(0xFF10B981), RoundedCornerShape(12.dp))
+                                    .background(AppColors.bgCard)
+                                    .border(1.dp, uploadGreen, RoundedCornerShape(12.dp))
                                     .padding(12.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -2261,21 +2291,21 @@ private fun UploadSongStudio(
                                     modifier = Modifier
                                         .size(44.dp)
                                         .clip(CircleShape)
-                                        .background(Color(0xFF10B981).copy(alpha = 0.2f)),
+                                        .background(uploadGreen.copy(alpha = 0.16f)),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Audiotrack,
                                         contentDescription = null,
-                                        tint = Color(0xFF10B981),
+                                        tint = uploadGreen,
                                         modifier = Modifier.size(24.dp)
                                     )
                                 }
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text("Audio Track Attached", color = Color.White, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                                    Text("Audio Track Attached", color = AppColors.textPrimary, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
                                     Text(
                                         singleAudioName ?: "Selected audio file",
-                                        color = Color(0xFF94A3B8),
+                                        color = AppColors.textSecondary,
                                         fontSize = 11.sp,
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Normal,
@@ -2286,7 +2316,7 @@ private fun UploadSongStudio(
                                 OutlinedButton(
                                     onClick = { singleAudioPicker.launch("audio/*") },
                                     shape = RoundedCornerShape(8.dp),
-                                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF38BDF8))
+                                    colors = ButtonDefaults.outlinedButtonColors(contentColor = uploadAccent)
                                 ) {
                                     Text("Change", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                                 }
@@ -2296,9 +2326,9 @@ private fun UploadSongStudio(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clip(RoundedCornerShape(12.dp))
-                                    .border(1.5.dp, Color(0xFF38BDF8).copy(alpha = 0.7f), RoundedCornerShape(12.dp))
+                                    .border(1.5.dp, uploadAccent.copy(alpha = 0.7f), RoundedCornerShape(12.dp))
                                     .clickable { singleAudioPicker.launch("audio/*") },
-                                color = Color(0xFF070D1D)
+                                color = AppColors.bgCard
                             ) {
                                 Row(
                                     modifier = Modifier.padding(16.dp),
@@ -2309,27 +2339,27 @@ private fun UploadSongStudio(
                                         modifier = Modifier
                                             .size(44.dp)
                                             .clip(CircleShape)
-                                            .background(Color(0xFF38BDF8).copy(alpha = 0.15f)),
+                                            .background(uploadAccent.copy(alpha = 0.15f)),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.CloudUpload,
                                             contentDescription = null,
-                                            tint = Color(0xFF38BDF8),
+                                            tint = uploadAccent,
                                             modifier = Modifier.size(24.dp)
                                         )
                                     }
                                     Column(modifier = Modifier.weight(1f)) {
-                                        Text("Select Audio File *", color = Color.White, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                                        Text("MP3, WAV, M4A or FLAC from device storage", color = Color(0xFF94A3B8), fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
+                                        Text("Select Audio File *", color = AppColors.textPrimary, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                                        Text("MP3, WAV, M4A or FLAC from device storage", color = AppColors.textSecondary, fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                                     }
-                                    Icon(imageVector = Icons.Default.ChevronRight, contentDescription = null, tint = Color(0xFF64748B))
+                                    Icon(imageVector = Icons.Default.ChevronRight, contentDescription = null, tint = AppColors.textMuted)
                                 }
                             }
                         }
                     } else {
                         // ALBUM MODE
-                        Text("ALBUM NAME", color = Color(0xFF888888), fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                        Text("ALBUM NAME", color = AppColors.textSecondary, fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
                         Spacer(modifier = Modifier.height(6.dp))
                         OutlinedTextField(
                             value = albumTitle,
@@ -2338,26 +2368,26 @@ private fun UploadSongStudio(
                                 formError = null
                             },
                             textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
-                            placeholder = { Text("Enter album name...", color = Color(0xFF6B7280), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
+                            placeholder = { Text("Enter album name...", color = AppColors.textMuted, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(10.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White,
-                                focusedContainerColor = Color(0xFF070D1D),
-                                unfocusedContainerColor = Color(0xFF070D1D),
-                                focusedBorderColor = Color(0xFF1877F2),
-                                unfocusedBorderColor = Color(0xFF1E293B)
+                                focusedTextColor = AppColors.textPrimary,
+                                unfocusedTextColor = AppColors.textPrimary,
+                                focusedContainerColor = AppColors.bgCard,
+                                unfocusedContainerColor = AppColors.bgCard,
+                                focusedBorderColor = AppColors.primaryBlue,
+                                unfocusedBorderColor = AppColors.borderStrong
                             )
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        Text("TRACKS IN ALBUM (${albumTracksList.size})", color = Color(0xFF888888), fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                        Text("TRACKS IN ALBUM (${albumTracksList.size})", color = AppColors.textSecondary, fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
                         Spacer(modifier = Modifier.height(6.dp))
 
                         if (albumTracksList.isEmpty()) {
-                            Text("No tracks added yet. Add at least one track below.", color = Color(0xFF64748B), fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
+                            Text("No tracks added yet. Add at least one track below.", color = AppColors.textMuted, fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                         } else {
                             albumTracksList.forEachIndexed { idx, track ->
                                 Row(
@@ -2365,7 +2395,8 @@ private fun UploadSongStudio(
                                         .fillMaxWidth()
                                         .padding(vertical = 4.dp)
                                         .clip(RoundedCornerShape(8.dp))
-                                        .background(Color(0xFF070D1D))
+                                        .background(AppColors.bgCard)
+                                        .border(1.dp, AppColors.border, RoundedCornerShape(8.dp))
                                         .padding(horizontal = 12.dp, vertical = 8.dp),
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
@@ -2375,14 +2406,14 @@ private fun UploadSongStudio(
                                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                                         modifier = Modifier.weight(1f)
                                     ) {
-                                        Text("${idx + 1}.", color = Color(0xFF1877F2), fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
-                                        Text(track.title, color = Color.White, fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                        Text("${idx + 1}.", color = AppColors.primaryBlue, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                                        Text(track.title, color = AppColors.textPrimary, fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, maxLines = 1, overflow = TextOverflow.Ellipsis)
                                     }
                                     IconButton(
                                         onClick = { albumTracksList = albumTracksList.filterIndexed { i, _ -> i != idx } },
                                         modifier = Modifier.size(24.dp)
                                     ) {
-                                        Icon(imageVector = Icons.Default.Close, contentDescription = "Remove", tint = Color(0xFFEF4444), modifier = Modifier.size(16.dp))
+                                        Icon(imageVector = Icons.Default.Close, contentDescription = "Remove", tint = AppColors.dangerText, modifier = Modifier.size(16.dp))
                                     }
                                 }
                             }
@@ -2392,22 +2423,30 @@ private fun UploadSongStudio(
 
                         // Add Track to Album Box
                         Surface(
-                            color = Color(0xFF070D1D),
+                            color = AppColors.bgCard,
                             shape = RoundedCornerShape(12.dp),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B)),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Column(modifier = Modifier.padding(12.dp)) {
-                                Text("Add Track to Album", color = Color.White, fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                                Text("Add Track to Album", color = AppColors.textPrimary, fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
                                 Spacer(modifier = Modifier.height(8.dp))
                                 OutlinedTextField(
                                     value = pendingTrackTitle,
                                     onValueChange = { pendingTrackTitle = it },
                                     textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
-                                    placeholder = { Text("Track title...", color = Color(0xFF6B7280), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
+                                    placeholder = { Text("Track title...", color = AppColors.textMuted, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                                     modifier = Modifier.fillMaxWidth(),
                                     shape = RoundedCornerShape(8.dp),
-                                    singleLine = true
+                                    singleLine = true,
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedTextColor = AppColors.textPrimary,
+                                        unfocusedTextColor = AppColors.textPrimary,
+                                        focusedContainerColor = AppColors.bgInput,
+                                        unfocusedContainerColor = AppColors.bgInput,
+                                        focusedBorderColor = AppColors.primaryBlue,
+                                        unfocusedBorderColor = AppColors.borderStrong
+                                    )
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Row(
@@ -2420,7 +2459,7 @@ private fun UploadSongStudio(
                                         shape = RoundedCornerShape(8.dp),
                                         modifier = Modifier.weight(1f),
                                         colors = ButtonDefaults.outlinedButtonColors(
-                                            contentColor = if (pendingTrackAudioUri != null) Color(0xFF10B981) else Color(0xFF38BDF8)
+                                            contentColor = if (pendingTrackAudioUri != null) uploadGreen else uploadAccent
                                         )
                                     ) {
                                         Icon(
@@ -2455,7 +2494,7 @@ private fun UploadSongStudio(
                                             }
                                         },
                                         shape = RoundedCornerShape(8.dp),
-                                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1877F2))
+                                        colors = ButtonDefaults.buttonColors(containerColor = AppColors.primaryBlue, contentColor = Color.White)
                                     ) {
                                         Text("Add Track", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, fontSize = 12.sp)
                                     }
@@ -2468,9 +2507,9 @@ private fun UploadSongStudio(
                     if (formError != null) {
                         Spacer(modifier = Modifier.height(14.dp))
                         Surface(
-                            color = Color(0xFFEF4444).copy(alpha = 0.15f),
+                            color = AppColors.dangerBg,
                             shape = RoundedCornerShape(8.dp),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFEF4444)),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.dangerText),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Row(
@@ -2478,8 +2517,8 @@ private fun UploadSongStudio(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Icon(imageVector = Icons.Default.ErrorOutline, contentDescription = null, tint = Color(0xFFEF4444), modifier = Modifier.size(18.dp))
-                                Text(formError!!, color = Color(0xFFEF4444), fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
+                                Icon(imageVector = Icons.Default.ErrorOutline, contentDescription = null, tint = AppColors.dangerText, modifier = Modifier.size(18.dp))
+                                Text(formError!!, color = AppColors.dangerText, fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                             }
                         }
                     }
@@ -2556,7 +2595,7 @@ private fun UploadSongStudio(
                         },
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF1877F2),
+                            containerColor = AppColors.primaryBlue,
                             contentColor = Color.White
                         ),
                         modifier = Modifier
@@ -2616,7 +2655,7 @@ private fun ArtistProfileReleasesContent(
                         .fillMaxSize()
                         .background(
                             Brush.verticalGradient(
-                                colors = listOf(Color.Transparent, Color(0xFF050B18))
+                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.85f))
                             )
                         )
                 )
@@ -2645,7 +2684,7 @@ private fun ArtistProfileReleasesContent(
                         modifier = Modifier
                             .size(70.dp)
                             .clip(CircleShape)
-                            .border(3.dp, Color(0xFF050B18), CircleShape),
+                            .border(3.dp, AppColors.bgScreen, CircleShape),
                         contentScale = ContentScale.Crop
                     )
 
@@ -2659,7 +2698,7 @@ private fun ArtistProfileReleasesContent(
                         )
                         Text(
                             text = "${artistSongs.size} releases on F-Music",
-                            color = Color(0xFF94A3B8),
+                            color = Color(0xFFE2E8F0),
                             fontSize = 13.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal
@@ -2672,7 +2711,7 @@ private fun ArtistProfileReleasesContent(
         item {
             Text(
                 text = "Popular Releases",
-                color = Color.White,
+                color = AppColors.textPrimary,
                 fontSize = 20.sp,
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.SemiBold,

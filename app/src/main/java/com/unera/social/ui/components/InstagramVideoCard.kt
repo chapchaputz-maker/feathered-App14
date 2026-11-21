@@ -57,6 +57,7 @@ import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.unera.social.model.*
 import com.unera.social.ui.screens.VideoItem
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -371,8 +372,8 @@ fun InstagramVideoCard(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color(0xFF0F172A))
-            .border(BorderStroke(0.5.dp, Color(0xFF1E293B)))
+            .background(AppColors.bgCard)
+            .border(BorderStroke(0.5.dp, AppColors.border))
             .testTag("instagram_video_card_$activePostId")
     ) {
         // ==========================================
@@ -430,7 +431,7 @@ fun InstagramVideoCard(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .clip(CircleShape)
-                                .background(Color(0xFF1E293B))
+                                .background(AppColors.bgInput)
                         )
                     }
 
@@ -441,7 +442,7 @@ fun InstagramVideoCard(
                                 .size(11.dp)
                                 .clip(CircleShape)
                                 .background(Color(0xFF22C55E))
-                                .border(2.dp, Color(0xFF0F172A), CircleShape)
+                                .border(2.dp, AppColors.bgCard, CircleShape)
                                 .align(Alignment.BottomEnd)
                         )
                     }
@@ -459,7 +460,7 @@ fun InstagramVideoCard(
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Bold,
                             fontSize = 21.sp,
-                            color = Color(0xFFF8FAFC),
+                            color = AppColors.textPrimary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.clickable { onProfileClick(authorId) }
@@ -473,22 +474,22 @@ fun InstagramVideoCard(
                             text = "•",
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal,
-                            color = Color(0xFF64748B),
+                            color = AppColors.textMuted,
                             fontSize = 14.sp
                         )
 
                         if (isSponsored) {
                             Surface(
-                                color = Color(0xFF1877F2).copy(alpha = 0.20f),
+                                color = AppColors.bgBlueTint,
                                 shape = RoundedCornerShape(12.dp),
-                                border = BorderStroke(1.dp, Color(0xFF1877F2).copy(alpha = 0.40f))
+                                border = BorderStroke(1.dp, AppColors.primaryBlue.copy(alpha = 0.40f))
                             ) {
                                 Text(
                                     text = "Sponsored",
                                     fontFamily = InterFontFamily,
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = Color(0xFF38BDF8),
+                                    color = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8),
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                                 )
                             }
@@ -497,7 +498,7 @@ fun InstagramVideoCard(
                                 text = activePost.timestamp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
-                                color = Color(0xFF94A3B8),
+                                color = AppColors.textSecondary,
                                 fontSize = 12.sp
                             )
                         }
@@ -513,7 +514,7 @@ fun InstagramVideoCard(
                                 text = sponsoredHeadline,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
-                                color = Color(0xFF94A3B8),
+                                color = AppColors.textSecondary,
                                 fontSize = 11.5.sp,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
@@ -522,14 +523,14 @@ fun InstagramVideoCard(
                             Icon(
                                 imageVector = Icons.Default.MusicNote,
                                 contentDescription = null,
-                                tint = Color(0xFF38BDF8),
+                                tint = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8),
                                 modifier = Modifier.size(11.dp)
                             )
                             Text(
                                 text = "Original Audio • $authorName",
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
-                                color = Color(0xFF94A3B8),
+                                color = AppColors.textSecondary,
                                 fontSize = 11.5.sp,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
@@ -556,7 +557,8 @@ fun InstagramVideoCard(
                             onFollow?.invoke(authorId)
                         },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (localFollowing) Color(0xFF1E293B) else Color(0xFF1877F2)
+                            containerColor = if (localFollowing) AppColors.bgChip else AppColors.primaryBlue,
+                            contentColor = if (localFollowing) AppColors.textPrimary else Color.White
                         ),
                         shape = RoundedCornerShape(8.dp),
                         contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
@@ -565,13 +567,13 @@ fun InstagramVideoCard(
                         Icon(
                             imageVector = if (localFollowing) Icons.Filled.Check else Icons.Filled.PersonAdd,
                             contentDescription = null,
-                            tint = if (localFollowing) Color(0xFFF8FAFC) else Color.White,
+                            tint = if (localFollowing) AppColors.textPrimary else Color.White,
                             modifier = Modifier.size(13.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = if (localFollowing) "Following" else "Follow",
-                            color = if (localFollowing) Color(0xFFF8FAFC) else Color.White,
+                            color = if (localFollowing) AppColors.textPrimary else Color.White,
                             fontFamily = InterFontFamily,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold
@@ -892,7 +894,7 @@ fun InstagramVideoCard(
                     fontFamily = InterFontFamily,
                     fontSize = 13.5.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFFCBD5E1),
+                    color = AppColors.textSecondary,
                     modifier = Modifier.clickable {
                         if (isGuest) {
                             onRequestAuth?.invoke()
@@ -906,7 +908,7 @@ fun InstagramVideoCard(
                         fontFamily = InterFontFamily,
                         fontSize = 13.5.sp,
                         fontWeight = FontWeight.Medium,
-                        color = Color(0xFF94A3B8),
+                        color = AppColors.textSecondary,
                         modifier = Modifier.clickable {
                             if (isGuest) {
                                 onRequestAuth?.invoke()
@@ -918,7 +920,7 @@ fun InstagramVideoCard(
             }
         }
 
-        HorizontalDivider(color = Color(0xFF1E293B), thickness = 0.5.dp)
+        HorizontalDivider(color = AppColors.border, thickness = 0.5.dp)
 
         // Animated Reaction Dock
         AnimatedVisibility(visible = showReactionDock) {
@@ -927,8 +929,8 @@ fun InstagramVideoCard(
                     .fillMaxWidth()
                     .padding(horizontal = 14.dp, vertical = 6.dp)
                     .clip(RoundedCornerShape(24.dp))
-                    .background(Color(0xFF0B1120))
-                    .border(1.dp, Color(0xFF334155), RoundedCornerShape(24.dp))
+                    .background(AppColors.bgCardElevated)
+                    .border(1.dp, AppColors.borderStrong, RoundedCornerShape(24.dp))
                     .padding(horizontal = 10.dp, vertical = 6.dp),
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
@@ -1016,7 +1018,7 @@ fun InstagramVideoCard(
                             Icon(
                                 imageVector = if (localReaction != null) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                                 contentDescription = "Like",
-                                tint = if (localReaction != null) Color(0xFFF43F5E) else Color(0xFFF8FAFC),
+                                tint = if (localReaction != null) Color(0xFFF43F5E) else AppColors.textPrimary,
                                 modifier = Modifier.size(22.dp)
                             )
                         }
@@ -1025,7 +1027,7 @@ fun InstagramVideoCard(
                             Text(
                                 text = formatCount(localReactionCount),
                                 fontFamily = InterFontFamily,
-                                color = if (localReaction != null) Color(0xFFF43F5E) else Color(0xFFF8FAFC),
+                                color = if (localReaction != null) Color(0xFFF43F5E) else AppColors.textPrimary,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold
                             )
@@ -1033,7 +1035,7 @@ fun InstagramVideoCard(
                     }
                 }
 
-                // 2. Discuss Button (Exact Web: far fa-comment 22px #F8FAFC, hover #38BDF8)
+                // 2. Discuss Button
                 DiscussButton(
                     commentCount = localCommentCount,
                     onClick = {
@@ -1066,7 +1068,7 @@ fun InstagramVideoCard(
                     Icon(
                         imageVector = Icons.Default.Send,
                         contentDescription = "Share",
-                        tint = Color(0xFFF8FAFC),
+                        tint = AppColors.textPrimary,
                         modifier = Modifier
                             .size(20.dp)
                             .graphicsLayer(rotationZ = -35f)
@@ -1076,7 +1078,7 @@ fun InstagramVideoCard(
                         Text(
                             text = formatCount(localShareCount),
                             fontFamily = InterFontFamily,
-                            color = Color(0xFFF8FAFC),
+                            color = AppColors.textPrimary,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -1140,9 +1142,15 @@ fun InstagramVideoCard(
                 val fullText = activePost.content
                 val displayedText = if (isCaptionExpanded || fullText.length <= 110) fullText else "${fullText.take(110)}..."
 
-                val annotatedString = remember(displayedText, authorName) {
+                val isLightMode = AppColors.isLight
+                val primaryTextColor = AppColors.textPrimary
+                val bodyTextColor = AppColors.textBody
+                val tagColor = if (isLightMode) AppColors.primaryBlue else Color(0xFF38BDF8)
+                val mentionColor = if (isLightMode) AppColors.primaryBlue else Color(0xFF60A5FA)
+
+                val annotatedString = remember(displayedText, authorName, isLightMode) {
                     buildAnnotatedString {
-                        withStyle(SpanStyle(fontFamily = InterFontFamily, fontWeight = FontWeight.Bold, color = Color(0xFFF8FAFC))) {
+                        withStyle(SpanStyle(fontFamily = InterFontFamily, fontWeight = FontWeight.Bold, color = primaryTextColor)) {
                             append("$authorName ")
                         }
                         val words = displayedText.split(" ")
@@ -1150,20 +1158,20 @@ fun InstagramVideoCard(
                             when {
                                 word.startsWith("#") && word.length > 1 -> {
                                     pushStringAnnotation(tag = "TAG", annotation = word)
-                                    withStyle(SpanStyle(fontFamily = InterFontFamily, color = Color(0xFF38BDF8), fontWeight = FontWeight.SemiBold)) {
+                                    withStyle(SpanStyle(fontFamily = InterFontFamily, color = tagColor, fontWeight = FontWeight.SemiBold)) {
                                         append(word)
                                     }
                                     pop()
                                 }
                                 word.startsWith("@") && word.length > 1 -> {
                                     pushStringAnnotation(tag = "MENTION", annotation = word)
-                                    withStyle(SpanStyle(fontFamily = InterFontFamily, color = Color(0xFF60A5FA), fontWeight = FontWeight.Medium)) {
+                                    withStyle(SpanStyle(fontFamily = InterFontFamily, color = mentionColor, fontWeight = FontWeight.Medium)) {
                                         append(word)
                                     }
                                     pop()
                                 }
                                 else -> {
-                                    withStyle(SpanStyle(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFFE2E8F0))) {
+                                    withStyle(SpanStyle(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = bodyTextColor)) {
                                         append(word)
                                     }
                                 }
@@ -1195,7 +1203,7 @@ fun InstagramVideoCard(
                         fontFamily = InterFontFamily,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF94A3B8),
+                        color = AppColors.textSecondary,
                         modifier = Modifier.clickable { isCaptionExpanded = !isCaptionExpanded }
                     )
                 }
@@ -1207,7 +1215,7 @@ fun InstagramVideoCard(
                     text = "View all $localCommentCount ${if (localCommentCount == 1) "discussion" else "discussions"}",
                     fontFamily = InterFontFamily,
                     fontSize = 12.5.sp,
-                    color = Color(0xFF94A3B8),
+                    color = AppColors.textSecondary,
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier.clickable {
                         if (isGuest) {
@@ -1224,8 +1232,8 @@ fun InstagramVideoCard(
                     .fillMaxWidth()
                     .padding(top = 4.dp)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(Color(0xFF0B1120))
-                    .border(1.dp, Color(0xFF1E293B), RoundedCornerShape(8.dp))
+                    .background(AppColors.bgInput)
+                    .border(1.dp, AppColors.border, RoundedCornerShape(8.dp))
                     .clickable {
                         if (isGuest) {
                             onRequestAuth?.invoke()
@@ -1252,7 +1260,7 @@ fun InstagramVideoCard(
                     text = "Add a discussion…",
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Normal,
-                    color = Color(0xFF64748B),
+                    color = AppColors.textMuted,
                     fontSize = 13.5.sp,
                     modifier = Modifier.weight(1f)
                 )
@@ -1260,7 +1268,7 @@ fun InstagramVideoCard(
                 Icon(
                     imageVector = Icons.Default.ChatBubbleOutline,
                     contentDescription = null,
-                    tint = Color(0xFF64748B),
+                    tint = AppColors.textMuted,
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -1414,8 +1422,8 @@ fun VideoDiscussionModal(
                     .widthIn(max = 560.dp)
                     .clickable(enabled = false) {},
                 shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
-                color = Color(0xFF0B1120),
-                border = BorderStroke(1.dp, Color(0xFF1E293B))
+                color = AppColors.bgCard,
+                border = BorderStroke(1.dp, AppColors.border)
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     // Header Bar
@@ -1423,8 +1431,7 @@ fun VideoDiscussionModal(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp)
-                            .background(Color(0xFF0B1120))
-                            .border(BorderStroke(1.dp, Color(0xFF1E293B)))
+                            .background(AppColors.headerBg)
                             .padding(horizontal = 16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -1436,7 +1443,7 @@ fun VideoDiscussionModal(
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.Chat,
                                 contentDescription = null,
-                                tint = Color(0xFF38BDF8),
+                                tint = if (AppColors.isLight) Color.White else Color(0xFF38BDF8),
                                 modifier = Modifier.size(20.dp)
                             )
                             Text(
@@ -1444,10 +1451,10 @@ fun VideoDiscussionModal(
                                 fontFamily = InterFontFamily,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFFF8FAFC)
+                                color = AppColors.headerText
                             )
                             Surface(
-                                color = Color(0xFF1E293B),
+                                color = AppColors.headerIconBg,
                                 shape = RoundedCornerShape(10.dp)
                             ) {
                                 Text(
@@ -1455,7 +1462,7 @@ fun VideoDiscussionModal(
                                     fontFamily = InterFontFamily,
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = Color(0xFF94A3B8),
+                                    color = AppColors.headerText,
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                                 )
                             }
@@ -1465,11 +1472,13 @@ fun VideoDiscussionModal(
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = "Close",
-                                tint = Color(0xFF94A3B8),
+                                tint = AppColors.headerIconTint,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
                     }
+
+                    HorizontalDivider(color = AppColors.headerDivider)
 
                     // Comments List
                     LazyColumn(
@@ -1491,7 +1500,7 @@ fun VideoDiscussionModal(
                                         Icon(
                                             imageVector = Icons.Outlined.ChatBubbleOutline,
                                             contentDescription = null,
-                                            tint = Color(0xFF475569),
+                                            tint = AppColors.textMuted,
                                             modifier = Modifier.size(36.dp)
                                         )
                                         Spacer(modifier = Modifier.height(8.dp))
@@ -1500,14 +1509,14 @@ fun VideoDiscussionModal(
                                             fontFamily = InterFontFamily,
                                             fontSize = 14.sp,
                                             fontWeight = FontWeight.SemiBold,
-                                            color = Color(0xFFF8FAFC)
+                                            color = AppColors.textPrimary
                                         )
                                         Text(
                                             text = "Be the first to start the discussion on this video!",
                                             fontFamily = InterFontFamily,
                                             fontWeight = FontWeight.Normal,
                                             fontSize = 12.sp,
-                                            color = Color(0xFF64748B)
+                                            color = AppColors.textMuted
                                         )
                                     }
                                 }
@@ -1533,7 +1542,7 @@ fun VideoDiscussionModal(
                                         modifier = Modifier
                                             .size(36.dp)
                                             .clip(CircleShape)
-                                            .border(1.dp, Color(0xFF1E293B), CircleShape)
+                                            .border(1.dp, AppColors.border, CircleShape)
                                     )
 
                                     Column(modifier = Modifier.weight(1f)) {
@@ -1546,14 +1555,14 @@ fun VideoDiscussionModal(
                                                 fontFamily = InterFontFamily,
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = 13.5.sp,
-                                                color = Color(0xFFF8FAFC)
+                                                color = AppColors.textPrimary
                                             )
                                             Text(
                                                 text = comment.timestamp,
                                                 fontFamily = InterFontFamily,
                                                 fontWeight = FontWeight.Normal,
                                                 fontSize = 11.5.sp,
-                                                color = Color(0xFF64748B)
+                                                color = AppColors.textMuted
                                             )
                                             if (isHidden) {
                                                 Surface(
@@ -1564,7 +1573,7 @@ fun VideoDiscussionModal(
                                                         text = "Hidden",
                                                         fontFamily = InterFontFamily,
                                                         fontSize = 10.sp,
-                                                        color = Color(0xFFFBBF24),
+                                                        color = if (AppColors.isLight) Color(0xFFB45309) else Color(0xFFFBBF24),
                                                         fontWeight = FontWeight.SemiBold,
                                                         modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
                                                     )
@@ -1579,7 +1588,7 @@ fun VideoDiscussionModal(
                                             fontFamily = InterFontFamily,
                                             fontWeight = FontWeight.Normal,
                                             fontSize = 13.5.sp,
-                                            color = Color(0xFFCBD5E1),
+                                            color = AppColors.textBody,
                                             lineHeight = 18.sp
                                         )
 
@@ -1601,7 +1610,7 @@ fun VideoDiscussionModal(
                                                 Icon(
                                                     imageVector = if (commentLiked) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                                                     contentDescription = "Like comment",
-                                                    tint = if (commentLiked) Color(0xFFEF4444) else Color(0xFF94A3B8),
+                                                    tint = if (commentLiked) Color(0xFFEF4444) else AppColors.textSecondary,
                                                     modifier = Modifier.size(13.dp)
                                                 )
                                                 Text(
@@ -1609,7 +1618,7 @@ fun VideoDiscussionModal(
                                                     fontFamily = InterFontFamily,
                                                     fontWeight = FontWeight.Medium,
                                                     fontSize = 14.sp,
-                                                    color = if (commentLiked) Color(0xFFEF4444) else Color(0xFF94A3B8)
+                                                    color = if (commentLiked) Color(0xFFEF4444) else AppColors.textSecondary
                                                 )
                                             }
 
@@ -1618,7 +1627,7 @@ fun VideoDiscussionModal(
                                                 fontFamily = InterFontFamily,
                                                 fontWeight = FontWeight.Medium,
                                                 fontSize = 14.sp,
-                                                color = Color(0xFF94A3B8),
+                                                color = AppColors.textSecondary,
                                                 modifier = Modifier.clickable {
                                                     replyingToUser = comment.author.name
                                                     commentText = "@${comment.author.name} "
@@ -1630,7 +1639,7 @@ fun VideoDiscussionModal(
                                                 fontFamily = InterFontFamily,
                                                 fontWeight = FontWeight.Medium,
                                                 fontSize = 14.sp,
-                                                color = Color(0xFF94A3B8),
+                                                color = AppColors.textSecondary,
                                                 modifier = Modifier.clickable { isHidden = !isHidden }
                                             )
 
@@ -1640,7 +1649,7 @@ fun VideoDiscussionModal(
                                                     fontFamily = InterFontFamily,
                                                     fontWeight = FontWeight.Medium,
                                                     fontSize = 11.5.sp,
-                                                    color = Color(0xFFFB7185),
+                                                    color = AppColors.dangerText,
                                                     modifier = Modifier.clickable { onDeleteComment(comment.id) }
                                                 )
                                             }
@@ -1651,12 +1660,13 @@ fun VideoDiscussionModal(
                         }
                     }
 
+                    HorizontalDivider(color = AppColors.border)
+
                     // Quick Emoji Bar
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFF0B1120))
-                            .border(BorderStroke(1.dp, Color(0xFF1E293B)))
+                            .background(AppColors.bgCardElevated)
                             .padding(horizontal = 14.dp, vertical = 6.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
@@ -1679,7 +1689,7 @@ fun VideoDiscussionModal(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Color(0xFF0F172A))
+                                .background(AppColors.bgCard)
                                 .padding(horizontal = 16.dp, vertical = 6.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
@@ -1689,7 +1699,7 @@ fun VideoDiscussionModal(
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
                                 fontSize = 12.sp,
-                                color = Color(0xFF94A3B8)
+                                color = AppColors.textSecondary
                             )
                             IconButton(
                                 onClick = {
@@ -1701,19 +1711,20 @@ fun VideoDiscussionModal(
                                 Icon(
                                     imageVector = Icons.Default.Close,
                                     contentDescription = "Cancel reply",
-                                    tint = Color(0xFF94A3B8),
+                                    tint = AppColors.textSecondary,
                                     modifier = Modifier.size(14.dp)
                                 )
                             }
                         }
                     }
 
+                    HorizontalDivider(color = AppColors.border)
+
                     // Comment Submission Form
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFF0F172A))
-                            .border(BorderStroke(1.dp, Color(0xFF1E293B)))
+                            .background(AppColors.bgCard)
                             .padding(horizontal = 12.dp, vertical = 10.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -1743,19 +1754,19 @@ fun VideoDiscussionModal(
                                     text = "Share your thoughts on this video…",
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
-                                    color = Color(0xFF64748B),
+                                    color = AppColors.textMuted,
                                     fontSize = 13.5.sp
                                 )
                             },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(24.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color(0xFF1E293B),
-                                unfocusedContainerColor = Color(0xFF1E293B),
-                                focusedTextColor = Color(0xFFF8FAFC),
-                                unfocusedTextColor = Color(0xFFF8FAFC),
-                                focusedBorderColor = Color(0xFF1877F2),
-                                unfocusedBorderColor = Color(0xFF334155)
+                                focusedContainerColor = AppColors.bgInput,
+                                unfocusedContainerColor = AppColors.bgInput,
+                                focusedTextColor = AppColors.textPrimary,
+                                unfocusedTextColor = AppColors.textPrimary,
+                                focusedBorderColor = AppColors.primaryBlue,
+                                unfocusedBorderColor = AppColors.borderStrong
                             ),
                             singleLine = true
                         )
@@ -1772,7 +1783,7 @@ fun VideoDiscussionModal(
                             enabled = commentText.isNotBlank(),
                             shape = RoundedCornerShape(20.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF1877F2),
+                                containerColor = AppColors.primaryBlue,
                                 contentColor = Color.White
                             ),
                             contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp),

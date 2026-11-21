@@ -34,6 +34,7 @@ import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.unera.social.model.Comment
 import com.unera.social.model.SongComment
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -80,7 +81,7 @@ fun CommentActionModal(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.75f))
+                .background(AppColors.scrim)
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
@@ -99,8 +100,8 @@ fun CommentActionModal(
                     )
                     .testTag("comment_action_modal"),
                 shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
-                color = Color(0xFF0F172A), // Navy 800
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B))
+                color = AppColors.bgCard,
+                border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border)
             ) {
                 Column(
                     modifier = Modifier
@@ -114,7 +115,7 @@ fun CommentActionModal(
                             .width(42.dp)
                             .height(4.dp)
                             .clip(RoundedCornerShape(2.dp))
-                            .background(Color(0xFF334155))
+                            .background(AppColors.borderStrong)
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -124,8 +125,8 @@ fun CommentActionModal(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(12.dp)),
-                        color = Color(0xFF1E293B).copy(alpha = 0.6f),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF334155).copy(alpha = 0.5f))
+                        color = AppColors.bgInput,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border)
                     ) {
                         Row(
                             modifier = Modifier
@@ -173,7 +174,7 @@ fun CommentActionModal(
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 14.sp,
-                                        color = Color(0xFFF8FAFC)
+                                        color = AppColors.textPrimary
                                     )
 
                                     if (isHidden) {
@@ -215,7 +216,7 @@ fun CommentActionModal(
                                     fontSize = 13.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
-                                    color = Color(0xFFCBD5E1),
+                                    color = AppColors.textBody,
                                     maxLines = 3,
                                     overflow = TextOverflow.Ellipsis,
                                     lineHeight = 18.sp
@@ -262,7 +263,7 @@ fun CommentActionModal(
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 17.sp,
-                                    color = Color(0xFFF8FAFC)
+                                    color = AppColors.textPrimary
                                 )
 
                                 Text(
@@ -270,7 +271,7 @@ fun CommentActionModal(
                                     fontSize = 13.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
-                                    color = Color(0xFF94A3B8),
+                                    color = AppColors.textSecondary,
                                     textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                                     lineHeight = 18.sp,
                                     modifier = Modifier.padding(horizontal = 8.dp)
@@ -289,9 +290,9 @@ fun CommentActionModal(
                                             .height(44.dp)
                                             .testTag("comment_cancel_delete_btn"),
                                         shape = RoundedCornerShape(10.dp),
-                                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF334155)),
+                                        border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.borderStrong),
                                         colors = ButtonDefaults.outlinedButtonColors(
-                                            contentColor = Color(0xFFCBD5E1)
+                                            contentColor = AppColors.textBody
                                         )
                                     ) {
                                         Text(
@@ -340,7 +341,7 @@ fun CommentActionModal(
                                 if (onReply != null) {
                                     ActionRow(
                                         icon = Icons.AutoMirrored.Filled.Reply,
-                                        iconTint = Color(0xFF38BDF8),
+                                        iconTint = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8),
                                         title = "Reply to ${authorName.ifBlank { "comment" }}",
                                         subtitle = "Write a response to this comment",
                                         testTag = "comment_action_reply",
@@ -354,7 +355,7 @@ fun CommentActionModal(
                                 // 2. Copy Text Action
                                 ActionRow(
                                     icon = if (copied) Icons.Default.Check else Icons.Default.ContentCopy,
-                                    iconTint = if (copied) Color(0xFF10B981) else Color(0xFF94A3B8),
+                                    iconTint = if (copied) Color(0xFF10B981) else AppColors.textSecondary,
                                     title = if (copied) "Copied to clipboard!" else "Copy text",
                                     subtitle = if (copied) "Text is ready to paste" else "Copy the comment text",
                                     testTag = "comment_action_copy",
@@ -417,8 +418,8 @@ fun CommentActionModal(
                                         .testTag("comment_action_close"),
                                     shape = RoundedCornerShape(12.dp),
                                     colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color(0xFF1E293B),
-                                        contentColor = Color(0xFF94A3B8)
+                                        containerColor = AppColors.bgChip,
+                                        contentColor = AppColors.textBody
                                     )
                                 ) {
                                     Text(
@@ -510,7 +511,7 @@ private fun ActionRow(
     title: String,
     subtitle: String,
     testTag: String,
-    titleColor: Color = Color(0xFFF8FAFC),
+    titleColor: Color = AppColors.textPrimary,
     onClick: () -> Unit
 ) {
     Surface(
@@ -519,8 +520,8 @@ private fun ActionRow(
             .fillMaxWidth()
             .testTag(testTag),
         shape = RoundedCornerShape(12.dp),
-        color = Color(0xFF141E33).copy(alpha = 0.5f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B))
+        color = AppColors.bgCardElevated,
+        border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border)
     ) {
         Row(
             modifier = Modifier
@@ -557,14 +558,14 @@ private fun ActionRow(
                     fontSize = 12.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Normal,
-                    color = Color(0xFF94A3B8)
+                    color = AppColors.textSecondary
                 )
             }
 
             Icon(
                 imageVector = Icons.Default.ChevronRight,
                 contentDescription = null,
-                tint = Color(0xFF64748B),
+                tint = AppColors.textMuted,
                 modifier = Modifier.size(18.dp)
             )
         }

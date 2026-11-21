@@ -68,6 +68,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.material.icons.automirrored.filled.Reply
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 import kotlinx.coroutines.delay
 
@@ -365,7 +366,7 @@ fun ReactionsSheetDialog(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFF050B18))
+                .background(AppColors.bgScreen)
                 .testTag("reactions_sheet_dialog")
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
@@ -374,7 +375,7 @@ fun ReactionsSheetDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp)
-                        .background(Color(0xFF0B1120))
+                        .background(AppColors.headerBg)
                         .padding(horizontal = 16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -382,7 +383,7 @@ fun ReactionsSheetDialog(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color(0xFFF8FAFC)
+                            tint = AppColors.headerIconTint
                         )
                     }
                     Spacer(modifier = Modifier.width(8.dp))
@@ -390,7 +391,7 @@ fun ReactionsSheetDialog(
                         text = "People who reacted",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFFF8FAFC)
+                        color = AppColors.headerText
                     )
                 }
 
@@ -398,7 +399,7 @@ fun ReactionsSheetDialog(
                 LazyRow(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFF0B1120))
+                        .background(AppColors.bgSurface)
                         .padding(horizontal = 12.dp, vertical = 6.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
@@ -408,10 +409,10 @@ fun ReactionsSheetDialog(
                             onClick = { selectedTab = "all" },
                             label = { Text("All ${liveReactions.size}") },
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Color(0xFF1877F2),
+                                selectedContainerColor = AppColors.primaryBlue,
                                 selectedLabelColor = Color.White,
-                                containerColor = Color(0xFF1E293B),
-                                labelColor = Color(0xFF94A3B8)
+                                containerColor = AppColors.bgChip,
+                                labelColor = AppColors.textSecondary
                             )
                         )
                     }
@@ -423,16 +424,16 @@ fun ReactionsSheetDialog(
                             onClick = { selectedTab = type },
                             label = { Text("${getReactionEmoji(type)} $count") },
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Color(0xFF1877F2),
+                                selectedContainerColor = AppColors.primaryBlue,
                                 selectedLabelColor = Color.White,
-                                containerColor = Color(0xFF1E293B),
-                                labelColor = Color(0xFF94A3B8)
+                                containerColor = AppColors.bgChip,
+                                labelColor = AppColors.textSecondary
                             )
                         )
                     }
                 }
 
-                HorizontalDivider(color = Color(0xFF1E293B), thickness = 1.dp)
+                HorizontalDivider(color = AppColors.border, thickness = 1.dp)
 
                 // List of reactors
                 LazyColumn(
@@ -451,7 +452,7 @@ fun ReactionsSheetDialog(
                             ) {
                                 Text(
                                     text = "No reactions yet.",
-                                    color = Color(0xFF94A3B8),
+                                    color = AppColors.textSecondary,
                                     fontSize = 16.sp
                                 )
                             }
@@ -500,8 +501,8 @@ fun ReactionsSheetDialog(
                                             .size(20.dp)
                                             .align(Alignment.BottomEnd)
                                             .clip(CircleShape)
-                                            .background(Color(0xFF0B1120))
-                                            .border(1.dp, Color(0xFF1E293B), CircleShape),
+                                            .background(AppColors.bgCard)
+                                            .border(1.dp, AppColors.border, CircleShape),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         if (fb3dReaction != null) {
@@ -524,7 +525,7 @@ fun ReactionsSheetDialog(
                                             text = resolvedName,
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 16.sp,
-                                            color = Color(0xFFF8FAFC)
+                                            color = AppColors.textPrimary
                                         )
                                         if (isVerified) {
                                             Spacer(modifier = Modifier.width(4.dp))
@@ -535,7 +536,7 @@ fun ReactionsSheetDialog(
                                         Text(
                                             text = if (resolvedUsername.startsWith("@")) resolvedUsername else "@$resolvedUsername",
                                             fontSize = 13.sp,
-                                            color = Color(0xFF94A3B8)
+                                            color = AppColors.textSecondary
                                         )
                                     }
                                 }
@@ -594,8 +595,8 @@ fun ShareBottomSheetDialog(
                     .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
                     .testTag("share_bottom_sheet_dialog"),
                 shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B))
+                colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+                border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border)
             ) {
                 Column(
                     modifier = Modifier
@@ -607,7 +608,7 @@ fun ShareBottomSheetDialog(
                         modifier = Modifier
                             .size(44.dp, 4.dp)
                             .clip(RoundedCornerShape(2.dp))
-                            .background(Color(0xFF475569))
+                            .background(AppColors.borderStrong)
                             .align(Alignment.CenterHorizontally)
                     )
 
@@ -623,7 +624,7 @@ fun ShareBottomSheetDialog(
                             text = "Share",
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp,
-                            color = Color(0xFFF8FAFC)
+                            color = AppColors.textPrimary
                         )
                         IconButton(
                             onClick = onDismiss,
@@ -632,7 +633,7 @@ fun ShareBottomSheetDialog(
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = "Close",
-                                tint = Color(0xFF94A3B8),
+                                tint = AppColors.textSecondary,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -651,7 +652,7 @@ fun ShareBottomSheetDialog(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(Color(0xFF1E293B))
+                                .background(AppColors.bgInput)
                                 .padding(10.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -679,12 +680,12 @@ fun ShareBottomSheetDialog(
                                     text = post.author.name,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 14.sp,
-                                    color = Color(0xFFF8FAFC)
+                                    color = AppColors.textPrimary
                                 )
                                 Text(
                                     text = post.content.ifBlank { "Shared post" },
                                     fontSize = 12.sp,
-                                    color = Color(0xFF94A3B8),
+                                    color = AppColors.textSecondary,
                                     maxLines = 2,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -773,9 +774,9 @@ fun ShareBottomSheetDialog(
                             .fillMaxWidth()
                             .navigationBarsPadding(),
                         shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E293B))
+                        colors = ButtonDefaults.buttonColors(containerColor = AppColors.bgChip)
                     ) {
-                        Text(text = "Cancel", color = Color(0xFFF8FAFC), fontWeight = FontWeight.Bold)
+                        Text(text = "Cancel", color = AppColors.textPrimary, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -813,14 +814,14 @@ private fun ShareOptionRow(
         Spacer(modifier = Modifier.width(12.dp))
 
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = title, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color(0xFFF8FAFC))
-            Text(text = subtitle, fontSize = 12.sp, color = Color(0xFF94A3B8), maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(text = title, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = AppColors.textPrimary)
+            Text(text = subtitle, fontSize = 12.sp, color = AppColors.textSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
 
         Icon(
             imageVector = Icons.Default.ChevronRight,
             contentDescription = null,
-            tint = Color(0xFF64748B),
+            tint = AppColors.textMuted,
             modifier = Modifier.size(18.dp)
         )
     }
@@ -1050,11 +1051,11 @@ fun DiscussionsSheetDialog(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFF050B18))
+                .background(AppColors.bgScreen)
                 .testTag("discussions_sheet_dialog")
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
-                // Top Header (Matching Web CommentsSheet: sticky, #0B1120, border-b #1E293B)
+                // Top Header (Blue in Light Mode, #0B1120 in Dark Mode)
                 val isVideoPost = postState.postType == "video" || postState.postType == "reel" ||
                     postState.videoUrl != null || postState.mediaType == "video" ||
                     postState.mediaUrls.any { it.endsWith(".mp4") } || postState.mediaUrl?.endsWith(".mp4") == true
@@ -1068,7 +1069,7 @@ fun DiscussionsSheetDialog(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFF0B1120))
+                        .background(AppColors.headerBg)
                         .padding(horizontal = 14.dp, vertical = 10.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
@@ -1086,7 +1087,7 @@ fun DiscussionsSheetDialog(
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Back",
-                                tint = Color(0xFFE4E6EB),
+                                tint = AppColors.headerIconTint,
                                 modifier = Modifier.size(22.dp)
                             )
                         }
@@ -1095,7 +1096,7 @@ fun DiscussionsSheetDialog(
                             text = sheetTitle,
                             fontSize = 21.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFFE4E6EB)
+                            color = AppColors.headerText
                         )
                     }
 
@@ -1105,7 +1106,7 @@ fun DiscussionsSheetDialog(
                     ) {
                         Text(
                             text = "${formatCount(totalDiscussions)} discussions",
-                            color = Color(0xFFCBD5E1),
+                            color = if (AppColors.isLight) AppColors.headerSubtext else Color(0xFFCBD5E1),
                             fontSize = 15.sp,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -1116,7 +1117,7 @@ fun DiscussionsSheetDialog(
                         ) {
                             Text(
                                 text = "See less",
-                                color = Color(0xFF1877F2),
+                                color = if (AppColors.isLight) Color.White else AppColors.primaryBlue,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -1124,7 +1125,7 @@ fun DiscussionsSheetDialog(
                     }
                 }
 
-                HorizontalDivider(color = Color(0xFF1E293B), thickness = 1.dp)
+                HorizontalDivider(color = AppColors.headerDivider, thickness = 1.dp)
 
                 // Scrollable content: Optional Notification Banner + Full Original Post Preview + List of comments
                 LazyColumn(
@@ -1154,7 +1155,7 @@ fun DiscussionsSheetDialog(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .background(Color(0xFF0F1E36))
+                                    .background(if (AppColors.isLight) AppColors.bgBlueTint else Color(0xFF0F1E36))
                                     .padding(horizontal = 14.dp, vertical = 10.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -1165,12 +1166,12 @@ fun DiscussionsSheetDialog(
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Medium,
                                     fontSize = 14.sp,
-                                    color = Color(0xFF93C5FD),
+                                    color = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF93C5FD),
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
                             }
-                            HorizontalDivider(color = Color(0xFF1E293B), thickness = 1.dp)
+                            HorizontalDivider(color = AppColors.border, thickness = 1.dp)
                         }
                     }
 
@@ -1179,7 +1180,7 @@ fun DiscussionsSheetDialog(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .border(width = 1.dp, color = Color(0xFF1E293B))
+                                .border(width = 1.dp, color = AppColors.border)
                         ) {
                             WebPostCard(
                                 post = postState.copy(author = postState.author.copy(isFollowing = localIsFollowing)),
@@ -1219,7 +1220,7 @@ fun DiscussionsSheetDialog(
                     }
 
                     item {
-                        HorizontalDivider(color = Color(0xFF1E293B), thickness = 1.dp)
+                        HorizontalDivider(color = AppColors.border, thickness = 1.dp)
                         Spacer(modifier = Modifier.height(10.dp))
                     }
 
@@ -1233,7 +1234,7 @@ fun DiscussionsSheetDialog(
                                 contentAlignment = Alignment.Center
                             ) {
                                 CircularProgressIndicator(
-                                    color = Color(0xFF1877F2),
+                                    color = AppColors.primaryBlue,
                                     modifier = Modifier.size(32.dp),
                                     strokeWidth = 3.dp
                                 )
@@ -1252,13 +1253,13 @@ fun DiscussionsSheetDialog(
                                         text = "No discussions yet",
                                         fontSize = 19.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color(0xFFB0B3B8)
+                                        color = AppColors.textPrimary
                                     )
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(
                                         text = "Be the first to start a discussion!",
                                         fontSize = 14.sp,
-                                        color = Color(0xFF94A3B8)
+                                        color = AppColors.textSecondary
                                     )
                                 }
                             }
@@ -1373,7 +1374,7 @@ fun DiscussionsSheetDialog(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFF162137))
+                            .background(AppColors.bgCardElevated)
                             .padding(horizontal = 14.dp, vertical = 8.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
@@ -1382,12 +1383,12 @@ fun DiscussionsSheetDialog(
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.Reply,
                                 contentDescription = null,
-                                tint = Color(0xFF38BDF8),
+                                tint = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8),
                                 modifier = Modifier.size(16.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text(text = "Replying to ", fontSize = 12.sp, color = Color(0xFF94A3B8))
-                            Text(text = replyingToAuthor ?: "", fontSize = 12.sp, color = Color(0xFF38BDF8), fontWeight = FontWeight.Bold)
+                            Text(text = "Replying to ", fontSize = 12.sp, color = AppColors.textSecondary)
+                            Text(text = replyingToAuthor ?: "", fontSize = 12.sp, color = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8), fontWeight = FontWeight.Bold)
                         }
                         IconButton(
                             onClick = {
@@ -1396,7 +1397,7 @@ fun DiscussionsSheetDialog(
                             },
                             modifier = Modifier.size(22.dp)
                         ) {
-                            Icon(imageVector = Icons.Default.Close, contentDescription = "Cancel reply", tint = Color.White, modifier = Modifier.size(16.dp))
+                            Icon(imageVector = Icons.Default.Close, contentDescription = "Cancel reply", tint = AppColors.textPrimary, modifier = Modifier.size(16.dp))
                         }
                     }
                 }
@@ -1406,7 +1407,7 @@ fun DiscussionsSheetDialog(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFF0B1120))
+                            .background(AppColors.bgSurface)
                             .padding(horizontal = 14.dp, vertical = 6.dp)
                     ) {
                         Box(modifier = Modifier.wrapContentSize()) {
@@ -1418,7 +1419,7 @@ fun DiscussionsSheetDialog(
                                     .height(72.dp)
                                     .widthIn(max = 100.dp)
                                     .clip(RoundedCornerShape(8.dp))
-                                    .border(1.dp, Color(0xFF1E293B), RoundedCornerShape(8.dp))
+                                    .border(1.dp, AppColors.border, RoundedCornerShape(8.dp))
                             )
                             IconButton(
                                 onClick = { selectedImageUri = null },
@@ -1445,7 +1446,7 @@ fun DiscussionsSheetDialog(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFF0B1120))
+                            .background(AppColors.bgSurface)
                             .padding(horizontal = 14.dp, vertical = 6.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -1467,8 +1468,8 @@ fun DiscussionsSheetDialog(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFF0B1120))
-                        .border(1.dp, Color(0xFF1E293B))
+                        .background(AppColors.bgSurface)
+                        .border(1.dp, AppColors.border)
                         .padding(horizontal = 10.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -1484,7 +1485,7 @@ fun DiscussionsSheetDialog(
                         Icon(
                             imageVector = Icons.Outlined.Image,
                             contentDescription = "Attach image",
-                            tint = if (selectedImageUri != null) Color(0xFF1877F2) else Color(0xFF94A3B8),
+                            tint = if (selectedImageUri != null) AppColors.primaryBlue else AppColors.textSecondary,
                             modifier = Modifier.size(22.dp)
                         )
                     }
@@ -1497,7 +1498,7 @@ fun DiscussionsSheetDialog(
                         Icon(
                             imageVector = Icons.Outlined.SentimentSatisfied,
                             contentDescription = "Emoji",
-                            tint = if (showEmojiPicker) Color(0xFF1877F2) else Color(0xFF94A3B8),
+                            tint = if (showEmojiPicker) AppColors.primaryBlue else AppColors.textSecondary,
                             modifier = Modifier.size(22.dp)
                         )
                     }
@@ -1509,17 +1510,17 @@ fun DiscussionsSheetDialog(
                         placeholder = {
                             Text(
                                 text = if (replyingToAuthor != null) "Reply to $replyingToAuthor..." else "Comment as ${currentUser.name.split(" ").firstOrNull() ?: "you"}...",
-                                color = Color(0xFF64748B),
+                                color = AppColors.textMuted,
                                 fontSize = 14.sp
                             )
                         },
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color(0xFF0F172A),
-                            unfocusedContainerColor = Color(0xFF0F172A),
-                            focusedTextColor = Color(0xFFF8FAFC),
-                            unfocusedTextColor = Color(0xFFF8FAFC),
-                            focusedBorderColor = Color(0xFF1877F2),
-                            unfocusedBorderColor = Color(0xFF1E293B)
+                            focusedContainerColor = AppColors.bgInput,
+                            unfocusedContainerColor = AppColors.bgInput,
+                            focusedTextColor = AppColors.textPrimary,
+                            unfocusedTextColor = AppColors.textPrimary,
+                            focusedBorderColor = AppColors.primaryBlue,
+                            unfocusedBorderColor = AppColors.border
                         ),
                         shape = RoundedCornerShape(24.dp),
                         modifier = Modifier
@@ -1605,12 +1606,12 @@ fun DiscussionsSheetDialog(
                         modifier = Modifier
                             .size(40.dp)
                             .clip(CircleShape)
-                            .background(if (canSend) Color(0xFF1877F2) else Color(0xFF1E293B))
+                            .background(if (canSend) AppColors.primaryBlue else AppColors.bgChip)
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.Send,
                             contentDescription = "Send",
-                            tint = if (canSend) Color.White else Color(0xFF64748B),
+                            tint = if (canSend) Color.White else AppColors.textMuted,
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -1761,8 +1762,8 @@ fun ReelCommentsBottomSheetDialog(
                     .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
                     .testTag("reel_comments_bottom_sheet_dialog"),
                 shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B))
+                colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+                border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border)
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     // Top drag handle bar (Facebook Reel style)
@@ -1771,7 +1772,7 @@ fun ReelCommentsBottomSheetDialog(
                             .padding(top = 10.dp, bottom = 4.dp)
                             .size(44.dp, 4.dp)
                             .clip(RoundedCornerShape(2.dp))
-                            .background(Color(0xFF475569))
+                            .background(AppColors.borderStrong)
                             .align(Alignment.CenterHorizontally)
                     )
 
@@ -1787,7 +1788,7 @@ fun ReelCommentsBottomSheetDialog(
                             text = if (totalDiscussions > 0) "${formatCount(totalDiscussions)} discussions" else "Discussions",
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFFF8FAFC)
+                            color = AppColors.textPrimary
                         )
 
                         IconButton(
@@ -1795,18 +1796,18 @@ fun ReelCommentsBottomSheetDialog(
                             modifier = Modifier
                                 .size(32.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFF1E293B))
+                                .background(AppColors.bgChip)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = "Close discussions",
-                                tint = Color(0xFFCBD5E1),
+                                tint = AppColors.textPrimary,
                                 modifier = Modifier.size(18.dp)
                             )
                         }
                     }
 
-                    HorizontalDivider(color = Color(0xFF1E293B), thickness = 1.dp)
+                    HorizontalDivider(color = AppColors.border, thickness = 1.dp)
 
                     // Scrollable list of comments & replies (same styling & text sizes as FeedScreen)
                     LazyColumn(
@@ -1824,7 +1825,7 @@ fun ReelCommentsBottomSheetDialog(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     CircularProgressIndicator(
-                                        color = Color(0xFF1877F2),
+                                        color = AppColors.primaryBlue,
                                         modifier = Modifier.size(32.dp),
                                         strokeWidth = 3.dp
                                     )
@@ -1843,13 +1844,13 @@ fun ReelCommentsBottomSheetDialog(
                                             text = "No discussions yet",
                                             fontSize = 19.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = Color(0xFFB0B3B8)
+                                            color = AppColors.textPrimary
                                         )
                                         Spacer(modifier = Modifier.height(4.dp))
                                         Text(
                                             text = "Be the first to start a discussion!",
                                             fontSize = 14.sp,
-                                            color = Color(0xFF94A3B8)
+                                            color = AppColors.textSecondary
                                         )
                                     }
                                 }
@@ -1957,7 +1958,7 @@ fun ReelCommentsBottomSheetDialog(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Color(0xFF162137))
+                                .background(AppColors.bgCardElevated)
                                 .padding(horizontal = 14.dp, vertical = 8.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
@@ -1966,12 +1967,12 @@ fun ReelCommentsBottomSheetDialog(
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.Reply,
                                     contentDescription = null,
-                                    tint = Color(0xFF38BDF8),
+                                    tint = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8),
                                     modifier = Modifier.size(16.dp)
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text(text = "Replying to ", fontSize = 12.sp, color = Color(0xFF94A3B8))
-                                Text(text = replyingToAuthor ?: "", fontSize = 12.sp, color = Color(0xFF38BDF8), fontWeight = FontWeight.Bold)
+                                Text(text = "Replying to ", fontSize = 12.sp, color = AppColors.textSecondary)
+                                Text(text = replyingToAuthor ?: "", fontSize = 12.sp, color = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8), fontWeight = FontWeight.Bold)
                             }
                             IconButton(
                                 onClick = {
@@ -1980,7 +1981,7 @@ fun ReelCommentsBottomSheetDialog(
                                 },
                                 modifier = Modifier.size(22.dp)
                             ) {
-                                Icon(imageVector = Icons.Default.Close, contentDescription = "Cancel reply", tint = Color.White, modifier = Modifier.size(16.dp))
+                                Icon(imageVector = Icons.Default.Close, contentDescription = "Cancel reply", tint = AppColors.textPrimary, modifier = Modifier.size(16.dp))
                             }
                         }
                     }
@@ -1990,7 +1991,7 @@ fun ReelCommentsBottomSheetDialog(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Color(0xFF0F172A))
+                                .background(AppColors.bgCard)
                                 .padding(horizontal = 14.dp, vertical = 6.dp)
                         ) {
                             Box(modifier = Modifier.size(60.dp)) {
@@ -2001,7 +2002,7 @@ fun ReelCommentsBottomSheetDialog(
                                     modifier = Modifier
                                         .fillMaxSize()
                                         .clip(RoundedCornerShape(8.dp))
-                                        .border(1.dp, Color(0xFF334155), RoundedCornerShape(8.dp))
+                                        .border(1.dp, AppColors.borderStrong, RoundedCornerShape(8.dp))
                                 )
                                 IconButton(
                                     onClick = { selectedImageUri = null },
@@ -2027,7 +2028,7 @@ fun ReelCommentsBottomSheetDialog(
                         LazyRow(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Color(0xFF0B1120))
+                                .background(AppColors.bgSurface)
                                 .padding(horizontal = 10.dp, vertical = 6.dp),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
@@ -2047,8 +2048,8 @@ fun ReelCommentsBottomSheetDialog(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFF0B1120))
-                            .border(1.dp, Color(0xFF1E293B))
+                            .background(AppColors.bgSurface)
+                            .border(1.dp, AppColors.border)
                             .padding(horizontal = 10.dp, vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -2073,7 +2074,7 @@ fun ReelCommentsBottomSheetDialog(
                             Icon(
                                 imageVector = Icons.Outlined.Image,
                                 contentDescription = "Attach image",
-                                tint = if (selectedImageUri != null) Color(0xFF1877F2) else Color(0xFF94A3B8),
+                                tint = if (selectedImageUri != null) AppColors.primaryBlue else AppColors.textSecondary,
                                 modifier = Modifier.size(22.dp)
                             )
                         }
@@ -2086,7 +2087,7 @@ fun ReelCommentsBottomSheetDialog(
                             Icon(
                                 imageVector = Icons.Outlined.SentimentSatisfied,
                                 contentDescription = "Emoji",
-                                tint = if (showEmojiPicker) Color(0xFF1877F2) else Color(0xFF94A3B8),
+                                tint = if (showEmojiPicker) AppColors.primaryBlue else AppColors.textSecondary,
                                 modifier = Modifier.size(22.dp)
                             )
                         }
@@ -2098,17 +2099,17 @@ fun ReelCommentsBottomSheetDialog(
                             placeholder = {
                                 Text(
                                     text = if (replyingToAuthor != null) "Reply to $replyingToAuthor..." else "Comment as ${currentUser.name.split(" ").firstOrNull() ?: "you"}...",
-                                    color = Color(0xFF64748B),
+                                    color = AppColors.textMuted,
                                     fontSize = 14.sp
                                 )
                             },
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color(0xFF0F172A),
-                                unfocusedContainerColor = Color(0xFF0F172A),
-                                focusedTextColor = Color(0xFFF8FAFC),
-                                unfocusedTextColor = Color(0xFFF8FAFC),
-                                focusedBorderColor = Color(0xFF1877F2),
-                                unfocusedBorderColor = Color(0xFF1E293B)
+                                focusedContainerColor = AppColors.bgInput,
+                                unfocusedContainerColor = AppColors.bgInput,
+                                focusedTextColor = AppColors.textPrimary,
+                                unfocusedTextColor = AppColors.textPrimary,
+                                focusedBorderColor = AppColors.primaryBlue,
+                                unfocusedBorderColor = AppColors.border
                             ),
                             shape = RoundedCornerShape(24.dp),
                             modifier = Modifier
@@ -2191,12 +2192,12 @@ fun ReelCommentsBottomSheetDialog(
                             modifier = Modifier
                                 .size(38.dp)
                                 .clip(CircleShape)
-                                .background(if (canSend) Color(0xFF1877F2) else Color(0xFF1E293B))
+                                .background(if (canSend) AppColors.primaryBlue else AppColors.bgChip)
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.Send,
                                 contentDescription = "Send",
-                                tint = if (canSend) Color.White else Color(0xFF64748B),
+                                tint = if (canSend) Color.White else AppColors.textMuted,
                                 modifier = Modifier.size(18.dp)
                             )
                         }
@@ -2289,6 +2290,13 @@ private fun CommentItemRow(
         } else comment.author
     }
 
+    val threadLineColor = if (AppColors.isLight) AppColors.borderStrong else Color(0xFF334155)
+    val bubbleBg = if (isHighlighted) {
+        if (AppColors.isLight) AppColors.bgBlueTint else Color(0xFF1A2E4D)
+    } else {
+        if (AppColors.isLight) AppColors.bgInput else Color(0xFF162137)
+    }
+
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
@@ -2299,7 +2307,7 @@ private fun CommentItemRow(
                         val startY = 36.dp.toPx()
                         if (size.height > startY) {
                             drawLine(
-                                color = Color(0xFF334155),
+                                color = threadLineColor,
                                 start = androidx.compose.ui.geometry.Offset(startX, startY),
                                 end = androidx.compose.ui.geometry.Offset(startX, size.height),
                                 strokeWidth = 1.5.dp.toPx(),
@@ -2320,14 +2328,14 @@ private fun CommentItemRow(
             Spacer(modifier = Modifier.width(10.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                // Bubble (#162137, highlighted with Feathered-blue glow when opened from comment notification)
+                // Bubble (highlighted with Feathered-blue glow when opened from comment notification)
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(18.dp))
-                        .background(if (isHighlighted) Color(0xFF1A2E4D) else Color(0xFF162137))
+                        .background(bubbleBg)
                         .then(
                             if (isHighlighted) {
-                                Modifier.border(1.5.dp, Color(0xFF1877F2), RoundedCornerShape(18.dp))
+                                Modifier.border(1.5.dp, AppColors.primaryBlue, RoundedCornerShape(18.dp))
                             } else {
                                 Modifier
                             }
@@ -2349,7 +2357,7 @@ private fun CommentItemRow(
                                     text = authorUser.name,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 19.sp,
-                                    color = Color(0xFFF8FAFC)
+                                    color = AppColors.textPrimary
                                 )
                                 if (authorUser.isVerified) {
                                     Spacer(modifier = Modifier.width(5.dp))
@@ -2360,10 +2368,10 @@ private fun CommentItemRow(
                                     Box(
                                         modifier = Modifier
                                             .clip(RoundedCornerShape(4.dp))
-                                            .background(Color(0xFF334155))
+                                            .background(AppColors.bgChip)
                                             .padding(horizontal = 5.dp, vertical = 1.dp)
                                     ) {
-                                        Text("Hidden", fontSize = 10.sp, color = Color(0xFF94A3B8), fontWeight = FontWeight.SemiBold)
+                                        Text("Hidden", fontSize = 10.sp, color = AppColors.textSecondary, fontWeight = FontWeight.SemiBold)
                                     }
                                 }
                             }
@@ -2376,7 +2384,7 @@ private fun CommentItemRow(
                                     Icon(
                                         imageVector = Icons.Default.MoreHoriz,
                                         contentDescription = "Options",
-                                        tint = Color(0xFF94A3B8),
+                                        tint = AppColors.textSecondary,
                                         modifier = Modifier.size(16.dp)
                                     )
                                 }
@@ -2387,7 +2395,7 @@ private fun CommentItemRow(
                         Text(
                             text = comment.text,
                             fontSize = 20.sp,
-                            color = Color(0xFFCBD5E1),
+                            color = AppColors.textBody,
                             lineHeight = 26.sp
                         )
                     }
@@ -2404,7 +2412,7 @@ private fun CommentItemRow(
                     Text(
                         text = comment.timestamp,
                         fontSize = 11.sp,
-                        color = Color(0xFF94A3B8),
+                        color = AppColors.textSecondary,
                         modifier = Modifier.align(Alignment.CenterVertically)
                     )
 
@@ -2462,7 +2470,7 @@ private fun CommentItemRow(
                                         text = if (comment.isLiked) "❤️ Liked" else "🤍 Like",
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = if (comment.isLiked) Color(0xFFF43F5E) else Color(0xFF94A3B8)
+                                        color = if (comment.isLiked) Color(0xFFF43F5E) else AppColors.textSecondary
                                     )
                                 }
                             }
@@ -2473,7 +2481,7 @@ private fun CommentItemRow(
                         text = "Reply",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF94A3B8),
+                        color = AppColors.textSecondary,
                         modifier = Modifier
                             .align(Alignment.CenterVertically)
                             .clickable(onClick = onReply)
@@ -2484,7 +2492,7 @@ private fun CommentItemRow(
                             text = if (comment.isHidden) "Unhide" else "Hide",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = if (comment.isHidden) Color(0xFF38BDF8) else Color(0xFF94A3B8),
+                            color = if (comment.isHidden) (if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8)) else AppColors.textSecondary,
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
                                 .clickable(onClick = onToggleHide)
@@ -2507,7 +2515,7 @@ private fun CommentItemRow(
                         Text(
                             text = "Options",
                             fontSize = 12.sp,
-                            color = Color(0xFF64748B),
+                            color = AppColors.textMuted,
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
                                 .clickable(onClick = onMoreOptions)
@@ -2571,6 +2579,7 @@ private fun CompactThreadedReplies(
     val totalReplies = parentComment.replies.size
     if (totalReplies == 0) return
 
+    val threadLineColor = if (AppColors.isLight) AppColors.borderStrong else Color(0xFF334155)
     Column(modifier = Modifier.fillMaxWidth()) {
         if (!isExpanded && totalReplies > 1) {
             // View previous replies row
@@ -2588,7 +2597,7 @@ private fun CompactThreadedReplies(
 
                         // Vertical continuation line to next reply below
                         drawLine(
-                            color = Color(0xFF334155),
+                            color = threadLineColor,
                             start = androidx.compose.ui.geometry.Offset(startX, 0f),
                             end = androidx.compose.ui.geometry.Offset(startX, size.height),
                             strokeWidth = stroke
@@ -2602,7 +2611,7 @@ private fun CompactThreadedReplies(
                                 curveEndX, targetY
                             )
                         }
-                        drawPath(path, color = Color(0xFF334155), style = Stroke(width = stroke, cap = StrokeCap.Round))
+                        drawPath(path, color = threadLineColor, style = Stroke(width = stroke, cap = StrokeCap.Round))
                     }
                     .padding(start = 42.dp, top = 6.dp, bottom = 4.dp)
                     .clickable(onClick = onToggleExpand),
@@ -2612,7 +2621,7 @@ private fun CompactThreadedReplies(
                     text = label,
                     fontSize = 19.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFFF8FAFC)
+                    color = AppColors.textPrimary
                 )
             }
 
@@ -2665,7 +2674,7 @@ private fun CompactThreadedReplies(
                                     curveEndX, targetY
                                 )
                             }
-                            drawPath(path, color = Color(0xFF334155), style = Stroke(width = stroke, cap = StrokeCap.Round))
+                            drawPath(path, color = threadLineColor, style = Stroke(width = stroke, cap = StrokeCap.Round))
                         }
                         .padding(start = 42.dp, top = 4.dp, bottom = 6.dp)
                         .clickable(onClick = onToggleExpand),
@@ -2675,7 +2684,7 @@ private fun CompactThreadedReplies(
                         text = "Hide replies",
                         fontSize = 19.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF94A3B8)
+                        color = AppColors.textSecondary
                     )
                 }
             }
@@ -2728,6 +2737,9 @@ private fun CompactReplyItem(
 
     val isLongReply = cleanText.length > 50 || cleanText.contains("\n") || hasOverflow
 
+    val threadLineColor = if (AppColors.isLight) AppColors.borderStrong else Color(0xFF334155)
+    val replyBubbleBg = if (AppColors.isLight) AppColors.bgInput else Color(0xFF162137)
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -2739,14 +2751,14 @@ private fun CompactReplyItem(
 
                 if (!isLast) {
                     drawLine(
-                        color = Color(0xFF334155),
+                        color = threadLineColor,
                         start = androidx.compose.ui.geometry.Offset(startX, 0f),
                         end = androidx.compose.ui.geometry.Offset(startX, size.height),
                         strokeWidth = stroke
                     )
                 } else {
                     drawLine(
-                        color = Color(0xFF334155),
+                        color = threadLineColor,
                         start = androidx.compose.ui.geometry.Offset(startX, 0f),
                         end = androidx.compose.ui.geometry.Offset(startX, targetY - 6.dp.toPx()),
                         strokeWidth = stroke
@@ -2760,7 +2772,7 @@ private fun CompactReplyItem(
                         curveEndX, targetY
                     )
                 }
-                drawPath(path, color = Color(0xFF334155), style = Stroke(width = stroke, cap = StrokeCap.Round))
+                drawPath(path, color = threadLineColor, style = Stroke(width = stroke, cap = StrokeCap.Round))
             }
             .padding(start = 42.dp, top = 4.dp, bottom = 4.dp),
         verticalAlignment = Alignment.Top
@@ -2780,7 +2792,7 @@ private fun CompactReplyItem(
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(14.dp))
-                    .background(Color(0xFF162137))
+                    .background(replyBubbleBg)
                     .clickable {
                         if (isLongReply) {
                             isTextExpanded = !isTextExpanded
@@ -2798,7 +2810,7 @@ private fun CompactReplyItem(
                             text = replyAuthorUser.name,
                             fontWeight = FontWeight.Bold,
                             fontSize = 19.sp,
-                            color = Color(0xFFF8FAFC)
+                            color = AppColors.textPrimary
                         )
                         // Verification tick appears right next to the user name
                         if (replyAuthorUser.isVerified) {
@@ -2808,13 +2820,13 @@ private fun CompactReplyItem(
                             Text(
                                 text = "replied to",
                                 fontSize = 13.sp,
-                                color = Color(0xFF64748B)
+                                color = AppColors.textMuted
                             )
                             Text(
                                 text = targetUser,
                                 fontWeight = FontWeight.SemiBold,
                                 fontSize = 14.sp,
-                                color = Color(0xFF93C5FD)
+                                color = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF93C5FD)
                             )
                         }
                     }
@@ -2829,7 +2841,7 @@ private fun CompactReplyItem(
                         Text(
                             text = cleanText,
                             fontSize = 20.sp,
-                            color = Color(0xFFCBD5E1),
+                            color = AppColors.textBody,
                             lineHeight = 26.sp,
                             maxLines = if (isTextExpanded) Int.MAX_VALUE else 1,
                             overflow = TextOverflow.Ellipsis,
@@ -2846,7 +2858,7 @@ private fun CompactReplyItem(
                             Icon(
                                 imageVector = if (isTextExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                                 contentDescription = if (isTextExpanded) "Collapse reply" else "Expand reply",
-                                tint = Color(0xFF94A3B8),
+                                tint = AppColors.textSecondary,
                                 modifier = Modifier
                                     .size(16.dp)
                                     .clickable { isTextExpanded = !isTextExpanded }
@@ -2865,14 +2877,14 @@ private fun CompactReplyItem(
                 Text(
                     text = reply.timestamp,
                     fontSize = 11.sp,
-                    color = Color(0xFF94A3B8)
+                    color = AppColors.textSecondary
                 )
 
                 Text(
                     text = if (reply.isLiked) "❤️ Liked" else "Like",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = if (reply.isLiked) Color(0xFFF43F5E) else Color(0xFF94A3B8),
+                    color = if (reply.isLiked) Color(0xFFF43F5E) else AppColors.textSecondary,
                     modifier = Modifier.clickable(onClick = onLike)
                 )
 
@@ -2880,7 +2892,7 @@ private fun CompactReplyItem(
                     text = "Reply",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF94A3B8),
+                    color = AppColors.textSecondary,
                     modifier = Modifier.clickable(onClick = onReply)
                 )
 

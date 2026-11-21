@@ -50,6 +50,7 @@ import com.unera.social.model.Conversation
 import com.unera.social.model.User
 import com.unera.social.data.audio.VoiceNoteManager
 import com.unera.social.data.ChatTimestampFormatter
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
@@ -179,18 +180,20 @@ fun ChatWindow(
     val participant = conversation.participant
     val effectiveRecipientOnline = isRecipientOnline || participant.isOnline
 
+    val headerActionTint = if (AppColors.isLight) Color.White else Color(0xFF0084FF)
+
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(if (AppColors.isLight) AppColors.bgScreen else Color.Black)
             .testTag("chat_window_root")
     ) {
         // ==========================================
         // 1. TOP HEADER
         // ==========================================
         Surface(
-            color = Color.Black,
-            border = BorderStroke(0.5.dp, Color(0xFF1A1A1A)),
+            color = if (AppColors.isLight) AppColors.headerBg else Color.Black,
+            border = BorderStroke(0.5.dp, if (AppColors.isLight) AppColors.headerDivider else Color(0xFF1A1A1A)),
             modifier = Modifier.fillMaxWidth()
         ) {
             Row(
@@ -214,7 +217,7 @@ fun ChatWindow(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color(0xFF0084FF),
+                            tint = headerActionTint,
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -229,7 +232,7 @@ fun ChatWindow(
                             modifier = Modifier
                                 .size(38.dp)
                                 .clip(CircleShape)
-                                .border(1.dp, Color(0xFF242526), CircleShape)
+                                .border(1.dp, if (AppColors.isLight) Color.White.copy(alpha = 0.5f) else Color(0xFF242526), CircleShape)
                         )
                         if (effectiveRecipientOnline) {
                             Box(
@@ -238,7 +241,7 @@ fun ChatWindow(
                                     .size(11.dp)
                                     .clip(CircleShape)
                                     .background(Color(0xFF31A24C))
-                                    .border(2.dp, Color.Black, CircleShape)
+                                    .border(2.dp, if (AppColors.isLight) AppColors.headerBg else Color.Black, CircleShape)
                             )
                         }
                     }
@@ -268,7 +271,11 @@ fun ChatWindow(
                             fontSize = 12.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = if (effectiveRecipientOnline) FontWeight.Medium else FontWeight.Normal,
-                            color = if (effectiveRecipientOnline) Color(0xFF31A24C) else Color(0xFF8E8E93),
+                            color = if (effectiveRecipientOnline) {
+                                if (AppColors.isLight) Color(0xFFA7F3D0) else Color(0xFF31A24C)
+                            } else {
+                                if (AppColors.isLight) Color(0xFFE7F3FF) else Color(0xFF8E8E93)
+                            },
                             maxLines = 1
                         )
                     }
@@ -294,7 +301,7 @@ fun ChatWindow(
                         Icon(
                             imageVector = Icons.Default.Phone,
                             contentDescription = "Voice Call",
-                            tint = Color(0xFF0084FF),
+                            tint = headerActionTint,
                             modifier = Modifier.size(19.dp)
                         )
                     }
@@ -314,7 +321,7 @@ fun ChatWindow(
                         Icon(
                             imageVector = Icons.Default.Videocam,
                             contentDescription = "Video Call",
-                            tint = Color(0xFF0084FF),
+                            tint = headerActionTint,
                             modifier = Modifier.size(22.dp)
                         )
                     }
@@ -328,7 +335,7 @@ fun ChatWindow(
                         Icon(
                             imageVector = Icons.Default.Info,
                             contentDescription = "Chat Info",
-                            tint = Color(0xFF0084FF),
+                            tint = headerActionTint,
                             modifier = Modifier.size(19.dp)
                         )
                     }
@@ -341,8 +348,8 @@ fun ChatWindow(
         // ==========================================
         AnimatedVisibility(visible = replyTo != null || editTarget != null) {
             Surface(
-                color = Color(0xFF121212),
-                border = BorderStroke(0.5.dp, Color(0xFF1A1A1A)),
+                color = if (AppColors.isLight) AppColors.bgSurface else Color(0xFF121212),
+                border = BorderStroke(0.5.dp, AppColors.border),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
@@ -358,14 +365,14 @@ fun ChatWindow(
                             fontSize = 11.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF0084FF)
+                            color = AppColors.primaryBlue
                         )
                         Text(
                             text = editTarget?.text ?: replyTo?.text ?: "Attachment",
                             fontSize = 13.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal,
-                            color = Color(0xFFF0F2F5),
+                            color = AppColors.textPrimary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -380,7 +387,7 @@ fun ChatWindow(
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = "Cancel",
-                            tint = Color(0xFF8E8E93),
+                            tint = AppColors.textSecondary,
                             modifier = Modifier.size(16.dp)
                         )
                     }
@@ -393,8 +400,8 @@ fun ChatWindow(
         // ==========================================
         AnimatedVisibility(visible = isRecording) {
             Surface(
-                color = Color(0xFF121212),
-                border = BorderStroke(0.5.dp, Color(0xFF1A1A1A)),
+                color = if (AppColors.isLight) AppColors.bgSurface else Color(0xFF121212),
+                border = BorderStroke(0.5.dp, AppColors.border),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
@@ -416,7 +423,7 @@ fun ChatWindow(
                         )
                         Text(
                             text = "${recordSeconds}s",
-                            color = Color.White,
+                            color = AppColors.textPrimary,
                             fontSize = 14.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold
@@ -436,7 +443,7 @@ fun ChatWindow(
                                         .width(3.dp)
                                         .height(barHeight.dp)
                                         .clip(RoundedCornerShape(2.dp))
-                                        .background(Color(0xFF0084FF))
+                                        .background(AppColors.primaryBlue)
                                 )
                             }
                         }
@@ -448,7 +455,7 @@ fun ChatWindow(
                             isRecording = false
                             recordSeconds = 0
                         },
-                        colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFFFF6B6B))
+                        colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFFEF4444))
                     ) {
                         Text(
                             "Cancel",
@@ -481,16 +488,16 @@ fun ChatWindow(
                     contentAlignment = Alignment.Center
                 ) {
                     Surface(
-                        color = Color(0xFF141414),
+                        color = if (AppColors.isLight) AppColors.bgChip else Color(0xFF141414),
                         shape = RoundedCornerShape(12.dp),
-                        border = BorderStroke(1.dp, Color(0xFF222222))
+                        border = BorderStroke(1.dp, AppColors.border)
                     ) {
                         Text(
                             text = conversation.lastTimestamp.ifBlank { "Today" },
                             fontSize = 11.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF8E8E93),
+                            color = AppColors.textSecondary,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
                         )
                     }
@@ -551,9 +558,10 @@ fun ChatWindow(
                             }
                     ) {
                         Surface(
-                            color = if (isMine) Color(0xFF0084FF) else Color(0xFF242526),
+                            color = if (isMine) AppColors.primaryBlue else AppColors.bgCard,
                             shape = bubbleShape,
-                            shadowElevation = if (isMine) 2.dp else 0.dp
+                            border = if (isMine) null else BorderStroke(0.5.dp, AppColors.border),
+                            shadowElevation = if (isMine) 2.dp else if (AppColors.isLight) 1.dp else 0.dp
                         ) {
                             Column(
                                 modifier = Modifier.padding(
@@ -567,8 +575,15 @@ fun ChatWindow(
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .clip(RoundedCornerShape(8.dp))
-                                            .background(Color.Black.copy(alpha = 0.25f))
-                                            .border(BorderStroke(2.dp, if (isMine) Color.White.copy(alpha = 0.8f) else Color(0xFF0084FF)), RoundedCornerShape(8.dp))
+                                            .background(
+                                                if (isMine) Color.Black.copy(alpha = 0.2f)
+                                                else if (AppColors.isLight) AppColors.bgInput
+                                                else Color.Black.copy(alpha = 0.25f)
+                                            )
+                                            .border(
+                                                BorderStroke(2.dp, if (isMine) Color.White.copy(alpha = 0.8f) else AppColors.primaryBlue),
+                                                RoundedCornerShape(8.dp)
+                                            )
                                             .padding(horizontal = 8.dp, vertical = 5.dp)
                                     ) {
                                         Column {
@@ -577,14 +592,14 @@ fun ChatWindow(
                                                 fontSize = 10.sp,
                                                 fontFamily = InterFontFamily,
                                                 fontWeight = FontWeight.SemiBold,
-                                                color = if (isMine) Color.White.copy(alpha = 0.9f) else Color(0xFF0084FF)
+                                                color = if (isMine) Color.White.copy(alpha = 0.9f) else AppColors.primaryBlue
                                             )
                                             Text(
                                                 text = msg.replyToText,
                                                 fontSize = 12.sp,
                                                 fontFamily = InterFontFamily,
                                                 fontWeight = FontWeight.Normal,
-                                                color = if (isMine) Color.White.copy(alpha = 0.85f) else Color(0xFF8E8E93),
+                                                color = if (isMine) Color.White.copy(alpha = 0.85f) else AppColors.textSecondary,
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis
                                             )
@@ -599,8 +614,8 @@ fun ChatWindow(
                                     val productData = remember(productId) { marketplaceContext.getProductData(productId) }
                                     Surface(
                                         shape = RoundedCornerShape(10.dp),
-                                        color = if (isMine) Color.Black.copy(alpha = 0.3f) else Color(0xFF1877F2).copy(alpha = 0.15f),
-                                        border = BorderStroke(1.dp, if (isMine) Color.White.copy(alpha = 0.2f) else Color(0xFF1877F2).copy(alpha = 0.3f)),
+                                        color = if (isMine) Color.Black.copy(alpha = 0.25f) else if (AppColors.isLight) AppColors.bgBlueTint else AppColors.primaryBlue.copy(alpha = 0.15f),
+                                        border = BorderStroke(1.dp, if (isMine) Color.White.copy(alpha = 0.2f) else AppColors.primaryBlue.copy(alpha = 0.3f)),
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .padding(bottom = 6.dp)
@@ -625,13 +640,13 @@ fun ChatWindow(
                                                     modifier = Modifier
                                                         .size(36.dp)
                                                         .clip(RoundedCornerShape(8.dp))
-                                                        .background(Color(0xFF0F172A)),
+                                                        .background(if (AppColors.isLight) Color.White else AppColors.bgCard),
                                                     contentAlignment = Alignment.Center
                                                 ) {
                                                     Icon(
                                                         imageVector = Icons.Default.Storefront,
                                                         contentDescription = null,
-                                                        tint = Color(0xFF1877F2),
+                                                        tint = AppColors.primaryBlue,
                                                         modifier = Modifier.size(18.dp)
                                                     )
                                                 }
@@ -640,7 +655,7 @@ fun ChatWindow(
                                                 Text(
                                                     text = productData?.title ?: "MarketPoint Listing",
                                                     fontSize = 12.sp,
-                                                    color = Color.White,
+                                                    color = if (isMine) Color.White else AppColors.textPrimary,
                                                     fontFamily = InterFontFamily,
                                                     fontWeight = FontWeight.SemiBold,
                                                     maxLines = 1,
@@ -653,7 +668,11 @@ fun ChatWindow(
                                                     fontSize = 11.sp,
                                                     fontFamily = InterFontFamily,
                                                     fontWeight = FontWeight.SemiBold,
-                                                    color = if (productData != null) Color(0xFF34D399) else Color(0xFF38BDF8)
+                                                    color = if (isMine) {
+                                                        if (productData != null) Color(0xFF86EFAC) else Color.White.copy(alpha = 0.9f)
+                                                    } else {
+                                                        if (productData != null) AppColors.successText else AppColors.primaryBlue
+                                                    }
                                                 )
                                             }
                                         }
@@ -670,7 +689,7 @@ fun ChatWindow(
                                         Icon(
                                             imageVector = if (msg.callType == "video") Icons.Default.Videocam else Icons.Default.Phone,
                                             contentDescription = null,
-                                            tint = if (msg.isMissedCall) Color(0xFFFF6B6B) else Color.White,
+                                            tint = if (msg.isMissedCall) Color(0xFFEF4444) else if (isMine) Color.White else AppColors.textPrimary,
                                             modifier = Modifier.size(16.dp)
                                         )
                                         Text(
@@ -678,7 +697,7 @@ fun ChatWindow(
                                                 if (msg.isMissedCall) "Missed ${msg.callType} call" else "${msg.callType.replaceFirstChar { it.uppercase() }} call"
                                             },
                                             fontSize = 13.sp,
-                                            color = Color.White,
+                                            color = if (isMine) Color.White else AppColors.textPrimary,
                                             fontFamily = InterFontFamily,
                                             fontWeight = FontWeight.Medium
                                         )
@@ -691,7 +710,7 @@ fun ChatWindow(
                                                 },
                                                 shape = RoundedCornerShape(12.dp),
                                                 colors = ButtonDefaults.buttonColors(
-                                                    containerColor = Color(0xFF0084FF),
+                                                    containerColor = AppColors.primaryBlue,
                                                     contentColor = Color.White
                                                 ),
                                                 contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
@@ -715,7 +734,7 @@ fun ChatWindow(
                                             fontFamily = InterFontFamily,
                                             fontWeight = FontWeight.Normal,
                                             lineHeight = 26.sp,
-                                            color = if (isMine) Color.White else Color(0xFFF0F2F5)
+                                            color = if (isMine) Color.White else AppColors.textPrimary
                                         )
                                     }
                                 }
@@ -730,7 +749,7 @@ fun ChatWindow(
                                                     .fillMaxWidth()
                                                     .heightIn(max = 240.dp)
                                                     .clip(RoundedCornerShape(12.dp))
-                                                    .border(1.dp, Color(0xFF242526), RoundedCornerShape(12.dp))
+                                                    .border(1.dp, AppColors.border, RoundedCornerShape(12.dp))
                                                     .clickable { viewingAttachment = att }
                                             ) {
                                                 AsyncImage(
@@ -751,9 +770,9 @@ fun ChatWindow(
                                         else -> {
                                             // Document / other file
                                             Surface(
-                                                color = Color(0xFF18191A),
+                                                color = if (isMine) Color.Black.copy(alpha = 0.25f) else AppColors.bgInput,
                                                 shape = RoundedCornerShape(12.dp),
-                                                border = BorderStroke(1.dp, Color(0xFF242526)),
+                                                border = BorderStroke(1.dp, if (isMine) Color.White.copy(alpha = 0.2f) else AppColors.border),
                                                 modifier = Modifier
                                                     .fillMaxWidth()
                                                     .clickable { viewingAttachment = att }
@@ -766,7 +785,7 @@ fun ChatWindow(
                                                     Icon(
                                                         imageVector = Icons.Default.Description,
                                                         contentDescription = null,
-                                                        tint = Color(0xFF0084FF),
+                                                        tint = if (isMine) Color.White else AppColors.primaryBlue,
                                                         modifier = Modifier.size(24.dp)
                                                     )
                                                     Column(modifier = Modifier.weight(1f)) {
@@ -775,7 +794,7 @@ fun ChatWindow(
                                                             fontSize = 13.sp,
                                                             fontFamily = InterFontFamily,
                                                             fontWeight = FontWeight.SemiBold,
-                                                            color = Color.White,
+                                                            color = if (isMine) Color.White else AppColors.textPrimary,
                                                             maxLines = 1,
                                                             overflow = TextOverflow.Ellipsis
                                                         )
@@ -784,7 +803,7 @@ fun ChatWindow(
                                                             fontSize = 11.sp,
                                                             fontFamily = InterFontFamily,
                                                             fontWeight = FontWeight.Normal,
-                                                            color = Color(0xFF8E8E93)
+                                                            color = if (isMine) Color.White.copy(alpha = 0.75f) else AppColors.textSecondary
                                                         )
                                                     }
                                                 }
@@ -806,7 +825,7 @@ fun ChatWindow(
                                         fontSize = 11.sp,
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Normal,
-                                        color = if (isMine) Color.White.copy(alpha = 0.75f) else Color(0xFF8E8E93)
+                                        color = if (isMine) Color.White.copy(alpha = 0.75f) else AppColors.textSecondary
                                     )
                                     if (msg.isEdited) {
                                         Text(
@@ -814,7 +833,7 @@ fun ChatWindow(
                                             fontSize = 9.sp,
                                             fontFamily = InterFontFamily,
                                             fontWeight = FontWeight.Normal,
-                                            color = if (isMine) Color.White.copy(alpha = 0.75f) else Color(0xFF8E8E93)
+                                            color = if (isMine) Color.White.copy(alpha = 0.75f) else AppColors.textSecondary
                                         )
                                     }
                                     // Delivery Ticks
@@ -834,8 +853,8 @@ fun ChatWindow(
         // ==========================================
         AnimatedVisibility(visible = showAttachmentMenu) {
             Surface(
-                color = Color(0xFF121212),
-                border = BorderStroke(0.5.dp, Color(0xFF1A1A1A)),
+                color = AppColors.bgSurface,
+                border = BorderStroke(0.5.dp, AppColors.border),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
@@ -847,7 +866,7 @@ fun ChatWindow(
                     AttachmentOption(
                         icon = Icons.Default.Image,
                         label = "Photos",
-                        color = Color(0xFF0084FF),
+                        color = AppColors.primaryBlue,
                         onClick = {
                             showAttachmentMenu = false
                             try {
@@ -860,7 +879,7 @@ fun ChatWindow(
                     AttachmentOption(
                         icon = Icons.Default.Videocam,
                         label = "Videos",
-                        color = Color(0xFF0084FF),
+                        color = AppColors.primaryBlue,
                         onClick = {
                             showAttachmentMenu = false
                             try {
@@ -873,7 +892,7 @@ fun ChatWindow(
                     AttachmentOption(
                         icon = Icons.Default.Headphones,
                         label = "Audio",
-                        color = Color(0xFF0084FF),
+                        color = AppColors.primaryBlue,
                         onClick = {
                             showAttachmentMenu = false
                             documentPickerLauncher.launch("audio/*")
@@ -882,7 +901,7 @@ fun ChatWindow(
                     AttachmentOption(
                         icon = Icons.Default.Description,
                         label = "Documents",
-                        color = Color(0xFF0084FF),
+                        color = AppColors.primaryBlue,
                         onClick = {
                             showAttachmentMenu = false
                             documentPickerLauncher.launch("*/*")
@@ -897,8 +916,8 @@ fun ChatWindow(
         // ==========================================
         AnimatedVisibility(visible = showEmojiPicker || showStickerPicker || showGifPicker) {
             Surface(
-                color = Color(0xFF121212),
-                border = BorderStroke(0.5.dp, Color(0xFF1A1A1A)),
+                color = AppColors.bgSurface,
+                border = BorderStroke(0.5.dp, AppColors.border),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
@@ -928,8 +947,8 @@ fun ChatWindow(
         // 7. COMPOSER BAR
         // ==========================================
         Surface(
-            color = Color.Black,
-            border = BorderStroke(0.5.dp, Color(0xFF1A1A1A)),
+            color = AppColors.bgSurface,
+            border = BorderStroke(0.5.dp, AppColors.border),
             modifier = Modifier.fillMaxWidth()
         ) {
             Row(
@@ -952,7 +971,7 @@ fun ChatWindow(
                     Icon(
                         imageVector = Icons.Default.AddCircle,
                         contentDescription = "Attach",
-                        tint = Color(0xFF0084FF),
+                        tint = AppColors.primaryBlue,
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -972,7 +991,7 @@ fun ChatWindow(
                     Icon(
                         imageVector = Icons.Default.PhotoLibrary,
                         contentDescription = "Photos",
-                        tint = Color(0xFF0084FF),
+                        tint = AppColors.primaryBlue,
                         modifier = Modifier.size(22.dp)
                     )
                 }
@@ -990,7 +1009,7 @@ fun ChatWindow(
                     Icon(
                         imageVector = Icons.Default.Mood,
                         contentDescription = "Stickers",
-                        tint = Color(0xFF0084FF),
+                        tint = AppColors.primaryBlue,
                         modifier = Modifier.size(22.dp)
                     )
                 }
@@ -998,7 +1017,7 @@ fun ChatWindow(
                 // GIF Badge button
                 Surface(
                     shape = RoundedCornerShape(6.dp),
-                    color = Color(0xFF0084FF).copy(alpha = 0.2f),
+                    color = AppColors.primaryBlue.copy(alpha = 0.16f),
                     modifier = Modifier
                         .clickable {
                             showGifPicker = !showGifPicker
@@ -1013,15 +1032,16 @@ fun ChatWindow(
                         fontSize = 11.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF0084FF),
+                        color = AppColors.primaryBlue,
                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
                     )
                 }
 
                 // Input Field Pill
                 Surface(
-                    color = Color(0xFF242526),
+                    color = AppColors.bgInput,
                     shape = RoundedCornerShape(20.dp),
+                    border = if (AppColors.isLight) BorderStroke(1.dp, AppColors.border) else null,
                     modifier = Modifier
                         .weight(1f)
                         .height(40.dp)
@@ -1043,7 +1063,7 @@ fun ChatWindow(
                             placeholder = {
                                 Text(
                                     text = if (editTarget != null) "Edit message" else "Aa",
-                                    color = Color(0xFF8E8E93),
+                                    color = AppColors.textMuted,
                                     fontSize = 14.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal
@@ -1052,8 +1072,8 @@ fun ChatWindow(
                             colors = TextFieldDefaults.colors(
                                 focusedContainerColor = Color.Transparent,
                                 unfocusedContainerColor = Color.Transparent,
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White,
+                                focusedTextColor = AppColors.textPrimary,
+                                unfocusedTextColor = AppColors.textPrimary,
                                 focusedIndicatorColor = Color.Transparent,
                                 unfocusedIndicatorColor = Color.Transparent
                             ),
@@ -1076,7 +1096,7 @@ fun ChatWindow(
                             Icon(
                                 imageVector = Icons.Outlined.SentimentSatisfied,
                                 contentDescription = "Emoji",
-                                tint = Color(0xFF0084FF),
+                                tint = AppColors.primaryBlue,
                                 modifier = Modifier.size(19.dp)
                             )
                         }
@@ -1120,7 +1140,7 @@ fun ChatWindow(
                             Icon(
                                 imageVector = if (isRecording) Icons.Default.Stop else Icons.Default.Mic,
                                 contentDescription = "Voice Note",
-                                tint = if (isRecording) Color(0xFFFF4D4D) else Color(0xFF0084FF),
+                                tint = if (isRecording) Color(0xFFEF4444) else AppColors.primaryBlue,
                                 modifier = Modifier.size(19.dp)
                             )
                         }
@@ -1144,7 +1164,7 @@ fun ChatWindow(
                         modifier = Modifier
                             .size(36.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFF0084FF))
+                            .background(AppColors.primaryBlue)
                             .testTag("chat_send_btn")
                     ) {
                         Icon(
@@ -1165,7 +1185,7 @@ fun ChatWindow(
                         Icon(
                             imageVector = Icons.Default.ThumbUp,
                             contentDescription = "Like",
-                            tint = Color(0xFF0084FF),
+                            tint = AppColors.primaryBlue,
                             modifier = Modifier.size(22.dp)
                         )
                     }
@@ -1184,8 +1204,8 @@ fun ChatWindow(
         ) {
             Surface(
                 shape = RoundedCornerShape(20.dp),
-                color = Color(0xFF18191A),
-                border = BorderStroke(1.dp, Color(0xFF262626)),
+                color = AppColors.bgCard,
+                border = BorderStroke(1.dp, AppColors.border),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
@@ -1197,7 +1217,7 @@ fun ChatWindow(
                             .width(36.dp)
                             .height(4.dp)
                             .clip(RoundedCornerShape(2.dp))
-                            .background(Color(0xFF3A3B3C))
+                            .background(AppColors.borderStrong)
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -1207,7 +1227,7 @@ fun ChatWindow(
                         fontSize = 13.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF8E8E93),
+                        color = AppColors.textSecondary,
                         modifier = Modifier.align(Alignment.Start)
                     )
 
@@ -1215,9 +1235,9 @@ fun ChatWindow(
 
                     // Message preview box
                     Surface(
-                        color = Color(0xFF121212),
+                        color = AppColors.bgInput,
                         shape = RoundedCornerShape(12.dp),
-                        border = BorderStroke(1.dp, Color(0xFF262626)),
+                        border = BorderStroke(1.dp, AppColors.border),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
@@ -1225,7 +1245,7 @@ fun ChatWindow(
                             fontSize = 14.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal,
-                            color = Color(0xFFF0F2F5),
+                            color = AppColors.textPrimary,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.padding(12.dp)
@@ -1295,12 +1315,12 @@ fun ChatWindow(
                     OutlinedButton(
                         onClick = { actionModalMsg = null },
                         shape = RoundedCornerShape(12.dp),
-                        border = BorderStroke(1.dp, Color(0xFF3A3B3C)),
+                        border = BorderStroke(1.dp, AppColors.borderStrong),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
                             "Cancel",
-                            color = Color(0xFFF0F2F5),
+                            color = AppColors.textPrimary,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Medium
                         )
@@ -1427,20 +1447,20 @@ fun ChatWindow(
 @Composable
 fun DeliveryTicksView(isSeen: Boolean, isDelivered: Boolean) {
     if (isSeen) {
-        // Double blue checks
+        // Double bright checks inside outgoing blue bubble
         Row(horizontalArrangement = Arrangement.spacedBy((-6).dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Default.Check, contentDescription = "Seen", tint = Color(0xFF0084FF), modifier = Modifier.size(13.dp))
-            Icon(Icons.Default.Check, contentDescription = null, tint = Color(0xFF0084FF), modifier = Modifier.size(13.dp))
+            Icon(Icons.Default.Check, contentDescription = "Seen", tint = Color(0xFF93C5FD), modifier = Modifier.size(13.dp))
+            Icon(Icons.Default.Check, contentDescription = null, tint = Color(0xFF93C5FD), modifier = Modifier.size(13.dp))
         }
     } else if (isDelivered) {
-        // Double grey checks
+        // Double muted white checks
         Row(horizontalArrangement = Arrangement.spacedBy((-6).dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Default.Check, contentDescription = "Delivered", tint = Color(0xFF8E8E93), modifier = Modifier.size(13.dp))
-            Icon(Icons.Default.Check, contentDescription = null, tint = Color(0xFF8E8E93), modifier = Modifier.size(13.dp))
+            Icon(Icons.Default.Check, contentDescription = "Delivered", tint = Color.White.copy(alpha = 0.7f), modifier = Modifier.size(13.dp))
+            Icon(Icons.Default.Check, contentDescription = null, tint = Color.White.copy(alpha = 0.7f), modifier = Modifier.size(13.dp))
         }
     } else {
-        // Single grey check
-        Icon(Icons.Default.Check, contentDescription = "Sent", tint = Color(0xFF8E8E93), modifier = Modifier.size(13.dp))
+        // Single check
+        Icon(Icons.Default.Check, contentDescription = "Sent", tint = Color.White.copy(alpha = 0.7f), modifier = Modifier.size(13.dp))
     }
 }
 
@@ -1538,7 +1558,7 @@ fun VoiceNotePlayerView(attachment: ChatAttachment, isMine: Boolean) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(if (isMine) Color(0xFF0073E6) else Color(0xFF1E293B))
+            .background(if (isMine) Color(0xFF0064D2) else if (AppColors.isLight) AppColors.bgInput else Color(0xFF1E293B))
             .padding(horizontal = 10.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -1563,7 +1583,7 @@ fun VoiceNotePlayerView(attachment: ChatAttachment, isMine: Boolean) {
             modifier = Modifier
                 .size(34.dp)
                 .clip(CircleShape)
-                .background(Color.White.copy(alpha = 0.22f))
+                .background(if (!isMine && AppColors.isLight) AppColors.primaryBlue else Color.White.copy(alpha = 0.22f))
         ) {
             Icon(
                 imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
@@ -1604,6 +1624,8 @@ fun VoiceNotePlayerView(attachment: ChatAttachment, isMine: Boolean) {
                         .background(
                             if (isMine) {
                                 if (isActive) Color.White else Color.White.copy(alpha = 0.4f)
+                            } else if (AppColors.isLight) {
+                                if (isActive) AppColors.primaryBlue else AppColors.borderStrong
                             } else {
                                 if (isActive) Color(0xFF38BDF8) else Color.White.copy(alpha = 0.35f)
                             }
@@ -1615,7 +1637,7 @@ fun VoiceNotePlayerView(attachment: ChatAttachment, isMine: Boolean) {
         // Playback Speed Toggle (1x, 1.5x, 2x)
         Surface(
             shape = RoundedCornerShape(8.dp),
-            color = if (isMine) Color.White.copy(alpha = 0.25f) else Color(0xFF334155),
+            color = if (isMine) Color.White.copy(alpha = 0.25f) else if (AppColors.isLight) AppColors.bgChip else Color(0xFF334155),
             modifier = Modifier.clickable {
                 playbackSpeed = when (playbackSpeed) {
                     1.0f -> 1.5f
@@ -1630,7 +1652,7 @@ fun VoiceNotePlayerView(attachment: ChatAttachment, isMine: Boolean) {
                 fontSize = 10.sp,
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.SemiBold,
-                color = Color.White,
+                color = if (isMine) Color.White else AppColors.textPrimary,
                 modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
             )
         }
@@ -1641,7 +1663,7 @@ fun VoiceNotePlayerView(attachment: ChatAttachment, isMine: Boolean) {
             fontSize = 11.sp,
             fontFamily = InterFontFamily,
             fontWeight = FontWeight.SemiBold,
-            color = Color.White
+            color = if (isMine) Color.White else AppColors.textPrimary
         )
     }
 }
@@ -1672,7 +1694,7 @@ fun AttachmentOption(
         Text(
             text = label,
             fontSize = 12.sp,
-            color = Color(0xFF8E8E93),
+            color = AppColors.textSecondary,
             fontFamily = InterFontFamily,
             fontWeight = FontWeight.Medium
         )
@@ -1732,7 +1754,8 @@ fun StickerPickerGrid(onSelect: (String) -> Unit) {
             ) {
                 row.forEach { sticker ->
                     Surface(
-                        color = Color(0xFF1E293B),
+                        color = AppColors.bgCardElevated,
+                        border = BorderStroke(1.dp, AppColors.border),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier
                             .weight(1f)
@@ -1743,7 +1766,7 @@ fun StickerPickerGrid(onSelect: (String) -> Unit) {
                             fontSize = 12.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color.White,
+                            color = AppColors.textPrimary,
                             modifier = Modifier.padding(vertical = 8.dp, horizontal = 6.dp),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
@@ -1786,8 +1809,8 @@ fun GifPickerGrid(onSelect: (String) -> Unit) {
                             .weight(1f)
                             .height(76.dp)
                             .clip(RoundedCornerShape(10.dp))
-                            .background(Color(0xFF18191A))
-                            .border(1.dp, Color(0xFF242526), RoundedCornerShape(10.dp))
+                            .background(AppColors.bgInput)
+                            .border(1.dp, AppColors.border, RoundedCornerShape(10.dp))
                             .clickable { onSelect(url) }
                     ) {
                         AsyncImage(
@@ -1823,7 +1846,7 @@ fun ActionSheetButton(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = if (isDanger) Color(0xFFFF6B6B) else Color(0xFFF0F2F5),
+                tint = if (isDanger) Color(0xFFEF4444) else AppColors.textPrimary,
                 modifier = Modifier.size(20.dp)
             )
             Text(
@@ -1831,7 +1854,7 @@ fun ActionSheetButton(
                 fontSize = 14.sp,
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.Medium,
-                color = if (isDanger) Color(0xFFFF6B6B) else Color(0xFFF0F2F5)
+                color = if (isDanger) Color(0xFFEF4444) else AppColors.textPrimary
             )
         }
     }

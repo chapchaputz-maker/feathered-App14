@@ -211,7 +211,7 @@ fun CreatePostModal(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFF050B18))
+                .background(AppColors.bgScreen)
                 .testTag("create_post_modal")
         ) {
             when (view) {
@@ -222,7 +222,7 @@ fun CreatePostModal(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(56.dp)
-                                .background(Color(0xFF0B1120))
+                                .background(AppColors.headerBg)
                                 .padding(horizontal = 16.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -230,7 +230,7 @@ fun CreatePostModal(
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                     contentDescription = "Back",
-                                    tint = Color(0xFFF8FAFC)
+                                    tint = AppColors.headerIconTint
                                 )
                             }
                             Spacer(modifier = Modifier.width(8.dp))
@@ -239,15 +239,15 @@ fun CreatePostModal(
                                 fontSize = 20.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFFF8FAFC),
+                                color = AppColors.headerText,
                                 modifier = Modifier.weight(1f)
                             )
                             TextButton(onClick = { view = CreatePostView.MAIN }) {
                                 Text(
                                     text = "Done",
-                                    color = Color(0xFF1877F2),
+                                    color = if (AppColors.isLight) Color.White else AppColors.primaryBlue,
                                     fontFamily = InterFontFamily,
-                                    fontWeight = FontWeight.Medium,
+                                    fontWeight = FontWeight.SemiBold,
                                     fontSize = 16.sp
                                 )
                             }
@@ -260,18 +260,18 @@ fun CreatePostModal(
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal
                             ),
-                            placeholder = { Text("Search friends…", color = Color(0xFF94A3B8), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
-                            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color(0xFF94A3B8)) },
+                            placeholder = { Text("Search friends…", color = AppColors.textSecondary, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
+                            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = AppColors.textSecondary) },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(14.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color(0xFF1E293B),
-                                unfocusedContainerColor = Color(0xFF1E293B),
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White,
-                                focusedBorderColor = Color(0xFF1877F2),
-                                unfocusedBorderColor = Color(0xFF334155)
+                                focusedContainerColor = AppColors.bgInput,
+                                unfocusedContainerColor = AppColors.bgInput,
+                                focusedTextColor = AppColors.textPrimary,
+                                unfocusedTextColor = AppColors.textPrimary,
+                                focusedBorderColor = AppColors.primaryBlue,
+                                unfocusedBorderColor = AppColors.border
                             ),
                             shape = RoundedCornerShape(12.dp),
                             singleLine = true
@@ -299,12 +299,12 @@ fun CreatePostModal(
                                         modifier = Modifier
                                             .size(44.dp)
                                             .clip(CircleShape)
-                                            .border(1.dp, Color(0xFF1E293B), CircleShape)
+                                            .border(1.dp, AppColors.border, CircleShape)
                                     )
                                     Spacer(modifier = Modifier.width(12.dp))
                                     Column(modifier = Modifier.weight(1f)) {
-                                        Text(friend.name, fontFamily = InterFontFamily, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color(0xFFF8FAFC))
-                                        Text(friend.username, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = Color(0xFF94A3B8))
+                                        Text(friend.name, fontFamily = InterFontFamily, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = AppColors.textPrimary)
+                                        Text(friend.username, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = AppColors.textSecondary)
                                     }
                                     Checkbox(
                                         checked = isTagged,
@@ -312,8 +312,8 @@ fun CreatePostModal(
                                             taggedUsers = if (isTagged) taggedUsers - friend.id else taggedUsers + friend.id
                                         },
                                         colors = CheckboxDefaults.colors(
-                                            checkedColor = Color(0xFF1877F2),
-                                            uncheckedColor = Color(0xFF64748B)
+                                            checkedColor = AppColors.primaryBlue,
+                                            uncheckedColor = AppColors.textMuted
                                         )
                                     )
                                 }
@@ -329,7 +329,7 @@ fun CreatePostModal(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(56.dp)
-                                .background(Color(0xFF0B1120))
+                                .background(AppColors.headerBg)
                                 .padding(horizontal = 16.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -337,7 +337,7 @@ fun CreatePostModal(
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                     contentDescription = "Back",
-                                    tint = Color(0xFFF8FAFC)
+                                    tint = AppColors.headerIconTint
                                 )
                             }
                             Spacer(modifier = Modifier.width(8.dp))
@@ -346,7 +346,7 @@ fun CreatePostModal(
                                 fontSize = 20.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFFF8FAFC)
+                                color = AppColors.headerText
                             )
                         }
 
@@ -355,16 +355,17 @@ fun CreatePostModal(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             items(POST_FEELINGS) { feel ->
+                                val isSel = selectedFeeling == feel
                                 Card(
                                     shape = RoundedCornerShape(12.dp),
                                     colors = CardDefaults.cardColors(
-                                        containerColor = if (selectedFeeling == feel) Color(0xFF1877F2) else Color(0xFF0B1120)
+                                        containerColor = if (isSel) AppColors.primaryBlue else AppColors.bgCard
                                     ),
-                                    border = BorderStroke(1.dp, Color(0xFF1E293B)),
+                                    border = BorderStroke(1.dp, if (isSel) AppColors.primaryBlue else AppColors.border),
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clickable {
-                                            selectedFeeling = if (selectedFeeling == feel) null else feel
+                                            selectedFeeling = if (isSel) null else feel
                                             view = CreatePostView.MAIN
                                         }
                                 ) {
@@ -377,7 +378,7 @@ fun CreatePostModal(
                                             fontSize = 17.sp,
                                             fontFamily = InterFontFamily,
                                             fontWeight = FontWeight.Medium,
-                                            color = Color.White
+                                            color = if (isSel) Color.White else AppColors.textPrimary
                                         )
                                     }
                                 }
@@ -393,7 +394,7 @@ fun CreatePostModal(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(56.dp)
-                                .background(Color(0xFF0B1120))
+                                .background(AppColors.headerBg)
                                 .padding(horizontal = 16.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -401,7 +402,7 @@ fun CreatePostModal(
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                     contentDescription = "Back",
-                                    tint = Color(0xFFF8FAFC)
+                                    tint = AppColors.headerIconTint
                                 )
                             }
                             Spacer(modifier = Modifier.width(8.dp))
@@ -410,7 +411,7 @@ fun CreatePostModal(
                                 fontSize = 20.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFFF8FAFC)
+                                color = AppColors.headerText
                             )
                         }
 
@@ -421,12 +422,12 @@ fun CreatePostModal(
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal
                             ),
-                            placeholder = { Text("Where are you?", color = Color(0xFF94A3B8), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
+                            placeholder = { Text("Where are you?", color = AppColors.textSecondary, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                             leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null, tint = Color(0xFFF02849)) },
                             trailingIcon = {
                                 if (locationQuery.isNotBlank()) {
                                     IconButton(onClick = { locationQuery = "" }) {
-                                        Icon(Icons.Default.Clear, contentDescription = "Clear", tint = Color(0xFF94A3B8))
+                                        Icon(Icons.Default.Clear, contentDescription = "Clear", tint = AppColors.textSecondary)
                                     }
                                 }
                             },
@@ -434,12 +435,12 @@ fun CreatePostModal(
                                 .fillMaxWidth()
                                 .padding(14.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color(0xFF1E293B),
-                                unfocusedContainerColor = Color(0xFF1E293B),
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White,
-                                focusedBorderColor = Color(0xFF1877F2),
-                                unfocusedBorderColor = Color(0xFF334155)
+                                focusedContainerColor = AppColors.bgInput,
+                                unfocusedContainerColor = AppColors.bgInput,
+                                focusedTextColor = AppColors.textPrimary,
+                                unfocusedTextColor = AppColors.textPrimary,
+                                focusedBorderColor = AppColors.primaryBlue,
+                                unfocusedBorderColor = AppColors.border
                             ),
                             shape = RoundedCornerShape(12.dp),
                             singleLine = true
@@ -457,7 +458,7 @@ fun CreatePostModal(
                                     fontSize = 12.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = Color(0xFF94A3B8),
+                                    color = AppColors.textSecondary,
                                     modifier = Modifier.padding(vertical = 8.dp)
                                 )
                             }
@@ -479,11 +480,11 @@ fun CreatePostModal(
                                         text = loc,
                                         fontSize = 15.sp,
                                         fontFamily = InterFontFamily,
-                                        color = Color(0xFFF8FAFC),
+                                        color = AppColors.textPrimary,
                                         fontWeight = FontWeight.Medium
                                     )
                                 }
-                                HorizontalDivider(color = Color(0xFF1E293B), thickness = 0.5.dp)
+                                HorizontalDivider(color = AppColors.border, thickness = 0.5.dp)
                             }
                         }
                     }
@@ -497,7 +498,7 @@ fun CreatePostModal(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(56.dp)
-                                .background(Color(0xFF0B1120))
+                                .background(AppColors.headerBg)
                                 .padding(horizontal = 16.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
@@ -507,7 +508,7 @@ fun CreatePostModal(
                                     Icon(
                                         imageVector = Icons.Default.Close,
                                         contentDescription = "Close",
-                                        tint = Color(0xFFF8FAFC)
+                                        tint = AppColors.headerIconTint
                                     )
                                 }
                                 Spacer(modifier = Modifier.width(8.dp))
@@ -516,7 +517,7 @@ fun CreatePostModal(
                                     fontSize = 20.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = Color(0xFFF8FAFC)
+                                    color = AppColors.headerText
                                 )
                             }
 
@@ -540,8 +541,8 @@ fun CreatePostModal(
                                 },
                                 enabled = canPost,
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFF1877F2),
-                                    disabledContainerColor = Color(0xFF1E293B)
+                                    containerColor = if (AppColors.isLight) Color.White else AppColors.primaryBlue,
+                                    disabledContainerColor = if (AppColors.isLight) Color.White.copy(alpha = 0.35f) else AppColors.bgChip
                                 ),
                                 shape = RoundedCornerShape(8.dp),
                                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp)
@@ -549,9 +550,13 @@ fun CreatePostModal(
                                 Text(
                                     text = "POST",
                                     fontFamily = InterFontFamily,
-                                    fontWeight = FontWeight.Medium,
+                                    fontWeight = FontWeight.SemiBold,
                                     fontSize = 14.sp,
-                                    color = if (canPost) Color.White else Color(0xFF94A3B8)
+                                    color = if (canPost) {
+                                        if (AppColors.isLight) AppColors.primaryBlue else Color.White
+                                    } else {
+                                        if (AppColors.isLight) Color.White.copy(alpha = 0.75f) else AppColors.textSecondary
+                                    }
                                 )
                             }
                         }
@@ -577,7 +582,7 @@ fun CreatePostModal(
                                         modifier = Modifier
                                             .size(46.dp)
                                             .clip(CircleShape)
-                                            .border(1.dp, Color(0xFF1E293B), CircleShape)
+                                            .border(1.dp, AppColors.border, CircleShape)
                                     )
                                     Spacer(modifier = Modifier.width(12.dp))
                                     Column {
@@ -587,7 +592,7 @@ fun CreatePostModal(
                                                 fontFamily = InterFontFamily,
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = 19.sp,
-                                                color = Color(0xFFF8FAFC)
+                                                color = AppColors.textPrimary
                                             )
                                             if (selectedFeeling != null) {
                                                 Text(
@@ -595,7 +600,7 @@ fun CreatePostModal(
                                                     fontSize = 14.sp,
                                                     fontFamily = InterFontFamily,
                                                     fontWeight = FontWeight.Normal,
-                                                    color = Color(0xFFCBD5E1)
+                                                    color = AppColors.textBody
                                                 )
                                             }
                                         }
@@ -608,16 +613,16 @@ fun CreatePostModal(
                                                         fontSize = 12.sp,
                                                         fontFamily = InterFontFamily,
                                                         fontWeight = FontWeight.Normal,
-                                                        color = Color(0xFF94A3B8)
+                                                        color = AppColors.textSecondary
                                                     )
                                                 }
                                                 if (taggedUsers.isNotEmpty()) {
-                                                    if (selectedLocation != null) Text(" • ", color = Color(0xFF94A3B8), fontSize = 12.sp, fontFamily = InterFontFamily)
+                                                    if (selectedLocation != null) Text(" • ", color = AppColors.textSecondary, fontSize = 12.sp, fontFamily = InterFontFamily)
                                                     Text(
                                                         text = "with ${taggedUsers.size} other${if (taggedUsers.size > 1) "s" else ""}",
                                                         fontSize = 12.sp,
                                                         fontFamily = InterFontFamily,
-                                                        color = Color(0xFF1877F2),
+                                                        color = AppColors.primaryBlue,
                                                         fontWeight = FontWeight.SemiBold
                                                     )
                                                 }
@@ -628,13 +633,13 @@ fun CreatePostModal(
                                         Box(
                                             modifier = Modifier
                                                 .clip(RoundedCornerShape(6.dp))
-                                                .background(Color(0xFF1E293B))
+                                                .background(AppColors.bgChip)
                                                 .padding(horizontal = 8.dp, vertical = 2.dp)
                                         ) {
                                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                                Icon(Icons.Default.Public, contentDescription = null, tint = Color(0xFF94A3B8), modifier = Modifier.size(12.dp))
+                                                Icon(Icons.Default.Public, contentDescription = null, tint = AppColors.textSecondary, modifier = Modifier.size(12.dp))
                                                 Spacer(modifier = Modifier.width(4.dp))
-                                                Text("Public", fontSize = 11.sp, color = Color(0xFFF8FAFC), fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
+                                                Text("Public", fontSize = 11.sp, color = AppColors.textPrimary, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                                             }
                                         }
                                     }
@@ -823,7 +828,7 @@ fun CreatePostModal(
                                     OutlinedTextField(
                                         value = content,
                                         onValueChange = { content = it },
-                                        placeholder = { Text("What's on your mind?", color = Color(0xFF94A3B8), fontSize = 20.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
+                                        placeholder = { Text("What's on your mind?", color = AppColors.textMuted, fontSize = 20.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .padding(horizontal = 14.dp)
@@ -833,15 +838,15 @@ fun CreatePostModal(
                                             unfocusedContainerColor = Color.Transparent,
                                             focusedBorderColor = Color.Transparent,
                                             unfocusedBorderColor = Color.Transparent,
-                                            focusedTextColor = Color(0xFFF8FAFC),
-                                            unfocusedTextColor = Color(0xFFF8FAFC)
+                                            focusedTextColor = AppColors.textPrimary,
+                                            unfocusedTextColor = AppColors.textPrimary
                                         ),
                                         textStyle = androidx.compose.ui.text.TextStyle(
                                             fontSize = 20.sp,
                                             lineHeight = 28.sp,
                                             fontFamily = InterFontFamily,
                                             fontWeight = FontWeight.Normal,
-                                            color = Color(0xFFF8FAFC)
+                                            color = AppColors.textPrimary
                                         )
                                     )
                                 }
@@ -862,8 +867,8 @@ fun CreatePostModal(
                                                     .height(200.dp)
                                                     .padding(vertical = 4.dp)
                                                     .clip(RoundedCornerShape(12.dp))
-                                                    .background(Color(0xFF0B1120))
-                                                    .border(1.dp, Color(0xFF1E293B), RoundedCornerShape(12.dp))
+                                                    .background(AppColors.bgCard)
+                                                    .border(1.dp, AppColors.border, RoundedCornerShape(12.dp))
                                             ) {
                                                 AsyncImage(
                                                     model = url,
@@ -939,7 +944,7 @@ fun CreatePostModal(
                                                 },
                                                 shape = RoundedCornerShape(8.dp),
                                                 colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF10B981)),
-                                                border = BorderStroke(1.dp, Color(0xFF1E293B)),
+                                                border = BorderStroke(1.dp, AppColors.border),
                                                 modifier = Modifier.weight(1f)
                                             ) {
                                                 Icon(Icons.Default.AddPhotoAlternate, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -955,7 +960,7 @@ fun CreatePostModal(
                                                 },
                                                 shape = RoundedCornerShape(8.dp),
                                                 colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFF43F5E)),
-                                                border = BorderStroke(1.dp, Color(0xFF1E293B)),
+                                                border = BorderStroke(1.dp, AppColors.border),
                                                 modifier = Modifier.weight(1f)
                                             ) {
                                                 Icon(Icons.Default.VideoCall, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -972,8 +977,8 @@ fun CreatePostModal(
                                 item {
                                     Card(
                                         shape = RoundedCornerShape(12.dp),
-                                        colors = CardDefaults.cardColors(containerColor = Color(0xFF0B1120)),
-                                        border = BorderStroke(1.dp, Color(0xFF1E293B)),
+                                        colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+                                        border = BorderStroke(1.dp, AppColors.border),
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .padding(horizontal = 14.dp, vertical = 8.dp)
@@ -986,15 +991,15 @@ fun CreatePostModal(
                                                 modifier = Modifier
                                                     .size(44.dp)
                                                     .clip(RoundedCornerShape(8.dp))
-                                                    .background(Color(0xFF1877F2).copy(alpha = 0.2f)),
+                                                    .background(AppColors.primaryBlue.copy(alpha = 0.16f)),
                                                 contentAlignment = Alignment.Center
                                             ) {
-                                                Icon(Icons.Default.Link, contentDescription = null, tint = Color(0xFF1877F2))
+                                                Icon(Icons.Default.Link, contentDescription = null, tint = AppColors.primaryBlue)
                                             }
                                             Spacer(modifier = Modifier.width(12.dp))
                                             Column(modifier = Modifier.weight(1f)) {
-                                                Text("Link Preview", fontSize = 13.sp, color = Color(0xFF94A3B8), fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
-                                                Text(detectedUrl, fontSize = 14.sp, color = Color(0xFF1877F2), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                                Text("Link Preview", fontSize = 13.sp, color = AppColors.textSecondary, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                                                Text(detectedUrl, fontSize = 14.sp, color = AppColors.primaryBlue, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, maxLines = 1, overflow = TextOverflow.Ellipsis)
                                             }
                                         }
                                     }
@@ -1027,7 +1032,7 @@ fun CreatePostModal(
                                                     Row(
                                                         modifier = Modifier
                                                             .clip(RoundedCornerShape(8.dp))
-                                                            .background(Color(0xFF1E293B))
+                                                            .background(AppColors.bgChip)
                                                             .padding(2.dp),
                                                         horizontalArrangement = Arrangement.spacedBy(2.dp)
                                                     ) {
@@ -1035,28 +1040,28 @@ fun CreatePostModal(
                                                             onClick = { textAlignment = TextAlign.Start },
                                                             modifier = Modifier
                                                                 .size(28.dp)
-                                                                .background(if (textAlignment == TextAlign.Start) Color(0xFF1877F2) else Color.Transparent, RoundedCornerShape(6.dp))
+                                                                .background(if (textAlignment == TextAlign.Start) AppColors.primaryBlue else Color.Transparent, RoundedCornerShape(6.dp))
                                                                 .testTag("bg_align_left")
                                                         ) {
-                                                            Icon(Icons.Default.FormatAlignLeft, contentDescription = "Align Left", tint = Color.White, modifier = Modifier.size(16.dp))
+                                                            Icon(Icons.Default.FormatAlignLeft, contentDescription = "Align Left", tint = if (textAlignment == TextAlign.Start) Color.White else AppColors.textPrimary, modifier = Modifier.size(16.dp))
                                                         }
                                                         IconButton(
                                                             onClick = { textAlignment = TextAlign.Center },
                                                             modifier = Modifier
                                                                 .size(28.dp)
-                                                                .background(if (textAlignment == TextAlign.Center) Color(0xFF1877F2) else Color.Transparent, RoundedCornerShape(6.dp))
+                                                                .background(if (textAlignment == TextAlign.Center) AppColors.primaryBlue else Color.Transparent, RoundedCornerShape(6.dp))
                                                                 .testTag("bg_align_center")
                                                         ) {
-                                                            Icon(Icons.Default.FormatAlignCenter, contentDescription = "Align Center", tint = Color.White, modifier = Modifier.size(16.dp))
+                                                            Icon(Icons.Default.FormatAlignCenter, contentDescription = "Align Center", tint = if (textAlignment == TextAlign.Center) Color.White else AppColors.textPrimary, modifier = Modifier.size(16.dp))
                                                         }
                                                         IconButton(
                                                             onClick = { textAlignment = TextAlign.End },
                                                             modifier = Modifier
                                                                 .size(28.dp)
-                                                                .background(if (textAlignment == TextAlign.End) Color(0xFF1877F2) else Color.Transparent, RoundedCornerShape(6.dp))
+                                                                .background(if (textAlignment == TextAlign.End) AppColors.primaryBlue else Color.Transparent, RoundedCornerShape(6.dp))
                                                                 .testTag("bg_align_right")
                                                         ) {
-                                                            Icon(Icons.Default.FormatAlignRight, contentDescription = "Align Right", tint = Color.White, modifier = Modifier.size(16.dp))
+                                                            Icon(Icons.Default.FormatAlignRight, contentDescription = "Align Right", tint = if (textAlignment == TextAlign.End) Color.White else AppColors.textPrimary, modifier = Modifier.size(16.dp))
                                                         }
                                                     }
 
@@ -1064,7 +1069,7 @@ fun CreatePostModal(
                                                     Row(
                                                         modifier = Modifier
                                                             .clip(RoundedCornerShape(8.dp))
-                                                            .background(Color(0xFF1E293B))
+                                                            .background(AppColors.bgChip)
                                                             .padding(2.dp),
                                                         horizontalArrangement = Arrangement.spacedBy(2.dp)
                                                     ) {
@@ -1072,28 +1077,28 @@ fun CreatePostModal(
                                                             onClick = { textPosition = "top" },
                                                             modifier = Modifier
                                                                 .size(28.dp)
-                                                                .background(if (textPosition == "top") Color(0xFF1877F2) else Color.Transparent, RoundedCornerShape(6.dp))
+                                                                .background(if (textPosition == "top") AppColors.primaryBlue else Color.Transparent, RoundedCornerShape(6.dp))
                                                                 .testTag("bg_pos_top")
                                                         ) {
-                                                            Icon(Icons.Default.VerticalAlignTop, contentDescription = "Position Top", tint = Color.White, modifier = Modifier.size(16.dp))
+                                                            Icon(Icons.Default.VerticalAlignTop, contentDescription = "Position Top", tint = if (textPosition == "top") Color.White else AppColors.textPrimary, modifier = Modifier.size(16.dp))
                                                         }
                                                         IconButton(
                                                             onClick = { textPosition = "center" },
                                                             modifier = Modifier
                                                                 .size(28.dp)
-                                                                .background(if (textPosition == "center") Color(0xFF1877F2) else Color.Transparent, RoundedCornerShape(6.dp))
+                                                                .background(if (textPosition == "center") AppColors.primaryBlue else Color.Transparent, RoundedCornerShape(6.dp))
                                                                 .testTag("bg_pos_center")
                                                         ) {
-                                                            Icon(Icons.Default.VerticalAlignCenter, contentDescription = "Position Center", tint = Color.White, modifier = Modifier.size(16.dp))
+                                                            Icon(Icons.Default.VerticalAlignCenter, contentDescription = "Position Center", tint = if (textPosition == "center") Color.White else AppColors.textPrimary, modifier = Modifier.size(16.dp))
                                                         }
                                                         IconButton(
                                                             onClick = { textPosition = "bottom" },
                                                             modifier = Modifier
                                                                 .size(28.dp)
-                                                                .background(if (textPosition == "bottom") Color(0xFF1877F2) else Color.Transparent, RoundedCornerShape(6.dp))
+                                                                .background(if (textPosition == "bottom") AppColors.primaryBlue else Color.Transparent, RoundedCornerShape(6.dp))
                                                                 .testTag("bg_pos_bottom")
                                                         ) {
-                                                            Icon(Icons.Default.VerticalAlignBottom, contentDescription = "Position Bottom", tint = Color.White, modifier = Modifier.size(16.dp))
+                                                            Icon(Icons.Default.VerticalAlignBottom, contentDescription = "Position Bottom", tint = if (textPosition == "bottom") Color.White else AppColors.textPrimary, modifier = Modifier.size(16.dp))
                                                         }
                                                     }
 
@@ -1106,7 +1111,7 @@ fun CreatePostModal(
                                                             modifier = Modifier
                                                                 .size(30.dp)
                                                                 .clip(RoundedCornerShape(8.dp))
-                                                                .background(if (textIsBold) Color(0xFF1877F2) else Color(0xFF1E293B))
+                                                                .background(if (textIsBold) AppColors.primaryBlue else AppColors.bgChip)
                                                                 .clickable { textIsBold = !textIsBold }
                                                                 .testTag("bg_bold_toggle"),
                                                             contentAlignment = Alignment.Center
@@ -1116,14 +1121,14 @@ fun CreatePostModal(
                                                                 fontSize = 14.sp,
                                                                 fontFamily = InterFontFamily,
                                                                 fontWeight = FontWeight.Bold,
-                                                                color = Color.White
+                                                                color = if (textIsBold) Color.White else AppColors.textPrimary
                                                             )
                                                         }
 
                                                         Box(
                                                             modifier = Modifier
                                                                 .clip(RoundedCornerShape(8.dp))
-                                                                .background(Color(0xFF1E293B))
+                                                                .background(AppColors.bgChip)
                                                                 .clickable {
                                                                     textFontStyle = when (textFontStyle) {
                                                                         "sans" -> "serif"
@@ -1147,7 +1152,7 @@ fun CreatePostModal(
                                                                 fontSize = 11.sp,
                                                                 fontFamily = InterFontFamily,
                                                                 fontWeight = FontWeight.SemiBold,
-                                                                color = Color(0xFF38BDF8)
+                                                                color = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8)
                                                             )
                                                         }
                                                     }
@@ -1168,8 +1173,8 @@ fun CreatePostModal(
                                                             modifier = Modifier
                                                                 .height(24.dp)
                                                                 .clip(RoundedCornerShape(6.dp))
-                                                                .background(Color(0xFF1E293B))
-                                                                .border(1.dp, Color(0xFF38BDF8), RoundedCornerShape(6.dp))
+                                                                .background(AppColors.bgCard)
+                                                                .border(1.dp, if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8), RoundedCornerShape(6.dp))
                                                                 .clickable {
                                                                     textTextColor = activeRemoteBackground?.resolvedDefaultTextColor()
                                                                         ?: activeBackground?.defaultTextColor
@@ -1184,7 +1189,7 @@ fun CreatePostModal(
                                                                 fontSize = 10.sp,
                                                                 fontFamily = InterFontFamily,
                                                                 fontWeight = FontWeight.SemiBold,
-                                                                color = Color(0xFF38BDF8)
+                                                                color = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8)
                                                             )
                                                         }
 
@@ -1202,7 +1207,7 @@ fun CreatePostModal(
                                                                     .size(22.dp)
                                                                     .clip(CircleShape)
                                                                     .background(c)
-                                                                    .border(if (textTextColor == c) 2.dp else 1.dp, if (textTextColor == c) Color(0xFF1877F2) else Color(0xFF475569), CircleShape)
+                                                                    .border(if (textTextColor == c) 2.dp else 1.dp, if (textTextColor == c) AppColors.primaryBlue else AppColors.borderStrong, CircleShape)
                                                                     .clickable { textTextColor = c }
                                                                     .testTag("bg_color_swatch_$cIdx")
                                                             )
@@ -1213,7 +1218,7 @@ fun CreatePostModal(
                                                     Row(
                                                         modifier = Modifier
                                                             .clip(RoundedCornerShape(8.dp))
-                                                            .background(Color(0xFF1E293B))
+                                                            .background(AppColors.bgChip)
                                                             .padding(horizontal = 4.dp, vertical = 2.dp),
                                                         verticalAlignment = Alignment.CenterVertically,
                                                         horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -1226,12 +1231,12 @@ fun CreatePostModal(
                                                                 .testTag("bg_font_size_dec"),
                                                             contentAlignment = Alignment.Center
                                                         ) {
-                                                            Text("A-", fontSize = 11.sp, color = Color.White, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                                                            Text("A-", fontSize = 11.sp, color = AppColors.textPrimary, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
                                                         }
                                                         Text(
                                                             text = "${textFontSizeSp}sp",
                                                             fontSize = 11.sp,
-                                                            color = Color(0xFF94A3B8),
+                                                            color = AppColors.textSecondary,
                                                             fontFamily = InterFontFamily,
                                                             fontWeight = FontWeight.Medium
                                                         )
@@ -1243,7 +1248,7 @@ fun CreatePostModal(
                                                                 .testTag("bg_font_size_inc"),
                                                             contentAlignment = Alignment.Center
                                                         ) {
-                                                            Text("A+", fontSize = 12.sp, color = Color.White, fontFamily = InterFontFamily, fontWeight = FontWeight.Bold)
+                                                            Text("A+", fontSize = 12.sp, color = AppColors.textPrimary, fontFamily = InterFontFamily, fontWeight = FontWeight.Bold)
                                                         }
                                                     }
                                                 }
@@ -1263,7 +1268,7 @@ fun CreatePostModal(
                                                 Box(
                                                     modifier = Modifier
                                                         .clip(RoundedCornerShape(16.dp))
-                                                        .background(if (isCatSelected) Color(0xFF1877F2) else Color(0xFF1E293B))
+                                                        .background(if (isCatSelected) AppColors.primaryBlue else AppColors.bgChip)
                                                         .clickable {
                                                             activeCategory = cat
                                                             if (cat == AnimatedBgCategory.REALITY && remoteBackgrounds.isEmpty() && !isLoadingRemoteBgs) {
@@ -1283,7 +1288,7 @@ fun CreatePostModal(
                                                             fontSize = 12.sp,
                                                             fontFamily = InterFontFamily,
                                                             fontWeight = if (isCatSelected) FontWeight.SemiBold else FontWeight.Medium,
-                                                            color = if (isCatSelected) Color.White else Color(0xFFCBD5E1)
+                                                            color = if (isCatSelected) Color.White else AppColors.textPrimary
                                                         )
                                                     }
                                                 }
@@ -1310,10 +1315,10 @@ fun CreatePostModal(
                                                         Box(
                                                             modifier = Modifier
                                                                 .clip(RoundedCornerShape(12.dp))
-                                                                .background(if (isSubSelected) Color(0xFF0EA5E9).copy(alpha = 0.22f) else Color(0xFF0F172A))
+                                                                .background(if (isSubSelected) AppColors.bgBlueTint else AppColors.bgCard)
                                                                 .border(
                                                                     1.dp,
-                                                                    if (isSubSelected) Color(0xFF38BDF8) else Color(0xFF1E293B),
+                                                                    if (isSubSelected) AppColors.primaryBlue else AppColors.border,
                                                                     RoundedCornerShape(12.dp)
                                                                 )
                                                                 .clickable { activeRealitySubCategory = sub }
@@ -1325,7 +1330,7 @@ fun CreatePostModal(
                                                                 fontSize = 11.sp,
                                                                 fontFamily = InterFontFamily,
                                                                 fontWeight = if (isSubSelected) FontWeight.SemiBold else FontWeight.Normal,
-                                                                color = if (isSubSelected) Color(0xFF38BDF8) else Color(0xFF94A3B8)
+                                                                color = if (isSubSelected) (if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8)) else AppColors.textSecondary
                                                             )
                                                         }
                                                     }
@@ -1351,8 +1356,8 @@ fun CreatePostModal(
                                                         modifier = Modifier
                                                             .size(54.dp)
                                                             .clip(RoundedCornerShape(10.dp))
-                                                            .background(Color(0xFF1E293B))
-                                                            .border(if (isNoneSelected) 2.dp else 1.dp, if (isNoneSelected) Color.White else Color(0xFF334155), RoundedCornerShape(10.dp))
+                                                            .background(AppColors.bgCard)
+                                                            .border(if (isNoneSelected) 2.dp else 1.dp, if (isNoneSelected) AppColors.primaryBlue else AppColors.borderStrong, RoundedCornerShape(10.dp))
                                                             .clickable {
                                                                 activeBackground = null
                                                                 activeRemoteBackground = null
@@ -1361,8 +1366,8 @@ fun CreatePostModal(
                                                         contentAlignment = Alignment.Center
                                                     ) {
                                                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                                            Icon(Icons.Default.FormatColorReset, contentDescription = "None", tint = Color.White, modifier = Modifier.size(18.dp))
-                                                            Text("None", fontSize = 9.sp, color = Color(0xFF94A3B8), fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
+                                                            Icon(Icons.Default.FormatColorReset, contentDescription = "None", tint = AppColors.textPrimary, modifier = Modifier.size(18.dp))
+                                                            Text("None", fontSize = 9.sp, color = AppColors.textSecondary, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                                                         }
                                                     }
                                                 }
@@ -1373,13 +1378,13 @@ fun CreatePostModal(
                                                             modifier = Modifier
                                                                 .size(54.dp)
                                                                 .clip(RoundedCornerShape(10.dp))
-                                                                .background(Color(0xFF1E293B)),
+                                                                .background(AppColors.bgChip),
                                                             contentAlignment = Alignment.Center
                                                         ) {
                                                             CircularProgressIndicator(
                                                                 modifier = Modifier.size(20.dp),
                                                                 strokeWidth = 2.dp,
-                                                                color = Color(0xFF38BDF8)
+                                                                color = AppColors.primaryBlue
                                                             )
                                                         }
                                                     }
@@ -1389,8 +1394,8 @@ fun CreatePostModal(
                                                             modifier = Modifier
                                                                 .height(54.dp)
                                                                 .clip(RoundedCornerShape(10.dp))
-                                                                .background(Color(0xFF1E293B))
-                                                                .border(1.dp, Color(0xFF334155), RoundedCornerShape(10.dp))
+                                                                .background(AppColors.bgCard)
+                                                                .border(1.dp, AppColors.borderStrong, RoundedCornerShape(10.dp))
                                                                 .clickable {
                                                                     coroutineScope.launch {
                                                                         BackgroundsApiService.fetchBackgrounds(context, forceRefresh = true)
@@ -1401,12 +1406,12 @@ fun CreatePostModal(
                                                             contentAlignment = Alignment.Center
                                                         ) {
                                                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                                                Icon(Icons.Default.Refresh, contentDescription = "Retry", tint = Color(0xFF38BDF8), modifier = Modifier.size(16.dp))
+                                                                Icon(Icons.Default.Refresh, contentDescription = "Retry", tint = AppColors.primaryBlue, modifier = Modifier.size(16.dp))
                                                                 Spacer(modifier = Modifier.width(6.dp))
                                                                 Text(
                                                                     text = if (!remoteBgError.isNullOrBlank()) "Retry" else "Reload",
                                                                     fontSize = 11.sp,
-                                                                    color = Color(0xFFCBD5E1),
+                                                                    color = AppColors.textPrimary,
                                                                     fontFamily = InterFontFamily,
                                                                     fontWeight = FontWeight.Medium
                                                                 )
@@ -1422,7 +1427,7 @@ fun CreatePostModal(
                                                                 .clip(RoundedCornerShape(10.dp))
                                                                 .border(
                                                                     if (isSelected) 2.5.dp else 1.dp,
-                                                                    if (isSelected) Color.White else Color.White.copy(alpha = 0.25f),
+                                                                    if (isSelected) (if (AppColors.isLight) AppColors.primaryBlue else Color.White) else AppColors.borderStrong,
                                                                     RoundedCornerShape(10.dp)
                                                                 )
                                                                 .clickable {
@@ -1476,8 +1481,8 @@ fun CreatePostModal(
                                                             modifier = Modifier
                                                                 .size(46.dp)
                                                                 .clip(RoundedCornerShape(10.dp))
-                                                                .background(Color(0xFF1E293B))
-                                                                .border(if (isSelected) 2.dp else 1.dp, if (isSelected) Color.White else Color(0xFF334155), RoundedCornerShape(10.dp))
+                                                                .background(AppColors.bgCard)
+                                                                .border(if (isSelected) 2.dp else 1.dp, if (isSelected) AppColors.primaryBlue else AppColors.borderStrong, RoundedCornerShape(10.dp))
                                                                 .clickable {
                                                                     activeBackground = null
                                                                     activeRemoteBackground = null
@@ -1485,8 +1490,8 @@ fun CreatePostModal(
                                                             contentAlignment = Alignment.Center
                                                         ) {
                                                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                                                Icon(Icons.Default.FormatColorReset, contentDescription = "None", tint = Color.White, modifier = Modifier.size(18.dp))
-                                                                Text("None", fontSize = 9.sp, color = Color(0xFF94A3B8), fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
+                                                                Icon(Icons.Default.FormatColorReset, contentDescription = "None", tint = AppColors.textPrimary, modifier = Modifier.size(18.dp))
+                                                                Text("None", fontSize = 9.sp, color = AppColors.textSecondary, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                                                             }
                                                         }
                                                     } else {
@@ -1496,7 +1501,7 @@ fun CreatePostModal(
                                                                 .size(46.dp)
                                                                 .clip(RoundedCornerShape(10.dp))
                                                                 .background(Brush.linearGradient(bg.baseColors))
-                                                                .border(if (isSelected) 2.5.dp else 1.dp, if (isSelected) Color.White else Color.White.copy(alpha = 0.25f), RoundedCornerShape(10.dp))
+                                                                .border(if (isSelected) 2.5.dp else 1.dp, if (isSelected) (if (AppColors.isLight) AppColors.primaryBlue else Color.White) else AppColors.borderStrong, RoundedCornerShape(10.dp))
                                                                 .clickable {
                                                                     activeRemoteBackground = null
                                                                     activeBackground = bg
@@ -1531,7 +1536,7 @@ fun CreatePostModal(
 
                             // Options Items List
                             item {
-                                HorizontalDivider(color = Color(0xFF1E293B), thickness = 1.dp, modifier = Modifier.padding(top = 10.dp))
+                                HorizontalDivider(color = AppColors.border, thickness = 1.dp, modifier = Modifier.padding(top = 10.dp))
 
                                 Column(modifier = Modifier.fillMaxWidth()) {
                                     // 1. Photo
@@ -1600,7 +1605,7 @@ fun CreatePostModal(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Color(0xFF0B1120))
+                                .background(AppColors.bgSurface)
                                 .padding(16.dp)
                         ) {
                             Button(
@@ -1627,8 +1632,8 @@ fun CreatePostModal(
                                     .height(48.dp)
                                     .testTag("submit_post_btn"),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFF1877F2),
-                                    disabledContainerColor = Color(0xFF1E293B)
+                                    containerColor = AppColors.primaryBlue,
+                                    disabledContainerColor = AppColors.bgChip
                                 ),
                                 shape = RoundedCornerShape(10.dp)
                             ) {
@@ -1637,7 +1642,7 @@ fun CreatePostModal(
                                     fontSize = 16.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Medium,
-                                    color = if (canPost) Color.White else Color(0xFF94A3B8)
+                                    color = if (canPost) Color.White else AppColors.textMuted
                                 )
                             }
                         }
@@ -1669,7 +1674,7 @@ private fun CreatePostOptionRow(
             fontSize = 16.sp,
             fontFamily = InterFontFamily,
             fontWeight = FontWeight.Medium,
-            color = Color(0xFFF8FAFC)
+            color = AppColors.textPrimary
         )
     }
 }
@@ -1710,7 +1715,7 @@ fun CommentsDialog(
                 .fillMaxHeight(0.8f)
                 .testTag("comments_dialog"),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Navy800)
+            colors = CardDefaults.cardColors(containerColor = AppColors.bgCard)
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 // Header
@@ -1726,7 +1731,7 @@ fun CommentsDialog(
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 17.sp,
-                        color = TextPrimary
+                        color = AppColors.textPrimary
                     )
                     IconButton(
                         onClick = onDismiss,
@@ -1735,12 +1740,12 @@ fun CommentsDialog(
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = "Close",
-                            tint = TextSecondary
+                            tint = AppColors.textSecondary
                         )
                     }
                 }
 
-                HorizontalDivider(color = Navy700)
+                HorizontalDivider(color = AppColors.border)
 
                 // Comments List
                 LazyColumn(
@@ -1760,7 +1765,7 @@ fun CommentsDialog(
                             ) {
                                 Text(
                                     text = "Be the first to comment!",
-                                    color = TextSecondary,
+                                    color = AppColors.textSecondary,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
                                     fontSize = 13.sp
@@ -1789,7 +1794,7 @@ fun CommentsDialog(
                                     modifier = Modifier
                                         .weight(1f)
                                         .clip(RoundedCornerShape(12.dp))
-                                        .background(Navy700)
+                                        .background(AppColors.bgInput)
                                         .padding(10.dp)
                                 ) {
                                     Row(
@@ -1802,12 +1807,12 @@ fun CommentsDialog(
                                             fontFamily = InterFontFamily,
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 13.sp,
-                                            color = TextPrimary
+                                            color = AppColors.textPrimary
                                         )
                                         Icon(
                                             imageVector = Icons.Default.MoreHoriz,
                                             contentDescription = "Options",
-                                            tint = TextSecondary,
+                                            tint = AppColors.textSecondary,
                                             modifier = Modifier.size(16.dp)
                                         )
                                     }
@@ -1817,7 +1822,7 @@ fun CommentsDialog(
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Normal,
                                         fontSize = 13.sp,
-                                        color = TextPrimary
+                                        color = AppColors.textBody
                                     )
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(
@@ -1825,7 +1830,7 @@ fun CommentsDialog(
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Normal,
                                         fontSize = 10.sp,
-                                        color = TextSecondary
+                                        color = AppColors.textSecondary
                                     )
                                 }
                             }
@@ -1833,7 +1838,7 @@ fun CommentsDialog(
                     }
                 }
 
-                HorizontalDivider(color = Navy700)
+                HorizontalDivider(color = AppColors.border)
 
                 // Input Bar
                 Row(
@@ -1850,16 +1855,18 @@ fun CommentsDialog(
                             fontWeight = FontWeight.Normal,
                             fontSize = 13.sp
                         ),
-                        placeholder = { Text("Write a comment…", color = TextSecondary, fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
+                        placeholder = { Text("Write a comment…", color = AppColors.textMuted, fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                         modifier = Modifier
                             .weight(1f)
                             .testTag("add_comment_input"),
                         shape = RoundedCornerShape(20.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Navy900,
-                            unfocusedContainerColor = Navy900,
-                            focusedBorderColor = Carrot500,
-                            unfocusedBorderColor = Navy700
+                            focusedContainerColor = AppColors.bgInput,
+                            unfocusedContainerColor = AppColors.bgInput,
+                            focusedTextColor = AppColors.textPrimary,
+                            unfocusedTextColor = AppColors.textPrimary,
+                            focusedBorderColor = AppColors.primaryBlue,
+                            unfocusedBorderColor = AppColors.border
                         ),
                         singleLine = true
                     )
@@ -1876,13 +1883,13 @@ fun CommentsDialog(
                         modifier = Modifier
                             .size(42.dp)
                             .clip(CircleShape)
-                            .background(Carrot500)
+                            .background(AppColors.primaryBlue)
                             .testTag("submit_comment_btn")
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.Send,
                             contentDescription = "Send Comment",
-                            tint = TextPrimary,
+                            tint = Color.White,
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -1927,12 +1934,12 @@ fun ProductDetailDialog(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFF050B18))
+                .background(AppColors.bgScreen)
                 .testTag("product_detail_dialog")
         ) {
-            // Header matching web: `h-14 px-4 flex items-center justify-between border-b border-[#1E293B] bg-[#0B1120]`
+            // Header
             Surface(
-                color = Color(0xFF0B1120),
+                color = AppColors.headerBg,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
@@ -1952,7 +1959,7 @@ fun ProductDetailDialog(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color(0xFFF8FAFC)
+                            tint = AppColors.headerIconTint
                         )
                     }
 
@@ -1961,7 +1968,7 @@ fun ProductDetailDialog(
                         fontSize = 18.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFFF8FAFC)
+                        color = AppColors.headerText
                     )
 
                     IconButton(
@@ -1971,7 +1978,7 @@ fun ProductDetailDialog(
                         Icon(
                             imageVector = Icons.Default.MoreVert,
                             contentDescription = "More",
-                            tint = Color(0xFF94A3B8)
+                            tint = AppColors.headerIconTint.copy(alpha = 0.85f)
                         )
                     }
                 }
@@ -1989,7 +1996,7 @@ fun ProductDetailDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .aspectRatio(1f)
-                            .background(Color(0xFF0B1120))
+                            .background(AppColors.bgCard)
                     ) {
                         val currentImageUrl = allImages.getOrElse(activeImageIndex) { product.imageUrl }
                         AsyncImage(
@@ -2068,7 +2075,7 @@ fun ProductDetailDialog(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Color(0xFF0B1120))
+                                .background(AppColors.bgSurface)
                         ) {
                             items(allImages.indices.toList()) { idx ->
                                 val isSelected = activeImageIndex == idx
@@ -2078,7 +2085,7 @@ fun ProductDetailDialog(
                                         .clip(RoundedCornerShape(8.dp))
                                         .border(
                                             2.dp,
-                                            if (isSelected) Color(0xFF1877F2) else Color.Transparent,
+                                            if (isSelected) AppColors.primaryBlue else Color.Transparent,
                                             RoundedCornerShape(8.dp)
                                         )
                                         .clickable { activeImageIndex = idx }
@@ -2100,12 +2107,12 @@ fun ProductDetailDialog(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFF0B1120))
+                            .background(AppColors.bgSurface)
                             .padding(16.dp)
                     ) {
                         if (product.isSponsored) {
                             Surface(
-                                color = Color(0xFFF97316).copy(alpha = 0.2f),
+                                color = Color(0xFFF97316).copy(alpha = 0.16f),
                                 shape = RoundedCornerShape(12.dp),
                                 border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF97316).copy(alpha = 0.4f)),
                                 modifier = Modifier.padding(bottom = 8.dp)
@@ -2115,7 +2122,7 @@ fun ProductDetailDialog(
                                     fontSize = 11.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = Color(0xFFFB923C),
+                                    color = if (AppColors.isLight) Color(0xFFEA580C) else Color(0xFFFB923C),
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                                 )
                             }
@@ -2126,7 +2133,7 @@ fun ProductDetailDialog(
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 24.sp,
-                            color = Color(0xFFF8FAFC),
+                            color = AppColors.textPrimary,
                             lineHeight = 30.sp
                         )
 
@@ -2137,7 +2144,7 @@ fun ProductDetailDialog(
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 28.sp,
-                            color = Color(0xFFF8FAFC)
+                            color = AppColors.textPrimary
                         )
 
                         if (product.discountPrice != null) {
@@ -2146,7 +2153,7 @@ fun ProductDetailDialog(
                                 fontSize = 16.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
-                                color = Color(0xFF94A3B8),
+                                color = AppColors.textSecondary,
                                 style = androidx.compose.ui.text.TextStyle(
                                     fontFamily = InterFontFamily,
                                     textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough
@@ -2160,7 +2167,7 @@ fun ProductDetailDialog(
                             Icon(
                                 imageVector = Icons.Default.Place,
                                 contentDescription = null,
-                                tint = Color(0xFF94A3B8),
+                                tint = AppColors.textSecondary,
                                 modifier = Modifier.size(16.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
@@ -2169,7 +2176,7 @@ fun ProductDetailDialog(
                                 fontSize = 14.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
-                                color = Color(0xFF94A3B8)
+                                color = AppColors.textSecondary
                             )
                         }
                     }
@@ -2179,7 +2186,7 @@ fun ProductDetailDialog(
                 item {
                     Spacer(modifier = Modifier.height(8.dp))
                     Surface(
-                        color = Color(0xFF0B1120),
+                        color = AppColors.bgSurface,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Row(
@@ -2195,7 +2202,7 @@ fun ProductDetailDialog(
                                 modifier = Modifier
                                     .size(48.dp)
                                     .clip(CircleShape)
-                                    .background(Color(0xFF1E293B))
+                                    .background(AppColors.bgInput)
                             )
 
                             Spacer(modifier = Modifier.width(12.dp))
@@ -2207,7 +2214,7 @@ fun ProductDetailDialog(
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 18.sp,
-                                        color = Color(0xFFF8FAFC)
+                                        color = AppColors.textPrimary
                                     )
                                     if (product.seller.isVerified) {
                                         Spacer(modifier = Modifier.width(4.dp))
@@ -2219,7 +2226,7 @@ fun ProductDetailDialog(
                                     fontSize = 12.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
-                                    color = Color(0xFF94A3B8)
+                                    color = AppColors.textSecondary
                                 )
                             }
 
@@ -2229,12 +2236,12 @@ fun ProductDetailDialog(
                                 modifier = Modifier
                                     .size(40.dp)
                                     .clip(CircleShape)
-                                    .background(Color(0xFF1877F2).copy(alpha = 0.15f))
+                                    .background(AppColors.primaryBlue.copy(alpha = 0.12f))
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Chat,
                                     contentDescription = "Message",
-                                    tint = Color(0xFF1877F2),
+                                    tint = AppColors.primaryBlue,
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
@@ -2248,12 +2255,12 @@ fun ProductDetailDialog(
                                     modifier = Modifier
                                         .size(40.dp)
                                         .clip(CircleShape)
-                                        .background(Color(0xFF1E293B))
+                                        .background(AppColors.bgInput)
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Call,
                                         contentDescription = "Call",
-                                        tint = Color(0xFFF8FAFC),
+                                        tint = AppColors.textPrimary,
                                         modifier = Modifier.size(18.dp)
                                     )
                                 }
@@ -2268,7 +2275,7 @@ fun ProductDetailDialog(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFF0B1120))
+                            .background(AppColors.bgSurface)
                             .padding(16.dp)
                     ) {
                         Text(
@@ -2276,7 +2283,7 @@ fun ProductDetailDialog(
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 16.sp,
-                            color = Color(0xFFF8FAFC)
+                            color = AppColors.textPrimary
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
@@ -2284,7 +2291,7 @@ fun ProductDetailDialog(
                             fontSize = 14.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal,
-                            color = Color(0xFF94A3B8),
+                            color = AppColors.textSecondary,
                             lineHeight = 22.sp
                         )
                     }
@@ -2293,18 +2300,18 @@ fun ProductDetailDialog(
 
             // Bottom Sticky "Contact Seller" Button matching web
             Surface(
-                color = Color(0xFF0B1120),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
+                color = AppColors.bgSurface,
+                shadowElevation = if (AppColors.isLight) 4.dp else 0.dp,
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Button(
                     onClick = { onContactSeller(product.seller) },
                     modifier = Modifier
                         .fillMaxWidth()
+                        .padding(16.dp)
                         .height(48.dp)
                         .testTag("contact_seller_btn"),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1877F2)),
+                    colors = ButtonDefaults.buttonColors(containerColor = AppColors.primaryBlue),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Icon(
@@ -2372,12 +2379,12 @@ fun CreateProductDialog(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFF050B18))
+                .background(AppColors.bgScreen)
                 .testTag("create_product_dialog")
         ) {
-            // Header matching web: `h-14 px-3 flex items-center justify-between border-b border-[#1E293B] bg-[#0B1120]`
+            // Header
             Surface(
-                color = Color(0xFF0B1120),
+                color = AppColors.headerBg,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
@@ -2397,7 +2404,7 @@ fun CreateProductDialog(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color(0xFFF8FAFC)
+                            tint = AppColors.headerIconTint
                         )
                     }
 
@@ -2406,7 +2413,7 @@ fun CreateProductDialog(
                         fontSize = 18.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFFF8FAFC)
+                        color = AppColors.headerText
                     )
 
                     TextButton(
@@ -2435,9 +2442,9 @@ fun CreateProductDialog(
                         Text(
                             text = if (isPublishing) "Publishing…" else "Publish",
                             fontFamily = InterFontFamily,
-                            fontWeight = FontWeight.Medium,
+                            fontWeight = FontWeight.SemiBold,
                             fontSize = 16.sp,
-                            color = Color(0xFF1877F2)
+                            color = if (AppColors.isLight) Color.White else AppColors.primaryBlue
                         )
                     }
                 }
@@ -2459,7 +2466,7 @@ fun CreateProductDialog(
                             fontSize = 16.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFFF8FAFC)
+                            color = AppColors.textPrimary
                         )
                         Spacer(modifier = Modifier.height(8.dp))
 
@@ -2471,8 +2478,8 @@ fun CreateProductDialog(
                                 )
                             },
                             shape = RoundedCornerShape(16.dp),
-                            color = Color(0xFF0F172A),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B)),
+                            color = AppColors.bgCard,
+                            border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Column(
@@ -2482,7 +2489,7 @@ fun CreateProductDialog(
                                 Icon(
                                     imageVector = Icons.Default.AddPhotoAlternate,
                                     contentDescription = null,
-                                    tint = Color(0xFF94A3B8),
+                                    tint = AppColors.textSecondary,
                                     modifier = Modifier.size(36.dp)
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
@@ -2491,14 +2498,14 @@ fun CreateProductDialog(
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Medium,
                                     fontSize = 14.sp,
-                                    color = Color(0xFFF8FAFC)
+                                    color = AppColors.textPrimary
                                 )
                                 Text(
                                     text = "Up to 10 images",
                                     fontSize = 12.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
-                                    color = Color(0xFF94A3B8)
+                                    color = AppColors.textSecondary
                                 )
                             }
                         }
@@ -2550,7 +2557,7 @@ fun CreateProductDialog(
                             fontSize = 14.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF94A3B8)
+                            color = AppColors.textSecondary
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -2559,8 +2566,8 @@ fun CreateProductDialog(
                                 Surface(
                                     onClick = { category = cat.id },
                                     shape = RoundedCornerShape(12.dp),
-                                    color = if (isSelected) Color(0xFF1877F2) else Color(0xFF0F172A),
-                                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B)),
+                                    color = if (isSelected) AppColors.primaryBlue else AppColors.bgCard,
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, if (isSelected) AppColors.primaryBlue else AppColors.border),
                                     modifier = Modifier.height(42.dp)
                                 ) {
                                     Box(
@@ -2572,7 +2579,7 @@ fun CreateProductDialog(
                                             fontSize = 13.sp,
                                             fontFamily = InterFontFamily,
                                             fontWeight = FontWeight.Medium,
-                                            color = if (isSelected) Color.White else Color(0xFFF8FAFC)
+                                            color = if (isSelected) Color.White else AppColors.textPrimary
                                         )
                                     }
                                 }
@@ -2589,7 +2596,7 @@ fun CreateProductDialog(
                             fontSize = 14.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF94A3B8)
+                            color = AppColors.textSecondary
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         OutlinedTextField(
@@ -2599,18 +2606,18 @@ fun CreateProductDialog(
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal
                             ),
-                            placeholder = { Text("Title", color = Color(0xFF64748B), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
+                            placeholder = { Text("Title", color = AppColors.textMuted, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .testTag("product_title_input"),
                             shape = RoundedCornerShape(12.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color(0xFF0F172A),
-                                unfocusedContainerColor = Color(0xFF0F172A),
-                                focusedBorderColor = Color(0xFF1877F2),
-                                unfocusedBorderColor = Color(0xFF1E293B),
-                                focusedTextColor = Color(0xFFF8FAFC),
-                                unfocusedTextColor = Color(0xFFF8FAFC)
+                                focusedContainerColor = AppColors.bgCard,
+                                unfocusedContainerColor = AppColors.bgCard,
+                                focusedBorderColor = AppColors.primaryBlue,
+                                unfocusedBorderColor = AppColors.border,
+                                focusedTextColor = AppColors.textPrimary,
+                                unfocusedTextColor = AppColors.textPrimary
                             ),
                             singleLine = true
                         )
@@ -2625,7 +2632,7 @@ fun CreateProductDialog(
                             fontSize = 14.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF94A3B8)
+                            color = AppColors.textSecondary
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Row(
@@ -2633,8 +2640,8 @@ fun CreateProductDialog(
                                 .fillMaxWidth()
                                 .height(52.dp)
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(Color(0xFF0F172A))
-                                .border(1.dp, Color(0xFF1E293B), RoundedCornerShape(12.dp))
+                                .background(AppColors.bgCard)
+                                .border(1.dp, AppColors.border, RoundedCornerShape(12.dp))
                         ) {
                             Box(
                                 modifier = Modifier
@@ -2646,11 +2653,11 @@ fun CreateProductDialog(
                                     text = getCurrencyLabel(countryCode),
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = Color(0xFFF8FAFC),
+                                    color = AppColors.textPrimary,
                                     fontSize = 14.sp
                                 )
                             }
-                            VerticalDivider(color = Color(0xFF1E293B))
+                            VerticalDivider(color = AppColors.border)
                             TextField(
                                 value = priceText,
                                 onValueChange = { priceText = it },
@@ -2658,7 +2665,7 @@ fun CreateProductDialog(
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal
                                 ),
-                                placeholder = { Text("Price", color = Color(0xFF64748B), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
+                                placeholder = { Text("Price", color = AppColors.textMuted, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .testTag("product_price_input"),
@@ -2667,8 +2674,8 @@ fun CreateProductDialog(
                                     unfocusedContainerColor = Color.Transparent,
                                     focusedIndicatorColor = Color.Transparent,
                                     unfocusedIndicatorColor = Color.Transparent,
-                                    focusedTextColor = Color(0xFFF8FAFC),
-                                    unfocusedTextColor = Color(0xFFF8FAFC)
+                                    focusedTextColor = AppColors.textPrimary,
+                                    unfocusedTextColor = AppColors.textPrimary
                                 ),
                                 singleLine = true
                             )
@@ -2684,7 +2691,7 @@ fun CreateProductDialog(
                             fontSize = 14.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF94A3B8)
+                            color = AppColors.textSecondary
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Row(
@@ -2692,8 +2699,8 @@ fun CreateProductDialog(
                                 .fillMaxWidth()
                                 .height(52.dp)
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(Color(0xFF0F172A))
-                                .border(1.dp, Color(0xFF1E293B), RoundedCornerShape(12.dp))
+                                .background(AppColors.bgCard)
+                                .border(1.dp, AppColors.border, RoundedCornerShape(12.dp))
                         ) {
                             Box(
                                 modifier = Modifier
@@ -2705,11 +2712,11 @@ fun CreateProductDialog(
                                     text = getCurrencyLabel(countryCode),
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = Color(0xFFF8FAFC),
+                                    color = AppColors.textPrimary,
                                     fontSize = 14.sp
                                 )
                             }
-                            VerticalDivider(color = Color(0xFF1E293B))
+                            VerticalDivider(color = AppColors.border)
                             TextField(
                                 value = discountPriceText,
                                 onValueChange = { discountPriceText = it },
@@ -2717,15 +2724,15 @@ fun CreateProductDialog(
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal
                                 ),
-                                placeholder = { Text("Discount price", color = Color(0xFF64748B), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
+                                placeholder = { Text("Discount price", color = AppColors.textMuted, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                                 modifier = Modifier.fillMaxSize(),
                                 colors = TextFieldDefaults.colors(
                                     focusedContainerColor = Color.Transparent,
                                     unfocusedContainerColor = Color.Transparent,
                                     focusedIndicatorColor = Color.Transparent,
                                     unfocusedIndicatorColor = Color.Transparent,
-                                    focusedTextColor = Color(0xFFF8FAFC),
-                                    unfocusedTextColor = Color(0xFFF8FAFC)
+                                    focusedTextColor = AppColors.textPrimary,
+                                    unfocusedTextColor = AppColors.textPrimary
                                 ),
                                 singleLine = true
                             )
@@ -2741,7 +2748,7 @@ fun CreateProductDialog(
                             fontSize = 14.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF94A3B8)
+                            color = AppColors.textSecondary
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         OutlinedTextField(
@@ -2751,24 +2758,24 @@ fun CreateProductDialog(
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal
                             ),
-                            placeholder = { Text("City, street or region…", color = Color(0xFF64748B), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
+                            placeholder = { Text("City, street or region…", color = AppColors.textMuted, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.Place,
                                     contentDescription = null,
-                                    tint = Color(0xFF94A3B8),
+                                    tint = AppColors.textSecondary,
                                     modifier = Modifier.size(18.dp)
                                 )
                             },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(12.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color(0xFF0F172A),
-                                unfocusedContainerColor = Color(0xFF0F172A),
-                                focusedBorderColor = Color(0xFF1877F2),
-                                unfocusedBorderColor = Color(0xFF1E293B),
-                                focusedTextColor = Color(0xFFF8FAFC),
-                                unfocusedTextColor = Color(0xFFF8FAFC)
+                                focusedContainerColor = AppColors.bgCard,
+                                unfocusedContainerColor = AppColors.bgCard,
+                                focusedBorderColor = AppColors.primaryBlue,
+                                unfocusedBorderColor = AppColors.border,
+                                focusedTextColor = AppColors.textPrimary,
+                                unfocusedTextColor = AppColors.textPrimary
                             ),
                             singleLine = true
                         )
@@ -2783,13 +2790,13 @@ fun CreateProductDialog(
                             fontSize = 14.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF94A3B8)
+                            color = AppColors.textSecondary
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Surface(
                             shape = RoundedCornerShape(12.dp),
-                            color = Color(0xFF0F172A),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B)),
+                            color = AppColors.bgCard,
+                            border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(48.dp)
@@ -2805,13 +2812,13 @@ fun CreateProductDialog(
                                     fontSize = 14.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = Color(0xFFF8FAFC)
+                                    color = AppColors.textPrimary
                                 )
                                 Spacer(modifier = Modifier.width(10.dp))
                                 Box(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(6.dp))
-                                        .background(Color(0xFF1877F2).copy(alpha = 0.15f))
+                                        .background(AppColors.primaryBlue.copy(alpha = 0.12f))
                                         .padding(horizontal = 8.dp, vertical = 2.dp)
                                 ) {
                                     Text(
@@ -2819,7 +2826,7 @@ fun CreateProductDialog(
                                         fontSize = 11.sp,
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.SemiBold,
-                                        color = Color(0xFF38BDF8)
+                                        color = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8)
                                     )
                                 }
                             }
@@ -2829,7 +2836,7 @@ fun CreateProductDialog(
                             fontSize = 12.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal,
-                            color = Color(0xFF64748B),
+                            color = AppColors.textMuted,
                             modifier = Modifier.padding(top = 4.dp, start = 2.dp)
                         )
                     }
@@ -2843,7 +2850,7 @@ fun CreateProductDialog(
                             fontSize = 14.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF94A3B8)
+                            color = AppColors.textSecondary
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         OutlinedTextField(
@@ -2853,18 +2860,18 @@ fun CreateProductDialog(
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal
                             ),
-                            placeholder = { Text("Describe what you are selling…", color = Color(0xFF64748B), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
+                            placeholder = { Text("Describe what you are selling…", color = AppColors.textMuted, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(120.dp),
                             shape = RoundedCornerShape(12.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color(0xFF0F172A),
-                                unfocusedContainerColor = Color(0xFF0F172A),
-                                focusedBorderColor = Color(0xFF1877F2),
-                                unfocusedBorderColor = Color(0xFF1E293B),
-                                focusedTextColor = Color(0xFFF8FAFC),
-                                unfocusedTextColor = Color(0xFFF8FAFC)
+                                focusedContainerColor = AppColors.bgCard,
+                                unfocusedContainerColor = AppColors.bgCard,
+                                focusedBorderColor = AppColors.primaryBlue,
+                                unfocusedBorderColor = AppColors.border,
+                                focusedTextColor = AppColors.textPrimary,
+                                unfocusedTextColor = AppColors.textPrimary
                             )
                         )
                     }
@@ -2878,7 +2885,7 @@ fun CreateProductDialog(
                             fontSize = 14.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF94A3B8)
+                            color = AppColors.textSecondary
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         OutlinedTextField(
@@ -2888,24 +2895,24 @@ fun CreateProductDialog(
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal
                             ),
-                            placeholder = { Text("Phone number", color = Color(0xFF64748B), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
+                            placeholder = { Text("Phone number", color = AppColors.textMuted, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.Phone,
                                     contentDescription = null,
-                                    tint = Color(0xFF94A3B8),
+                                    tint = AppColors.textSecondary,
                                     modifier = Modifier.size(18.dp)
                                 )
                             },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(12.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color(0xFF0F172A),
-                                unfocusedContainerColor = Color(0xFF0F172A),
-                                focusedBorderColor = Color(0xFF1877F2),
-                                unfocusedBorderColor = Color(0xFF1E293B),
-                                focusedTextColor = Color(0xFFF8FAFC),
-                                unfocusedTextColor = Color(0xFFF8FAFC)
+                                focusedContainerColor = AppColors.bgCard,
+                                unfocusedContainerColor = AppColors.bgCard,
+                                focusedBorderColor = AppColors.primaryBlue,
+                                unfocusedBorderColor = AppColors.border,
+                                focusedTextColor = AppColors.textPrimary,
+                                unfocusedTextColor = AppColors.textPrimary
                             ),
                             singleLine = true
                         )
@@ -2935,7 +2942,7 @@ fun CreateProductDialog(
                                 )
                             }
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1877F2)),
+                        colors = ButtonDefaults.buttonColors(containerColor = AppColors.primaryBlue),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -2976,7 +2983,8 @@ fun CreateEventDialog(
                 .padding(16.dp)
                 .testTag("create_event_dialog"),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Navy800)
+            border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
+            colors = CardDefaults.cardColors(containerColor = AppColors.bgCard)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
@@ -2984,7 +2992,7 @@ fun CreateEventDialog(
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp,
-                    color = TextPrimary
+                    color = AppColors.textPrimary
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -2993,16 +3001,18 @@ fun CreateEventDialog(
                     value = title,
                     onValueChange = { title = it },
                     textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
-                    placeholder = { Text("Event Name", color = TextSecondary, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
+                    placeholder = { Text("Event Name", color = AppColors.textMuted, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("event_title_input"),
                     shape = RoundedCornerShape(10.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Navy900,
-                        unfocusedContainerColor = Navy900,
-                        focusedBorderColor = Carrot500,
-                        unfocusedBorderColor = Navy700
+                        focusedContainerColor = AppColors.bgInput,
+                        unfocusedContainerColor = AppColors.bgInput,
+                        focusedBorderColor = AppColors.primaryBlue,
+                        unfocusedBorderColor = AppColors.border,
+                        focusedTextColor = AppColors.textPrimary,
+                        unfocusedTextColor = AppColors.textPrimary
                     ),
                     singleLine = true
                 )
@@ -3013,14 +3023,16 @@ fun CreateEventDialog(
                     value = date,
                     onValueChange = { date = it },
                     textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
-                    placeholder = { Text("Date & Time (e.g. Nov 20 • 6 PM)", color = TextSecondary, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
+                    placeholder = { Text("Date & Time (e.g. Nov 20 • 6 PM)", color = AppColors.textMuted, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Navy900,
-                        unfocusedContainerColor = Navy900,
-                        focusedBorderColor = Carrot500,
-                        unfocusedBorderColor = Navy700
+                        focusedContainerColor = AppColors.bgInput,
+                        unfocusedContainerColor = AppColors.bgInput,
+                        focusedBorderColor = AppColors.primaryBlue,
+                        unfocusedBorderColor = AppColors.border,
+                        focusedTextColor = AppColors.textPrimary,
+                        unfocusedTextColor = AppColors.textPrimary
                     ),
                     singleLine = true
                 )
@@ -3031,14 +3043,16 @@ fun CreateEventDialog(
                     value = location,
                     onValueChange = { location = it },
                     textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
-                    placeholder = { Text("Location / Venue", color = TextSecondary, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
+                    placeholder = { Text("Location / Venue", color = AppColors.textMuted, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Navy900,
-                        unfocusedContainerColor = Navy900,
-                        focusedBorderColor = Carrot500,
-                        unfocusedBorderColor = Navy700
+                        focusedContainerColor = AppColors.bgInput,
+                        unfocusedContainerColor = AppColors.bgInput,
+                        focusedBorderColor = AppColors.primaryBlue,
+                        unfocusedBorderColor = AppColors.border,
+                        focusedTextColor = AppColors.textPrimary,
+                        unfocusedTextColor = AppColors.textPrimary
                     ),
                     singleLine = true
                 )
@@ -3049,16 +3063,18 @@ fun CreateEventDialog(
                     value = description,
                     onValueChange = { description = it },
                     textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
-                    placeholder = { Text("Event Description", color = TextSecondary, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
+                    placeholder = { Text("Event Description", color = AppColors.textMuted, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(80.dp),
                     shape = RoundedCornerShape(10.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Navy900,
-                        unfocusedContainerColor = Navy900,
-                        focusedBorderColor = Carrot500,
-                        unfocusedBorderColor = Navy700
+                        focusedContainerColor = AppColors.bgInput,
+                        unfocusedContainerColor = AppColors.bgInput,
+                        focusedBorderColor = AppColors.primaryBlue,
+                        unfocusedBorderColor = AppColors.border,
+                        focusedTextColor = AppColors.textPrimary,
+                        unfocusedTextColor = AppColors.textPrimary
                     )
                 )
 
@@ -3077,14 +3093,14 @@ fun CreateEventDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("submit_event_btn"),
-                    colors = ButtonDefaults.buttonColors(containerColor = Carrot500),
+                    colors = ButtonDefaults.buttonColors(containerColor = AppColors.primaryBlue),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(
                         text = "Publish Event",
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Medium,
-                        color = TextPrimary
+                        color = Color.White
                     )
                 }
             }
@@ -3119,7 +3135,8 @@ fun SearchDialog(
                 .fillMaxHeight(0.8f)
                 .testTag("search_dialog"),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Navy800)
+            border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
+            colors = CardDefaults.cardColors(containerColor = AppColors.bgCard)
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 // Search Input Header
@@ -3137,12 +3154,12 @@ fun SearchDialog(
                             fontWeight = FontWeight.Normal,
                             fontSize = 13.sp
                         ),
-                        placeholder = { Text("Search Feathered…", color = TextSecondary, fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
+                        placeholder = { Text("Search Feathered…", color = AppColors.textMuted, fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Search,
                                 contentDescription = null,
-                                tint = Carrot500,
+                                tint = AppColors.primaryBlue,
                                 modifier = Modifier.size(18.dp)
                             )
                         },
@@ -3152,7 +3169,7 @@ fun SearchDialog(
                                     Icon(
                                         imageVector = Icons.Default.Close,
                                         contentDescription = "Clear",
-                                        tint = TextSecondary,
+                                        tint = AppColors.textSecondary,
                                         modifier = Modifier.size(16.dp)
                                     )
                                 }
@@ -3161,10 +3178,12 @@ fun SearchDialog(
                         singleLine = true,
                         shape = RoundedCornerShape(20.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Navy900,
-                            unfocusedContainerColor = Navy900,
-                            focusedBorderColor = Carrot500,
-                            unfocusedBorderColor = Navy700
+                            focusedContainerColor = AppColors.bgInput,
+                            unfocusedContainerColor = AppColors.bgInput,
+                            focusedBorderColor = AppColors.primaryBlue,
+                            unfocusedBorderColor = AppColors.border,
+                            focusedTextColor = AppColors.textPrimary,
+                            unfocusedTextColor = AppColors.textPrimary
                         ),
                         modifier = Modifier
                             .weight(1f)
@@ -3177,12 +3196,12 @@ fun SearchDialog(
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = "Close",
-                            tint = TextSecondary
+                            tint = AppColors.textSecondary
                         )
                     }
                 }
 
-                HorizontalDivider(color = Navy700)
+                HorizontalDivider(color = AppColors.border)
 
                 // Results
                 LazyColumn(
@@ -3196,7 +3215,7 @@ fun SearchDialog(
                         item {
                             Text(
                                 text = "Search for friends, topics, products or events.",
-                                color = TextSecondary,
+                                color = AppColors.textSecondary,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
                                 fontSize = 13.sp
@@ -3211,7 +3230,7 @@ fun SearchDialog(
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 11.sp,
-                                    color = Carrot500
+                                    color = AppColors.primaryBlue
                                 )
                             }
                             items(filteredUsers) { u ->
@@ -3236,8 +3255,8 @@ fun SearchDialog(
                                     )
                                     Spacer(modifier = Modifier.width(10.dp))
                                     Column {
-                                        Text(u.name, fontFamily = InterFontFamily, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = TextPrimary)
-                                        Text("@${u.username}", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 11.sp, color = TextSecondary)
+                                        Text(u.name, fontFamily = InterFontFamily, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = AppColors.textPrimary)
+                                        Text("@${u.username}", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 11.sp, color = AppColors.textSecondary)
                                     }
                                 }
                             }
@@ -3252,7 +3271,7 @@ fun SearchDialog(
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 11.sp,
-                                    color = Carrot500
+                                    color = AppColors.primaryBlue
                                 )
                             }
                             items(filteredProducts) { p ->
@@ -3272,8 +3291,8 @@ fun SearchDialog(
                                     )
                                     Spacer(modifier = Modifier.width(10.dp))
                                     Column {
-                                        Text(p.title, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = TextPrimary)
-                                        Text("${p.currency} ${p.price}", fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 11.sp, color = Carrot500)
+                                        Text(p.title, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = AppColors.textPrimary)
+                                        Text("${p.currency} ${p.price}", fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 11.sp, color = AppColors.primaryBlue)
                                     }
                                 }
                             }
@@ -3288,7 +3307,7 @@ fun SearchDialog(
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 11.sp,
-                                    color = Carrot500
+                                    color = AppColors.primaryBlue
                                 )
                             }
                             items(filteredPosts) { pst ->
@@ -3297,11 +3316,12 @@ fun SearchDialog(
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
                                     fontSize = 13.sp,
-                                    color = TextPrimary,
+                                    color = AppColors.textPrimary,
                                     maxLines = 2,
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .background(Navy700, RoundedCornerShape(8.dp))
+                                        .background(AppColors.bgInput, RoundedCornerShape(8.dp))
+                                        .border(1.dp, AppColors.border, RoundedCornerShape(8.dp))
                                         .padding(10.dp)
                                 )
                             }

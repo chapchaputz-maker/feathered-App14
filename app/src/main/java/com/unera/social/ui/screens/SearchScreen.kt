@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.unera.social.model.*
 import com.unera.social.ui.components.VerifiedBadge
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 import org.json.JSONArray
 import org.json.JSONObject
@@ -320,12 +321,12 @@ fun SearchScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFF050B18))
+            .background(AppColors.bgScreen)
             .testTag("search_screen")
     ) {
         // 1. TOP HEADER & SEARCH INPUT
         Surface(
-            color = Color(0xFF0B1120),
+            color = AppColors.headerBg,
             modifier = Modifier.fillMaxWidth(),
             shadowElevation = 4.dp
         ) {
@@ -345,14 +346,14 @@ fun SearchScreen(
                         modifier = Modifier
                             .size(40.dp)
                             .clip(RoundedCornerShape(12.dp))
-                            .background(Color(0xFF0F172A))
-                            .border(1.dp, Color(0xFF1E293B), RoundedCornerShape(12.dp))
+                            .background(if (AppColors.isLight) AppColors.headerIconBg else AppColors.bgCard)
+                            .border(1.dp, if (AppColors.isLight) AppColors.headerIconBorder else AppColors.border, RoundedCornerShape(12.dp))
                             .testTag("search_back_button")
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color(0xFFF8FAFC),
+                            tint = AppColors.headerText,
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -363,8 +364,8 @@ fun SearchScreen(
                             .weight(1f)
                             .height(42.dp)
                             .clip(RoundedCornerShape(12.dp))
-                            .background(Color(0xFF0F172A))
-                            .border(1.dp, Color(0xFF1E293B), RoundedCornerShape(12.dp))
+                            .background(if (AppColors.isLight) Color.White else AppColors.bgCard)
+                            .border(1.dp, if (AppColors.isLight) Color.White.copy(alpha = 0.8f) else AppColors.border, RoundedCornerShape(12.dp))
                             .padding(horizontal = 12.dp),
                         contentAlignment = Alignment.CenterStart
                     ) {
@@ -375,7 +376,7 @@ fun SearchScreen(
                             Icon(
                                 imageVector = Icons.Default.Search,
                                 contentDescription = null,
-                                tint = Color(0xFF64748B),
+                                tint = AppColors.textMuted,
                                 modifier = Modifier.size(18.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
@@ -384,7 +385,7 @@ fun SearchScreen(
                                 if (query.isEmpty()) {
                                     Text(
                                         text = "Search people, videos, reels, groups, posts…",
-                                        color = Color(0xFF64748B),
+                                        color = AppColors.textMuted,
                                         fontSize = 13.5.sp,
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Normal,
@@ -400,13 +401,13 @@ fun SearchScreen(
                                         .focusRequester(focusRequester)
                                         .testTag("search_input_field"),
                                     textStyle = TextStyle(
-                                        color = Color(0xFFF8FAFC),
+                                        color = AppColors.textPrimary,
                                         fontSize = 14.sp,
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Normal
                                     ),
                                     singleLine = true,
-                                    cursorBrush = SolidColor(Color(0xFF1877F2)),
+                                    cursorBrush = SolidColor(AppColors.primaryBlue),
                                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                                     keyboardActions = KeyboardActions(
                                         onSearch = {
@@ -427,13 +428,13 @@ fun SearchScreen(
                                         modifier = Modifier
                                             .size(20.dp)
                                             .clip(CircleShape)
-                                            .background(Color(0xFF1E293B)),
+                                            .background(AppColors.bgChip),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Close,
                                             contentDescription = "Clear search",
-                                            tint = Color(0xFF94A3B8),
+                                            tint = AppColors.textSecondary,
                                             modifier = Modifier.size(12.dp)
                                         )
                                     }
@@ -526,7 +527,7 @@ fun SearchScreen(
                             Icon(
                                 imageVector = Icons.Default.History,
                                 contentDescription = null,
-                                tint = Color(0xFF1877F2),
+                                tint = AppColors.primaryBlue,
                                 modifier = Modifier.size(18.dp)
                             )
                             Text(
@@ -534,7 +535,7 @@ fun SearchScreen(
                                 fontSize = 15.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFFF8FAFC)
+                                color = AppColors.textPrimary
                             )
                         }
 
@@ -544,7 +545,7 @@ fun SearchScreen(
                                 fontSize = 12.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Medium,
-                                color = Color(0xFF1877F2),
+                                color = AppColors.primaryBlue,
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(4.dp))
                                     .clickable { clearAllRecent() }
@@ -559,8 +560,8 @@ fun SearchScreen(
                     item {
                         Card(
                             shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B)),
+                            colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Column {
@@ -586,14 +587,14 @@ fun SearchScreen(
                                                     modifier = Modifier
                                                         .size(40.dp)
                                                         .clip(CircleShape)
-                                                        .border(1.dp, Color(0xFF1E293B), CircleShape)
+                                                        .border(1.dp, AppColors.border, CircleShape)
                                                 )
                                             } else {
                                                 Box(
                                                     modifier = Modifier
                                                         .size(40.dp)
                                                         .clip(CircleShape)
-                                                        .background(Color(0xFF1E293B)),
+                                                        .background(AppColors.bgChip),
                                                     contentAlignment = Alignment.Center
                                                 ) {
                                                     val icon = when (item.type) {
@@ -605,7 +606,7 @@ fun SearchScreen(
                                                     Icon(
                                                         imageVector = icon,
                                                         contentDescription = null,
-                                                        tint = Color(0xFF94A3B8),
+                                                        tint = AppColors.textSecondary,
                                                         modifier = Modifier.size(18.dp)
                                                     )
                                                 }
@@ -617,7 +618,7 @@ fun SearchScreen(
                                                     fontSize = 14.5.sp,
                                                     fontFamily = InterFontFamily,
                                                     fontWeight = FontWeight.SemiBold,
-                                                    color = Color(0xFFF8FAFC),
+                                                    color = AppColors.textPrimary,
                                                     maxLines = 1,
                                                     overflow = TextOverflow.Ellipsis
                                                 )
@@ -626,7 +627,7 @@ fun SearchScreen(
                                                     fontSize = 12.sp,
                                                     fontFamily = InterFontFamily,
                                                     fontWeight = FontWeight.Normal,
-                                                    color = Color(0xFF64748B),
+                                                    color = AppColors.textMuted,
                                                     maxLines = 1,
                                                     overflow = TextOverflow.Ellipsis
                                                 )
@@ -640,14 +641,14 @@ fun SearchScreen(
                                             Icon(
                                                 imageVector = Icons.Default.Close,
                                                 contentDescription = "Remove",
-                                                tint = Color(0xFF64748B),
+                                                tint = AppColors.textMuted,
                                                 modifier = Modifier.size(16.dp)
                                             )
                                         }
                                     }
 
                                     if (index < recentSearches.lastIndex) {
-                                        HorizontalDivider(color = Color(0xFF1E293B).copy(alpha = 0.6f))
+                                        HorizontalDivider(color = AppColors.border.copy(alpha = 0.6f))
                                     }
                                 }
                             }
@@ -657,8 +658,8 @@ fun SearchScreen(
                     item {
                         Card(
                             shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A).copy(alpha = 0.5f)),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B)),
+                            colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Column(
@@ -671,13 +672,13 @@ fun SearchScreen(
                                     modifier = Modifier
                                         .size(48.dp)
                                         .clip(CircleShape)
-                                        .background(Color(0xFF1E293B)),
+                                        .background(AppColors.bgChip),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Search,
                                         contentDescription = null,
-                                        tint = Color(0xFF94A3B8),
+                                        tint = AppColors.textSecondary,
                                         modifier = Modifier.size(22.dp)
                                     )
                                 }
@@ -687,7 +688,7 @@ fun SearchScreen(
                                     fontSize = 15.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = Color(0xFFF8FAFC)
+                                    color = AppColors.textPrimary
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
@@ -695,7 +696,7 @@ fun SearchScreen(
                                     fontSize = 12.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
-                                    color = Color(0xFF64748B),
+                                    color = AppColors.textMuted,
                                     textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                                     lineHeight = 16.sp
                                 )
@@ -712,7 +713,7 @@ fun SearchScreen(
                             fontSize = 12.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF94A3B8),
+                            color = AppColors.textSecondary,
                             letterSpacing = 0.8.sp,
                             modifier = Modifier.padding(horizontal = 2.dp, vertical = 6.dp)
                         )
@@ -737,8 +738,8 @@ fun SearchScreen(
                     item {
                         Card(
                             shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B)),
+                            colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 12.dp)
@@ -752,7 +753,7 @@ fun SearchScreen(
                                 Icon(
                                     imageVector = Icons.Default.Search,
                                     contentDescription = null,
-                                    tint = Color(0xFF475569),
+                                    tint = AppColors.textMuted,
                                     modifier = Modifier.size(36.dp)
                                 )
                                 Spacer(modifier = Modifier.height(10.dp))
@@ -761,7 +762,7 @@ fun SearchScreen(
                                     fontSize = 16.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = Color(0xFFF8FAFC)
+                                    color = AppColors.textPrimary
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
@@ -769,7 +770,7 @@ fun SearchScreen(
                                     fontSize = 12.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
-                                    color = Color(0xFF64748B),
+                                    color = AppColors.textMuted,
                                     textAlign = androidx.compose.ui.text.style.TextAlign.Center
                                 )
                             }
@@ -807,7 +808,7 @@ fun SearchScreen(
                                             modifier = Modifier
                                                 .size(44.dp)
                                                 .clip(CircleShape)
-                                                .border(1.dp, Color(0xFF1E293B), CircleShape)
+                                                .border(1.dp, AppColors.border, CircleShape)
                                         )
 
                                         Column(modifier = Modifier.weight(1f)) {
@@ -820,7 +821,7 @@ fun SearchScreen(
                                                     fontSize = 15.sp,
                                                     fontFamily = InterFontFamily,
                                                     fontWeight = FontWeight.Bold,
-                                                    color = Color(0xFFF8FAFC),
+                                                    color = AppColors.textPrimary,
                                                     maxLines = 1,
                                                     overflow = TextOverflow.Ellipsis
                                                 )
@@ -833,7 +834,7 @@ fun SearchScreen(
                                                 fontSize = 12.sp,
                                                 fontFamily = InterFontFamily,
                                                 fontWeight = FontWeight.Normal,
-                                                color = Color(0xFF64748B),
+                                                color = AppColors.textMuted,
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis
                                             )
@@ -844,7 +845,7 @@ fun SearchScreen(
                                         Button(
                                             onClick = { onFollow(user.id) },
                                             colors = ButtonDefaults.buttonColors(
-                                                containerColor = if (isFollowed) Color(0xFF1E293B) else Color(0xFF1877F2)
+                                                containerColor = if (isFollowed) AppColors.bgChip else AppColors.primaryBlue
                                             ),
                                             shape = RoundedCornerShape(8.dp),
                                             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
@@ -853,7 +854,7 @@ fun SearchScreen(
                                             Icon(
                                                 imageVector = if (isFollowed) Icons.Filled.Check else Icons.Filled.PersonAdd,
                                                 contentDescription = null,
-                                                tint = if (isFollowed) Color(0xFFF8FAFC) else Color.White,
+                                                tint = if (isFollowed) AppColors.textPrimary else Color.White,
                                                 modifier = Modifier.size(14.dp)
                                             )
                                             Spacer(modifier = Modifier.width(4.dp))
@@ -862,14 +863,14 @@ fun SearchScreen(
                                                 fontSize = 12.sp,
                                                 fontFamily = InterFontFamily,
                                                 fontWeight = FontWeight.Medium,
-                                                color = if (isFollowed) Color(0xFFF8FAFC) else Color.White
+                                                color = if (isFollowed) AppColors.textPrimary else Color.White
                                             )
                                         }
                                     }
                                 }
 
                                 if (index < displayUsers.lastIndex) {
-                                    HorizontalDivider(color = Color(0xFF1E293B).copy(alpha = 0.6f))
+                                    HorizontalDivider(color = AppColors.border.copy(alpha = 0.6f))
                                 }
                             }
                         }
@@ -1036,7 +1037,7 @@ fun SearchScreen(
                                             modifier = Modifier
                                                 .size(44.dp)
                                                 .clip(RoundedCornerShape(12.dp))
-                                                .border(1.dp, Color(0xFF1E293B), RoundedCornerShape(12.dp))
+                                                .border(1.dp, AppColors.border, RoundedCornerShape(12.dp))
                                         )
 
                                         Column(modifier = Modifier.weight(1f)) {
@@ -1045,7 +1046,7 @@ fun SearchScreen(
                                                 fontSize = 14.5.sp,
                                                 fontFamily = InterFontFamily,
                                                 fontWeight = FontWeight.Bold,
-                                                color = Color(0xFFF8FAFC),
+                                                color = AppColors.textPrimary,
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis
                                             )
@@ -1054,7 +1055,7 @@ fun SearchScreen(
                                                 fontSize = 12.sp,
                                                 fontFamily = InterFontFamily,
                                                 fontWeight = FontWeight.Normal,
-                                                color = Color(0xFF64748B),
+                                                color = AppColors.textSecondary,
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis
                                             )
@@ -1062,7 +1063,7 @@ fun SearchScreen(
                                     }
 
                                     Surface(
-                                        color = Color(0xFF1E293B),
+                                        color = if (AppColors.isLight) AppColors.bgBlueTint else AppColors.bgChip,
                                         shape = RoundedCornerShape(8.dp),
                                         modifier = Modifier
                                             .clip(RoundedCornerShape(8.dp))
@@ -1073,14 +1074,14 @@ fun SearchScreen(
                                             fontSize = 12.sp,
                                             fontFamily = InterFontFamily,
                                             fontWeight = FontWeight.Medium,
-                                            color = Color(0xFF38BDF8),
+                                            color = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8),
                                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                                         )
                                     }
                                 }
 
                                 if (index < filteredGroups.lastIndex) {
-                                    HorizontalDivider(color = Color(0xFF1E293B).copy(alpha = 0.6f))
+                                    HorizontalDivider(color = AppColors.border.copy(alpha = 0.6f))
                                 }
                             }
                         }
@@ -1130,14 +1131,14 @@ fun SearchScreen(
                                             fontSize = 12.5.sp,
                                             fontFamily = InterFontFamily,
                                             fontWeight = FontWeight.Bold,
-                                            color = Color(0xFFF8FAFC)
+                                            color = AppColors.textPrimary
                                         )
                                         Text(
                                             text = post.timestamp,
                                             fontSize = 11.sp,
                                             fontFamily = InterFontFamily,
                                             fontWeight = FontWeight.Normal,
-                                            color = Color(0xFF64748B)
+                                            color = AppColors.textSecondary
                                         )
                                     }
 
@@ -1146,7 +1147,7 @@ fun SearchScreen(
                                         fontSize = 13.5.sp,
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Normal,
-                                        color = Color(0xFFCBD5E1),
+                                        color = AppColors.textBody,
                                         maxLines = 2,
                                         overflow = TextOverflow.Ellipsis,
                                         lineHeight = 18.sp
@@ -1154,7 +1155,7 @@ fun SearchScreen(
                                 }
 
                                 if (index < displayPosts.lastIndex) {
-                                    HorizontalDivider(color = Color(0xFF1E293B).copy(alpha = 0.6f))
+                                    HorizontalDivider(color = AppColors.border.copy(alpha = 0.6f))
                                 }
                             }
                         }
@@ -1200,7 +1201,7 @@ fun SearchScreen(
                                             modifier = Modifier
                                                 .size(52.dp)
                                                 .clip(RoundedCornerShape(10.dp))
-                                                .border(1.dp, Color(0xFF1E293B), RoundedCornerShape(10.dp))
+                                                .border(1.dp, AppColors.border, RoundedCornerShape(10.dp))
                                         )
 
                                         Column(modifier = Modifier.weight(1f)) {
@@ -1209,7 +1210,7 @@ fun SearchScreen(
                                                 fontSize = 14.sp,
                                                 fontFamily = InterFontFamily,
                                                 fontWeight = FontWeight.SemiBold,
-                                                color = Color(0xFFF8FAFC),
+                                                color = AppColors.textPrimary,
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis
                                             )
@@ -1218,14 +1219,14 @@ fun SearchScreen(
                                                 fontSize = 13.sp,
                                                 fontFamily = InterFontFamily,
                                                 fontWeight = FontWeight.SemiBold,
-                                                color = Color(0xFF38BDF8)
+                                                color = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8)
                                             )
                                             Text(
                                                 text = product.location,
                                                 fontSize = 11.5.sp,
                                                 fontFamily = InterFontFamily,
                                                 fontWeight = FontWeight.Normal,
-                                                color = Color(0xFF64748B),
+                                                color = AppColors.textSecondary,
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis
                                             )
@@ -1233,9 +1234,9 @@ fun SearchScreen(
                                     }
 
                                     Surface(
-                                        color = Color(0xFF1877F2).copy(alpha = 0.15f),
+                                        color = if (AppColors.isLight) AppColors.bgBlueTint else AppColors.primaryBlue.copy(alpha = 0.15f),
                                         shape = RoundedCornerShape(8.dp),
-                                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1877F2).copy(alpha = 0.4f)),
+                                        border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.primaryBlue.copy(alpha = if (AppColors.isLight) 0.25f else 0.4f)),
                                         modifier = Modifier
                                             .clip(RoundedCornerShape(8.dp))
                                             .clickable { onViewProduct?.invoke(product.id) }
@@ -1245,14 +1246,14 @@ fun SearchScreen(
                                             fontSize = 12.sp,
                                             fontFamily = InterFontFamily,
                                             fontWeight = FontWeight.Medium,
-                                            color = Color(0xFF38BDF8),
+                                            color = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8),
                                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                                         )
                                     }
                                 }
 
                                 if (index < displayProducts.lastIndex) {
-                                    HorizontalDivider(color = Color(0xFF1E293B).copy(alpha = 0.6f))
+                                    HorizontalDivider(color = AppColors.border.copy(alpha = 0.6f))
                                 }
                             }
                         }
@@ -1275,8 +1276,8 @@ private fun SearchFilterTab(
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(20.dp),
-        color = if (isSelected) Color(0xFF1877F2) else Color(0xFF0F172A),
-        border = if (isSelected) null else androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B)),
+        color = if (isSelected) AppColors.primaryBlue else AppColors.bgCard,
+        border = if (isSelected) null else androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
         modifier = Modifier.height(30.dp)
     ) {
         Box(
@@ -1288,7 +1289,7 @@ private fun SearchFilterTab(
                 fontSize = 12.sp,
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.Medium,
-                color = if (isSelected) Color.White else Color(0xFF94A3B8)
+                color = if (isSelected) Color.White else AppColors.textSecondary
             )
         }
     }
@@ -1305,8 +1306,8 @@ private fun SearchSectionCard(
 ) {
     Card(
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B)),
+        colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+        border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column {
@@ -1314,7 +1315,7 @@ private fun SearchSectionCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFF0B1120))
+                    .background(if (AppColors.isLight) AppColors.bgCardElevated else AppColors.bgSurface)
                     .padding(horizontal = 14.dp, vertical = 10.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -1324,7 +1325,7 @@ private fun SearchSectionCard(
                     fontSize = 12.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF94A3B8),
+                    color = AppColors.textSecondary,
                     letterSpacing = 0.8.sp
                 )
                 Text(
@@ -1332,10 +1333,10 @@ private fun SearchSectionCard(
                     fontSize = 11.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Normal,
-                    color = Color(0xFF64748B)
+                    color = AppColors.textMuted
                 )
             }
-            HorizontalDivider(color = Color(0xFF1E293B))
+            HorizontalDivider(color = AppColors.border)
 
             content()
         }
@@ -1361,8 +1362,8 @@ private fun OptInFlowRowWrapper(
             Surface(
                 onClick = { onTopicClick(tag) },
                 shape = RoundedCornerShape(20.dp),
-                color = Color(0xFF0F172A),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B)),
+                color = AppColors.bgCard,
+                border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
                 modifier = Modifier.height(34.dp)
             ) {
                 Box(
@@ -1374,7 +1375,7 @@ private fun OptInFlowRowWrapper(
                         fontSize = 12.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Medium,
-                        color = Color(0xFFCBD5E1)
+                        color = AppColors.textBody
                     )
                 }
             }

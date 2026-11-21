@@ -194,6 +194,7 @@ fun GlobalAudioPlayer(
 
     // Download feedback toast notification
     if (downloadToast != null) {
+        val toastAccent = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8)
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -202,8 +203,8 @@ fun GlobalAudioPlayer(
         ) {
             Surface(
                 shape = RoundedCornerShape(12.dp),
-                color = Color(0xFF0F172A),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF38BDF8).copy(alpha = 0.5f)),
+                color = AppColors.bgCard,
+                border = androidx.compose.foundation.BorderStroke(1.dp, toastAccent.copy(alpha = 0.5f)),
                 shadowElevation = 8.dp,
                 modifier = Modifier.padding(horizontal = 24.dp)
             ) {
@@ -215,12 +216,12 @@ fun GlobalAudioPlayer(
                     Icon(
                         imageVector = Icons.Default.CheckCircle,
                         contentDescription = null,
-                        tint = Color(0xFF38BDF8),
+                        tint = toastAccent,
                         modifier = Modifier.size(18.dp)
                     )
                     Text(
                         text = downloadToast,
-                        color = Color.White,
+                        color = AppColors.textPrimary,
                         fontSize = 13.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold
@@ -255,8 +256,8 @@ fun MiniAudioPlayerBar(
             .height(68.dp)
             .clickable(onClick = onClick)
             .testTag("mini_audio_player"),
-        color = Color(0xFF0F172A),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B)),
+        color = AppColors.bgCard,
+        border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
         shadowElevation = 12.dp
     ) {
         Row(
@@ -278,7 +279,7 @@ fun MiniAudioPlayerBar(
                     modifier = Modifier
                         .size(44.dp)
                         .clip(RoundedCornerShape(8.dp))
-                        .border(1.dp, Color(0xFF1E293B), RoundedCornerShape(8.dp))
+                        .border(1.dp, AppColors.border, RoundedCornerShape(8.dp))
                 ) {
                     AsyncImage(
                         model = trackCover,
@@ -293,7 +294,7 @@ fun MiniAudioPlayerBar(
                                 .padding(2.dp)
                                 .size(8.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFF1877F2))
+                                .background(AppColors.primaryBlue)
                         )
                     }
                 }
@@ -304,7 +305,7 @@ fun MiniAudioPlayerBar(
                 ) {
                     Text(
                         text = track.title,
-                        color = Color.White,
+                        color = AppColors.textPrimary,
                         fontSize = 14.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
@@ -317,7 +318,7 @@ fun MiniAudioPlayerBar(
                     ) {
                         Text(
                             text = track.artist,
-                            color = Color(0xFF94A3B8),
+                            color = AppColors.textSecondary,
                             fontSize = 12.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Bold,
@@ -344,7 +345,7 @@ fun MiniAudioPlayerBar(
                     Icon(
                         imageVector = if (isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                         contentDescription = "Like",
-                        tint = if (isLiked) Color(0xFFF43F5E) else Color(0xFF94A3B8),
+                        tint = if (isLiked) Color(0xFFF43F5E) else AppColors.textSecondary,
                         modifier = Modifier.size(18.dp)
                     )
                 }
@@ -357,7 +358,7 @@ fun MiniAudioPlayerBar(
                     Icon(
                         imageVector = Icons.Default.SkipPrevious,
                         contentDescription = "Previous",
-                        tint = Color(0xFF94A3B8),
+                        tint = AppColors.textSecondary,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -368,7 +369,7 @@ fun MiniAudioPlayerBar(
                     modifier = Modifier
                         .size(38.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFF1877F2))
+                        .background(AppColors.primaryBlue)
                 ) {
                     Icon(
                         imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
@@ -386,7 +387,7 @@ fun MiniAudioPlayerBar(
                     Icon(
                         imageVector = Icons.Default.SkipNext,
                         contentDescription = "Next",
-                        tint = Color(0xFF94A3B8),
+                        tint = AppColors.textSecondary,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -401,14 +402,14 @@ fun MiniAudioPlayerBar(
                         CircularProgressIndicator(
                             progress = { downloadProgress / 100f },
                             modifier = Modifier.size(16.dp),
-                            color = Color(0xFF38BDF8),
+                            color = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8),
                             strokeWidth = 2.dp
                         )
                     } else {
                         Icon(
                             imageVector = Icons.Default.Download,
                             contentDescription = "Download",
-                            tint = Color(0xFF94A3B8),
+                            tint = AppColors.textSecondary,
                             modifier = Modifier.size(17.dp)
                         )
                     }
@@ -422,7 +423,7 @@ fun MiniAudioPlayerBar(
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Close",
-                        tint = Color(0xFF64748B),
+                        tint = AppColors.textMuted,
                         modifier = Modifier.size(16.dp)
                     )
                 }
@@ -481,7 +482,7 @@ fun ExpandedAudioPlayerDialog(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFF050B18))
+                .background(AppColors.bgScreen)
         ) {
             // Atmospheric ambient background
             Box(
@@ -489,10 +490,11 @@ fun ExpandedAudioPlayerDialog(
                     .fillMaxSize()
                     .background(
                         Brush.verticalGradient(
-                            colors = listOf(
-                                Color(0xFF0B1528),
-                                Color(0xFF050B18)
-                            )
+                            colors = if (AppColors.isLight) {
+                                listOf(Color(0xFFE7F0FD), AppColors.bgScreen)
+                            } else {
+                                listOf(Color(0xFF0B1528), Color(0xFF050B18))
+                            }
                         )
                     )
             )
@@ -500,13 +502,14 @@ fun ExpandedAudioPlayerDialog(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .statusBarsPadding()
                     .navigationBarsPadding()
             ) {
-                // Top Header
+                // Top Header (Blue in Light Mode)
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .background(AppColors.headerBg)
+                        .statusBarsPadding()
                         .padding(horizontal = 16.dp, vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -516,19 +519,19 @@ fun ExpandedAudioPlayerDialog(
                         modifier = Modifier
                             .size(40.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFF0F172A))
+                            .background(AppColors.headerIconBg)
                     ) {
                         Icon(
                             imageVector = Icons.Default.KeyboardArrowDown,
                             contentDescription = "Minimize player",
-                            tint = Color.White
+                            tint = AppColors.headerIconTint
                         )
                     }
 
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             text = "NOW PLAYING",
-                            color = Color(0xFF64748B),
+                            color = AppColors.headerSubtext,
                             fontSize = 11.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
@@ -536,7 +539,7 @@ fun ExpandedAudioPlayerDialog(
                         )
                         Text(
                             text = track.title,
-                            color = Color.White,
+                            color = AppColors.headerText,
                             fontSize = 14.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
@@ -551,12 +554,12 @@ fun ExpandedAudioPlayerDialog(
                         modifier = Modifier
                             .size(40.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFF0F172A))
+                            .background(AppColors.headerIconBg)
                     ) {
                         Icon(
                             imageVector = if (isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                             contentDescription = "Like",
-                            tint = if (isLiked) Color(0xFFF43F5E) else Color(0xFF94A3B8)
+                            tint = if (isLiked) Color(0xFFF43F5E) else AppColors.headerIconTint
                         )
                     }
                 }
@@ -578,8 +581,8 @@ fun ExpandedAudioPlayerDialog(
                                 .size(240.dp)
                                 .shadow(24.dp, CircleShape)
                                 .clip(CircleShape)
-                                .background(Color(0xFF0A0F1D))
-                                .border(8.dp, Color(0xFF0F172A), CircleShape)
+                                .background(if (AppColors.isLight) Color.White else Color(0xFF0A0F1D))
+                                .border(8.dp, if (AppColors.isLight) Color.White else Color(0xFF0F172A), CircleShape)
                                 .rotate(if (isPlaying) spinRotation else 0f),
                             contentAlignment = Alignment.Center
                         ) {
@@ -597,15 +600,15 @@ fun ExpandedAudioPlayerDialog(
                                 modifier = Modifier
                                     .size(44.dp)
                                     .clip(CircleShape)
-                                    .background(Color(0xFF050B18))
-                                    .border(3.dp, Color(0xFF1E293B), CircleShape),
+                                    .background(AppColors.bgScreen)
+                                    .border(3.dp, AppColors.borderStrong, CircleShape),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Box(
                                     modifier = Modifier
                                         .size(12.dp)
                                         .clip(CircleShape)
-                                        .background(Color(0xFF1E293B))
+                                        .background(AppColors.borderStrong)
                                 )
                             }
                         }
@@ -615,7 +618,7 @@ fun ExpandedAudioPlayerDialog(
                         // Title & Artist Info
                         Text(
                             text = track.title,
-                            color = Color.White,
+                            color = AppColors.textPrimary,
                             fontSize = 22.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
@@ -629,7 +632,8 @@ fun ExpandedAudioPlayerDialog(
                         Row(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(20.dp))
-                                .background(Color(0xFF0F172A))
+                                .background(AppColors.bgCard)
+                                .border(1.dp, AppColors.border, RoundedCornerShape(20.dp))
                                 .clickable { onArtistClick(track.uploaderId) }
                                 .padding(horizontal = 14.dp, vertical = 6.dp),
                             verticalAlignment = Alignment.CenterVertically,
@@ -637,7 +641,7 @@ fun ExpandedAudioPlayerDialog(
                         ) {
                             Text(
                                 text = track.artist,
-                                color = Color(0xFFF8FAFC),
+                                color = AppColors.textPrimary,
                                 fontSize = 14.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Bold
@@ -647,7 +651,7 @@ fun ExpandedAudioPlayerDialog(
                             }
                             Text(
                                 text = "• Artist",
-                                color = Color(0xFF64748B),
+                                color = AppColors.textSecondary,
                                 fontSize = 12.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal
@@ -660,7 +664,7 @@ fun ExpandedAudioPlayerDialog(
                         Row(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(Color(0xFF0F172A).copy(alpha = 0.6f))
+                                .background(AppColors.bgCard.copy(alpha = 0.8f))
                                 .padding(horizontal = 10.dp, vertical = 4.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -668,12 +672,12 @@ fun ExpandedAudioPlayerDialog(
                             Icon(
                                 imageVector = Icons.Default.Headphones,
                                 contentDescription = null,
-                                tint = Color(0xFF1877F2),
+                                tint = AppColors.primaryBlue,
                                 modifier = Modifier.size(13.dp)
                             )
                             Text(
                                 text = "${formatPlayCount(displayPlays)} plays",
-                                color = Color(0xFF94A3B8),
+                                color = AppColors.textSecondary,
                                 fontSize = 12.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal
@@ -684,8 +688,8 @@ fun ExpandedAudioPlayerDialog(
 
                 // Bottom Controls Card
                 Surface(
-                    color = Color(0xFF0F172A),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B)),
+                    color = AppColors.bgCard,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
                     shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -704,14 +708,14 @@ fun ExpandedAudioPlayerDialog(
                         ) {
                             Text(
                                 text = formatSeconds(currentPosition),
-                                color = Color(0xFF94A3B8),
+                                color = AppColors.textSecondary,
                                 fontSize = 12.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Medium
                             )
                             Text(
                                 text = formatSeconds(safeDuration),
-                                color = Color(0xFF94A3B8),
+                                color = AppColors.textSecondary,
                                 fontSize = 12.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Medium
@@ -723,9 +727,9 @@ fun ExpandedAudioPlayerDialog(
                             onValueChange = { onSeek(it.toInt()) },
                             valueRange = 0f..safeDuration.toFloat(),
                             colors = SliderDefaults.colors(
-                                thumbColor = Color(0xFF1877F2),
-                                activeTrackColor = Color(0xFF1877F2),
-                                inactiveTrackColor = Color(0xFF1E293B)
+                                thumbColor = AppColors.primaryBlue,
+                                activeTrackColor = AppColors.primaryBlue,
+                                inactiveTrackColor = AppColors.bgChip
                             ),
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -743,7 +747,7 @@ fun ExpandedAudioPlayerDialog(
                                 Icon(
                                     imageVector = Icons.Default.Shuffle,
                                     contentDescription = "Shuffle",
-                                    tint = if (isShuffle) Color(0xFF1877F2) else Color(0xFF64748B)
+                                    tint = if (isShuffle) AppColors.primaryBlue else AppColors.textMuted
                                 )
                             }
 
@@ -752,7 +756,7 @@ fun ExpandedAudioPlayerDialog(
                                 Icon(
                                     imageVector = Icons.Default.SkipPrevious,
                                     contentDescription = "Previous",
-                                    tint = Color(0xFF94A3B8),
+                                    tint = AppColors.textSecondary,
                                     modifier = Modifier.size(32.dp)
                                 )
                             }
@@ -764,7 +768,7 @@ fun ExpandedAudioPlayerDialog(
                                     .size(64.dp)
                                     .shadow(8.dp, CircleShape)
                                     .clip(CircleShape)
-                                    .background(Color(0xFF1877F2))
+                                    .background(AppColors.primaryBlue)
                             ) {
                                 Icon(
                                     imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
@@ -779,7 +783,7 @@ fun ExpandedAudioPlayerDialog(
                                 Icon(
                                     imageVector = Icons.Default.SkipNext,
                                     contentDescription = "Next",
-                                    tint = Color(0xFF94A3B8),
+                                    tint = AppColors.textSecondary,
                                     modifier = Modifier.size(32.dp)
                                 )
                             }
@@ -789,7 +793,7 @@ fun ExpandedAudioPlayerDialog(
                                 Icon(
                                     imageVector = Icons.Default.Repeat,
                                     contentDescription = "Repeat",
-                                    tint = if (isRepeat) Color(0xFF1877F2) else Color(0xFF64748B)
+                                    tint = if (isRepeat) AppColors.primaryBlue else AppColors.textMuted
                                 )
                             }
                         }
@@ -807,8 +811,9 @@ fun ExpandedAudioPlayerDialog(
                                 onClick = onStop,
                                 shape = RoundedCornerShape(8.dp),
                                 colors = ButtonDefaults.outlinedButtonColors(
-                                    contentColor = Color(0xFF94A3B8)
+                                    contentColor = AppColors.textSecondary
                                 ),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.borderStrong),
                                 contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
                                 modifier = Modifier.height(32.dp)
                             ) {
@@ -830,7 +835,7 @@ fun ExpandedAudioPlayerDialog(
                                 Icon(
                                     imageVector = Icons.Default.VolumeDown,
                                     contentDescription = "Volume Down",
-                                    tint = Color(0xFF64748B),
+                                    tint = AppColors.textMuted,
                                     modifier = Modifier.size(16.dp)
                                 )
                                 Slider(
@@ -838,28 +843,29 @@ fun ExpandedAudioPlayerDialog(
                                     onValueChange = onVolumeChange,
                                     valueRange = 0f..1f,
                                     colors = SliderDefaults.colors(
-                                        thumbColor = Color(0xFF1877F2),
-                                        activeTrackColor = Color(0xFF1877F2),
-                                        inactiveTrackColor = Color(0xFF1E293B)
+                                        thumbColor = AppColors.primaryBlue,
+                                        activeTrackColor = AppColors.primaryBlue,
+                                        inactiveTrackColor = AppColors.bgChip
                                     ),
                                     modifier = Modifier.weight(1f)
                                 )
                                 Icon(
                                     imageVector = Icons.Default.VolumeUp,
                                     contentDescription = "Volume Up",
-                                    tint = Color(0xFF64748B),
+                                    tint = AppColors.textMuted,
                                     modifier = Modifier.size(16.dp)
                                 )
                             }
 
                             // Download action
+                            val dlAccent = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8)
                             Button(
                                 onClick = onDownload,
                                 enabled = !isDownloading,
                                 shape = RoundedCornerShape(8.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = if (isDownloading) Color(0xFF1877F2).copy(alpha = 0.2f) else Color(0xFF1E293B),
-                                    contentColor = if (isDownloading) Color(0xFF38BDF8) else Color(0xFFF8FAFC)
+                                    containerColor = if (isDownloading) AppColors.bgBlueTint else AppColors.bgChip,
+                                    contentColor = if (isDownloading) dlAccent else AppColors.textPrimary
                                 ),
                                 contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
                                 modifier = Modifier.height(32.dp)
@@ -868,7 +874,7 @@ fun ExpandedAudioPlayerDialog(
                                     CircularProgressIndicator(
                                         progress = { downloadProgress / 100f },
                                         modifier = Modifier.size(14.dp),
-                                        color = Color(0xFF38BDF8),
+                                        color = dlAccent,
                                         strokeWidth = 2.dp
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
@@ -896,8 +902,8 @@ fun ExpandedAudioPlayerDialog(
                                 onClick = onOpenDiscussions,
                                 shape = RoundedCornerShape(10.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFF162137),
-                                    contentColor = Color(0xFFF8FAFC)
+                                    containerColor = AppColors.bgCardElevated,
+                                    contentColor = AppColors.textPrimary
                                 ),
                                 modifier = Modifier
                                     .weight(1f)
@@ -906,7 +912,7 @@ fun ExpandedAudioPlayerDialog(
                                 Icon(
                                     imageVector = Icons.Default.ChatBubbleOutline,
                                     contentDescription = "Discussions",
-                                    tint = Color(0xFF1877F2),
+                                    tint = AppColors.primaryBlue,
                                     modifier = Modifier.size(18.dp)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
@@ -917,8 +923,8 @@ fun ExpandedAudioPlayerDialog(
                                 onClick = onOpenShare,
                                 shape = RoundedCornerShape(10.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFF162137),
-                                    contentColor = Color(0xFFF8FAFC)
+                                    containerColor = AppColors.bgCardElevated,
+                                    contentColor = AppColors.textPrimary
                                 ),
                                 modifier = Modifier
                                     .weight(1f)
@@ -927,7 +933,7 @@ fun ExpandedAudioPlayerDialog(
                                 Icon(
                                     imageVector = Icons.Default.Share,
                                     contentDescription = "Share",
-                                    tint = Color(0xFF1877F2),
+                                    tint = AppColors.primaryBlue,
                                     modifier = Modifier.size(18.dp)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))

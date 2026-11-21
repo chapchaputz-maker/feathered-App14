@@ -53,7 +53,9 @@ import com.unera.social.ui.components.CallMode
 import com.unera.social.ui.components.CallPhase
 import com.unera.social.ui.components.FacebookSplashScreen
 import com.unera.social.ui.screens.*
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.FeatheredTheme
+import com.unera.social.ui.theme.ThemePreferences
 import android.net.Uri
 import kotlinx.coroutines.launch
 
@@ -67,6 +69,7 @@ class MainActivity : ComponentActivity() {
         }
         FcmTokenManager.createNotificationChannel(this)
         verifyFcmTokenInDebug()
+        ThemePreferences.init(this)
         enableEdgeToEdge()
         setContent {
             FeatheredTheme {
@@ -152,6 +155,7 @@ fun FeatheredApp(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        containerColor = AppColors.bgScreen,
         topBar = {
             val hasCustomTopBar = uiState.showSearchDialog || uiState.currentScreen in listOf(
                 Screen.SEARCH,
@@ -779,6 +783,8 @@ fun FeatheredApp(
                 Screen.SETTINGS -> {
                     SettingsScreen(
                         currentUser = uiState.currentUser,
+                        isLightMode = uiState.isLightMode,
+                        onToggleLightMode = { enabled -> viewModel.setLightMode(enabled) },
                         onClose = { viewModel.setScreen(Screen.FEED) },
                         onLogout = { viewModel.logoutUser() },
                         onUpdateUserDetails = { name, bio, work, edu, loc, web, gender, bday ->

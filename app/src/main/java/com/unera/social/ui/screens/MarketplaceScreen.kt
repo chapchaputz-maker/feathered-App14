@@ -203,12 +203,12 @@ fun MarketplaceScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFF050B18))
+            .background(AppColors.bgScreen)
             .testTag("marketplace_screen")
     ) {
-        // Sticky Header matching web `h-14 px-3 bg-[#0B1120] border-b border-[#1E293B]`
+        // Sticky Header
         Surface(
-            color = Color(0xFF0B1120),
+            color = AppColors.headerBg,
             modifier = Modifier.fillMaxWidth()
         ) {
             Column {
@@ -234,7 +234,7 @@ fun MarketplaceScreen(
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Back",
-                                tint = Color(0xFFF8FAFC)
+                                tint = AppColors.headerText
                             )
                         }
 
@@ -245,7 +245,7 @@ fun MarketplaceScreen(
                             fontSize = 20.sp,
                             fontWeight = FontWeight.SemiBold,
                             fontFamily = InterFontFamily,
-                            color = Color(0xFFF8FAFC)
+                            color = AppColors.headerText
                         )
                     }
 
@@ -260,13 +260,15 @@ fun MarketplaceScreen(
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFF1E293B))
+                                .background(if (AppColors.isLight) AppColors.headerIconBg else AppColors.bgChip)
                                 .testTag("marketplace_refresh_btn")
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Refresh,
                                 contentDescription = "Refresh live listings",
-                                tint = if (isLoading) Color(0xFF1877F2) else Color(0xFFF8FAFC),
+                                tint = if (isLoading) {
+                                    if (AppColors.isLight) Color.White else AppColors.primaryBlue
+                                } else AppColors.headerIconTint,
                                 modifier = Modifier.size(18.dp)
                             )
                         }
@@ -277,13 +279,13 @@ fun MarketplaceScreen(
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFF1E293B))
+                                .background(if (AppColors.isLight) AppColors.headerIconBg else AppColors.bgChip)
                                 .testTag("marketplace_search_btn")
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Search,
                                 contentDescription = "Search",
-                                tint = Color(0xFFF8FAFC),
+                                tint = AppColors.headerIconTint,
                                 modifier = Modifier.size(18.dp)
                             )
                         }
@@ -292,7 +294,7 @@ fun MarketplaceScreen(
                         Surface(
                             onClick = { showCountryDialog = true },
                             shape = RoundedCornerShape(20.dp),
-                            color = Color(0xFF1E293B),
+                            color = if (AppColors.isLight) AppColors.headerIconBg else AppColors.bgChip,
                             modifier = Modifier
                                 .height(40.dp)
                                 .testTag("marketplace_country_btn")
@@ -309,11 +311,11 @@ fun MarketplaceScreen(
                             }
                         }
 
-                        // Sell Button (Primary Blue on web: #1877F2)
+                        // Sell Button (White pill with blue text on blue header in Light Mode; blue pill in Dark Mode)
                         Button(
                             onClick = onOpenCreateProduct,
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF1877F2)
+                                containerColor = if (AppColors.isLight) Color.White else AppColors.primaryBlue
                             ),
                             shape = RoundedCornerShape(20.dp),
                             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
@@ -323,10 +325,10 @@ fun MarketplaceScreen(
                         ) {
                             Text(
                                 text = "Sell",
-                                fontWeight = FontWeight.Medium,
+                                fontWeight = FontWeight.SemiBold,
                                 fontSize = 14.sp,
                                 fontFamily = InterFontFamily,
-                                color = Color.White
+                                color = if (AppColors.isLight) AppColors.primaryBlue else Color.White
                             )
                         }
                     }
@@ -349,7 +351,11 @@ fun MarketplaceScreen(
                         Surface(
                             onClick = { onMarketModeSelected(modeId) },
                             shape = RoundedCornerShape(18.dp),
-                            color = if (active) Color(0xFFE7F3FF) else Color(0xFF1E293B),
+                            color = if (AppColors.isLight) {
+                                if (active) Color.White else AppColors.headerIconBg
+                            } else {
+                                if (active) Color(0xFFE7F3FF) else AppColors.bgChip
+                            },
                             modifier = Modifier.height(36.dp)
                         ) {
                             Box(
@@ -361,7 +367,11 @@ fun MarketplaceScreen(
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.Medium,
                                     fontFamily = InterFontFamily,
-                                    color = if (active) Color(0xFF1877F2) else Color(0xFFF8FAFC)
+                                    color = if (AppColors.isLight) {
+                                        if (active) AppColors.primaryBlue else Color.White
+                                    } else {
+                                        if (active) Color(0xFF1877F2) else AppColors.textPrimary
+                                    }
                                 )
                             }
                         }
@@ -370,38 +380,41 @@ fun MarketplaceScreen(
             }
         }
 
-        // Sticky Categories Row matching web `top-[104px] bg-[#0B1120] border-b border-[#1E293B]`
+        // Sticky Categories Row
         Surface(
-            color = Color(0xFF0B1120),
+            color = AppColors.bgSurface,
             modifier = Modifier.fillMaxWidth()
         ) {
-            LazyRow(
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                items(WEB_MARKETPLACE_CATEGORIES) { cat ->
-                    val active = selectedCategory.equals(cat.id, ignoreCase = true)
-                    Surface(
-                        onClick = { onCategorySelected(cat.id) },
-                        shape = RoundedCornerShape(18.dp),
-                        color = if (active) Color(0xFF1877F2) else Color(0xFF1E293B),
-                        modifier = Modifier.height(36.dp)
-                    ) {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier.padding(horizontal = 16.dp)
+            Column {
+                LazyRow(
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(WEB_MARKETPLACE_CATEGORIES) { cat ->
+                        val active = selectedCategory.equals(cat.id, ignoreCase = true)
+                        Surface(
+                            onClick = { onCategorySelected(cat.id) },
+                            shape = RoundedCornerShape(18.dp),
+                            color = if (active) AppColors.primaryBlue else AppColors.bgChip,
+                            modifier = Modifier.height(36.dp)
                         ) {
-                            Text(
-                                text = cat.name,
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Medium,
-                                fontFamily = InterFontFamily,
-                                color = if (active) Color.White else Color(0xFFF8FAFC)
-                            )
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            ) {
+                                Text(
+                                    text = cat.name,
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    fontFamily = InterFontFamily,
+                                    color = if (active) Color.White else AppColors.textPrimary
+                                )
+                            }
                         }
                     }
                 }
+                HorizontalDivider(color = AppColors.border, thickness = 1.dp)
             }
         }
 
@@ -409,8 +422,8 @@ fun MarketplaceScreen(
         if (isLoading) {
             LinearProgressIndicator(
                 modifier = Modifier.fillMaxWidth(),
-                color = Color(0xFF1877F2),
-                trackColor = Color(0xFF0B1120)
+                color = AppColors.primaryBlue,
+                trackColor = AppColors.bgSurface
             )
         }
 
@@ -451,14 +464,14 @@ fun MarketplaceScreen(
                         modifier = Modifier
                             .size(80.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFF0F172A))
-                            .border(1.dp, Color(0xFF1E293B), CircleShape),
+                            .background(AppColors.bgCard)
+                            .border(1.dp, AppColors.border, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.Storefront,
                             contentDescription = null,
-                            tint = Color(0xFF94A3B8),
+                            tint = AppColors.textSecondary,
                             modifier = Modifier.size(36.dp)
                         )
                     }
@@ -470,7 +483,7 @@ fun MarketplaceScreen(
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 20.sp,
                         fontFamily = InterFontFamily,
-                        color = Color(0xFFF8FAFC)
+                        color = AppColors.textPrimary
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -480,7 +493,7 @@ fun MarketplaceScreen(
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Normal,
                         fontFamily = InterFontFamily,
-                        color = Color(0xFF94A3B8),
+                        color = AppColors.textSecondary,
                         textAlign = TextAlign.Center
                     )
 
@@ -493,7 +506,7 @@ fun MarketplaceScreen(
                             onMarketModeSelected("for_you")
                             searchQuery = ""
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1877F2)),
+                        colors = ButtonDefaults.buttonColors(containerColor = AppColors.primaryBlue),
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(
@@ -508,7 +521,7 @@ fun MarketplaceScreen(
         }
     }
 
-    // Search Overlay Dialog matching web
+    // Search Overlay Dialog
     if (showSearchOverlay) {
         Dialog(
             onDismissRequest = { showSearchOverlay = false },
@@ -517,12 +530,12 @@ fun MarketplaceScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.75f))
+                    .background(AppColors.scrim)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFF0B1120))
+                        .background(AppColors.headerBg)
                         .padding(12.dp)
                 ) {
                     Row(
@@ -534,12 +547,12 @@ fun MarketplaceScreen(
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFF1E293B))
+                                .background(AppColors.headerIconBg)
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Back",
-                                tint = Color(0xFFF8FAFC)
+                                tint = AppColors.headerText
                             )
                         }
 
@@ -552,12 +565,12 @@ fun MarketplaceScreen(
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal
                             ),
-                            placeholder = { Text("Search MarketPoint…", color = Color(0xFF94A3B8), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
+                            placeholder = { Text("Search MarketPoint…", color = AppColors.textSecondary, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.Search,
                                     contentDescription = null,
-                                    tint = Color(0xFF94A3B8),
+                                    tint = AppColors.textSecondary,
                                     modifier = Modifier.size(18.dp)
                                 )
                             },
@@ -567,7 +580,7 @@ fun MarketplaceScreen(
                                         Icon(
                                             imageVector = Icons.Default.Cancel,
                                             contentDescription = "Clear",
-                                            tint = Color(0xFF94A3B8)
+                                            tint = AppColors.textSecondary
                                         )
                                     }
                                 }
@@ -575,12 +588,12 @@ fun MarketplaceScreen(
                             singleLine = true,
                             shape = RoundedCornerShape(24.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color(0xFF0F172A),
-                                unfocusedContainerColor = Color(0xFF0F172A),
-                                focusedBorderColor = Color(0xFF1877F2),
-                                unfocusedBorderColor = Color(0xFF1E293B),
-                                focusedTextColor = Color(0xFFF8FAFC),
-                                unfocusedTextColor = Color(0xFFF8FAFC)
+                                focusedContainerColor = if (AppColors.isLight) Color.White else AppColors.bgCard,
+                                unfocusedContainerColor = if (AppColors.isLight) Color.White else AppColors.bgCard,
+                                focusedBorderColor = AppColors.primaryBlue,
+                                unfocusedBorderColor = AppColors.border,
+                                focusedTextColor = AppColors.textPrimary,
+                                unfocusedTextColor = AppColors.textPrimary
                             ),
                             modifier = Modifier
                                 .weight(1f)
@@ -595,7 +608,7 @@ fun MarketplaceScreen(
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Normal,
                         fontFamily = InterFontFamily,
-                        color = Color(0xFF94A3B8),
+                        color = AppColors.headerSubtext,
                         modifier = Modifier.padding(start = 8.dp)
                     )
                 }
@@ -608,7 +621,7 @@ fun MarketplaceScreen(
         Dialog(onDismissRequest = { showCountryDialog = false }) {
             Card(
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF0B1120)),
+                colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
@@ -619,7 +632,7 @@ fun MarketplaceScreen(
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 18.sp,
                         fontFamily = InterFontFamily,
-                        color = Color(0xFFF8FAFC)
+                        color = AppColors.textPrimary
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     WEB_MARKETPLACE_COUNTRIES.forEach { item ->
@@ -639,7 +652,7 @@ fun MarketplaceScreen(
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
                                 text = item.name,
-                                color = if (isSelected) Color(0xFF1877F2) else Color(0xFFF8FAFC),
+                                color = if (isSelected) AppColors.primaryBlue else AppColors.textPrimary,
                                 fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                                 fontSize = 14.sp,
                                 fontFamily = InterFontFamily
@@ -665,7 +678,7 @@ fun WebMarketProductCard(
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(0.86f)
-            .background(Color(0xFF0F172A))
+            .background(AppColors.bgCard)
             .clickable(onClick = onClick)
             .testTag("product_card_${product.id}")
     ) {

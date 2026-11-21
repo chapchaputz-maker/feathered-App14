@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.unera.social.model.AdCampaign
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 import java.text.NumberFormat
 import java.util.Locale
@@ -100,10 +101,16 @@ fun AdDashboardView(
 
     val maxWeeklyImpression = 2100f
 
+    val emeraldText = if (AppColors.isLight) Color(0xFF059669) else Color(0xFF34D399)
+    val emeraldSub = if (AppColors.isLight) Color(0xFF047857) else Color(0xFF6EE7B7)
+    val blueText = if (AppColors.isLight) Color(0xFF2563EB) else Color(0xFF60A5FA)
+    val skyText = if (AppColors.isLight) Color(0xFF0284C7) else Color(0xFF38BDF8)
+    val amberText = if (AppColors.isLight) Color(0xFFD97706) else Color(0xFFFBBF24)
+
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFF090D16))
+            .background(AppColors.bgScreen)
             .testTag("ad_dashboard_view"),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 20.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
@@ -120,13 +127,13 @@ fun AdDashboardView(
                         modifier = Modifier
                             .size(40.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFF1E293B))
+                            .background(AppColors.bgChip)
                             .testTag("dashboard_back_btn")
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color.White,
+                            tint = AppColors.textPrimary,
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -139,7 +146,7 @@ fun AdDashboardView(
                         fontSize = 24.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White,
+                        color = AppColors.textPrimary,
                         letterSpacing = (-0.5).sp
                     )
                     Text(
@@ -147,7 +154,7 @@ fun AdDashboardView(
                         fontSize = 13.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal,
-                        color = Color(0xFFA1A1AA),
+                        color = AppColors.textSecondary,
                         modifier = Modifier.padding(top = 2.dp)
                     )
                 }
@@ -156,14 +163,18 @@ fun AdDashboardView(
                     Button(
                         onClick = onNavigateToCampaigns,
                         shape = RoundedCornerShape(10.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E293B)),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = AppColors.bgCard,
+                            contentColor = AppColors.textPrimary
+                        ),
+                        border = BorderStroke(1.dp, AppColors.border),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
                         modifier = Modifier.height(36.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Campaign,
                             contentDescription = null,
-                            tint = Color(0xFF38BDF8),
+                            tint = skyText,
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
@@ -172,7 +183,7 @@ fun AdDashboardView(
                             fontSize = 12.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Medium,
-                            color = Color.White
+                            color = AppColors.textPrimary
                         )
                     }
                 }
@@ -196,7 +207,7 @@ fun AdDashboardView(
                         trend = "up",
                         trendValue = "12.5%",
                         iconBgColor = Color(0xFF3B82F6).copy(alpha = 0.15f),
-                        iconTint = Color(0xFF60A5FA),
+                        iconTint = blueText,
                         modifier = Modifier.weight(1f)
                     )
                     DashboardStatCard(
@@ -206,7 +217,7 @@ fun AdDashboardView(
                         trend = "up",
                         trendValue = "8.2%",
                         iconBgColor = Color(0xFF10B981).copy(alpha = 0.15f),
-                        iconTint = Color(0xFF34D399),
+                        iconTint = emeraldText,
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -222,7 +233,7 @@ fun AdDashboardView(
                         trend = "down",
                         trendValue = "3.1%",
                         iconBgColor = Color(0xFFF59E0B).copy(alpha = 0.15f),
-                        iconTint = Color(0xFFFBBF24),
+                        iconTint = amberText,
                         modifier = Modifier.weight(1f)
                     )
                     DashboardStatCard(
@@ -232,7 +243,7 @@ fun AdDashboardView(
                         trend = "up",
                         trendValue = "15.3%",
                         iconBgColor = Color(0xFFF43F5E).copy(alpha = 0.15f),
-                        iconTint = Color(0xFFFB7185),
+                        iconTint = Color(0xFFE11D48),
                         subtitleNote = "100% Free Promo",
                         modifier = Modifier.weight(1f)
                     )
@@ -250,8 +261,8 @@ fun AdDashboardView(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF131A29)),
-                    border = BorderStroke(1.dp, Color(0xFF1E293B))
+                    colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+                    border = BorderStroke(1.dp, AppColors.border)
                 ) {
                     Column(
                         modifier = Modifier
@@ -268,7 +279,7 @@ fun AdDashboardView(
                                     text = "Click-Through Rate (CTR)",
                                     fontSize = 13.sp,
                                     fontFamily = InterFontFamily,
-                                    color = Color(0xFFA1A1AA),
+                                    color = AppColors.textSecondary,
                                     fontWeight = FontWeight.Medium
                                 )
                                 Text(
@@ -276,7 +287,7 @@ fun AdDashboardView(
                                     fontSize = 32.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = Color.White,
+                                    color = AppColors.textPrimary,
                                     modifier = Modifier.padding(top = 4.dp)
                                 )
                             }
@@ -290,7 +301,7 @@ fun AdDashboardView(
                                 Icon(
                                     imageVector = Icons.Default.TrendingUp,
                                     contentDescription = "CTR Chart",
-                                    tint = Color(0xFF60A5FA),
+                                    tint = blueText,
                                     modifier = Modifier.size(28.dp)
                                 )
                             }
@@ -307,7 +318,7 @@ fun AdDashboardView(
                                 .fillMaxWidth()
                                 .height(8.dp)
                                 .clip(RoundedCornerShape(4.dp))
-                                .background(Color(0xFF1E293B))
+                                .background(AppColors.bgChip)
                         ) {
                             Box(
                                 modifier = Modifier
@@ -327,7 +338,7 @@ fun AdDashboardView(
                             fontSize = 12.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal,
-                            color = Color(0xFF71717A),
+                            color = AppColors.textMuted,
                             modifier = Modifier.padding(top = 10.dp)
                         )
                     }
@@ -337,8 +348,8 @@ fun AdDashboardView(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF131A29)),
-                    border = BorderStroke(1.dp, Color(0xFF1E293B))
+                    colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+                    border = BorderStroke(1.dp, AppColors.border)
                 ) {
                     Row(
                         modifier = Modifier
@@ -352,7 +363,7 @@ fun AdDashboardView(
                                 text = "Active Campaigns",
                                 fontSize = 13.sp,
                                 fontFamily = InterFontFamily,
-                                color = Color(0xFFA1A1AA),
+                                color = AppColors.textSecondary,
                                 fontWeight = FontWeight.Medium
                             )
                             Text(
@@ -360,7 +371,7 @@ fun AdDashboardView(
                                 fontSize = 32.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color.White,
+                                color = AppColors.textPrimary,
                                 modifier = Modifier.padding(top = 4.dp)
                             )
                             Text(
@@ -368,7 +379,7 @@ fun AdDashboardView(
                                 fontSize = 12.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
-                                color = Color(0xFF71717A),
+                                color = AppColors.textMuted,
                                 modifier = Modifier.padding(top = 2.dp)
                             )
                         }
@@ -383,7 +394,7 @@ fun AdDashboardView(
                             Icon(
                                 imageVector = Icons.Default.CalendarToday,
                                 contentDescription = "Active Campaigns",
-                                tint = Color(0xFF34D399),
+                                tint = emeraldText,
                                 modifier = Modifier.size(26.dp)
                             )
                         }
@@ -397,8 +408,8 @@ fun AdDashboardView(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF131A29)),
-                border = BorderStroke(1.dp, Color(0xFF1E293B))
+                colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+                border = BorderStroke(1.dp, AppColors.border)
             ) {
                 Column(
                     modifier = Modifier
@@ -416,15 +427,15 @@ fun AdDashboardView(
                             fontSize = 17.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color.White
+                            color = AppColors.textPrimary
                         )
 
                         Box {
                             Surface(
                                 onClick = { showTimeDropdown = true },
                                 shape = RoundedCornerShape(8.dp),
-                                color = Color(0xFF1E293B),
-                                border = BorderStroke(1.dp, Color(0xFF334155))
+                                color = AppColors.bgInput,
+                                border = BorderStroke(1.dp, AppColors.borderStrong)
                             ) {
                                 Row(
                                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
@@ -434,14 +445,14 @@ fun AdDashboardView(
                                         text = selectedTimeRange,
                                         fontSize = 12.sp,
                                         fontFamily = InterFontFamily,
-                                        color = Color(0xFFCBD5E1),
+                                        color = AppColors.textBody,
                                         fontWeight = FontWeight.Medium
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Icon(
                                         imageVector = Icons.Default.ArrowDropDown,
                                         contentDescription = null,
-                                        tint = Color(0xFF94A3B8),
+                                        tint = AppColors.textSecondary,
                                         modifier = Modifier.size(16.dp)
                                     )
                                 }
@@ -450,14 +461,14 @@ fun AdDashboardView(
                             DropdownMenu(
                                 expanded = showTimeDropdown,
                                 onDismissRequest = { showTimeDropdown = false },
-                                modifier = Modifier.background(Color(0xFF1E293B))
+                                modifier = Modifier.background(AppColors.bgCard)
                             ) {
                                 listOf("Last 7 days", "Last 30 days", "Last 90 days").forEach { opt ->
                                     DropdownMenuItem(
                                         text = {
                                             Text(
                                                 opt,
-                                                color = Color.White,
+                                                color = AppColors.textPrimary,
                                                 fontSize = 13.sp,
                                                 fontFamily = InterFontFamily,
                                                 fontWeight = FontWeight.Medium
@@ -512,7 +523,7 @@ fun AdDashboardView(
                                             .fillMaxWidth()
                                             .fillMaxHeight()
                                             .clip(RoundedCornerShape(6.dp))
-                                            .background(Color(0xFF1E293B).copy(alpha = 0.5f))
+                                            .background(AppColors.bgChip.copy(alpha = 0.65f))
                                     )
 
                                     // Impressions bar (blue)
@@ -546,7 +557,7 @@ fun AdDashboardView(
                                     text = day.day,
                                     fontSize = 11.sp,
                                     fontFamily = InterFontFamily,
-                                    color = if (isSelected) Color.White else Color(0xFF71717A),
+                                    color = if (isSelected) AppColors.textPrimary else AppColors.textMuted,
                                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
                                 )
                             }
@@ -560,8 +571,8 @@ fun AdDashboardView(
                                 .fillMaxWidth()
                                 .padding(top = 10.dp),
                             shape = RoundedCornerShape(8.dp),
-                            color = Color(0xFF1E293B),
-                            border = BorderStroke(1.dp, Color(0xFF334155))
+                            color = AppColors.bgInput,
+                            border = BorderStroke(1.dp, AppColors.borderStrong)
                         ) {
                             Row(
                                 modifier = Modifier
@@ -575,14 +586,14 @@ fun AdDashboardView(
                                     fontSize = 12.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = Color.White
+                                    color = AppColors.textPrimary
                                 )
                                 Text(
                                     text = "Impressions: ${day.impressions} • Clicks: ${day.clicks}",
                                     fontSize = 12.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
-                                    color = Color(0xFF38BDF8)
+                                    color = skyText
                                 )
                             }
                         }
@@ -593,7 +604,7 @@ fun AdDashboardView(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 16.dp)
-                            .border(BorderStroke(0.5.dp, Color(0xFF1E293B)), RoundedCornerShape(0.dp))
+                            .border(BorderStroke(0.5.dp, AppColors.border), RoundedCornerShape(0.dp))
                             .padding(top = 12.dp),
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
@@ -608,7 +619,7 @@ fun AdDashboardView(
                                     .clip(RoundedCornerShape(2.dp))
                                     .background(Color(0xFF3B82F6))
                             )
-                            Text(text = "Impressions", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFFA1A1AA))
+                            Text(text = "Impressions", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = AppColors.textSecondary)
                         }
 
                         Spacer(modifier = Modifier.width(24.dp))
@@ -623,7 +634,7 @@ fun AdDashboardView(
                                     .clip(RoundedCornerShape(2.dp))
                                     .background(Color(0xFF10B981))
                             )
-                            Text(text = "Clicks", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFFA1A1AA))
+                            Text(text = "Clicks", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = AppColors.textSecondary)
                         }
                     }
                 }
@@ -644,14 +655,14 @@ fun AdDashboardView(
                             fontSize = 18.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color.White
+                            color = AppColors.textPrimary
                         )
                         Text(
                             text = "Campaigns ranked by engagement and impressions",
                             fontSize = 12.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal,
-                            color = Color(0xFFA1A1AA),
+                            color = AppColors.textSecondary,
                             modifier = Modifier.padding(top = 2.dp)
                         )
                     }
@@ -662,7 +673,7 @@ fun AdDashboardView(
                             fontSize = 11.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal,
-                            color = Color(0xFF71717A)
+                            color = AppColors.textMuted
                         )
                     }
                 }
@@ -674,8 +685,8 @@ fun AdDashboardView(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF131A29)),
-                    border = BorderStroke(1.dp, Color(0xFF1E293B))
+                    colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+                    border = BorderStroke(1.dp, AppColors.border)
                 ) {
                     Column(
                         modifier = Modifier
@@ -688,13 +699,13 @@ fun AdDashboardView(
                             modifier = Modifier
                                 .size(56.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFF1E293B)),
+                                .background(AppColors.bgChip),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.TrendingUp,
                                 contentDescription = null,
-                                tint = Color(0xFF71717A),
+                                tint = AppColors.textMuted,
                                 modifier = Modifier.size(28.dp)
                             )
                         }
@@ -703,14 +714,14 @@ fun AdDashboardView(
                             fontSize = 15.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFFA1A1AA)
+                            color = AppColors.textPrimary
                         )
                         Text(
                             text = "Create your first ad to see performance data",
                             fontSize = 12.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal,
-                            color = Color(0xFF71717A)
+                            color = AppColors.textSecondary
                         )
                     }
                 }
@@ -744,12 +755,16 @@ private fun TopCampaignPerformanceCard(ad: AdCampaign) {
             "0.0"
         }
     }
+    val emeraldText = if (AppColors.isLight) Color(0xFF059669) else Color(0xFF34D399)
+    val emeraldSub = if (AppColors.isLight) Color(0xFF047857) else Color(0xFF6EE7B7)
+    val amberText = if (AppColors.isLight) Color(0xFFD97706) else Color(0xFFFBBF24)
+    val blueText = if (AppColors.isLight) Color(0xFF2563EB) else Color(0xFF60A5FA)
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF131A29)),
-        border = BorderStroke(1.dp, Color(0xFF1E293B))
+        colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+        border = BorderStroke(1.dp, AppColors.border)
     ) {
         Column(
             modifier = Modifier
@@ -773,8 +788,8 @@ private fun TopCampaignPerformanceCard(ad: AdCampaign) {
                         modifier = Modifier
                             .size(46.dp)
                             .clip(RoundedCornerShape(10.dp))
-                            .background(Color(0xFF1E293B))
-                            .border(1.dp, Color(0xFF334155), RoundedCornerShape(10.dp))
+                            .background(AppColors.bgChip)
+                            .border(1.dp, AppColors.borderStrong, RoundedCornerShape(10.dp))
                     ) {
                         if (!ad.mediaUrl.isNullOrBlank()) {
                             AsyncImage(
@@ -811,7 +826,7 @@ private fun TopCampaignPerformanceCard(ad: AdCampaign) {
                             fontSize = 14.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color.White,
+                            color = AppColors.textPrimary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -820,7 +835,7 @@ private fun TopCampaignPerformanceCard(ad: AdCampaign) {
                             fontSize = 12.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal,
-                            color = Color(0xFFA1A1AA),
+                            color = AppColors.textSecondary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.padding(top = 1.dp)
@@ -828,9 +843,9 @@ private fun TopCampaignPerformanceCard(ad: AdCampaign) {
 
                         // Status pill
                         val (statusBg, statusBorder, statusColor) = when (ad.status.lowercase()) {
-                            "active" -> Triple(Color(0xFF10B981).copy(alpha = 0.15f), Color(0xFF10B981).copy(alpha = 0.35f), Color(0xFF34D399))
-                            "paused" -> Triple(Color(0xFFF59E0B).copy(alpha = 0.15f), Color(0xFFF59E0B).copy(alpha = 0.35f), Color(0xFFFBBF24))
-                            else -> Triple(Color(0xFF71717A).copy(alpha = 0.15f), Color(0xFF71717A).copy(alpha = 0.35f), Color(0xFFA1A1AA))
+                            "active" -> Triple(Color(0xFF10B981).copy(alpha = 0.15f), Color(0xFF10B981).copy(alpha = 0.35f), emeraldText)
+                            "paused" -> Triple(Color(0xFFF59E0B).copy(alpha = 0.15f), Color(0xFFF59E0B).copy(alpha = 0.35f), amberText)
+                            else -> Triple(AppColors.bgChip, AppColors.borderStrong, AppColors.textSecondary)
                         }
 
                         Box(
@@ -869,7 +884,7 @@ private fun TopCampaignPerformanceCard(ad: AdCampaign) {
                             fontSize = 15.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF34D399),
+                            color = emeraldText,
                             lineHeight = 16.sp
                         )
                         Text(
@@ -877,7 +892,7 @@ private fun TopCampaignPerformanceCard(ad: AdCampaign) {
                             fontSize = 10.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF6EE7B7),
+                            color = emeraldSub,
                             letterSpacing = 1.sp
                         )
                     }
@@ -885,7 +900,7 @@ private fun TopCampaignPerformanceCard(ad: AdCampaign) {
             }
 
             // Stats 3-column row matching web mobile
-            HorizontalDivider(color = Color(0xFF1E293B).copy(alpha = 0.8f), thickness = 1.dp)
+            HorizontalDivider(color = AppColors.border, thickness = 1.dp)
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -894,19 +909,19 @@ private fun TopCampaignPerformanceCard(ad: AdCampaign) {
                 CompactStatBox(
                     label = "Impressions",
                     value = formatNumber(ad.impressions.toLong()),
-                    valueColor = Color.White,
+                    valueColor = AppColors.textPrimary,
                     modifier = Modifier.weight(1f)
                 )
                 CompactStatBox(
                     label = "Views",
                     value = formatNumber(ad.views.toLong()),
-                    valueColor = Color(0xFF60A5FA),
+                    valueColor = blueText,
                     modifier = Modifier.weight(1f)
                 )
                 CompactStatBox(
                     label = "Clicks",
                     value = formatNumber(ad.clicks.toLong()),
-                    valueColor = Color.White,
+                    valueColor = AppColors.textPrimary,
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -924,8 +939,8 @@ private fun CompactStatBox(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(8.dp))
-            .background(Color(0xFF0D121F))
-            .border(1.dp, Color(0xFF1E293B), RoundedCornerShape(8.dp))
+            .background(AppColors.bgInput)
+            .border(1.dp, AppColors.border, RoundedCornerShape(8.dp))
             .padding(vertical = 6.dp, horizontal = 4.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -942,7 +957,7 @@ private fun CompactStatBox(
                 fontSize = 10.sp,
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.Normal,
-                color = Color(0xFFA1A1AA),
+                color = AppColors.textSecondary,
                 modifier = Modifier.padding(top = 1.dp)
             )
         }
@@ -964,11 +979,14 @@ private fun DashboardStatCard(
     subtitleNote: String? = null,
     modifier: Modifier = Modifier
 ) {
+    val emeraldText = if (AppColors.isLight) Color(0xFF059669) else Color(0xFF34D399)
+    val redText = if (AppColors.isLight) Color(0xFFDC2626) else Color(0xFFF87171)
+
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF131A29)),
-        border = BorderStroke(1.dp, Color(0xFF1E293B))
+        colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+        border = BorderStroke(1.dp, AppColors.border)
     ) {
         Column(
             modifier = Modifier
@@ -986,7 +1004,7 @@ private fun DashboardStatCard(
                         fontSize = 12.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Medium,
-                        color = Color(0xFFA1A1AA),
+                        color = AppColors.textSecondary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -995,7 +1013,7 @@ private fun DashboardStatCard(
                         fontSize = 22.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White,
+                        color = AppColors.textPrimary,
                         modifier = Modifier.padding(top = 4.dp)
                     )
                 }
@@ -1024,7 +1042,7 @@ private fun DashboardStatCard(
                     Icon(
                         imageVector = if (trend == "up") Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
                         contentDescription = null,
-                        tint = if (trend == "up") Color(0xFF34D399) else Color(0xFFF87171),
+                        tint = if (trend == "up") emeraldText else redText,
                         modifier = Modifier.size(13.dp)
                     )
                     Spacer(modifier = Modifier.width(3.dp))
@@ -1033,7 +1051,7 @@ private fun DashboardStatCard(
                         fontSize = 12.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
-                        color = if (trend == "up") Color(0xFF34D399) else Color(0xFFF87171)
+                        color = if (trend == "up") emeraldText else redText
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
@@ -1041,7 +1059,7 @@ private fun DashboardStatCard(
                         fontSize = 11.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal,
-                        color = Color(0xFF71717A)
+                        color = AppColors.textMuted
                     )
                 }
             } else if (subtitleNote != null) {
@@ -1049,7 +1067,7 @@ private fun DashboardStatCard(
                     text = subtitleNote,
                     fontSize = 11.sp,
                     fontFamily = InterFontFamily,
-                    color = Color(0xFF34D399),
+                    color = emeraldText,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(top = 8.dp)
                 )

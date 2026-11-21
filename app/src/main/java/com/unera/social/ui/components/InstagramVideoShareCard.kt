@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.unera.social.model.Post
 import com.unera.social.model.User
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -131,8 +132,8 @@ fun InstagramVideoShareCard(
 
     Card(
         shape = RoundedCornerShape(0.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF0A101F)),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF334155).copy(alpha = 0.8f)),
+        colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+        border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.borderStrong),
         modifier = modifier
             .fillMaxWidth()
             .testTag("instagram_video_share_card_${targetPost.id}")
@@ -144,10 +145,10 @@ fun InstagramVideoShareCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFF0F172A).copy(alpha = 0.7f))
+                    .background(AppColors.bgCardElevated)
                     .border(
                         width = 1.dp,
-                        color = Color(0xFF1E293B).copy(alpha = 0.8f),
+                        color = AppColors.border,
                         shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
                     )
                     .padding(horizontal = 14.dp, vertical = 10.dp),
@@ -169,7 +170,7 @@ fun InstagramVideoShareCard(
                         modifier = Modifier
                             .size(40.dp)
                             .clip(CircleShape)
-                            .border(1.dp, Color(0xFF1E293B), CircleShape)
+                            .border(1.dp, AppColors.border, CircleShape)
                     )
 
                     Column(modifier = Modifier.weight(1f)) {
@@ -182,7 +183,7 @@ fun InstagramVideoShareCard(
                                 fontSize = 15.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFFF8FAFC),
+                                color = AppColors.textPrimary,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
@@ -200,33 +201,33 @@ fun InstagramVideoShareCard(
                                 fontSize = 11.5.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
-                                color = Color(0xFF94A3B8)
+                                color = AppColors.textSecondary
                             )
                             Text(
                                 text = "•",
                                 fontSize = 11.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
-                                color = Color(0xFF64748B)
+                                color = AppColors.textMuted
                             )
                             Text(
                                 text = targetPost.timestamp,
                                 fontSize = 11.5.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
-                                color = Color(0xFF94A3B8)
+                                color = AppColors.textSecondary
                             )
                             Text(
                                 text = "•",
                                 fontSize = 11.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
-                                color = Color(0xFF64748B)
+                                color = AppColors.textMuted
                             )
                             Icon(
                                 imageVector = Icons.Default.Public,
                                 contentDescription = "Public",
-                                tint = Color(0xFF64748B),
+                                tint = AppColors.textMuted,
                                 modifier = Modifier.size(11.dp)
                             )
                         }
@@ -259,28 +260,31 @@ fun InstagramVideoShareCard(
             if (captionText.isNotBlank()) {
                 val fullText = captionText
                 val displayedText = if (isCaptionExpanded || fullText.length <= 110) fullText else "${fullText.take(110)}..."
+                val tagColor = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8)
+                val mentionColor = if (AppColors.isLight) Color(0xFF2563EB) else Color(0xFF60A5FA)
+                val bodyColor = AppColors.textPrimary
 
-                val annotatedString = remember(displayedText, authorName) {
+                val annotatedString = remember(displayedText, authorName, tagColor, mentionColor, bodyColor) {
                     buildAnnotatedString {
                         val words = displayedText.split(" ")
                         words.forEachIndexed { idx, word ->
                             when {
                                 word.startsWith("#") && word.length > 1 -> {
                                     pushStringAnnotation(tag = "TAG", annotation = word)
-                                    withStyle(SpanStyle(color = Color(0xFF38BDF8), fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)) {
+                                    withStyle(SpanStyle(color = tagColor, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)) {
                                         append(word)
                                     }
                                     pop()
                                 }
                                 word.startsWith("@") && word.length > 1 -> {
                                     pushStringAnnotation(tag = "MENTION", annotation = word)
-                                    withStyle(SpanStyle(color = Color(0xFF60A5FA), fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)) {
+                                    withStyle(SpanStyle(color = mentionColor, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)) {
                                         append(word)
                                     }
                                     pop()
                                 }
                                 else -> {
-                                    withStyle(SpanStyle(color = Color(0xFFF8FAFC), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)) {
+                                    withStyle(SpanStyle(color = bodyColor, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)) {
                                         append(word)
                                     }
                                 }
@@ -293,7 +297,7 @@ fun InstagramVideoShareCard(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFF0A101F))
+                        .background(AppColors.bgCard)
                         .padding(horizontal = 14.dp, vertical = 10.dp)
                 ) {
                     ClickableText(
@@ -316,7 +320,7 @@ fun InstagramVideoShareCard(
                             fontSize = 12.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF94A3B8),
+                            color = AppColors.textSecondary,
                             modifier = Modifier
                                 .clickable { isCaptionExpanded = !isCaptionExpanded }
                                 .padding(top = 2.dp)
@@ -517,12 +521,13 @@ fun InstagramVideoShareCard(
             // ==========================================
             // 4. FOOTER STATS BAR
             // ==========================================
+            val watchAccent = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFF0A101F))
-                    .border(1.dp, Color(0xFF1E293B), RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
-                .padding(horizontal = 14.dp, vertical = 10.dp),
+                    .background(AppColors.bgCard)
+                    .border(1.dp, AppColors.border, RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
+                    .padding(horizontal = 14.dp, vertical = 10.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -538,7 +543,7 @@ fun InstagramVideoShareCard(
                         Icon(
                             imageVector = Icons.Default.Visibility,
                             contentDescription = null,
-                            tint = Color(0xFF64748B),
+                            tint = AppColors.textMuted,
                             modifier = Modifier.size(13.dp)
                         )
                         Text(
@@ -546,7 +551,7 @@ fun InstagramVideoShareCard(
                             fontSize = 12.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal,
-                            color = Color(0xFF94A3B8)
+                            color = AppColors.textSecondary
                         )
                     }
 
@@ -566,7 +571,7 @@ fun InstagramVideoShareCard(
                             fontSize = 12.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal,
-                            color = Color(0xFF94A3B8)
+                            color = AppColors.textSecondary
                         )
                     }
 
@@ -578,7 +583,7 @@ fun InstagramVideoShareCard(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.Chat,
                             contentDescription = null,
-                            tint = Color(0xFF64748B),
+                            tint = AppColors.textMuted,
                             modifier = Modifier.size(13.dp)
                         )
                         Text(
@@ -586,7 +591,7 @@ fun InstagramVideoShareCard(
                             fontSize = 12.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal,
-                            color = Color(0xFF94A3B8)
+                            color = AppColors.textSecondary
                         )
                     }
                 }
@@ -606,12 +611,12 @@ fun InstagramVideoShareCard(
                             fontSize = 12.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF38BDF8)
+                            color = watchAccent
                         )
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                             contentDescription = null,
-                            tint = Color(0xFF38BDF8),
+                            tint = watchAccent,
                             modifier = Modifier.size(12.dp)
                         )
                     }

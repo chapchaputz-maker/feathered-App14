@@ -41,22 +41,23 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.unera.social.model.User
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-// Color tokens matching the web Feathered palette
-private val PageBackground = Color(0xFF050B18)
-private val TopBarBackground = Color(0xFF0B1120)
-private val SectionCardBg = Color(0xFF0B1120)
-private val InputBackground = Color(0xFF1E293B)
-private val BorderColor = Color(0xFF1E293B)
+// Color tokens reactive to Light / Dark theme
+private val PageBackground: Color @Composable get() = AppColors.bgScreen
+private val TopBarBackground: Color @Composable get() = AppColors.headerBg
+private val SectionCardBg: Color @Composable get() = AppColors.bgCard
+private val InputBackground: Color @Composable get() = if (AppColors.isLight) AppColors.bgCard else Color(0xFF1E293B)
+private val BorderColor: Color @Composable get() = AppColors.borderStrong
 private val BrandBlue = Color(0xFF1877F2)
 private val BrandBlueHover = Color(0xFF166FE5)
 private val LocalTargetRed = Color(0xFFF02849)
-private val TextWhite = Color(0xFFF8FAFC)
-private val TextMuted = Color(0xFF94A3B8)
-private val TextDisabled = Color(0xFF64748B)
+private val TextWhite: Color @Composable get() = AppColors.textPrimary
+private val TextMuted: Color @Composable get() = AppColors.textSecondary
+private val TextDisabled: Color @Composable get() = AppColors.textMuted
 
 // Curated stock cover options for fast selection
 private val PRESET_COVERS = listOf(
@@ -380,7 +381,7 @@ fun CreateEventModal(
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Back",
-                                tint = TextWhite,
+                                tint = AppColors.headerIconTint,
                                 modifier = Modifier.size(22.dp)
                             )
                         }
@@ -390,7 +391,7 @@ fun CreateEventModal(
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 19.sp,
-                            color = TextWhite,
+                            color = AppColors.headerText,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier
@@ -406,13 +407,17 @@ fun CreateEventModal(
                             Text(
                                 text = if (isUploading) "Creating..." else "Create",
                                 fontFamily = InterFontFamily,
-                                fontWeight = FontWeight.Medium,
+                                fontWeight = FontWeight.SemiBold,
                                 fontSize = 16.sp,
-                                color = if (isUploading) TextDisabled else BrandBlue
+                                color = if (isUploading) Color.White.copy(alpha = 0.6f)
+                                    else if (AppColors.isLight) Color.White
+                                    else BrandBlue
                             )
                         }
                     }
                 }
+
+                HorizontalDivider(color = AppColors.headerDivider, thickness = 1.dp)
 
                 // Scrollable Form Content
                 Column(
@@ -426,11 +431,11 @@ fun CreateEventModal(
                     // Error Banner
                     AnimatedVisibility(visible = errorMessage != null) {
                         Surface(
-                            color = Color(0xFFEF4444).copy(alpha = 0.15f),
+                            color = AppColors.dangerBg,
                             shape = RoundedCornerShape(12.dp),
                             border = CardDefaults.outlinedCardBorder().copy(
                                 brush = Brush.linearGradient(
-                                    listOf(Color(0xFFEF4444).copy(alpha = 0.35f), Color(0xFFEF4444).copy(alpha = 0.35f))
+                                    listOf(AppColors.dangerText.copy(alpha = 0.45f), AppColors.dangerText.copy(alpha = 0.45f))
                                 )
                             ),
                             modifier = Modifier.fillMaxWidth()
@@ -442,7 +447,7 @@ fun CreateEventModal(
                                 Icon(
                                     imageVector = Icons.Default.Warning,
                                     contentDescription = "Error",
-                                    tint = Color(0xFFFCA5A5),
+                                    tint = AppColors.dangerText,
                                     modifier = Modifier.size(18.dp)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
@@ -450,7 +455,7 @@ fun CreateEventModal(
                                     text = errorMessage ?: "",
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
-                                    color = Color(0xFFFEE2E2),
+                                    color = AppColors.dangerText,
                                     fontSize = 13.sp
                                 )
                             }
@@ -474,7 +479,7 @@ fun CreateEventModal(
                                 .height(208.dp)
                                 .clip(RoundedCornerShape(16.dp))
                                 .border(1.dp, BorderColor, RoundedCornerShape(16.dp))
-                                .background(TopBarBackground)
+                                .background(SectionCardBg)
                                 .clickable {
                                     photoPickerLauncher.launch(
                                         PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
@@ -547,7 +552,7 @@ fun CreateEventModal(
                                     Box(
                                         modifier = Modifier
                                             .size(56.dp)
-                                            .background(InputBackground, CircleShape),
+                                            .background(AppColors.bgChip, CircleShape),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Icon(
@@ -599,10 +604,11 @@ fun CreateEventModal(
                                 items(PRESET_COVERS) { (url, label) ->
                                     Surface(
                                         shape = RoundedCornerShape(20.dp),
-                                        color = if (imageUri == url) BrandBlue.copy(alpha = 0.25f) else InputBackground,
-                                        border = if (imageUri == url) ButtonDefaults.outlinedButtonBorder.copy(
-                                            brush = Brush.linearGradient(listOf(BrandBlue, BrandBlue))
-                                        ) else null,
+                                        color = if (imageUri == url) AppColors.bgBlueTint else SectionCardBg,
+                                        border = androidx.compose.foundation.BorderStroke(
+                                            1.dp,
+                                            if (imageUri == url) BrandBlue else AppColors.border
+                                        ),
                                         modifier = Modifier.clickable {
                                             imageUri = url
                                             errorMessage = null
@@ -636,7 +642,7 @@ fun CreateEventModal(
                             Box(
                                 modifier = Modifier
                                     .size(44.dp)
-                                    .background(InputBackground, CircleShape),
+                                    .background(AppColors.bgChip, CircleShape),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
@@ -957,7 +963,7 @@ fun CreateEventModal(
                                     fontWeight = FontWeight.Normal,
                                     fontSize = 12.sp,
                                     fontStyle = FontStyle.Italic,
-                                    color = Color(0xFF38BDF8),
+                                    color = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8),
                                     modifier = Modifier.padding(top = 8.dp)
                                 )
                             } else {
@@ -967,7 +973,7 @@ fun CreateEventModal(
                                     fontWeight = FontWeight.Normal,
                                     fontSize = 12.sp,
                                     fontStyle = FontStyle.Italic,
-                                    color = Color(0xFF38BDF8),
+                                    color = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8),
                                     modifier = Modifier.padding(top = 8.dp)
                                 )
                             }
@@ -1070,7 +1076,7 @@ fun CreateEventModal(
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = BrandBlue,
-                            disabledContainerColor = InputBackground
+                            disabledContainerColor = AppColors.bgChip
                         ),
                         modifier = Modifier
                             .fillMaxWidth()

@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.unera.social.R
 import com.unera.social.ui.screens.formatCount
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 
 /**
@@ -68,16 +69,15 @@ fun DiscussButton(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
-    // Web transition-colors: text-[#F8FAFC] hover:text-[#38BDF8]
+    val colors = AppColors
     val contentColor by animateColorAsState(
-        targetValue = if (isPressed) Color(0xFF38BDF8) else Color(0xFFF8FAFC),
+        targetValue = if (isPressed) colors.primaryBlue else colors.textPrimary,
         animationSpec = tween(durationMillis = 150),
         label = "discuss_content_color"
     )
 
-    // Web hover:bg-[#1E293B]/60 p-1 rounded-lg
     val bgColor by animateColorAsState(
-        targetValue = if (isPressed) Color(0xFF1E293B).copy(alpha = 0.60f) else Color.Transparent,
+        targetValue = if (isPressed) colors.bgInput.copy(alpha = 0.70f) else Color.Transparent,
         animationSpec = tween(durationMillis = 150),
         label = "discuss_bg_color"
     )

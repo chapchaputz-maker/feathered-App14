@@ -25,7 +25,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.foundation.BorderStroke
 import coil.compose.AsyncImage
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 
 data class AdPreviewData(
@@ -97,7 +99,8 @@ fun AdPreview(
             .testTag("ad_preview_card"),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        border = if (AppColors.isLight) BorderStroke(1.dp, AppColors.border) else null,
+        elevation = CardDefaults.cardElevation(defaultElevation = if (AppColors.isLight) 2.dp else 8.dp)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             // Sponsored Label - Free Promotion

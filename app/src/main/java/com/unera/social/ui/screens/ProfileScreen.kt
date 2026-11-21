@@ -198,7 +198,7 @@ fun ProfileScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFF050B18))
+            .background(AppColors.bgScreen)
             .testTag("profile_screen")
     ) {
         LazyColumn(
@@ -208,7 +208,7 @@ fun ProfileScreen(
             // Sticky-like Top Bar
             item {
                 Surface(
-                    color = Color(0xFF0F172A).copy(alpha = 0.95f),
+                    color = AppColors.headerBg,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
@@ -223,12 +223,12 @@ fun ProfileScreen(
                                 modifier = Modifier
                                     .size(38.dp)
                                     .clip(CircleShape)
-                                    .background(Color(0xFF1E293B))
+                                    .background(AppColors.headerIconBg)
                             ) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                     contentDescription = "Back",
-                                    tint = Color(0xFFF8FAFC)
+                                    tint = AppColors.headerIconTint
                                 )
                             }
                             Spacer(modifier = Modifier.width(10.dp))
@@ -240,7 +240,7 @@ fun ProfileScreen(
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 17.sp,
                                     fontFamily = InterFontFamily,
-                                    color = Color(0xFFF8FAFC),
+                                    color = AppColors.headerText,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -254,7 +254,7 @@ fun ProfileScreen(
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Normal,
                                 fontFamily = InterFontFamily,
-                                color = Color(0xFF94A3B8)
+                                color = AppColors.headerSubtext
                             )
                         }
 
@@ -264,8 +264,8 @@ fun ProfileScreen(
                                 FilledTonalButton(
                                     onClick = { showModActionsMenu = true },
                                     colors = ButtonDefaults.filledTonalButtonColors(
-                                        containerColor = Color(0xFF1E293B),
-                                        contentColor = Color(0xFFF87171)
+                                        containerColor = AppColors.headerIconBg,
+                                        contentColor = if (AppColors.isLight) Color.White else Color(0xFFF87171)
                                     ),
                                     contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
                                     shape = RoundedCornerShape(20.dp),
@@ -294,14 +294,14 @@ fun ProfileScreen(
                                     expanded = showModActionsMenu,
                                     onDismissRequest = { showModActionsMenu = false },
                                     modifier = Modifier
-                                        .background(Color(0xFF0F172A))
-                                        .border(1.dp, Color(0xFF334155), RoundedCornerShape(8.dp))
+                                        .background(AppColors.bgCard)
+                                        .border(1.dp, AppColors.borderStrong, RoundedCornerShape(8.dp))
                                 ) {
                                     DropdownMenuItem(
                                         text = {
                                             Text(
                                                 text = if (user.isVerified) "Remove Verification Badge" else "Verify Profile (Blue Badge)",
-                                                color = Color(0xFF38BDF8),
+                                                color = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8),
                                                 fontSize = 13.sp,
                                                 fontWeight = FontWeight.Medium,
                                                 fontFamily = InterFontFamily
@@ -311,7 +311,7 @@ fun ProfileScreen(
                                             Icon(
                                                 imageVector = if (user.isVerified) Icons.Filled.Cancel else Icons.Filled.CheckCircle,
                                                 contentDescription = null,
-                                                tint = Color(0xFF38BDF8),
+                                                tint = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8),
                                                 modifier = Modifier.size(16.dp)
                                             )
                                         },
@@ -325,10 +325,10 @@ fun ProfileScreen(
                                     if (user.suspendedUntil == null) {
                                         DropdownMenuItem(
                                             text = {
-                                                Text("Suspend for 1 Week", color = Color(0xFFFBBF24), fontSize = 13.sp, fontWeight = FontWeight.Medium, fontFamily = InterFontFamily)
+                                                Text("Suspend for 1 Week", color = Color(0xFFD97706), fontSize = 13.sp, fontWeight = FontWeight.Medium, fontFamily = InterFontFamily)
                                             },
                                             leadingIcon = {
-                                                Icon(Icons.Filled.PauseCircle, null, tint = Color(0xFFFBBF24), modifier = Modifier.size(16.dp))
+                                                Icon(Icons.Filled.PauseCircle, null, tint = Color(0xFFD97706), modifier = Modifier.size(16.dp))
                                             },
                                             onClick = {
                                                 showModActionsMenu = false
@@ -352,10 +352,10 @@ fun ProfileScreen(
                                     } else {
                                         DropdownMenuItem(
                                             text = {
-                                                Text("Unsuspend Profile", color = Color(0xFF34D399), fontSize = 13.sp, fontWeight = FontWeight.Medium, fontFamily = InterFontFamily)
+                                                Text("Unsuspend Profile", color = Color(0xFF059669), fontSize = 13.sp, fontWeight = FontWeight.Medium, fontFamily = InterFontFamily)
                                             },
                                             leadingIcon = {
-                                                Icon(Icons.Filled.PlayArrow, null, tint = Color(0xFF34D399), modifier = Modifier.size(16.dp))
+                                                Icon(Icons.Filled.PlayArrow, null, tint = Color(0xFF059669), modifier = Modifier.size(16.dp))
                                             },
                                             onClick = {
                                                 showModActionsMenu = false
@@ -370,14 +370,14 @@ fun ProfileScreen(
                                             text = {
                                                 Text(
                                                     text = if (user.role == "moderator") "Remove Moderator Role" else "Make Moderator",
-                                                    color = Color(0xFFA78BFA),
+                                                    color = Color(0xFF7C3AED),
                                                     fontSize = 13.sp,
                                                     fontWeight = FontWeight.Medium,
                                                     fontFamily = InterFontFamily
                                                 )
                                             },
                                             leadingIcon = {
-                                                Icon(Icons.Filled.Shield, null, tint = Color(0xFFA78BFA), modifier = Modifier.size(16.dp))
+                                                Icon(Icons.Filled.Shield, null, tint = Color(0xFF7C3AED), modifier = Modifier.size(16.dp))
                                             },
                                             onClick = {
                                                 showModActionsMenu = false
@@ -387,14 +387,14 @@ fun ProfileScreen(
                                         )
                                     }
 
-                                    HorizontalDivider(color = Color(0xFF1E293B))
+                                    HorizontalDivider(color = AppColors.border)
 
                                     DropdownMenuItem(
                                         text = {
-                                            Text("Copy Profile Link", color = Color(0xFFF8FAFC), fontSize = 13.sp, fontWeight = FontWeight.Medium, fontFamily = InterFontFamily)
+                                            Text("Copy Profile Link", color = AppColors.textPrimary, fontSize = 13.sp, fontWeight = FontWeight.Medium, fontFamily = InterFontFamily)
                                         },
                                         leadingIcon = {
-                                            Icon(Icons.Filled.Link, null, tint = Color(0xFF38BDF8), modifier = Modifier.size(16.dp))
+                                            Icon(Icons.Filled.Link, null, tint = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8), modifier = Modifier.size(16.dp))
                                         },
                                         onClick = {
                                             showModActionsMenu = false
@@ -414,7 +414,7 @@ fun ProfileScreen(
                                 Icon(
                                     imageVector = Icons.Filled.Share,
                                     contentDescription = "Share Profile",
-                                    tint = Color(0xFF94A3B8)
+                                    tint = AppColors.headerIconTint
                                 )
                             }
                         }
@@ -492,7 +492,7 @@ fun ProfileScreen(
                             imageUrl = user.profileImageUrl,
                             size = 96.dp,
                             borderWidth = 4.dp,
-                            borderColor = Color(0xFF0F172A),
+                            borderColor = AppColors.bgCard,
                             fontSize = 32.sp,
                             onClick = {
                                 if (user.profileImageUrl.isNotBlank()) {
@@ -507,8 +507,8 @@ fun ProfileScreen(
                                     .align(Alignment.BottomEnd)
                                     .size(30.dp)
                                     .clip(CircleShape)
-                                    .background(Color(0xFF1E293B))
-                                    .border(2.dp, Color(0xFF0F172A), CircleShape)
+                                    .background(AppColors.bgChip)
+                                    .border(2.dp, AppColors.bgCard, CircleShape)
                                     .clickable {
                                         if (isGuest) onRequestAuth() else { showEditProfileModal = true }
                                     },
@@ -517,7 +517,7 @@ fun ProfileScreen(
                                 Icon(
                                     imageVector = Icons.Filled.CameraAlt,
                                     contentDescription = "Change profile photo",
-                                    tint = Color.White,
+                                    tint = AppColors.textPrimary,
                                     modifier = Modifier.size(16.dp)
                                 )
                             }
@@ -531,7 +531,7 @@ fun ProfileScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFF0F172A))
+                        .background(AppColors.bgCard)
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                 ) {
                     // Name & Badges
@@ -545,20 +545,20 @@ fun ProfileScreen(
                             fontWeight = FontWeight.Bold,
                             fontSize = 24.sp,
                             fontFamily = InterFontFamily,
-                            color = Color(0xFFF8FAFC)
+                            color = AppColors.textPrimary
                         )
                         if (user.isVerified) {
                             VerifiedBadge(size = 20.dp)
                         }
                         if (user.role == "moderator") {
                             Surface(
-                                color = Color(0xFF4C1D95).copy(alpha = 0.6f),
+                                color = if (AppColors.isLight) Color(0xFFEDE9FE) else Color(0xFF4C1D95).copy(alpha = 0.6f),
                                 shape = RoundedCornerShape(12.dp),
                                 border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF7C3AED).copy(alpha = 0.5f))
                             ) {
                                 Text(
                                     text = "Mod",
-                                    color = Color(0xFFDDD6FE),
+                                    color = if (AppColors.isLight) Color(0xFF5B21B6) else Color(0xFFDDD6FE),
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     fontFamily = InterFontFamily,
@@ -568,13 +568,13 @@ fun ProfileScreen(
                         }
                         if (user.role == "admin") {
                             Surface(
-                                color = Color(0xFF7F1D1D).copy(alpha = 0.6f),
+                                color = if (AppColors.isLight) Color(0xFFFEE2E2) else Color(0xFF7F1D1D).copy(alpha = 0.6f),
                                 shape = RoundedCornerShape(12.dp),
                                 border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFDC2626).copy(alpha = 0.5f))
                             ) {
                                 Text(
                                     text = "Admin",
-                                    color = Color(0xFFFECACA),
+                                    color = if (AppColors.isLight) Color(0xFFB91C1C) else Color(0xFFFECACA),
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     fontFamily = InterFontFamily,
@@ -609,19 +609,19 @@ fun ProfileScreen(
                             text = "${user.followersCount}",
                             fontWeight = FontWeight.SemiBold,
                             fontFamily = InterFontFamily,
-                            color = Color(0xFFF8FAFC),
+                            color = AppColors.textPrimary,
                             fontSize = 15.sp
                         )
                         Text(
                             text = " followers",
-                            color = Color(0xFF94A3B8),
+                            color = AppColors.textSecondary,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Normal,
                             fontFamily = InterFontFamily
                         )
                         Text(
                             text = "  ·  ",
-                            color = Color(0xFF64748B),
+                            color = AppColors.textMuted,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Normal,
                             fontFamily = InterFontFamily
@@ -630,12 +630,12 @@ fun ProfileScreen(
                             text = "${userPosts.size}",
                             fontWeight = FontWeight.SemiBold,
                             fontFamily = InterFontFamily,
-                            color = Color(0xFFF8FAFC),
+                            color = AppColors.textPrimary,
                             fontSize = 15.sp
                         )
                         Text(
                             text = " posts",
-                            color = Color(0xFF94A3B8),
+                            color = AppColors.textSecondary,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Normal,
                             fontFamily = InterFontFamily
@@ -650,13 +650,13 @@ fun ProfileScreen(
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Normal,
                             fontFamily = InterFontFamily,
-                            color = Color(0xFFF8FAFC),
+                            color = AppColors.textPrimary,
                             lineHeight = 22.sp
                         )
                     } else if (isMe) {
                         Text(
                             text = "+ Add bio",
-                            color = Color(0xFF1877F2),
+                            color = AppColors.primaryBlue,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
                             fontFamily = InterFontFamily,
@@ -671,14 +671,14 @@ fun ProfileScreen(
                             Icon(
                                 imageVector = Icons.Filled.Work,
                                 contentDescription = null,
-                                tint = Color(0xFF94A3B8),
+                                tint = AppColors.textSecondary,
                                 modifier = Modifier.size(16.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 text = "Works at ${user.work}",
                                 fontSize = 14.sp,
-                                color = Color(0xFFF8FAFC),
+                                color = AppColors.textPrimary,
                                 fontWeight = FontWeight.Normal,
                                 fontFamily = InterFontFamily
                             )
@@ -691,7 +691,7 @@ fun ProfileScreen(
                             Icon(
                                 imageVector = Icons.Filled.Place,
                                 contentDescription = null,
-                                tint = Color(0xFF94A3B8),
+                                tint = AppColors.textSecondary,
                                 modifier = Modifier.size(16.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
@@ -700,7 +700,7 @@ fun ProfileScreen(
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Normal,
                                 fontFamily = InterFontFamily,
-                                color = Color(0xFF94A3B8)
+                                color = AppColors.textSecondary
                             )
                         }
                     }
@@ -716,46 +716,46 @@ fun ProfileScreen(
                                 onClick = {
                                     if (isGuest) onRequestAuth() else onAddStoryClick()
                                 },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1877F2)),
+                                colors = ButtonDefaults.buttonColors(containerColor = AppColors.primaryBlue),
                                 shape = RoundedCornerShape(8.dp),
                                 modifier = Modifier
                                     .weight(1f)
                                     .height(42.dp)
                             ) {
-                                Icon(Icons.Filled.Add, null, modifier = Modifier.size(18.dp))
+                                Icon(Icons.Filled.Add, null, tint = Color.White, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Add to story", fontWeight = FontWeight.Medium, fontSize = 15.sp, fontFamily = InterFontFamily)
+                                Text("Add to story", color = Color.White, fontWeight = FontWeight.Medium, fontSize = 15.sp, fontFamily = InterFontFamily)
                             }
 
                             Button(
                                 onClick = {
                                     if (isGuest) onRequestAuth() else { showAnalyticsDashboard = true }
                                 },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E293B)),
+                                colors = ButtonDefaults.buttonColors(containerColor = AppColors.bgChip),
                                 shape = RoundedCornerShape(8.dp),
                                 modifier = Modifier
                                     .weight(1f)
                                     .height(42.dp)
                                     .testTag("profile_analytics_button")
                             ) {
-                                Icon(Icons.Filled.Insights, null, tint = Color(0xFF38BDF8), modifier = Modifier.size(18.dp))
+                                Icon(Icons.Filled.Insights, null, tint = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8), modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Analytics", color = Color(0xFFF8FAFC), fontWeight = FontWeight.Medium, fontSize = 15.sp, fontFamily = InterFontFamily)
+                                Text("Analytics", color = AppColors.textPrimary, fontWeight = FontWeight.Medium, fontSize = 15.sp, fontFamily = InterFontFamily)
                             }
                         } else {
                             Button(
                                 onClick = {
                                     if (isGuest) onRequestAuth() else onMessageUser(user)
                                 },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E293B)),
+                                colors = ButtonDefaults.buttonColors(containerColor = AppColors.bgChip),
                                 shape = RoundedCornerShape(8.dp),
                                 modifier = Modifier
                                     .weight(1f)
                                     .height(42.dp)
                             ) {
-                                Icon(Icons.Filled.ChatBubble, null, tint = Color(0xFFF8FAFC), modifier = Modifier.size(16.dp))
+                                Icon(Icons.Filled.ChatBubble, null, tint = AppColors.textPrimary, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Message", color = Color(0xFFF8FAFC), fontWeight = FontWeight.Medium, fontSize = 15.sp, fontFamily = InterFontFamily)
+                                Text("Message", color = AppColors.textPrimary, fontWeight = FontWeight.Medium, fontSize = 15.sp, fontFamily = InterFontFamily)
                             }
 
                             Button(
@@ -763,7 +763,7 @@ fun ProfileScreen(
                                     if (isGuest) onRequestAuth() else onFollowUser(user.id)
                                 },
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = if (isFollowing) Color(0xFF1E293B) else Color(0xFF1877F2)
+                                    containerColor = if (isFollowing) AppColors.bgChip else AppColors.primaryBlue
                                 ),
                                 shape = RoundedCornerShape(8.dp),
                                 modifier = Modifier
@@ -773,13 +773,13 @@ fun ProfileScreen(
                                 Icon(
                                     imageVector = if (isFollowing) Icons.Filled.Check else Icons.Filled.PersonAdd,
                                     contentDescription = null,
-                                    tint = if (isFollowing) Color(0xFFF8FAFC) else Color.White,
+                                    tint = if (isFollowing) AppColors.textPrimary else Color.White,
                                     modifier = Modifier.size(16.dp)
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
                                     text = if (isFollowing) "Following" else "Follow",
-                                    color = if (isFollowing) Color(0xFFF8FAFC) else Color.White,
+                                    color = if (isFollowing) AppColors.textPrimary else Color.White,
                                     fontWeight = FontWeight.Medium,
                                     fontSize = 15.sp,
                                     fontFamily = InterFontFamily
@@ -792,7 +792,7 @@ fun ProfileScreen(
                     if (user.suspendedUntil != null) {
                         Spacer(modifier = Modifier.height(14.dp))
                         Surface(
-                            color = Color(0xFF450A0A),
+                            color = if (AppColors.isLight) AppColors.dangerBg else Color(0xFF450A0A),
                             shape = RoundedCornerShape(10.dp),
                             border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFDC2626).copy(alpha = 0.6f)),
                             modifier = Modifier.fillMaxWidth()
@@ -804,7 +804,7 @@ fun ProfileScreen(
                                 Icon(
                                     imageVector = Icons.Filled.Warning,
                                     contentDescription = null,
-                                    tint = Color(0xFFF87171),
+                                    tint = if (AppColors.isLight) AppColors.dangerText else Color(0xFFF87171),
                                     modifier = Modifier.size(24.dp)
                                 )
                                 Spacer(modifier = Modifier.width(10.dp))
@@ -813,12 +813,12 @@ fun ProfileScreen(
                                         text = "Account is Suspended",
                                         fontWeight = FontWeight.SemiBold,
                                         fontFamily = InterFontFamily,
-                                        color = Color.White,
+                                        color = if (AppColors.isLight) AppColors.dangerText else Color.White,
                                         fontSize = 14.sp
                                     )
                                     Text(
                                         text = "Expires: ${user.suspendedUntil} · Reason: ${user.suspensionReason ?: "Violation of guidelines"}",
-                                        color = Color(0xFFFECACA),
+                                        color = if (AppColors.isLight) AppColors.textBody else Color(0xFFFECACA),
                                         fontSize = 12.sp,
                                         fontWeight = FontWeight.Normal,
                                         fontFamily = InterFontFamily
@@ -845,9 +845,9 @@ fun ProfileScreen(
                     if (!isMe) {
                         Spacer(modifier = Modifier.height(14.dp))
                         Surface(
-                            color = Color(0xFF1E293B).copy(alpha = 0.5f),
+                            color = AppColors.bgCardElevated,
                             shape = RoundedCornerShape(12.dp),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF334155)),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Row(
@@ -857,7 +857,7 @@ fun ProfileScreen(
                                 Icon(
                                     imageVector = Icons.Filled.Groups,
                                     contentDescription = null,
-                                    tint = Color(0xFF38BDF8),
+                                    tint = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8),
                                     modifier = Modifier.size(24.dp)
                                 )
                                 Spacer(modifier = Modifier.width(10.dp))
@@ -866,12 +866,12 @@ fun ProfileScreen(
                                         text = "Things in common",
                                         fontWeight = FontWeight.SemiBold,
                                         fontFamily = InterFontFamily,
-                                        color = Color(0xFFF8FAFC),
+                                        color = AppColors.textPrimary,
                                         fontSize = 14.sp
                                     )
                                     Text(
                                         text = "You both are part of the Feathered community and explore ${user.location}",
-                                        color = Color(0xFF94A3B8),
+                                        color = AppColors.textSecondary,
                                         fontSize = 12.sp,
                                         fontWeight = FontWeight.Normal,
                                         fontFamily = InterFontFamily
@@ -886,10 +886,10 @@ fun ProfileScreen(
                     // Horizontal Navigation Tabs (Posts, Videos, Photos, Shop, About, Followers)
                     ScrollableTabRow(
                         selectedTabIndex = availableTabs.indexOf(selectedTab).coerceAtLeast(0),
-                        containerColor = Color(0xFF0F172A),
-                        contentColor = Color(0xFF1877F2),
+                        containerColor = AppColors.bgCard,
+                        contentColor = AppColors.primaryBlue,
                         edgePadding = 0.dp,
-                        divider = { HorizontalDivider(color = Color(0xFF1E293B)) }
+                        divider = { HorizontalDivider(color = AppColors.border) }
                     ) {
                         availableTabs.forEach { tab ->
                             Tab(
@@ -901,7 +901,7 @@ fun ProfileScreen(
                                         fontWeight = FontWeight.Medium,
                                         fontSize = 15.sp,
                                         fontFamily = InterFontFamily,
-                                        color = if (selectedTab == tab) Color(0xFF1877F2) else Color(0xFF94A3B8)
+                                        color = if (selectedTab == tab) AppColors.primaryBlue else AppColors.textSecondary
                                     )
                                 }
                             )
@@ -1043,7 +1043,7 @@ fun ProfileScreen(
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 17.sp,
                                     fontFamily = InterFontFamily,
-                                    color = Color(0xFFF8FAFC),
+                                    color = AppColors.textPrimary,
                                     modifier = Modifier.padding(bottom = 8.dp)
                                 )
 
@@ -1058,8 +1058,8 @@ fun ProfileScreen(
                                     items(userProducts, key = { it.id }) { product ->
                                         Card(
                                             shape = RoundedCornerShape(8.dp),
-                                            colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
-                                            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B)),
+                                            colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+                                            border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .clickable { onOpenProduct(product) }
@@ -1078,21 +1078,21 @@ fun ProfileScreen(
                                                         text = "${product.currency} ${String.format("%,.0f", product.price)}",
                                                         fontWeight = FontWeight.SemiBold,
                                                         fontFamily = InterFontFamily,
-                                                        color = Color(0xFF38BDF8),
+                                                        color = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8),
                                                         fontSize = 14.sp
                                                     )
                                                     Text(
                                                         text = product.title,
                                                         fontWeight = FontWeight.Medium,
                                                         fontFamily = InterFontFamily,
-                                                        color = Color(0xFFF8FAFC),
+                                                        color = AppColors.textPrimary,
                                                         fontSize = 13.sp,
                                                         maxLines = 1,
                                                         overflow = TextOverflow.Ellipsis
                                                     )
                                                     Text(
                                                         text = product.location,
-                                                        color = Color(0xFF94A3B8),
+                                                        color = AppColors.textSecondary,
                                                         fontSize = 11.sp,
                                                         fontWeight = FontWeight.Normal,
                                                         fontFamily = InterFontFamily,
@@ -1125,7 +1125,7 @@ fun ProfileScreen(
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 17.sp,
                                     fontFamily = InterFontFamily,
-                                    color = Color(0xFFF8FAFC),
+                                    color = AppColors.textPrimary,
                                     modifier = Modifier.padding(bottom = 8.dp)
                                 )
 
@@ -1190,14 +1190,14 @@ fun ProfileScreen(
                 .padding(top = 16.dp)
         ) {
             Surface(
-                color = Color(0xFF0F172A),
+                color = AppColors.bgCard,
                 shape = RoundedCornerShape(12.dp),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF38BDF8)),
+                border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.primaryBlue),
                 shadowElevation = 8.dp
             ) {
                 Text(
                     text = toastMessage ?: "",
-                    color = Color(0xFFF8FAFC),
+                    color = AppColors.textPrimary,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
                     fontFamily = InterFontFamily,
@@ -1276,11 +1276,11 @@ fun ProfileScreen(
             var reason by remember { mutableStateOf("Violation of Community Standards") }
             AlertDialog(
                 onDismissRequest = { showSuspendDialog = false },
-                containerColor = Color(0xFF0F172A),
+                containerColor = AppColors.bgCard,
                 title = {
                     Text(
                         text = "Suspend User Account",
-                        color = Color(0xFFF87171),
+                        color = Color(0xFFEF4444),
                         fontWeight = FontWeight.SemiBold,
                         fontFamily = InterFontFamily
                     )
@@ -1289,7 +1289,7 @@ fun ProfileScreen(
                     Column {
                         Text(
                             text = "Suspending @${user.username} for ${if (suspendDuration == "week") "7 days" else "30 days"}.",
-                            color = Color(0xFF94A3B8),
+                            color = AppColors.textSecondary,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Normal,
                             fontFamily = InterFontFamily
@@ -1304,10 +1304,10 @@ fun ProfileScreen(
                             ),
                             label = { Text("Reason for Suspension", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium) },
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color(0xFF1E293B),
-                                unfocusedContainerColor = Color(0xFF1E293B),
-                                focusedTextColor = Color(0xFFF8FAFC),
-                                unfocusedTextColor = Color(0xFFF8FAFC)
+                                focusedContainerColor = AppColors.bgInput,
+                                unfocusedContainerColor = AppColors.bgInput,
+                                focusedTextColor = AppColors.textPrimary,
+                                unfocusedTextColor = AppColors.textPrimary
                             ),
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -1322,12 +1322,12 @@ fun ProfileScreen(
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC2626))
                     ) {
-                        Text("Confirm Suspend", fontWeight = FontWeight.Medium, fontFamily = InterFontFamily)
+                        Text("Confirm Suspend", color = Color.White, fontWeight = FontWeight.Medium, fontFamily = InterFontFamily)
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showSuspendDialog = false }) {
-                        Text("Cancel", color = Color(0xFF94A3B8), fontWeight = FontWeight.Medium, fontFamily = InterFontFamily)
+                        Text("Cancel", color = AppColors.textSecondary, fontWeight = FontWeight.Medium, fontFamily = InterFontFamily)
                     }
                 }
             )
@@ -1349,7 +1349,8 @@ fun AboutProfileTab(
             .fillMaxWidth()
             .padding(16.dp)
             .clip(RoundedCornerShape(12.dp))
-            .background(Color(0xFF0F172A))
+            .background(AppColors.bgCard)
+            .border(1.dp, AppColors.border, RoundedCornerShape(12.dp))
             .padding(16.dp)
     ) {
         Row(
@@ -1362,11 +1363,11 @@ fun AboutProfileTab(
                 fontSize = 20.sp,
                 fontWeight = FontWeight.SemiBold,
                 fontFamily = InterFontFamily,
-                color = Color(0xFFF8FAFC)
+                color = AppColors.textPrimary
             )
             if (isMe) {
                 TextButton(onClick = onEditClick) {
-                    Text("Edit Details", color = Color(0xFF1877F2), fontWeight = FontWeight.Medium, fontFamily = InterFontFamily)
+                    Text("Edit Details", color = AppColors.primaryBlue, fontWeight = FontWeight.Medium, fontFamily = InterFontFamily)
                 }
             }
         }
@@ -1375,29 +1376,29 @@ fun AboutProfileTab(
         Text(
             text = "\"${user.bio.ifBlank { "No bio available" }}\"",
             fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
-            color = Color(0xFF94A3B8),
+            color = AppColors.textSecondary,
             fontSize = 14.sp,
             fontWeight = FontWeight.Normal,
             fontFamily = InterFontFamily
         )
 
-        HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = Color(0xFF1E293B))
+        HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = AppColors.border)
 
         Text(
             text = "Work & Education",
             fontWeight = FontWeight.SemiBold,
             fontFamily = InterFontFamily,
-            color = Color(0xFFF8FAFC),
+            color = AppColors.textPrimary,
             fontSize = 16.sp
         )
         Spacer(modifier = Modifier.height(10.dp))
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Filled.Work, null, tint = Color(0xFF94A3B8), modifier = Modifier.size(18.dp))
+            Icon(Icons.Filled.Work, null, tint = AppColors.textSecondary, modifier = Modifier.size(18.dp))
             Spacer(modifier = Modifier.width(10.dp))
             Text(
                 text = if (user.work.isNotBlank()) "Works at ${user.work}" else "No work added",
-                color = Color(0xFFF8FAFC),
+                color = AppColors.textPrimary,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Normal,
                 fontFamily = InterFontFamily
@@ -1406,34 +1407,34 @@ fun AboutProfileTab(
 
         Spacer(modifier = Modifier.height(10.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Filled.School, null, tint = Color(0xFF94A3B8), modifier = Modifier.size(18.dp))
+            Icon(Icons.Filled.School, null, tint = AppColors.textSecondary, modifier = Modifier.size(18.dp))
             Spacer(modifier = Modifier.width(10.dp))
             Text(
                 text = if (user.education.isNotBlank()) "Studied at ${user.education}" else "No education added",
-                color = Color(0xFFF8FAFC),
+                color = AppColors.textPrimary,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Normal,
                 fontFamily = InterFontFamily
             )
         }
 
-        HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = Color(0xFF1E293B))
+        HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = AppColors.border)
 
         Text(
             text = "Contact & Basic Info",
             fontWeight = FontWeight.SemiBold,
             fontFamily = InterFontFamily,
-            color = Color(0xFFF8FAFC),
+            color = AppColors.textPrimary,
             fontSize = 16.sp
         )
         Spacer(modifier = Modifier.height(10.dp))
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Filled.Place, null, tint = Color(0xFF94A3B8), modifier = Modifier.size(18.dp))
+            Icon(Icons.Filled.Place, null, tint = AppColors.textSecondary, modifier = Modifier.size(18.dp))
             Spacer(modifier = Modifier.width(10.dp))
             Text(
                 text = if (user.location.isNotBlank()) user.location else "Location not specified",
-                color = Color(0xFFF8FAFC),
+                color = AppColors.textPrimary,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Normal,
                 fontFamily = InterFontFamily
@@ -1442,11 +1443,11 @@ fun AboutProfileTab(
 
         Spacer(modifier = Modifier.height(10.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Filled.Link, null, tint = Color(0xFF94A3B8), modifier = Modifier.size(18.dp))
+            Icon(Icons.Filled.Link, null, tint = AppColors.textSecondary, modifier = Modifier.size(18.dp))
             Spacer(modifier = Modifier.width(10.dp))
             Text(
                 text = if (user.website.isNotBlank()) user.website else "No website link",
-                color = Color(0xFF38BDF8),
+                color = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Normal,
                 fontFamily = InterFontFamily
@@ -1478,7 +1479,7 @@ fun FollowersProfileTab(
             fontSize = 18.sp,
             fontWeight = FontWeight.SemiBold,
             fontFamily = InterFontFamily,
-            color = Color(0xFFF8FAFC),
+            color = AppColors.textPrimary,
             modifier = Modifier.padding(bottom = 12.dp)
         )
 
@@ -1493,9 +1494,9 @@ fun FollowersProfileTab(
             items(followersList) { follower ->
                 Surface(
                     onClick = { onProfileClick(follower) },
-                    color = Color(0xFF0F172A),
+                    color = AppColors.bgCard,
                     shape = RoundedCornerShape(10.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B))
+                    border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border)
                 ) {
                     Row(
                         modifier = Modifier.padding(10.dp),
@@ -1515,14 +1516,14 @@ fun FollowersProfileTab(
                                 text = follower.name,
                                 fontWeight = FontWeight.Bold,
                                 fontFamily = InterFontFamily,
-                                color = Color(0xFFF8FAFC),
+                                color = AppColors.textPrimary,
                                 fontSize = 13.sp,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
                             Text(
                                 text = follower.location,
-                                color = Color(0xFF94A3B8),
+                                color = AppColors.textSecondary,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Normal,
                                 fontFamily = InterFontFamily,
@@ -1557,7 +1558,7 @@ fun EmptyStateView(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = Color(0xFF475569),
+            tint = AppColors.textMuted,
             modifier = Modifier.size(54.dp)
         )
         Spacer(modifier = Modifier.height(12.dp))
@@ -1566,7 +1567,7 @@ fun EmptyStateView(
             fontSize = 17.sp,
             fontWeight = FontWeight.SemiBold,
             fontFamily = InterFontFamily,
-            color = Color(0xFFF8FAFC)
+            color = AppColors.textPrimary
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
@@ -1574,17 +1575,17 @@ fun EmptyStateView(
             fontSize = 13.sp,
             fontWeight = FontWeight.Normal,
             fontFamily = InterFontFamily,
-            color = Color(0xFF94A3B8),
+            color = AppColors.textSecondary,
             textAlign = TextAlign.Center
         )
         if (buttonText != null) {
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = onButtonClick,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1877F2)),
+                colors = ButtonDefaults.buttonColors(containerColor = AppColors.primaryBlue),
                 shape = RoundedCornerShape(8.dp)
             ) {
-                Text(buttonText, fontWeight = FontWeight.Medium, fontFamily = InterFontFamily)
+                Text(buttonText, color = Color.White, fontWeight = FontWeight.Medium, fontFamily = InterFontFamily)
             }
         }
     }
@@ -1618,7 +1619,7 @@ fun EditProfileModal(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFF0B1120))
+                .background(AppColors.bgScreen)
                 .statusBarsPadding()
                 .navigationBarsPadding()
         ) {
@@ -1627,6 +1628,7 @@ fun EditProfileModal(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .background(AppColors.headerBg)
                         .padding(horizontal = 8.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -1634,7 +1636,7 @@ fun EditProfileModal(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color(0xFFF8FAFC)
+                            tint = AppColors.headerIconTint
                         )
                     }
                     Text(
@@ -1642,7 +1644,7 @@ fun EditProfileModal(
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 19.sp,
                         fontFamily = InterFontFamily,
-                        color = Color(0xFFF8FAFC),
+                        color = AppColors.headerText,
                         modifier = Modifier.weight(1f)
                     )
                     TextButton(
@@ -1653,15 +1655,15 @@ fun EditProfileModal(
                     ) {
                         Text(
                             text = "Save",
-                            color = Color(0xFF1877F2),
-                            fontWeight = FontWeight.Medium,
+                            color = if (AppColors.isLight) Color.White else AppColors.primaryBlue,
+                            fontWeight = FontWeight.SemiBold,
                             fontSize = 16.sp,
                             fontFamily = InterFontFamily
                         )
                     }
                 }
 
-                HorizontalDivider(color = Color(0xFF1E293B), thickness = 0.8.dp)
+                HorizontalDivider(color = AppColors.border, thickness = 0.8.dp)
 
                 // Flat Content without boxed containers
                 Column(
@@ -1673,7 +1675,7 @@ fun EditProfileModal(
                 ) {
                     Text(
                         text = "Your profile details are shown to people across Feathered. Keep them updated to help people discover you.",
-                        color = Color(0xFF94A3B8),
+                        color = AppColors.textSecondary,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Normal,
                         fontFamily = InterFontFamily,
@@ -1682,7 +1684,7 @@ fun EditProfileModal(
 
                     // Bio section
                     Column {
-                        Text("Bio", color = Color(0xFFCBD5E1), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, fontFamily = InterFontFamily)
+                        Text("Bio", color = AppColors.textPrimary, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, fontFamily = InterFontFamily)
                         Spacer(modifier = Modifier.height(6.dp))
                         OutlinedTextField(
                             value = bio,
@@ -1691,29 +1693,29 @@ fun EditProfileModal(
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal
                             ),
-                            placeholder = { Text("Tell people about yourself...", color = Color(0xFF64748B), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
+                            placeholder = { Text("Tell people about yourself...", color = AppColors.textMuted, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                             modifier = Modifier.fillMaxWidth(),
                             maxLines = 4,
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent,
-                                focusedTextColor = Color(0xFFF8FAFC),
-                                unfocusedTextColor = Color(0xFFF8FAFC),
-                                focusedBorderColor = Color(0xFF1877F2),
-                                unfocusedBorderColor = Color(0xFF334155)
+                                focusedContainerColor = AppColors.bgCard,
+                                unfocusedContainerColor = AppColors.bgCard,
+                                focusedTextColor = AppColors.textPrimary,
+                                unfocusedTextColor = AppColors.textPrimary,
+                                focusedBorderColor = AppColors.primaryBlue,
+                                unfocusedBorderColor = AppColors.borderStrong
                             ),
                             shape = RoundedCornerShape(8.dp)
                         )
                     }
 
-                    HorizontalDivider(color = Color(0xFF1E293B).copy(alpha = 0.6f), thickness = 0.5.dp)
+                    HorizontalDivider(color = AppColors.border.copy(alpha = 0.7f), thickness = 0.5.dp)
 
                     // Work section
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Filled.Work, null, tint = Color(0xFF1877F2), modifier = Modifier.size(16.dp))
+                            Icon(Icons.Filled.Work, null, tint = AppColors.primaryBlue, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Work", color = Color(0xFFCBD5E1), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, fontFamily = InterFontFamily)
+                            Text("Work", color = AppColors.textPrimary, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, fontFamily = InterFontFamily)
                         }
                         Spacer(modifier = Modifier.height(6.dp))
                         OutlinedTextField(
@@ -1723,29 +1725,29 @@ fun EditProfileModal(
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal
                             ),
-                            placeholder = { Text("Add workplace or role", color = Color(0xFF64748B), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
+                            placeholder = { Text("Add workplace or role", color = AppColors.textMuted, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent,
-                                focusedTextColor = Color(0xFFF8FAFC),
-                                unfocusedTextColor = Color(0xFFF8FAFC),
-                                focusedBorderColor = Color(0xFF1877F2),
-                                unfocusedBorderColor = Color(0xFF334155)
+                                focusedContainerColor = AppColors.bgCard,
+                                unfocusedContainerColor = AppColors.bgCard,
+                                focusedTextColor = AppColors.textPrimary,
+                                unfocusedTextColor = AppColors.textPrimary,
+                                focusedBorderColor = AppColors.primaryBlue,
+                                unfocusedBorderColor = AppColors.borderStrong
                             ),
                             shape = RoundedCornerShape(8.dp)
                         )
                     }
 
-                    HorizontalDivider(color = Color(0xFF1E293B).copy(alpha = 0.6f), thickness = 0.5.dp)
+                    HorizontalDivider(color = AppColors.border.copy(alpha = 0.7f), thickness = 0.5.dp)
 
                     // Education section
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Filled.School, null, tint = Color(0xFF1877F2), modifier = Modifier.size(16.dp))
+                            Icon(Icons.Filled.School, null, tint = AppColors.primaryBlue, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Education", color = Color(0xFFCBD5E1), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, fontFamily = InterFontFamily)
+                            Text("Education", color = AppColors.textPrimary, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, fontFamily = InterFontFamily)
                         }
                         Spacer(modifier = Modifier.height(6.dp))
                         OutlinedTextField(
@@ -1755,29 +1757,29 @@ fun EditProfileModal(
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal
                             ),
-                            placeholder = { Text("Add university or high school", color = Color(0xFF64748B), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
+                            placeholder = { Text("Add university or high school", color = AppColors.textMuted, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent,
-                                focusedTextColor = Color(0xFFF8FAFC),
-                                unfocusedTextColor = Color(0xFFF8FAFC),
-                                focusedBorderColor = Color(0xFF1877F2),
-                                unfocusedBorderColor = Color(0xFF334155)
+                                focusedContainerColor = AppColors.bgCard,
+                                unfocusedContainerColor = AppColors.bgCard,
+                                focusedTextColor = AppColors.textPrimary,
+                                unfocusedTextColor = AppColors.textPrimary,
+                                focusedBorderColor = AppColors.primaryBlue,
+                                unfocusedBorderColor = AppColors.borderStrong
                             ),
                             shape = RoundedCornerShape(8.dp)
                         )
                     }
 
-                    HorizontalDivider(color = Color(0xFF1E293B).copy(alpha = 0.6f), thickness = 0.5.dp)
+                    HorizontalDivider(color = AppColors.border.copy(alpha = 0.7f), thickness = 0.5.dp)
 
                     // Location section
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Filled.Place, null, tint = Color(0xFF1877F2), modifier = Modifier.size(16.dp))
+                            Icon(Icons.Filled.Place, null, tint = AppColors.primaryBlue, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Location", color = Color(0xFFCBD5E1), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, fontFamily = InterFontFamily)
+                            Text("Location", color = AppColors.textPrimary, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, fontFamily = InterFontFamily)
                         }
                         Spacer(modifier = Modifier.height(6.dp))
                         OutlinedTextField(
@@ -1787,29 +1789,29 @@ fun EditProfileModal(
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal
                             ),
-                            placeholder = { Text("Add current city and country", color = Color(0xFF64748B), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
+                            placeholder = { Text("Add current city and country", color = AppColors.textMuted, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent,
-                                focusedTextColor = Color(0xFFF8FAFC),
-                                unfocusedTextColor = Color(0xFFF8FAFC),
-                                focusedBorderColor = Color(0xFF1877F2),
-                                unfocusedBorderColor = Color(0xFF334155)
+                                focusedContainerColor = AppColors.bgCard,
+                                unfocusedContainerColor = AppColors.bgCard,
+                                focusedTextColor = AppColors.textPrimary,
+                                unfocusedTextColor = AppColors.textPrimary,
+                                focusedBorderColor = AppColors.primaryBlue,
+                                unfocusedBorderColor = AppColors.borderStrong
                             ),
                             shape = RoundedCornerShape(8.dp)
                         )
                     }
 
-                    HorizontalDivider(color = Color(0xFF1E293B).copy(alpha = 0.6f), thickness = 0.5.dp)
+                    HorizontalDivider(color = AppColors.border.copy(alpha = 0.7f), thickness = 0.5.dp)
 
                     // Website section
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Filled.Link, null, tint = Color(0xFF1877F2), modifier = Modifier.size(16.dp))
+                            Icon(Icons.Filled.Link, null, tint = AppColors.primaryBlue, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Website", color = Color(0xFFCBD5E1), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, fontFamily = InterFontFamily)
+                            Text("Website", color = AppColors.textPrimary, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, fontFamily = InterFontFamily)
                         }
                         Spacer(modifier = Modifier.height(6.dp))
                         OutlinedTextField(
@@ -1819,16 +1821,16 @@ fun EditProfileModal(
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal
                             ),
-                            placeholder = { Text("https://example.com", color = Color(0xFF64748B), fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
+                            placeholder = { Text("https://example.com", color = AppColors.textMuted, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent,
-                                focusedTextColor = Color(0xFFF8FAFC),
-                                unfocusedTextColor = Color(0xFFF8FAFC),
-                                focusedBorderColor = Color(0xFF1877F2),
-                                unfocusedBorderColor = Color(0xFF334155)
+                                focusedContainerColor = AppColors.bgCard,
+                                unfocusedContainerColor = AppColors.bgCard,
+                                focusedTextColor = AppColors.textPrimary,
+                                unfocusedTextColor = AppColors.textPrimary,
+                                focusedBorderColor = AppColors.primaryBlue,
+                                unfocusedBorderColor = AppColors.borderStrong
                             ),
                             shape = RoundedCornerShape(8.dp)
                         )

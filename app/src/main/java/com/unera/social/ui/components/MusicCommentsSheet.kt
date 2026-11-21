@@ -29,6 +29,7 @@ import coil.compose.AsyncImage
 import com.unera.social.model.AudioTrack
 import com.unera.social.model.SongComment
 import com.unera.social.model.User
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 import java.text.SimpleDateFormat
 import java.util.*
@@ -58,7 +59,7 @@ fun MusicCommentsSheet(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.65f))
+                .background(AppColors.scrim)
                 .clickable { onClose() },
             contentAlignment = Alignment.BottomCenter
         ) {
@@ -69,63 +70,66 @@ fun MusicCommentsSheet(
                     .clickable(enabled = false) {}
                     .testTag("music_comments_sheet"),
                 shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-                color = Color(0xFF050B18),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B))
+                color = AppColors.bgScreen,
+                border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border)
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
-                    // Top Drag handle
-                    Box(
+                    // Header (Blue in Light Mode)
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 10.dp),
-                        contentAlignment = Alignment.Center
+                            .background(AppColors.headerBg)
                     ) {
                         Box(
                             modifier = Modifier
-                                .width(40.dp)
-                                .height(4.dp)
-                                .clip(RoundedCornerShape(2.dp))
-                                .background(Color(0xFF1E293B))
-                        )
-                    }
-
-                    // Header
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFF0B1120))
-                            .padding(horizontal = 16.dp, vertical = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                .fillMaxWidth()
+                                .padding(top = 10.dp, bottom = 4.dp),
+                            contentAlignment = Alignment.Center
                         ) {
-                            IconButton(onClick = onClose) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = "Back",
-                                    tint = Color(0xFFE4E6EB)
-                                )
-                            }
-                            Text(
-                                text = "Discussions",
-                                color = Color(0xFFE4E6EB),
-                                fontSize = 20.sp,
-                                fontFamily = InterFontFamily,
-                                fontWeight = FontWeight.SemiBold
+                            Box(
+                                modifier = Modifier
+                                    .width(40.dp)
+                                    .height(4.dp)
+                                    .clip(RoundedCornerShape(2.dp))
+                                    .background(if (AppColors.isLight) Color.White.copy(alpha = 0.55f) else AppColors.borderStrong)
                             )
                         }
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                IconButton(onClick = onClose) {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                        contentDescription = "Back",
+                                        tint = AppColors.headerIconTint
+                                    )
+                                }
+                                Text(
+                                    text = "Discussions",
+                                    color = AppColors.headerText,
+                                    fontSize = 20.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
 
-                        TextButton(onClick = onClose) {
-                            Text(
-                                text = "Done",
-                                color = Color(0xFF1877F2),
-                                fontSize = 16.sp,
-                                fontFamily = InterFontFamily,
-                                fontWeight = FontWeight.Medium
-                            )
+                            TextButton(onClick = onClose) {
+                                Text(
+                                    text = "Done",
+                                    color = if (AppColors.isLight) Color.White else AppColors.primaryBlue,
+                                    fontSize = 16.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
                         }
                     }
 
@@ -134,9 +138,9 @@ fun MusicCommentsSheet(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 10.dp),
-                        color = Color(0xFF0F172A),
+                        color = AppColors.bgCard,
                         shape = RoundedCornerShape(12.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B))
+                        border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border)
                     ) {
                         Row(
                             modifier = Modifier.padding(10.dp),
@@ -154,7 +158,7 @@ fun MusicCommentsSheet(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = track.title,
-                                    color = Color(0xFFE4E6EB),
+                                    color = AppColors.textPrimary,
                                     fontSize = 15.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.SemiBold,
@@ -163,7 +167,7 @@ fun MusicCommentsSheet(
                                 )
                                 Text(
                                     text = track.artist,
-                                    color = Color(0xFF94A3B8),
+                                    color = AppColors.textSecondary,
                                     fontSize = 13.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Bold,
@@ -185,7 +189,7 @@ fun MusicCommentsSheet(
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(
                                     text = "No discussions yet",
-                                    color = Color(0xFFB0B3B8),
+                                    color = AppColors.textPrimary,
                                     fontSize = 17.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.SemiBold
@@ -193,7 +197,7 @@ fun MusicCommentsSheet(
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     text = "Be the first to start a discussion about this track!",
-                                    color = Color(0xFF64748B),
+                                    color = AppColors.textSecondary,
                                     fontSize = 13.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal
@@ -228,11 +232,11 @@ fun MusicCommentsSheet(
                                     // Comment bubble
                                     Column(modifier = Modifier.weight(1f)) {
                                         Surface(
-                                            color = if (comment.isHidden) Color(0xFF162137).copy(alpha = 0.4f) else Color(0xFF162137).copy(alpha = 0.7f),
+                                            color = if (comment.isHidden) AppColors.bgCardElevated.copy(alpha = 0.6f) else AppColors.bgCard,
                                             shape = RoundedCornerShape(16.dp),
                                             border = androidx.compose.foundation.BorderStroke(
                                                 1.dp,
-                                                if (comment.isHidden) Color(0xFFF59E0B).copy(alpha = 0.4f) else Color(0xFF1E293B)
+                                                if (comment.isHidden) Color(0xFFF59E0B).copy(alpha = 0.45f) else AppColors.border
                                             ),
                                             modifier = Modifier.fillMaxWidth()
                                         ) {
@@ -248,7 +252,7 @@ fun MusicCommentsSheet(
                                                     ) {
                                                         Text(
                                                             text = comment.userName,
-                                                            color = Color(0xFFE4E6EB),
+                                                            color = AppColors.textPrimary,
                                                             fontSize = 14.sp,
                                                             fontFamily = InterFontFamily,
                                                             fontWeight = FontWeight.Bold,
@@ -256,7 +260,7 @@ fun MusicCommentsSheet(
                                                         )
                                                         Text(
                                                             text = "• ${formatTimestamp(comment.createdAt)}",
-                                                            color = Color(0xFF94A3B8),
+                                                            color = AppColors.textSecondary,
                                                             fontSize = 11.sp,
                                                             fontFamily = InterFontFamily,
                                                             fontWeight = FontWeight.Normal
@@ -270,7 +274,7 @@ fun MusicCommentsSheet(
                                                         if (comment.isHidden) {
                                                             Text(
                                                                 text = "Hidden",
-                                                                color = Color(0xFFFCD34D),
+                                                                color = Color(0xFFD97706),
                                                                 fontSize = 10.sp,
                                                                 fontFamily = InterFontFamily,
                                                                 fontWeight = FontWeight.SemiBold
@@ -283,7 +287,7 @@ fun MusicCommentsSheet(
                                                             Icon(
                                                                 imageVector = Icons.Default.MoreHoriz,
                                                                 contentDescription = "Options",
-                                                                tint = Color(0xFF94A3B8),
+                                                                tint = AppColors.textSecondary,
                                                                 modifier = Modifier.size(16.dp)
                                                             )
                                                         }
@@ -294,7 +298,7 @@ fun MusicCommentsSheet(
 
                                                 Text(
                                                     text = comment.text,
-                                                    color = Color(0xFFF8FAFC),
+                                                    color = AppColors.textBody,
                                                     fontSize = 14.sp,
                                                     fontFamily = InterFontFamily,
                                                     fontWeight = FontWeight.Normal
@@ -310,7 +314,7 @@ fun MusicCommentsSheet(
                                         ) {
                                             Text(
                                                 text = "Like",
-                                                color = Color(0xFF94A3B8),
+                                                color = AppColors.textSecondary,
                                                 fontSize = 14.sp,
                                                 fontFamily = InterFontFamily,
                                                 fontWeight = FontWeight.Medium,
@@ -318,7 +322,7 @@ fun MusicCommentsSheet(
                                             )
                                             Text(
                                                 text = "Reply",
-                                                color = Color(0xFF94A3B8),
+                                                color = AppColors.textSecondary,
                                                 fontSize = 14.sp,
                                                 fontFamily = InterFontFamily,
                                                 fontWeight = FontWeight.Medium,
@@ -329,7 +333,7 @@ fun MusicCommentsSheet(
                                             if (comment.likesCount > 0) {
                                                 Text(
                                                     text = "${comment.likesCount} likes",
-                                                    color = Color(0xFF64748B),
+                                                    color = AppColors.textMuted,
                                                     fontSize = 12.sp,
                                                     fontFamily = InterFontFamily,
                                                     fontWeight = FontWeight.Normal
@@ -345,8 +349,8 @@ fun MusicCommentsSheet(
                     // Bottom Comment Input Bar
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
-                        color = Color(0xFF0B1120),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B))
+                        color = AppColors.bgSurface,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border)
                     ) {
                         Row(
                             modifier = Modifier
@@ -359,15 +363,15 @@ fun MusicCommentsSheet(
                                 value = inputText,
                                 onValueChange = { inputText = it },
                                 textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 14.sp),
-                                placeholder = { Text("Write a comment...", color = Color(0xFF64748B), fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
+                                placeholder = { Text("Write a comment...", color = AppColors.textMuted, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                                 shape = RoundedCornerShape(24.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedContainerColor = Color(0xFF070D1D),
-                                    unfocusedContainerColor = Color(0xFF070D1D),
-                                    focusedBorderColor = Color(0xFF1877F2),
-                                    unfocusedBorderColor = Color(0xFF1E293B),
-                                    focusedTextColor = Color.White,
-                                    unfocusedTextColor = Color.White
+                                    focusedContainerColor = AppColors.bgInput,
+                                    unfocusedContainerColor = AppColors.bgInput,
+                                    focusedBorderColor = AppColors.primaryBlue,
+                                    unfocusedBorderColor = AppColors.border,
+                                    focusedTextColor = AppColors.textPrimary,
+                                    unfocusedTextColor = AppColors.textPrimary
                                 ),
                                 modifier = Modifier
                                     .weight(1f)
@@ -385,10 +389,10 @@ fun MusicCommentsSheet(
                                 enabled = inputText.isNotBlank(),
                                 shape = RoundedCornerShape(20.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFF1877F2),
+                                    containerColor = AppColors.primaryBlue,
                                     contentColor = Color.White,
-                                    disabledContainerColor = Color(0xFF1E293B),
-                                    disabledContentColor = Color(0xFF64748B)
+                                    disabledContainerColor = AppColors.bgChip,
+                                    disabledContentColor = AppColors.textMuted
                                 ),
                                 contentPadding = PaddingValues(horizontal = 18.dp, vertical = 10.dp)
                             ) {

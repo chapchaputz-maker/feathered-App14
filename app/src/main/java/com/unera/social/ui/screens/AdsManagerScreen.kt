@@ -30,6 +30,7 @@ import coil.compose.AsyncImage
 import com.unera.social.model.AdCampaign
 import com.unera.social.model.Post
 import com.unera.social.model.User
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 
 /**
@@ -89,84 +90,100 @@ fun AdsManagerScreen(
         return
     }
 
-    Box(
+    val emeraldText = if (AppColors.isLight) Color(0xFF059669) else Color(0xFF34D399)
+
+    Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFF050B18))
+            .background(AppColors.bgScreen)
             .testTag("ads_manager_screen")
     ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 20.dp)
+        // Blue App Header in Light Mode / Dark Header in Dark Mode
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(AppColors.headerBg)
+                .statusBarsPadding()
         ) {
-            // Header: My Campaigns & Create Button
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(
+                    onClick = onBack,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(AppColors.headerIconBg)
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = AppColors.headerIconTint,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "My Campaigns",
+                        fontFamily = InterFontFamily,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = AppColors.headerText
+                    )
+                    Text(
+                        text = "Manage your free advertisement campaigns.",
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 12.sp,
+                        color = AppColors.headerSubtext
+                    )
+                }
+
+                Button(
+                    onClick = { selectedTab = "create" },
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (AppColors.isLight) Color.White else AppColors.primaryBlue,
+                        contentColor = if (AppColors.isLight) AppColors.primaryBlue else Color.White
+                    ),
+                    modifier = Modifier.height(40.dp)
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("New Ad", fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                }
+            }
+            HorizontalDivider(color = AppColors.headerDivider, thickness = 1.dp)
+        }
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp)
+        ) {
+            // Controls: Tabs, Filters & Free Promo Banner
             item(key = "header") {
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(
-                            onClick = onBack,
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFF1E293B))
-                        ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back",
-                                tint = Color(0xFFF8FAFC),
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.width(12.dp))
-
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "My Campaigns",
-                                fontFamily = InterFontFamily,
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = Color.White
-                            )
-                            Text(
-                                text = "Manage your free advertisement campaigns.",
-                                fontFamily = InterFontFamily,
-                                fontWeight = FontWeight.Normal,
-                                fontSize = 13.sp,
-                                color = Color(0xFFA1A1AA)
-                            )
-                        }
-
-                        Button(
-                            onClick = { selectedTab = "create" },
-                            shape = RoundedCornerShape(10.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2563EB)),
-                            modifier = Modifier.height(40.dp)
-                        ) {
-                            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("New Ad", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, fontSize = 13.sp)
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
                     // 3-Tab selector matching web: Analytics, Create Ad, My Campaigns
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(12.dp))
-                            .background(Color(0xFF0F172A))
-                            .border(1.dp, Color(0xFF1E293B), RoundedCornerShape(12.dp))
+                            .background(AppColors.bgCard)
+                            .border(1.dp, AppColors.border, RoundedCornerShape(12.dp))
                             .padding(4.dp)
                     ) {
                         Surface(
                             onClick = { selectedTab = "dashboard" },
                             shape = RoundedCornerShape(9.dp),
-                            color = if (selectedTab == "dashboard") Color(0xFF2563EB) else Color.Transparent,
+                            color = if (selectedTab == "dashboard") AppColors.primaryBlue else Color.Transparent,
                             modifier = Modifier.weight(1f)
                         ) {
                             Row(
@@ -177,7 +194,7 @@ fun AdsManagerScreen(
                                 Icon(
                                     imageVector = Icons.Default.TrendingUp,
                                     contentDescription = null,
-                                    tint = if (selectedTab == "dashboard") Color.White else Color(0xFFA1A1AA),
+                                    tint = if (selectedTab == "dashboard") Color.White else AppColors.textSecondary,
                                     modifier = Modifier.size(16.dp)
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
@@ -186,7 +203,7 @@ fun AdsManagerScreen(
                                     fontFamily = InterFontFamily,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Medium,
-                                    color = if (selectedTab == "dashboard") Color.White else Color(0xFFA1A1AA)
+                                    color = if (selectedTab == "dashboard") Color.White else AppColors.textSecondary
                                 )
                             }
                         }
@@ -194,7 +211,7 @@ fun AdsManagerScreen(
                         Surface(
                             onClick = { selectedTab = "create" },
                             shape = RoundedCornerShape(9.dp),
-                            color = if (selectedTab == "create") Color(0xFF2563EB) else Color.Transparent,
+                            color = if (selectedTab == "create") AppColors.primaryBlue else Color.Transparent,
                             modifier = Modifier.weight(1f)
                         ) {
                             Row(
@@ -205,7 +222,7 @@ fun AdsManagerScreen(
                                 Icon(
                                     imageVector = Icons.Default.AddCircleOutline,
                                     contentDescription = null,
-                                    tint = if (selectedTab == "create") Color.White else Color(0xFFA1A1AA),
+                                    tint = if (selectedTab == "create") Color.White else AppColors.textSecondary,
                                     modifier = Modifier.size(16.dp)
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
@@ -214,7 +231,7 @@ fun AdsManagerScreen(
                                     fontFamily = InterFontFamily,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Medium,
-                                    color = if (selectedTab == "create") Color.White else Color(0xFFA1A1AA)
+                                    color = if (selectedTab == "create") Color.White else AppColors.textSecondary
                                 )
                             }
                         }
@@ -222,7 +239,7 @@ fun AdsManagerScreen(
                         Surface(
                             onClick = { selectedTab = "campaigns" },
                             shape = RoundedCornerShape(9.dp),
-                            color = if (selectedTab == "campaigns") Color(0xFF2563EB) else Color.Transparent,
+                            color = if (selectedTab == "campaigns") AppColors.primaryBlue else Color.Transparent,
                             modifier = Modifier.weight(1f)
                         ) {
                             Row(
@@ -233,7 +250,7 @@ fun AdsManagerScreen(
                                 Icon(
                                     imageVector = Icons.Default.Campaign,
                                     contentDescription = null,
-                                    tint = if (selectedTab == "campaigns") Color.White else Color(0xFFA1A1AA),
+                                    tint = if (selectedTab == "campaigns") Color.White else AppColors.textSecondary,
                                     modifier = Modifier.size(16.dp)
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
@@ -242,7 +259,7 @@ fun AdsManagerScreen(
                                     fontFamily = InterFontFamily,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Medium,
-                                    color = if (selectedTab == "campaigns") Color.White else Color(0xFFA1A1AA)
+                                    color = if (selectedTab == "campaigns") Color.White else AppColors.textSecondary
                                 )
                             }
                         }
@@ -261,8 +278,8 @@ fun AdsManagerScreen(
                                 Surface(
                                     onClick = { filter = key },
                                     shape = RoundedCornerShape(8.dp),
-                                    color = if (isSel) Color(0xFF1E293B) else Color(0xFF0F172A),
-                                    border = BorderStroke(1.dp, if (isSel) Color(0xFF3B82F6) else Color(0xFF1E293B)),
+                                    color = if (isSel) AppColors.bgBlueTint else AppColors.bgCard,
+                                    border = BorderStroke(1.dp, if (isSel) AppColors.primaryBlue else AppColors.border),
                                     modifier = Modifier.weight(1f)
                                 ) {
                                     Box(
@@ -274,7 +291,7 @@ fun AdsManagerScreen(
                                             fontFamily = InterFontFamily,
                                             fontSize = 12.sp,
                                             fontWeight = FontWeight.Medium,
-                                            color = if (isSel) Color.White else Color(0xFFA1A1AA)
+                                            color = if (isSel) (if (AppColors.isLight) AppColors.primaryBlue else Color.White) else AppColors.textSecondary
                                         )
                                     }
                                 }
@@ -289,8 +306,8 @@ fun AdsManagerScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(12.dp))
-                            .background(Color(0xFF10B981).copy(alpha = 0.10f))
-                            .border(1.dp, Color(0xFF10B981).copy(alpha = 0.25f), RoundedCornerShape(12.dp))
+                            .background(Color(0xFF10B981).copy(alpha = if (AppColors.isLight) 0.12f else 0.10f))
+                            .border(1.dp, Color(0xFF10B981).copy(alpha = 0.28f), RoundedCornerShape(12.dp))
                             .padding(horizontal = 14.dp, vertical = 10.dp)
                     ) {
                         Row(
@@ -300,7 +317,7 @@ fun AdsManagerScreen(
                             Icon(
                                 imageVector = Icons.Default.Star,
                                 contentDescription = null,
-                                tint = Color(0xFF34D399),
+                                tint = emeraldText,
                                 modifier = Modifier.size(16.dp)
                             )
                             Text(
@@ -308,7 +325,7 @@ fun AdsManagerScreen(
                                 fontFamily = InterFontFamily,
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Medium,
-                                color = Color(0xFF34D399)
+                                color = emeraldText
                             )
                         }
                     }
@@ -334,8 +351,8 @@ fun AdsManagerScreen(
                             .fillMaxWidth()
                             .padding(vertical = 24.dp),
                         shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
-                        border = BorderStroke(1.dp, Color(0xFF1E293B))
+                        colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+                        border = BorderStroke(1.dp, AppColors.border)
                     ) {
                         Column(
                             modifier = Modifier
@@ -348,13 +365,13 @@ fun AdsManagerScreen(
                                 modifier = Modifier
                                     .size(64.dp)
                                     .clip(CircleShape)
-                                    .background(Color(0xFF1E293B)),
+                                    .background(AppColors.bgChip),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.TrendingUp,
                                     contentDescription = null,
-                                    tint = Color(0xFF71717A),
+                                    tint = AppColors.textMuted,
                                     modifier = Modifier.size(32.dp)
                                 )
                             }
@@ -363,20 +380,20 @@ fun AdsManagerScreen(
                                 fontFamily = InterFontFamily,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFFA1A1AA)
+                                color = AppColors.textPrimary
                             )
                             Text(
                                 text = "Create your first free ad.",
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
                                 fontSize = 13.sp,
-                                color = Color(0xFF71717A)
+                                color = AppColors.textSecondary
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Button(
                                 onClick = { selectedTab = "create" },
                                 shape = RoundedCornerShape(10.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2563EB))
+                                colors = ButtonDefaults.buttonColors(containerColor = AppColors.primaryBlue, contentColor = Color.White)
                             ) {
                                 Text("Create Campaign", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium)
                             }
@@ -403,13 +420,13 @@ fun AdsManagerScreen(
         campaignToDelete?.let { ad ->
             AlertDialog(
                 onDismissRequest = { campaignToDelete = null },
-                containerColor = Color(0xFF0B1120),
+                containerColor = AppColors.bgCard,
                 shape = RoundedCornerShape(16.dp),
                 title = {
-                    Text("Delete Campaign", fontFamily = InterFontFamily, color = Color.White, fontWeight = FontWeight.SemiBold)
+                    Text("Delete Campaign", fontFamily = InterFontFamily, color = AppColors.textPrimary, fontWeight = FontWeight.SemiBold)
                 },
                 text = {
-                    Text("Are you sure you want to delete \"${ad.name}\"? This action cannot be undone.", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFFA1A1AA))
+                    Text("Are you sure you want to delete \"${ad.name}\"? This action cannot be undone.", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = AppColors.textSecondary)
                 },
                 confirmButton = {
                     Button(
@@ -424,7 +441,7 @@ fun AdsManagerScreen(
                 },
                 dismissButton = {
                     TextButton(onClick = { campaignToDelete = null }) {
-                        Text("Cancel", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color(0xFFA1A1AA))
+                        Text("Cancel", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = AppColors.textSecondary)
                     }
                 }
             )
@@ -454,11 +471,15 @@ private fun AdCampaignCard(
     val isVideo = ad.type == "video"
     val ctr = if (ad.impressions == 0) "0.0" else "%.1f".format((ad.clicks.toDouble() / ad.impressions) * 100)
 
+    val emeraldText = if (AppColors.isLight) Color(0xFF059669) else Color(0xFF34D399)
+    val amberText = if (AppColors.isLight) Color(0xFFD97706) else Color(0xFFFBBF24)
+    val analyticsAccent = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8)
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
-        border = BorderStroke(1.dp, Color(0xFF1E293B))
+        colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+        border = BorderStroke(1.dp, AppColors.border)
     ) {
         Column(
             modifier = Modifier
@@ -476,8 +497,8 @@ private fun AdCampaignCard(
                     modifier = Modifier
                         .size(52.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(Color(0xFF1E293B))
-                        .border(1.dp, Color(0xFF334155), RoundedCornerShape(10.dp))
+                        .background(AppColors.bgChip)
+                        .border(1.dp, AppColors.borderStrong, RoundedCornerShape(10.dp))
                 ) {
                     if (!mediaUrl.isNullOrBlank()) {
                         AsyncImage(
@@ -513,7 +534,7 @@ private fun AdCampaignCard(
                         }
                     } else {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Icon(Icons.Default.Image, contentDescription = null, tint = Color(0xFF71717A), modifier = Modifier.size(24.dp))
+                            Icon(Icons.Default.Image, contentDescription = null, tint = AppColors.textMuted, modifier = Modifier.size(24.dp))
                         }
                     }
                 }
@@ -527,7 +548,7 @@ private fun AdCampaignCard(
                         fontFamily = InterFontFamily,
                         fontSize = 15.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White,
+                        color = AppColors.textPrimary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -539,7 +560,7 @@ private fun AdCampaignCard(
                                 when (ad.status) {
                                     "active" -> Color(0xFF10B981).copy(alpha = 0.15f)
                                     "paused" -> Color(0xFFF59E0B).copy(alpha = 0.15f)
-                                    else -> Color(0xFF71717A).copy(alpha = 0.15f)
+                                    else -> AppColors.bgChip
                                 }
                             )
                             .padding(horizontal = 8.dp, vertical = 2.dp)
@@ -550,9 +571,9 @@ private fun AdCampaignCard(
                             fontSize = 10.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = when (ad.status) {
-                                "active" -> Color(0xFF34D399)
-                                "paused" -> Color(0xFFFBBF24)
-                                else -> Color(0xFFA1A1AA)
+                                "active" -> emeraldText
+                                "paused" -> amberText
+                                else -> AppColors.textSecondary
                             }
                         )
                     }
@@ -565,12 +586,12 @@ private fun AdCampaignCard(
                         modifier = Modifier
                             .size(36.dp)
                             .clip(RoundedCornerShape(8.dp))
-                            .background(Color(0xFF1E293B))
+                            .background(AppColors.bgChip)
                     ) {
                         Icon(
                             imageVector = Icons.Default.TrendingUp,
                             contentDescription = "Analytics",
-                            tint = Color(0xFF38BDF8),
+                            tint = analyticsAccent,
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -581,12 +602,12 @@ private fun AdCampaignCard(
                         modifier = Modifier
                             .size(36.dp)
                             .clip(RoundedCornerShape(8.dp))
-                            .background(Color(0xFF1E293B))
+                            .background(AppColors.bgChip)
                     ) {
                         Icon(
                             imageVector = if (ad.status == "active") Icons.Default.Pause else Icons.Default.PlayArrow,
                             contentDescription = if (ad.status == "active") "Pause" else "Resume",
-                            tint = if (ad.status == "active") Color(0xFFF59E0B) else Color(0xFF34D399),
+                            tint = if (ad.status == "active") Color(0xFFF59E0B) else emeraldText,
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -596,12 +617,12 @@ private fun AdCampaignCard(
                         modifier = Modifier
                             .size(36.dp)
                             .clip(RoundedCornerShape(8.dp))
-                            .background(Color(0xFF1E293B))
+                            .background(AppColors.bgChip)
                     ) {
                         Icon(
                             imageVector = Icons.Default.DeleteOutline,
                             contentDescription = "Delete",
-                            tint = Color(0xFFEF4444),
+                            tint = AppColors.dangerText,
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -609,22 +630,22 @@ private fun AdCampaignCard(
             }
 
             // Stats Grid (5 columns matching web)
-            HorizontalDivider(color = Color(0xFF1E293B), thickness = 1.dp)
+            HorizontalDivider(color = AppColors.border, thickness = 1.dp)
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                StatColumn(icon = Icons.Default.Visibility, value = ad.impressions.toString(), label = "Impr.", valueColor = Color.White)
-                StatColumn(icon = Icons.Default.PlayArrow, value = ad.views.toString(), label = "Views", valueColor = Color.White)
-                StatColumn(icon = Icons.Default.TouchApp, value = ad.clicks.toString(), label = "Clicks", valueColor = Color.White)
-                StatColumn(icon = Icons.Default.TrendingUp, value = "$ctr%", label = "CTR", valueColor = Color(0xFF34D399))
-                StatColumn(icon = Icons.Default.Star, value = "$0", label = "FREE", valueColor = Color(0xFF34D399))
+                StatColumn(icon = Icons.Default.Visibility, value = ad.impressions.toString(), label = "Impr.", valueColor = AppColors.textPrimary)
+                StatColumn(icon = Icons.Default.PlayArrow, value = ad.views.toString(), label = "Views", valueColor = AppColors.textPrimary)
+                StatColumn(icon = Icons.Default.TouchApp, value = ad.clicks.toString(), label = "Clicks", valueColor = AppColors.textPrimary)
+                StatColumn(icon = Icons.Default.TrendingUp, value = "$ctr%", label = "CTR", valueColor = emeraldText)
+                StatColumn(icon = Icons.Default.Star, value = "$0", label = "FREE", valueColor = emeraldText)
             }
 
             // Date Range Footer
-            HorizontalDivider(color = Color(0xFF1E293B), thickness = 1.dp)
+            HorizontalDivider(color = AppColors.border, thickness = 1.dp)
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -635,16 +656,16 @@ private fun AdCampaignCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    Icon(Icons.Default.CalendarToday, contentDescription = null, tint = Color(0xFF71717A), modifier = Modifier.size(14.dp))
-                    Text("${ad.startDate} - ${ad.endDate}", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = Color(0xFF71717A))
+                    Icon(Icons.Default.CalendarToday, contentDescription = null, tint = AppColors.textMuted, modifier = Modifier.size(14.dp))
+                    Text("${ad.startDate} - ${ad.endDate}", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = AppColors.textMuted)
                 }
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    Icon(Icons.Default.Star, contentDescription = null, tint = Color(0xFF34D399), modifier = Modifier.size(14.dp))
-                    Text("Free", fontFamily = InterFontFamily, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF34D399))
+                    Icon(Icons.Default.Star, contentDescription = null, tint = emeraldText, modifier = Modifier.size(14.dp))
+                    Text("Free", fontFamily = InterFontFamily, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = emeraldText)
                 }
             }
         }
@@ -659,10 +680,10 @@ private fun StatColumn(
     valueColor: Color
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(imageVector = icon, contentDescription = null, tint = Color(0xFF71717A), modifier = Modifier.size(16.dp))
+        Icon(imageVector = icon, contentDescription = null, tint = AppColors.textMuted, modifier = Modifier.size(16.dp))
         Spacer(modifier = Modifier.height(2.dp))
         Text(text = value, fontFamily = InterFontFamily, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = valueColor)
-        Text(text = label, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 10.sp, color = Color(0xFF71717A))
+        Text(text = label, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 10.sp, color = AppColors.textMuted)
     }
 }
 
@@ -678,10 +699,13 @@ fun CampaignAnalyticsModal(
     val ctr = if (campaign.impressions > 0) {
         String.format(java.util.Locale.US, "%.2f", (campaign.clicks.toDouble() / campaign.impressions.toDouble()) * 100.0)
     } else "0.00"
+    val emeraldText = if (AppColors.isLight) Color(0xFF059669) else Color(0xFF34D399)
+    val amberText = if (AppColors.isLight) Color(0xFFD97706) else Color(0xFFFBBF24)
+    val ctaAccent = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8)
 
     AlertDialog(
         onDismissRequest = onClose,
-        containerColor = Color(0xFF0F172A),
+        containerColor = AppColors.bgCard,
         shape = RoundedCornerShape(20.dp),
         title = null,
         text = {
@@ -703,7 +727,7 @@ fun CampaignAnalyticsModal(
                             fontFamily = InterFontFamily,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color.White,
+                            color = AppColors.textPrimary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -712,7 +736,7 @@ fun CampaignAnalyticsModal(
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal,
                             fontSize = 12.sp,
-                            color = Color(0xFFA1A1AA)
+                            color = AppColors.textSecondary
                         )
                     }
                     Box(
@@ -729,12 +753,12 @@ fun CampaignAnalyticsModal(
                             fontFamily = InterFontFamily,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = if (campaign.status == "active") Color(0xFF34D399) else Color(0xFFFBBF24)
+                            color = if (campaign.status == "active") emeraldText else amberText
                         )
                     }
                 }
 
-                HorizontalDivider(color = Color(0xFF1E293B), thickness = 1.dp)
+                HorizontalDivider(color = AppColors.border, thickness = 1.dp)
 
                 // 2x2 Metrics Grid
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -742,7 +766,7 @@ fun CampaignAnalyticsModal(
                         title = "Impressions",
                         value = java.text.NumberFormat.getIntegerInstance().format(campaign.impressions),
                         icon = Icons.Default.Visibility,
-                        color = Color(0xFF38BDF8),
+                        color = if (AppColors.isLight) Color(0xFF0284C7) else Color(0xFF38BDF8),
                         modifier = Modifier.weight(1f)
                     )
                     AnalyticsMetricTile(
@@ -759,7 +783,7 @@ fun CampaignAnalyticsModal(
                         title = "Clicks",
                         value = java.text.NumberFormat.getIntegerInstance().format(campaign.clicks),
                         icon = Icons.Default.TouchApp,
-                        color = Color(0xFF10B981),
+                        color = emeraldText,
                         modifier = Modifier.weight(1f)
                     )
                     AnalyticsMetricTile(
@@ -775,7 +799,8 @@ fun CampaignAnalyticsModal(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B).copy(alpha = 0.6f))
+                    colors = CardDefaults.cardColors(containerColor = AppColors.bgInput),
+                    border = BorderStroke(1.dp, AppColors.border)
                 ) {
                     Column(
                         modifier = Modifier
@@ -787,30 +812,30 @@ fun CampaignAnalyticsModal(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("Spend / Cost:", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = Color(0xFF94A3B8))
-                            Text("FREE ($0)", fontFamily = InterFontFamily, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF34D399))
+                            Text("Spend / Cost:", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = AppColors.textSecondary)
+                            Text("FREE ($0)", fontFamily = InterFontFamily, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = emeraldText)
                         }
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("Target Location:", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = Color(0xFF94A3B8))
-                            Text(campaign.location.ifBlank { "Global" }, fontFamily = InterFontFamily, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color.White)
+                            Text("Target Location:", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = AppColors.textSecondary)
+                            Text(campaign.location.ifBlank { "Global" }, fontFamily = InterFontFamily, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = AppColors.textPrimary)
                         }
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("Campaign Dates:", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = Color(0xFF94A3B8))
-                            Text("${campaign.startDate} - ${campaign.endDate}", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = Color(0xFFCBD5E1))
+                            Text("Campaign Dates:", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = AppColors.textSecondary)
+                            Text("${campaign.startDate} - ${campaign.endDate}", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = AppColors.textBody)
                         }
                         if (campaign.cta.isNotBlank()) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text("Call-To-Action:", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = Color(0xFF94A3B8))
-                                Text(campaign.cta, fontFamily = InterFontFamily, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF38BDF8))
+                                Text("Call-To-Action:", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = AppColors.textSecondary)
+                                Text(campaign.cta, fontFamily = InterFontFamily, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = ctaAccent)
                             }
                         }
                     }
@@ -821,7 +846,7 @@ fun CampaignAnalyticsModal(
             Button(
                 onClick = onClose,
                 shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2563EB)),
+                colors = ButtonDefaults.buttonColors(containerColor = AppColors.primaryBlue),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Close", fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, color = Color.White)
@@ -841,7 +866,7 @@ private fun AnalyticsMetricTile(
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B)),
+        colors = CardDefaults.cardColors(containerColor = AppColors.bgCardElevated),
         border = BorderStroke(1.dp, color.copy(alpha = 0.25f))
     ) {
         Column(
@@ -855,14 +880,14 @@ private fun AnalyticsMetricTile(
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 Icon(imageVector = icon, contentDescription = null, tint = color, modifier = Modifier.size(16.dp))
-                Text(text = title, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 11.sp, color = Color(0xFF94A3B8))
+                Text(text = title, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 11.sp, color = AppColors.textSecondary)
             }
             Text(
                 text = value,
                 fontFamily = InterFontFamily,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color.White
+                color = AppColors.textPrimary
             )
         }
     }

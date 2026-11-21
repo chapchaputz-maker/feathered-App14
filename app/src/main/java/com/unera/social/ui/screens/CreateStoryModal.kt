@@ -46,6 +46,7 @@ import coil.compose.AsyncImage
 import com.unera.social.data.StoriesApiService
 import com.unera.social.model.Song
 import com.unera.social.model.User
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 import java.io.File
 import java.io.FileOutputStream
@@ -855,19 +856,19 @@ fun LiveMusicPickerModal(
     ) {
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = Color(0xFF050B18)
+            color = AppColors.bgScreen
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .statusBarsPadding()
                     .navigationBarsPadding()
             ) {
                 // Header
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFF0B1120))
+                        .background(AppColors.headerBg)
+                        .statusBarsPadding()
                         .padding(horizontal = 16.dp, vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -879,14 +880,14 @@ fun LiveMusicPickerModal(
                         Icon(
                             imageVector = Icons.Default.KeyboardArrowDown,
                             contentDescription = "Close",
-                            tint = Color(0xFFB0B3B8),
+                            tint = AppColors.headerIconTint,
                             modifier = Modifier.size(24.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = "Close",
                             fontFamily = InterFontFamily,
-                            color = Color(0xFFB0B3B8),
+                            color = AppColors.headerText,
                             fontWeight = FontWeight.Medium,
                             fontSize = 14.sp
                         )
@@ -895,7 +896,7 @@ fun LiveMusicPickerModal(
                     Text(
                         text = "Add Music",
                         fontFamily = InterFontFamily,
-                        color = Color.White,
+                        color = AppColors.headerText,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp
                     )
@@ -903,7 +904,7 @@ fun LiveMusicPickerModal(
                     Spacer(modifier = Modifier.width(48.dp))
                 }
 
-                HorizontalDivider(color = Color(0xFF1E293B), thickness = 1.dp)
+                HorizontalDivider(color = AppColors.headerDivider, thickness = 1.dp)
 
                 LazyColumn(
                     modifier = Modifier
@@ -915,9 +916,9 @@ fun LiveMusicPickerModal(
                     // Upload Music button (uses native picker)
                     item {
                         Card(
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
+                            colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
                             shape = RoundedCornerShape(14.dp),
-                            border = BorderStroke(1.dp, Color(0xFF1E293B)),
+                            border = BorderStroke(1.dp, AppColors.border),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable { pickAudioLauncher.launch("audio/*") }
@@ -933,7 +934,7 @@ fun LiveMusicPickerModal(
                                     modifier = Modifier
                                         .size(48.dp)
                                         .clip(CircleShape)
-                                        .background(Color(0xFF1877F2)),
+                                        .background(AppColors.primaryBlue),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
@@ -947,7 +948,7 @@ fun LiveMusicPickerModal(
                                     Text(
                                         text = "Upload Music",
                                         fontFamily = InterFontFamily,
-                                        color = Color.White,
+                                        color = AppColors.textPrimary,
                                         fontWeight = FontWeight.SemiBold,
                                         fontSize = 15.sp
                                     )
@@ -955,7 +956,7 @@ fun LiveMusicPickerModal(
                                         text = "Choose a file from your device",
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Normal,
-                                        color = Color(0xFFB0B3B8),
+                                        color = AppColors.textSecondary,
                                         fontSize = 12.sp
                                     )
                                 }
@@ -969,7 +970,7 @@ fun LiveMusicPickerModal(
                         Text(
                             text = "F-MUSIC TRENDS",
                             fontFamily = InterFontFamily,
-                            color = Color(0xFF94A3B8),
+                            color = AppColors.textSecondary,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold,
                             letterSpacing = 1.2.sp,
@@ -987,7 +988,7 @@ fun LiveMusicPickerModal(
                             ) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     CircularProgressIndicator(
-                                        color = Color(0xFF1877F2),
+                                        color = AppColors.primaryBlue,
                                         modifier = Modifier.size(32.dp)
                                     )
                                     Spacer(modifier = Modifier.height(10.dp))
@@ -995,7 +996,7 @@ fun LiveMusicPickerModal(
                                         text = "Loading music...",
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Normal,
-                                        color = Color(0xFF94A3B8),
+                                        color = AppColors.textSecondary,
                                         fontSize = 13.sp
                                     )
                                 }
@@ -1013,7 +1014,7 @@ fun LiveMusicPickerModal(
                                     text = "No tracks currently listed. Upload your own music above!",
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
-                                    color = Color(0xFF94A3B8),
+                                    color = AppColors.textSecondary,
                                     fontSize = 13.sp,
                                     textAlign = TextAlign.Center
                                 )
@@ -1023,9 +1024,9 @@ fun LiveMusicPickerModal(
                         items(liveSongs, key = { it.id }) { song ->
                             val isThisPlaying = previewSongId == song.id
                             Card(
-                                colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
+                                colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
                                 shape = RoundedCornerShape(12.dp),
-                                border = BorderStroke(1.dp, Color(0xFF1E293B)),
+                                border = BorderStroke(1.dp, AppColors.border),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Row(
@@ -1048,7 +1049,7 @@ fun LiveMusicPickerModal(
                                         Text(
                                             text = song.title,
                                             fontFamily = InterFontFamily,
-                                            color = Color.White,
+                                            color = AppColors.textPrimary,
                                             fontWeight = FontWeight.SemiBold,
                                             fontSize = 14.sp,
                                             maxLines = 1,
@@ -1058,7 +1059,7 @@ fun LiveMusicPickerModal(
                                             text = song.artist,
                                             fontFamily = InterFontFamily,
                                             fontWeight = FontWeight.Normal,
-                                            color = Color(0xFFB0B3B8),
+                                            color = AppColors.textSecondary,
                                             fontSize = 12.sp,
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis

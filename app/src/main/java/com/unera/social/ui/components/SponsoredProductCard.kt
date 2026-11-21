@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.unera.social.model.*
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 
 /**
@@ -217,17 +218,18 @@ fun SponsoredProductCard(
         }
     }
 
+    val colors = AppColors
     if (isHidden) {
         Box(
             modifier = modifier
                 .fillMaxWidth()
-                .background(Color(0xFF0F172A))
+                .background(colors.bgCard)
                 .padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = "Sponsored product hidden.",
-                color = Color(0xFF94A3B8),
+                color = colors.textSecondary,
                 fontSize = 13.sp,
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.Normal
@@ -241,7 +243,7 @@ fun SponsoredProductCard(
             .fillMaxWidth()
             .testTag("sponsored_product_card_${prodId}"),
         shape = RoundedCornerShape(0.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A))
+        colors = CardDefaults.cardColors(containerColor = colors.bgCard)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             // 1. HEADER (Advertiser info + Verified Badge + "Ad · Public" metadata)
@@ -256,7 +258,7 @@ fun SponsoredProductCard(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFF1E293B))
+                        .background(colors.bgInput)
                         .clickable { onProfileClick?.invoke(author.id) }
                 ) {
                     if (author.profileImageUrl.isNotBlank()) {
@@ -293,7 +295,7 @@ fun SponsoredProductCard(
                     ) {
                         Text(
                             text = author.name,
-                            color = Color(0xFFF8FAFC),
+                            color = colors.textPrimary,
                             fontSize = 16.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Bold,
@@ -323,26 +325,26 @@ fun SponsoredProductCard(
                             fontSize = 12.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal,
-                            color = Color(0xFF94A3B8)
+                            color = colors.textSecondary
                         )
                         Text(
                             text = "Sponsored",
                             fontSize = 12.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Medium,
-                            color = Color(0xFF94A3B8)
+                            color = colors.textSecondary
                         )
                         Text(
                             text = "·",
                             fontSize = 12.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal,
-                            color = Color(0xFF94A3B8)
+                            color = colors.textSecondary
                         )
                         Icon(
                             imageVector = Icons.Default.Public,
                             contentDescription = "Public",
-                            tint = Color(0xFF94A3B8),
+                            tint = colors.textSecondary,
                             modifier = Modifier.size(12.dp)
                         )
                         if (location.isNotBlank()) {
@@ -351,14 +353,14 @@ fun SponsoredProductCard(
                                 fontSize = 12.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
-                                color = Color(0xFF94A3B8)
+                                color = colors.textSecondary
                             )
                             Text(
                                 text = location,
                                 fontSize = 12.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
-                                color = Color(0xFF94A3B8),
+                                color = colors.textSecondary,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
@@ -375,7 +377,7 @@ fun SponsoredProductCard(
                         Icon(
                             imageVector = Icons.Default.MoreHoriz,
                             contentDescription = "Options",
-                            tint = Color(0xFF94A3B8),
+                            tint = colors.textSecondary,
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -384,8 +386,8 @@ fun SponsoredProductCard(
                         expanded = showMenu,
                         onDismissRequest = { showMenu = false },
                         modifier = Modifier
-                            .background(Color(0xFF0F172A))
-                            .border(1.dp, Color(0xFF1E293B), RoundedCornerShape(8.dp))
+                            .background(colors.bgCard)
+                            .border(1.dp, colors.border, RoundedCornerShape(8.dp))
                     ) {
                         DropdownMenuItem(
                             text = {
@@ -393,13 +395,13 @@ fun SponsoredProductCard(
                                     Icon(
                                         imageVector = Icons.Default.ShoppingBag,
                                         contentDescription = null,
-                                        tint = Color(0xFF38BDF8),
+                                        tint = colors.primaryBlue,
                                         modifier = Modifier.size(18.dp)
                                     )
                                     Spacer(modifier = Modifier.width(10.dp))
                                     Text(
                                         "View in MarketPoint",
-                                        color = Color(0xFFF8FAFC),
+                                        color = colors.textPrimary,
                                         fontSize = 14.sp,
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Medium
@@ -417,13 +419,13 @@ fun SponsoredProductCard(
                                     Icon(
                                         imageVector = Icons.Default.VisibilityOff,
                                         contentDescription = null,
-                                        tint = Color(0xFF94A3B8),
+                                        tint = colors.textSecondary,
                                         modifier = Modifier.size(18.dp)
                                     )
                                     Spacer(modifier = Modifier.width(10.dp))
                                     Text(
                                         "Hide ad",
-                                        color = Color(0xFFF8FAFC),
+                                        color = colors.textPrimary,
                                         fontSize = 14.sp,
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Medium
@@ -446,7 +448,7 @@ fun SponsoredProductCard(
                     fontSize = 17.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFFE4E6EB),
+                    color = colors.textPrimary,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 14.dp, vertical = 2.dp)
@@ -459,7 +461,7 @@ fun SponsoredProductCard(
                     fontSize = 15.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Normal,
-                    color = Color(0xFFCBD5E1),
+                    color = colors.textBody,
                     lineHeight = 21.sp,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
@@ -483,8 +485,8 @@ fun SponsoredProductCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFF0B1120))
-                    .border(BorderStroke(1.dp, Color(0xFF1E293B)))
+                    .background(colors.bgCardElevated)
+                    .border(BorderStroke(1.dp, colors.border))
                     .clickable { handleAction() }
                     .padding(horizontal = 14.dp, vertical = 10.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -496,7 +498,7 @@ fun SponsoredProductCard(
                         fontSize = 11.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF94A3B8),
+                        color = colors.textSecondary,
                         letterSpacing = 0.8.sp,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -506,7 +508,7 @@ fun SponsoredProductCard(
                         fontSize = 14.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFFF8FAFC),
+                        color = colors.textPrimary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.padding(top = 1.dp)
@@ -583,13 +585,13 @@ fun SponsoredProductCard(
                     Icon(
                         imageVector = Icons.Outlined.ChatBubbleOutline,
                         contentDescription = "Comment",
-                        tint = Color(0xFFB0B3B8),
+                        tint = colors.textSecondary,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = "Comment",
-                        color = Color(0xFFB0B3B8),
+                        color = colors.textSecondary,
                         fontSize = 14.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Medium
@@ -609,13 +611,13 @@ fun SponsoredProductCard(
                     Icon(
                         imageVector = Icons.Outlined.Share,
                         contentDescription = "Share",
-                        tint = Color(0xFFB0B3B8),
+                        tint = colors.textSecondary,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = "Share",
-                        color = Color(0xFFB0B3B8),
+                        color = colors.textSecondary,
                         fontSize = 14.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Medium
@@ -628,7 +630,7 @@ fun SponsoredProductCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(8.dp)
-                    .background(Color(0xFF050B18))
+                    .background(colors.sectionDivider)
             )
         }
     }

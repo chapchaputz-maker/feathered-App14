@@ -37,6 +37,7 @@ import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.unera.social.model.Post
 import com.unera.social.model.User
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -116,7 +117,7 @@ fun PostMenu(
             Icon(
                 imageVector = Icons.Default.MoreHoriz,
                 contentDescription = "Post actions",
-                tint = Color(0xFF94A3B8),
+                tint = AppColors.textSecondary,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -127,8 +128,8 @@ fun PostMenu(
             onDismissRequest = { open = false },
             modifier = Modifier
                 .width(200.dp)
-                .background(Color(0xFF0F172A))
-                .border(1.dp, Color(0xFF1E293B), RoundedCornerShape(12.dp))
+                .background(AppColors.bgCard)
+                .border(1.dp, AppColors.border, RoundedCornerShape(12.dp))
         ) {
             // Edit (Post Owner Only, not allowed for Songs/Stories)
             if (canEdit) {
@@ -141,12 +142,12 @@ fun PostMenu(
                             Icon(
                                 imageVector = Icons.Default.Edit,
                                 contentDescription = null,
-                                tint = Color(0xFF1877F2),
+                                tint = AppColors.primaryBlue,
                                 modifier = Modifier.size(16.dp)
                             )
                             Text(
                                 text = "Edit $itemTypeName",
-                                color = Color(0xFFF8FAFC),
+                                color = AppColors.textPrimary,
                                 fontSize = 14.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Medium
@@ -172,12 +173,12 @@ fun PostMenu(
                             Icon(
                                 imageVector = Icons.Default.Campaign,
                                 contentDescription = null,
-                                tint = Color(0xFF38BDF8),
+                                tint = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8),
                                 modifier = Modifier.size(16.dp)
                             )
                             Text(
                                 text = "Boost Post (Ad)",
-                                color = Color(0xFF38BDF8),
+                                color = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8),
                                 fontSize = 14.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Medium
@@ -226,7 +227,7 @@ fun PostMenu(
             // Divider if owner
             if (isOwner) {
                 HorizontalDivider(
-                    color = Color(0xFF1E293B),
+                    color = AppColors.border,
                     modifier = Modifier.padding(vertical = 4.dp)
                 )
             }
@@ -241,12 +242,12 @@ fun PostMenu(
                         Icon(
                             imageVector = Icons.Default.Share,
                             contentDescription = null,
-                            tint = Color(0xFF94A3B8),
+                            tint = AppColors.textSecondary,
                             modifier = Modifier.size(16.dp)
                         )
                         Text(
                             text = "Share",
-                            color = Color(0xFFF8FAFC),
+                            color = AppColors.textPrimary,
                             fontSize = 14.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Medium
@@ -285,12 +286,12 @@ fun PostMenu(
                             Icon(
                                 imageVector = Icons.Default.Link,
                                 contentDescription = null,
-                                tint = Color(0xFF38BDF8),
+                                tint = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8),
                                 modifier = Modifier.size(16.dp)
                             )
                             Text(
                                 text = "Copy Link",
-                                color = Color(0xFFF8FAFC),
+                                color = AppColors.textPrimary,
                                 fontSize = 14.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Medium
@@ -363,7 +364,7 @@ fun PostMenu(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color(0xFF050B18))
+                    .background(AppColors.bgScreen)
                     .testTag("delete-post-fullpage-panel")
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
@@ -372,8 +373,8 @@ fun PostMenu(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(64.dp)
-                            .background(Color(0xFF0A0F1D).copy(alpha = 0.95f))
-                            .border(BorderStroke(1.dp, Color(0xFF1E293B)))
+                            .background(AppColors.headerBg)
+                            .border(BorderStroke(1.dp, AppColors.headerDivider))
                             .padding(horizontal = 16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -381,7 +382,9 @@ fun PostMenu(
                         // Cancel button
                         TextButton(
                             onClick = { if (!isDeleting) showDeleteConfirm = false },
-                            colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF94A3B8)),
+                            colors = ButtonDefaults.textButtonColors(
+                                contentColor = if (AppColors.isLight) Color.White else Color(0xFF94A3B8)
+                            ),
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.testTag("delete-post-back-btn")
                         ) {
@@ -402,7 +405,7 @@ fun PostMenu(
                         // Title
                         Text(
                             text = "Delete $itemTypeName",
-                            color = Color(0xFFF8FAFC),
+                            color = AppColors.headerText,
                             fontSize = 17.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold
@@ -494,7 +497,7 @@ fun PostMenu(
                             fontSize = 24.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFFF8FAFC),
+                            color = AppColors.textPrimary,
                             textAlign = TextAlign.Center
                         )
 
@@ -506,7 +509,7 @@ fun PostMenu(
                             fontSize = 14.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal,
-                            color = Color(0xFF94A3B8),
+                            color = AppColors.textSecondary,
                             lineHeight = 22.sp,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.padding(horizontal = 16.dp)
@@ -520,8 +523,8 @@ fun PostMenu(
                                 .fillMaxWidth()
                                 .widthIn(max = 560.dp),
                             shape = RoundedCornerShape(16.dp),
-                            color = Color(0xFF0F172A),
-                            border = BorderStroke(1.dp, Color(0xFF1E293B))
+                            color = AppColors.bgCard,
+                            border = BorderStroke(1.dp, AppColors.border)
                         ) {
                             Column(modifier = Modifier.padding(18.dp)) {
                                 // Author Header
@@ -539,7 +542,7 @@ fun PostMenu(
                                         modifier = Modifier
                                             .size(40.dp)
                                             .clip(CircleShape)
-                                            .border(1.dp, Color(0xFF334155), CircleShape)
+                                            .border(1.dp, AppColors.avatarBorder, CircleShape)
                                     )
 
                                     Column {
@@ -548,14 +551,14 @@ fun PostMenu(
                                             fontFamily = InterFontFamily,
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 14.sp,
-                                            color = Color(0xFFF8FAFC)
+                                            color = AppColors.textPrimary
                                         )
                                         Text(
                                             text = itemTypeCategory,
                                             fontSize = 11.sp,
                                             fontFamily = InterFontFamily,
                                             fontWeight = FontWeight.Normal,
-                                            color = Color(0xFF94A3B8)
+                                            color = AppColors.textSecondary
                                         )
                                     }
                                 }
@@ -568,7 +571,7 @@ fun PostMenu(
                                         fontSize = 16.sp,
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.SemiBold,
-                                        color = Color(0xFFF8FAFC)
+                                        color = AppColors.textPrimary
                                     )
                                 }
 
@@ -580,7 +583,7 @@ fun PostMenu(
                                         fontSize = 13.sp,
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Normal,
-                                        color = Color(0xFFCBD5E1),
+                                        color = AppColors.textBody,
                                         lineHeight = 18.sp,
                                         maxLines = 3,
                                         overflow = TextOverflow.Ellipsis
@@ -597,7 +600,7 @@ fun PostMenu(
                                             .height(200.dp)
                                             .clip(RoundedCornerShape(12.dp))
                                             .background(Color.Black.copy(alpha = 0.4f))
-                                            .border(1.dp, Color(0xFF1E293B), RoundedCornerShape(12.dp))
+                                            .border(1.dp, AppColors.border, RoundedCornerShape(12.dp))
                                     ) {
                                         AsyncImage(
                                             model = media,
@@ -624,8 +627,8 @@ fun PostMenu(
                                 enabled = !isDeleting,
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFF1E293B),
-                                    contentColor = Color(0xFFCBD5E1)
+                                    containerColor = AppColors.bgChip,
+                                    contentColor = AppColors.textBody
                                 ),
                                 modifier = Modifier
                                     .weight(1f)
@@ -739,14 +742,14 @@ fun EditPostModal(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.75f))
+                .background(AppColors.scrim)
                 .padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
             Surface(
                 shape = RoundedCornerShape(16.dp),
-                color = Color(0xFF0F172A),
-                border = BorderStroke(1.dp, Color(0xFF1E293B)),
+                color = AppColors.bgCard,
+                border = BorderStroke(1.dp, AppColors.border),
                 modifier = Modifier
                     .fillMaxWidth()
                     .widthIn(max = 520.dp)
@@ -765,7 +768,7 @@ fun EditPostModal(
                             fontSize = 18.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFFF8FAFC)
+                            color = AppColors.textPrimary
                         )
 
                         IconButton(
@@ -776,14 +779,14 @@ fun EditPostModal(
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = "Close",
-                                tint = Color(0xFF94A3B8),
+                                tint = AppColors.textSecondary,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
                     }
 
                     HorizontalDivider(
-                        color = Color(0xFF1E293B),
+                        color = AppColors.border,
                         modifier = Modifier.padding(vertical = 12.dp)
                     )
 
@@ -799,7 +802,7 @@ fun EditPostModal(
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(CircleShape)
-                                .border(1.dp, Color(0xFF1E293B), CircleShape)
+                                .border(1.dp, AppColors.border, CircleShape)
                         )
 
                         Column {
@@ -808,7 +811,7 @@ fun EditPostModal(
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 15.sp,
-                                color = Color(0xFFF8FAFC)
+                                color = AppColors.textPrimary
                             )
 
                             // Privacy pill
@@ -817,19 +820,19 @@ fun EditPostModal(
                                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(4.dp))
-                                    .background(Color(0xFF1E293B))
+                                    .background(AppColors.bgChip)
                                     .padding(horizontal = 6.dp, vertical = 2.dp)
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Public,
                                     contentDescription = null,
-                                    tint = Color(0xFF94A3B8),
+                                    tint = AppColors.textSecondary,
                                     modifier = Modifier.size(11.dp)
                                 )
                                 Text(
                                     text = "Public",
                                     fontSize = 11.sp,
-                                    color = Color(0xFF94A3B8),
+                                    color = AppColors.textSecondary,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Medium
                                 )
@@ -855,19 +858,19 @@ fun EditPostModal(
                         placeholder = {
                             Text(
                                 "What's on your mind?",
-                                color = Color(0xFF64748B),
+                                color = AppColors.textMuted,
                                 fontSize = 15.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal
                             )
                         },
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color(0xFFF8FAFC),
-                            unfocusedTextColor = Color(0xFFF8FAFC),
-                            focusedContainerColor = Color(0xFF0B1120),
-                            unfocusedContainerColor = Color(0xFF0B1120),
-                            focusedBorderColor = Color(0xFF1877F2),
-                            unfocusedBorderColor = Color(0xFF1E293B)
+                            focusedTextColor = AppColors.textPrimary,
+                            unfocusedTextColor = AppColors.textPrimary,
+                            focusedContainerColor = AppColors.bgInput,
+                            unfocusedContainerColor = AppColors.bgInput,
+                            focusedBorderColor = AppColors.primaryBlue,
+                            unfocusedBorderColor = AppColors.border
                         ),
                         shape = RoundedCornerShape(12.dp)
                     )
@@ -880,7 +883,7 @@ fun EditPostModal(
                                 .fillMaxWidth()
                                 .height(120.dp)
                                 .clip(RoundedCornerShape(8.dp))
-                                .border(1.dp, Color(0xFF1E293B), RoundedCornerShape(8.dp))
+                                .border(1.dp, AppColors.border, RoundedCornerShape(8.dp))
                         ) {
                             AsyncImage(
                                 model = post.mediaUrl,
@@ -905,9 +908,9 @@ fun EditPostModal(
                                 .weight(1f)
                                 .height(44.dp),
                             shape = RoundedCornerShape(10.dp),
-                            border = BorderStroke(1.dp, Color(0xFF334155)),
+                            border = BorderStroke(1.dp, AppColors.borderStrong),
                             colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = Color(0xFFCBD5E1)
+                                contentColor = AppColors.textBody
                             )
                         ) {
                             Text(
@@ -934,10 +937,10 @@ fun EditPostModal(
                                 .testTag("save_edit_post_btn"),
                             shape = RoundedCornerShape(10.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF1877F2),
+                                containerColor = AppColors.primaryBlue,
                                 contentColor = Color.White,
-                                disabledContainerColor = Color(0xFF1E293B),
-                                disabledContentColor = Color(0xFF64748B)
+                                disabledContainerColor = AppColors.bgChip,
+                                disabledContentColor = AppColors.textMuted
                             )
                         ) {
                             if (isSaving) {

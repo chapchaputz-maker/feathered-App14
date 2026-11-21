@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 
 /**
@@ -405,7 +406,7 @@ fun MediaGridTile(
     Box(
         modifier = modifier
             .clipToBounds()
-            .background(Color(0xFF162032))
+            .background(AppColors.bgCardElevated)
             .clickable(onClick = onClick)
             .testTag("media_grid_item_$index")
     ) {

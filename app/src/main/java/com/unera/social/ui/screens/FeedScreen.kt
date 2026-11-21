@@ -54,6 +54,7 @@ import com.unera.social.data.CommentsCache
 import com.unera.social.data.EventsApiService
 import com.unera.social.model.*
 import com.unera.social.ui.components.*
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 import com.unera.social.ui.theme.InterTypography
 import kotlinx.coroutines.launch
@@ -428,7 +429,7 @@ fun FeedScreen(
             Box(
                 modifier = modifier
                     .fillMaxSize()
-                    .background(Color(0xFF050B18))
+                    .background(AppColors.bgScreen)
                     .testTag("feed_screen_list")
             ) {
         LazyColumn(
@@ -470,7 +471,7 @@ fun FeedScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(8.dp)
-                        .background(Color(0xFF050B18))
+                        .background(AppColors.bgScreen)
                 )
             }
 
@@ -602,7 +603,7 @@ fun FeedScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(8.dp)
-                        .background(Color(0xFF050B18))
+                        .background(AppColors.bgScreen)
                 )
 
                 // Interleaved Widget 0: MarketPoint for you (Suggested Products) - shown for both guest and logged-in users while scrolling posts
@@ -627,7 +628,7 @@ fun FeedScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(8.dp)
-                            .background(Color(0xFF050B18))
+                            .background(AppColors.bgScreen)
                     )
                 }
 
@@ -661,7 +662,7 @@ fun FeedScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(8.dp)
-                            .background(Color(0xFF050B18))
+                            .background(AppColors.bgScreen)
                     )
                 }
 
@@ -686,7 +687,7 @@ fun FeedScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(8.dp)
-                            .background(Color(0xFF050B18))
+                            .background(AppColors.bgScreen)
                     )
                 }
             }
@@ -712,7 +713,7 @@ fun FeedScreen(
                             ) {
                                 Text(
                                     text = "No posts available",
-                                    color = Color(0xFF94A3B8),
+                                    color = AppColors.textSecondary,
                                     fontSize = 15.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Medium
@@ -907,7 +908,7 @@ fun CreatePostSection(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFF0F172A))
+            .background(AppColors.bgCard)
             .padding(horizontal = 14.dp, vertical = 12.dp)
             .testTag("create_post_section")
     ) {
@@ -922,7 +923,7 @@ fun CreatePostSection(
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
-                    .border(1.dp, Color(0xFF1E293B), CircleShape)
+                    .border(1.dp, AppColors.border, CircleShape)
             )
 
             Spacer(modifier = Modifier.width(10.dp))
@@ -931,7 +932,7 @@ fun CreatePostSection(
                 modifier = Modifier
                     .weight(1f)
                     .clip(RoundedCornerShape(20.dp))
-                    .background(Color(0xFF1E293B).copy(alpha = 0.7f))
+                    .background(AppColors.bgInput)
                     .clickable(onClick = onClick)
                     .padding(horizontal = 16.dp, vertical = 11.dp),
                 contentAlignment = Alignment.CenterStart
@@ -941,7 +942,7 @@ fun CreatePostSection(
                     fontSize = 14.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Normal,
-                    color = Color(0xFF94A3B8),
+                    color = AppColors.textSecondary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -966,7 +967,7 @@ fun CreatePostSection(
                 Spacer(modifier = Modifier.width(5.dp))
                 Text(
                     text = "Photo",
-                    color = Color(0xFFCBD5E1),
+                    color = AppColors.textBody,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Medium,
                     fontSize = 14.sp,
@@ -977,7 +978,7 @@ fun CreatePostSection(
         }
 
         Spacer(modifier = Modifier.height(10.dp))
-        HorizontalDivider(color = Color(0xFF1E293B).copy(alpha = 0.6f), thickness = 1.dp)
+        HorizontalDivider(color = AppColors.border.copy(alpha = 0.7f), thickness = 1.dp)
         Spacer(modifier = Modifier.height(8.dp))
 
         // Bottom Action Bar: Live, Photo, Video, Event
@@ -992,7 +993,7 @@ fun CreatePostSection(
                     .weight(1f)
                     .heightIn(min = 44.dp)
                     .clip(RoundedCornerShape(10.dp))
-                    .background(Color(0xFF1E293B).copy(alpha = 0.45f))
+                    .background(AppColors.bgCardElevated)
                     .clickable(onClick = onClick)
                     .padding(horizontal = 4.dp, vertical = 10.dp),
                 horizontalArrangement = Arrangement.Center,
@@ -1000,7 +1001,7 @@ fun CreatePostSection(
             ) {
                 Icon(imageVector = Icons.Default.Videocam, contentDescription = "Live", tint = Color(0xFF1877F2), modifier = Modifier.size(22.dp))
                 Spacer(modifier = Modifier.width(5.dp))
-                Text("Live", color = Color(0xFFE2E8F0), fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, maxLines = 1, softWrap = false)
+                Text("Live", color = AppColors.textBody, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, maxLines = 1, softWrap = false)
             }
 
             // Photo
@@ -1009,7 +1010,7 @@ fun CreatePostSection(
                     .weight(1f)
                     .heightIn(min = 44.dp)
                     .clip(RoundedCornerShape(10.dp))
-                    .background(Color(0xFF1E293B).copy(alpha = 0.45f))
+                    .background(AppColors.bgCardElevated)
                     .clickable(onClick = onPhotoClick)
                     .padding(horizontal = 4.dp, vertical = 10.dp),
                 horizontalArrangement = Arrangement.Center,
@@ -1017,7 +1018,7 @@ fun CreatePostSection(
             ) {
                 Icon(imageVector = Icons.Default.PhotoLibrary, contentDescription = "Photo", tint = Color(0xFF10B981), modifier = Modifier.size(22.dp))
                 Spacer(modifier = Modifier.width(5.dp))
-                Text("Photo", color = Color(0xFFE2E8F0), fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, maxLines = 1, softWrap = false)
+                Text("Photo", color = AppColors.textBody, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, maxLines = 1, softWrap = false)
             }
 
             // Video
@@ -1026,7 +1027,7 @@ fun CreatePostSection(
                     .weight(1f)
                     .heightIn(min = 44.dp)
                     .clip(RoundedCornerShape(10.dp))
-                    .background(Color(0xFF1E293B).copy(alpha = 0.45f))
+                    .background(AppColors.bgCardElevated)
                     .clickable(onClick = onVideoClick)
                     .padding(horizontal = 4.dp, vertical = 10.dp),
                 horizontalArrangement = Arrangement.Center,
@@ -1034,7 +1035,7 @@ fun CreatePostSection(
             ) {
                 Icon(imageVector = Icons.Default.CameraAlt, contentDescription = "Video", tint = Color(0xFFF43F5E), modifier = Modifier.size(22.dp))
                 Spacer(modifier = Modifier.width(5.dp))
-                Text("Video", color = Color(0xFFE2E8F0), fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, maxLines = 1, softWrap = false)
+                Text("Video", color = AppColors.textBody, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, maxLines = 1, softWrap = false)
             }
 
             // Event
@@ -1043,7 +1044,7 @@ fun CreatePostSection(
                     .weight(1f)
                     .heightIn(min = 44.dp)
                     .clip(RoundedCornerShape(10.dp))
-                    .background(Color(0xFF1E293B).copy(alpha = 0.45f))
+                    .background(AppColors.bgCardElevated)
                     .clickable(onClick = onEventClick)
                     .padding(horizontal = 4.dp, vertical = 10.dp),
                 horizontalArrangement = Arrangement.Center,
@@ -1051,7 +1052,7 @@ fun CreatePostSection(
             ) {
                 Icon(imageVector = Icons.Default.Event, contentDescription = "Event", tint = Color(0xFFF59E0B), modifier = Modifier.size(22.dp))
                 Spacer(modifier = Modifier.width(5.dp))
-                Text("Event", color = Color(0xFFE2E8F0), fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, maxLines = 1, softWrap = false)
+                Text("Event", color = AppColors.textBody, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, maxLines = 1, softWrap = false)
             }
         }
     }
@@ -1070,7 +1071,7 @@ fun StoriesSection(
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFF0F172A))
+            .background(AppColors.bgCard)
             .padding(vertical = 12.dp)
             .testTag("stories_section"),
         contentPadding = PaddingValues(horizontal = 14.dp),
@@ -1080,8 +1081,8 @@ fun StoriesSection(
         item(key = "create_story_card") {
             Card(
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
-                border = BorderStroke(1.dp, Color(0xFF1E293B)),
+                colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+                border = BorderStroke(1.dp, AppColors.border),
                 modifier = Modifier
                     .width(112.dp)
                     .height(190.dp)
@@ -1103,7 +1104,7 @@ fun StoriesSection(
                             .fillMaxWidth()
                             .fillMaxHeight(0.28f)
                             .align(Alignment.BottomCenter)
-                            .background(Color(0xFF0F172A)),
+                            .background(AppColors.bgCard),
                         contentAlignment = Alignment.BottomCenter
                     ) {
                         Text(
@@ -1111,7 +1112,7 @@ fun StoriesSection(
                             fontSize = 14.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFFF8FAFC),
+                            color = AppColors.textPrimary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.padding(horizontal = 4.dp, vertical = 0.dp).padding(bottom = 9.dp)
@@ -1130,7 +1131,7 @@ fun StoriesSection(
                                     listOf(Color(0xFF166FE5), Color(0xFF1877F2))
                                 )
                             )
-                            .border(3.dp, Color(0xFF0F172A), CircleShape),
+                            .border(3.dp, AppColors.bgCard, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -1148,8 +1149,8 @@ fun StoriesSection(
         items(stories, key = { it.id }) { story ->
             Card(
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
-                border = BorderStroke(1.dp, Color(0xFF1E293B)),
+                colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+                border = BorderStroke(1.dp, AppColors.border),
                 modifier = Modifier
                     .width(112.dp)
                     .height(190.dp)
@@ -1346,7 +1347,7 @@ fun WebPostCard(
             .clipToBounds()
             .testTag("post_card_${post.id}"),
         shape = RoundedCornerShape(0.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A))
+        colors = CardDefaults.cardColors(containerColor = AppColors.bgCard)
     ) {
         Column(
             modifier = Modifier
@@ -1403,7 +1404,7 @@ fun WebPostCard(
                                     .size(38.dp)
                                     .align(Alignment.TopStart)
                                     .clip(CircleShape)
-                                    .border(1.dp, Color(0xFF1E293B), CircleShape)
+                                    .border(1.dp, AppColors.border, CircleShape)
                             )
                         } else {
                             Box(
@@ -1412,7 +1413,7 @@ fun WebPostCard(
                                     .align(Alignment.TopStart)
                                     .clip(CircleShape)
                                     .background(Color(0xFF1877F2).copy(alpha = 0.25f))
-                                    .border(1.dp, Color(0xFF1E293B), CircleShape),
+                                    .border(1.dp, AppColors.border, CircleShape),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
@@ -1465,7 +1466,7 @@ fun WebPostCard(
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 19.sp,
-                                color = Color(0xFFF8FAFC),
+                                color = AppColors.textPrimary,
                                 modifier = Modifier.clickable { onAuthorClick?.invoke(post.author) ?: onUserClick() }
                             )
                             if (post.author.isVerified) {
@@ -1508,7 +1509,7 @@ fun WebPostCard(
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 17.sp,
-                                color = Color(0xFF38BDF8),
+                                color = if (AppColors.isLight) Color(0xFF1877F2) else Color(0xFF38BDF8),
                                 modifier = Modifier.clickable { onAuthorClick?.invoke(post.sharedPost.author) ?: onUserClick() }
                             )
                             if (post.sharedPost.author.isVerified) {
@@ -1529,24 +1530,24 @@ fun WebPostCard(
                                 fontSize = 12.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
-                                color = Color(0xFF94A3B8)
+                                color = AppColors.textSecondary
                             )
-                            Text("•", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8))
+                            Text("•", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = AppColors.textSecondary)
                             Icon(
                                 imageVector = Icons.Default.Public,
                                 contentDescription = "Public",
-                                tint = Color(0xFF94A3B8),
+                                tint = AppColors.textSecondary,
                                 modifier = Modifier.size(11.dp)
                             )
                             val sharedDisplayLocation = post.location?.takeIf { it.isNotBlank() && !it.equals("null", ignoreCase = true) }
                                 ?: post.sharedPost.location?.takeIf { it.isNotBlank() && !it.equals("null", ignoreCase = true) }
                                 ?: post.sharedPost.product?.location?.takeIf { it.isNotBlank() && !it.equals("null", ignoreCase = true) }
                             if (!sharedDisplayLocation.isNullOrBlank()) {
-                                Text("•", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8))
+                                Text("•", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = AppColors.textSecondary)
                                 Icon(
                                     imageVector = Icons.Default.LocationOn,
                                     contentDescription = "Location",
-                                    tint = Color(0xFF94A3B8),
+                                    tint = AppColors.textSecondary,
                                     modifier = Modifier.size(11.dp)
                                 )
                                 Text(
@@ -1554,19 +1555,19 @@ fun WebPostCard(
                                     fontSize = 12.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
-                                    color = Color(0xFF94A3B8),
+                                    color = AppColors.textSecondary,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
                             }
                             if (post.sharedPost.timestamp.isNotBlank()) {
-                                Text("•", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8))
+                                Text("•", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = AppColors.textSecondary)
                                 Text(
                                     text = PostsApiService.formatRelativeTime(post.sharedPost.timestamp),
                                     fontSize = 11.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
-                                    color = Color(0xFF64748B)
+                                    color = AppColors.textMuted
                                 )
                             }
                         }
@@ -1581,7 +1582,7 @@ fun WebPostCard(
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 21.sp,
-                                    color = Color(0xFFF8FAFC),
+                                    color = AppColors.textPrimary,
                                     modifier = Modifier.clickable { post.groupId?.let { onOpenGroup(it) } }
                                 )
                             } else {
@@ -1593,7 +1594,7 @@ fun WebPostCard(
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 21.sp,
-                                    color = Color(0xFFF8FAFC),
+                                    color = AppColors.textPrimary,
                                     modifier = Modifier.clickable(onClick = onUserClick)
                                 )
                             }
@@ -1609,10 +1610,10 @@ fun WebPostCard(
                                 Box(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(4.dp))
-                                        .background(Color(0xFF1E293B))
+                                        .background(AppColors.bgChip)
                                         .padding(horizontal = 6.dp, vertical = 2.dp)
                                 ) {
-                                    Text("Ad", fontSize = 10.sp, color = Color(0xFF94A3B8), fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                                    Text("Ad", fontSize = 10.sp, color = AppColors.textSecondary, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
                                 }
                             }
                         }
@@ -1633,7 +1634,7 @@ fun WebPostCard(
                                     fontSize = 13.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFFCBD5E1),
+                                    color = AppColors.textBody,
                                     modifier = Modifier.clickable(onClick = onUserClick)
                                 )
                                 Text(
@@ -1641,12 +1642,12 @@ fun WebPostCard(
                                     fontSize = 13.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
-                                    color = Color(0xFF94A3B8)
+                                    color = AppColors.textSecondary
                                 )
                                 Icon(
                                     imageVector = Icons.Default.Groups,
                                     contentDescription = "Group",
-                                    tint = Color(0xFF94A3B8),
+                                    tint = AppColors.textSecondary,
                                     modifier = Modifier
                                         .size(13.dp)
                                         .clickable { post.groupId?.let { onOpenGroup(it) } }
@@ -1657,21 +1658,21 @@ fun WebPostCard(
                                     fontSize = 13.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
-                                    color = Color(0xFF94A3B8)
+                                    color = AppColors.textSecondary
                                 )
-                                Text("•", fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8))
+                                Text("•", fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = AppColors.textSecondary)
                                 Icon(
                                     imageVector = Icons.Default.Public,
                                     contentDescription = "Public",
-                                    tint = Color(0xFF94A3B8),
+                                    tint = AppColors.textSecondary,
                                     modifier = Modifier.size(12.dp)
                                 )
                                 if (!displayLocation.isNullOrBlank()) {
-                                    Text("•", fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8))
+                                    Text("•", fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = AppColors.textSecondary)
                                     Icon(
                                         imageVector = Icons.Default.LocationOn,
                                         contentDescription = "Location",
-                                        tint = Color(0xFF94A3B8),
+                                        tint = AppColors.textSecondary,
                                         modifier = Modifier.size(12.dp)
                                     )
                                     Text(
@@ -1679,7 +1680,7 @@ fun WebPostCard(
                                         fontSize = 13.sp,
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Normal,
-                                        color = Color(0xFF94A3B8),
+                                        color = AppColors.textSecondary,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis
                                     )
@@ -1687,22 +1688,22 @@ fun WebPostCard(
                             }
 
                             if (!post.feeling.isNullOrBlank()) {
-                                Text("•", fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8))
+                                Text("•", fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = AppColors.textSecondary)
                                 Text(
                                     text = "feeling ${post.feeling}",
                                     fontSize = 13.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
-                                    color = Color(0xFF94A3B8)
+                                    color = AppColors.textSecondary
                                 )
                             }
 
                             if (post.groupId != null && !displayLocation.isNullOrBlank()) {
-                                Text("•", fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8))
+                                Text("•", fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = AppColors.textSecondary)
                                 Icon(
                                     imageVector = Icons.Default.LocationOn,
                                     contentDescription = "Location",
-                                    tint = Color(0xFF94A3B8),
+                                    tint = AppColors.textSecondary,
                                     modifier = Modifier.size(12.dp)
                                 )
                                 Text(
@@ -1710,7 +1711,7 @@ fun WebPostCard(
                                     fontSize = 13.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
-                                    color = Color(0xFF94A3B8),
+                                    color = AppColors.textSecondary,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -1726,7 +1727,7 @@ fun WebPostCard(
                     Button(
                         onClick = onFollowToggle,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (actualIsFollowing) Color(0xFF1E293B) else Color(0xFF1877F2)
+                            containerColor = if (actualIsFollowing) AppColors.bgChip else AppColors.primaryBlue
                         ),
                         shape = RoundedCornerShape(8.dp),
                         contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
@@ -1735,13 +1736,13 @@ fun WebPostCard(
                         Icon(
                             imageVector = if (actualIsFollowing) Icons.Filled.Check else Icons.Filled.PersonAdd,
                             contentDescription = null,
-                            tint = if (actualIsFollowing) Color(0xFFF8FAFC) else Color.White,
+                            tint = if (actualIsFollowing) AppColors.textPrimary else Color.White,
                             modifier = Modifier.size(13.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = if (actualIsFollowing) "Following" else "Follow",
-                            color = if (actualIsFollowing) Color(0xFFF8FAFC) else Color.White,
+                            color = if (actualIsFollowing) AppColors.textPrimary else Color.White,
                             fontSize = 12.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Medium
@@ -1770,7 +1771,7 @@ fun WebPostCard(
                     fontSize = 17.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFFF8FAFC),
+                    color = AppColors.textPrimary,
                     modifier = Modifier.padding(horizontal = 14.dp, vertical = 2.dp)
                 )
             }
@@ -1790,7 +1791,7 @@ fun WebPostCard(
                             lineHeight = 28.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal,
-                            color = Color(0xFFE4E6EB)
+                            color = AppColors.textBody
                         )
                     }
                 }
@@ -1854,7 +1855,7 @@ fun WebPostCard(
                             lineHeight = 28.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal,
-                            color = Color(0xFFCBD5E1)
+                            color = AppColors.textBody
                         )
                         if (sharedHasMoreThan8Words) {
                             Spacer(modifier = Modifier.height(4.dp))
@@ -2007,7 +2008,7 @@ fun WebPostCard(
                             lineHeight = 28.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal,
-                            color = Color(0xFFE4E6EB)
+                            color = AppColors.textBody
                         )
                         if (hasMoreThan8Words) {
                             Spacer(modifier = Modifier.height(4.dp))
@@ -2198,7 +2199,7 @@ fun WebPostCard(
                 ) {
                     Text(
                         text = "${formatCount(post.commentsCount)} Discuss..",
-                        color = Color(0xFF94A3B8),
+                        color = AppColors.textSecondary,
                         fontSize = 19.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
@@ -2208,14 +2209,14 @@ fun WebPostCard(
                     )
                     Text(
                         text = "•",
-                        color = Color(0xFF94A3B8),
+                        color = AppColors.textSecondary,
                         fontSize = 19.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal
                     )
                     Text(
                         text = "${post.sharesCount} Shares",
-                        color = Color(0xFF94A3B8),
+                        color = AppColors.textSecondary,
                         fontSize = 19.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
@@ -2226,7 +2227,7 @@ fun WebPostCard(
                 }
             }
 
-            HorizontalDivider(color = Color(0xFF1E293B), thickness = 1.dp)
+            HorizontalDivider(color = AppColors.border, thickness = 1.dp)
 
             // Action Buttons Row: React, Discuss, Share, Save (19sp numbers below)
             Row(
@@ -2276,7 +2277,7 @@ fun WebPostCard(
                         Icon(
                             imageVector = Icons.Default.Send,
                             contentDescription = "Share",
-                            tint = Color(0xFFF8FAFC),
+                            tint = AppColors.textPrimary,
                             modifier = Modifier
                                 .size(20.dp)
                                 .graphicsLayer(rotationZ = -35f)
@@ -2285,7 +2286,7 @@ fun WebPostCard(
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
                                 text = formatCount(post.sharesCount),
-                                color = Color(0xFFF8FAFC),
+                                color = AppColors.textPrimary,
                                 fontSize = 19.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.SemiBold
@@ -2328,7 +2329,7 @@ fun WebPostCard(
             // Inline Single Comment Preview (Matching Facebook / Web style)
             if (!hideCommentPreview && previewComment != null && previewAuthor != null) {
                 val currentComment = previewComment!!
-                HorizontalDivider(color = Color(0xFF1E293B).copy(alpha = 0.5f), thickness = 1.dp)
+                HorizontalDivider(color = AppColors.border.copy(alpha = 0.6f), thickness = 1.dp)
 
                 Row(
                     modifier = Modifier
@@ -2353,7 +2354,7 @@ fun WebPostCard(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(16.dp))
-                                .background(Color(0xFF162137))
+                                .background(AppColors.bgInput)
                                 .clickable(onClick = onComment)
                                 .padding(horizontal = 14.dp, vertical = 10.dp)
                         ) {
@@ -2364,7 +2365,7 @@ fun WebPostCard(
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 19.sp,
-                                        color = Color(0xFFF8FAFC)
+                                        color = AppColors.textPrimary
                                     )
                                     if (previewAuthor.isVerified) {
                                         Spacer(modifier = Modifier.width(5.dp))
@@ -2379,7 +2380,7 @@ fun WebPostCard(
                                     lineHeight = 26.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
-                                    color = Color(0xFFCBD5E1),
+                                    color = AppColors.textBody,
                                     maxLines = 3,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -2399,12 +2400,13 @@ fun WebPostCard(
                                     fontSize = 12.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
-                                    color = Color(0xFF94A3B8)
+                                    color = AppColors.textSecondary
                                 )
                             }
 
                             val isLiked = currentComment.isLiked
                             val likesCount = currentComment.likesCount
+                            val commentLikeColor = if (isLiked) AppColors.primaryBlue else AppColors.textSecondary
                             Row(
                                 modifier = Modifier.clickable {
                                     onLikeComment?.invoke(post.id, currentComment.id)
@@ -2417,7 +2419,7 @@ fun WebPostCard(
                                     fontSize = 14.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = if (isLiked) FontWeight.Bold else FontWeight.Medium,
-                                    color = if (isLiked) Color(0xFF38BDF8) else Color(0xFF94A3B8)
+                                    color = commentLikeColor
                                 )
                                 if (likesCount > 0) {
                                     Text(
@@ -2425,7 +2427,7 @@ fun WebPostCard(
                                         fontSize = 12.sp,
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Medium,
-                                        color = if (isLiked) Color(0xFF38BDF8) else Color(0xFF94A3B8)
+                                        color = commentLikeColor
                                     )
                                 }
                             }
@@ -2435,7 +2437,7 @@ fun WebPostCard(
                                 fontSize = 14.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Medium,
-                                color = Color(0xFF94A3B8),
+                                color = AppColors.textSecondary,
                                 modifier = Modifier.clickable(onClick = onComment)
                             )
                         }
@@ -2571,7 +2573,7 @@ fun EventPostCard(
 
     Card(
         shape = RoundedCornerShape(0.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF0A101F)),
+        colors = CardDefaults.cardColors(containerColor = AppColors.bgCardElevated),
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onEventClick)
@@ -2592,8 +2594,8 @@ fun EventPostCard(
                 // Date Box on top left
                 Card(
                     shape = RoundedCornerShape(8.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF0B1120).copy(alpha = 0.9f)),
-                    border = BorderStroke(1.dp, Color(0xFF1E293B)),
+                    colors = CardDefaults.cardColors(containerColor = AppColors.bgCard.copy(alpha = 0.94f)),
+                    border = BorderStroke(1.dp, AppColors.border),
                     modifier = Modifier
                         .padding(10.dp)
                         .align(Alignment.TopStart)
@@ -2603,7 +2605,7 @@ fun EventPostCard(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(dateParts.first, fontSize = 11.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, color = Color(0xFF1877F2))
-                        Text(dateParts.second, fontSize = 18.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, color = Color(0xFFF8FAFC))
+                        Text(dateParts.second, fontSize = 18.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, color = AppColors.textPrimary)
                     }
                 }
             }
@@ -2614,7 +2616,7 @@ fun EventPostCard(
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp,
-                    color = Color(0xFFF8FAFC)
+                    color = AppColors.textPrimary
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -2623,7 +2625,7 @@ fun EventPostCard(
                     fontSize = 13.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Normal,
-                    color = Color(0xFF94A3B8)
+                    color = AppColors.textSecondary
                 )
 
                 Spacer(modifier = Modifier.height(6.dp))
@@ -2669,10 +2671,10 @@ fun EventPostCard(
                         enabled = !loading && !isPast,
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (rsvpStatus == "interested") Color(0xFFF7B928) else Color(0xFF1E293B),
-                            disabledContainerColor = if (rsvpStatus == "interested") Color(0xFFF7B928).copy(alpha = 0.5f) else Color(0xFF1E293B).copy(alpha = 0.5f)
+                            containerColor = if (rsvpStatus == "interested") Color(0xFFF7B928) else AppColors.bgChip,
+                            disabledContainerColor = if (rsvpStatus == "interested") Color(0xFFF7B928).copy(alpha = 0.5f) else AppColors.bgChip.copy(alpha = 0.5f)
                         ),
-                        border = if (rsvpStatus == "interested") null else BorderStroke(1.dp, Color(0xFF334155)),
+                        border = if (rsvpStatus == "interested") null else BorderStroke(1.dp, AppColors.borderStrong),
                         modifier = Modifier
                             .weight(1f)
                             .height(44.dp)
@@ -2682,7 +2684,7 @@ fun EventPostCard(
                             fontSize = 15.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = if (rsvpStatus == "interested") FontWeight.Bold else FontWeight.Medium,
-                            color = if (rsvpStatus == "interested") Color.Black else Color(0xFFF8FAFC)
+                            color = if (rsvpStatus == "interested") Color.Black else AppColors.textPrimary
                         )
                     }
                 }
@@ -2720,7 +2722,7 @@ fun ProductPostCard(
 
     Card(
         shape = RoundedCornerShape(0.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF0A101F)),
+        colors = CardDefaults.cardColors(containerColor = AppColors.bgCardElevated),
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = handleViewProduct)
@@ -2738,8 +2740,8 @@ fun ProductPostCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFF0A101F))
-                    .border(width = 1.dp, color = Color(0xFF1E293B))
+                    .background(AppColors.bgCardElevated)
+                    .border(width = 1.dp, color = AppColors.border)
                     .padding(horizontal = 14.dp, vertical = 10.dp)
                     .clickable(onClick = handleViewProduct),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -2755,14 +2757,14 @@ fun ProductPostCard(
                             fontSize = 18.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFFF8FAFC)
+                            color = AppColors.textPrimary
                         )
                         Text(
                             text = "%,d".format(product.price.toLong()),
                             fontSize = 21.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFFF8FAFC)
+                            color = AppColors.textPrimary
                         )
                     }
                 } else {
@@ -2771,7 +2773,7 @@ fun ProductPostCard(
                         fontSize = 14.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Medium,
-                        color = Color(0xFF94A3B8)
+                        color = AppColors.textSecondary
                     )
                 }
 
@@ -2810,7 +2812,7 @@ fun ProductPostCard(
                         fontSize = 17.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFFF8FAFC),
+                        color = AppColors.textPrimary,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -2851,7 +2853,7 @@ fun SuggestedProductsWidget(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color(0xFF0B1120))
+            .background(AppColors.bgCard)
             .padding(16.dp)
     ) {
         Row(
@@ -2863,7 +2865,7 @@ fun SuggestedProductsWidget(
         ) {
             Text(
                 text = "MarketPoint for you",
-                color = Color(0xFFF8FAFC),
+                color = AppColors.textPrimary,
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 21.sp
@@ -2903,8 +2905,8 @@ fun SuggestedProductsWidget(
                                     .fillMaxWidth()
                                     .aspectRatio(1f)
                                     .clip(RoundedCornerShape(8.dp))
-                                    .background(Color(0xFF0F172A))
-                                    .border(1.dp, Color(0xFF1E293B), RoundedCornerShape(8.dp))
+                                    .background(AppColors.bgInput)
+                                    .border(1.dp, AppColors.border, RoundedCornerShape(8.dp))
                             ) {
                                 if (prodImg.isNotBlank()) {
                                     AsyncImage(
@@ -2956,7 +2958,7 @@ fun SuggestedProductsWidget(
                             Spacer(modifier = Modifier.height(6.dp))
                             Text(
                                 text = prod.title,
-                                color = Color(0xFFF8FAFC),
+                                color = AppColors.textPrimary,
                                 fontSize = 14.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.SemiBold,
@@ -3044,7 +3046,7 @@ fun JobPostingCard(
 ) {
     Card(
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF162137)),
+        colors = CardDefaults.cardColors(containerColor = AppColors.bgCardElevated),
         border = BorderStroke(1.dp, Color(0xFF10B981).copy(alpha = 0.3f)),
         modifier = Modifier
             .fillMaxWidth()
@@ -3065,10 +3067,10 @@ fun JobPostingCard(
             }
 
             Spacer(modifier = Modifier.height(8.dp))
-            Text(jobTitle, fontSize = 18.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, color = Color(0xFFF8FAFC))
+            Text(jobTitle, fontSize = 18.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, color = AppColors.textPrimary)
 
             Spacer(modifier = Modifier.height(4.dp))
-            Text("$company • $location", fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8))
+            Text("$company • $location", fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = AppColors.textSecondary)
 
             if (salary.isNotBlank()) {
                 Spacer(modifier = Modifier.height(4.dp))
@@ -3100,7 +3102,7 @@ fun MusicPostCard(
 ) {
     Card(
         shape = RoundedCornerShape(0.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF0B1120)),
+        colors = CardDefaults.cardColors(containerColor = AppColors.bgCardElevated),
         border = null,
         modifier = Modifier
             .fillMaxWidth()
@@ -3141,7 +3143,7 @@ fun MusicPostCard(
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp,
-                        color = Color(0xFFF8FAFC),
+                        color = AppColors.textPrimary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -3150,7 +3152,7 @@ fun MusicPostCard(
                         fontSize = 13.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal,
-                        color = Color(0xFF94A3B8),
+                        color = AppColors.textSecondary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -3187,8 +3189,8 @@ fun FeedStoryCard(
 ) {
     Card(
         shape = RoundedCornerShape(0.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF0B1120)),
-        border = BorderStroke(1.dp, Color(0xFF1E293B)),
+        colors = CardDefaults.cardColors(containerColor = AppColors.bgCardElevated),
+        border = BorderStroke(1.dp, AppColors.border),
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 0.dp, vertical = 6.dp)
@@ -3325,7 +3327,7 @@ fun FeedStoryCard(
                     Icon(
                         imageVector = Icons.Default.RemoveRedEye,
                         contentDescription = "Views",
-                        tint = Color(0xFF94A3B8),
+                        tint = AppColors.textSecondary,
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
@@ -3333,7 +3335,7 @@ fun FeedStoryCard(
                         text = "Story Update",
                         fontSize = 13.sp,
                         fontFamily = InterFontFamily,
-                        color = Color(0xFF94A3B8),
+                        color = AppColors.textSecondary,
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -3365,8 +3367,8 @@ fun SharedProductCard(
 ) {
     Card(
         shape = RoundedCornerShape(0.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF0A101F)),
-        border = BorderStroke(1.dp, Color(0xFF1E293B)),
+        colors = CardDefaults.cardColors(containerColor = AppColors.bgCardElevated),
+        border = BorderStroke(1.dp, AppColors.border),
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 0.dp, vertical = 4.dp)
@@ -3396,7 +3398,7 @@ fun SharedProductCard(
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp,
-                            color = Color(0xFFF8FAFC)
+                            color = AppColors.textPrimary
                         )
                         if (originalAuthor.isVerified) {
                             Spacer(modifier = Modifier.width(4.dp))
@@ -3408,7 +3410,7 @@ fun SharedProductCard(
                         fontSize = 11.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal,
-                        color = Color(0xFF94A3B8)
+                        color = AppColors.textSecondary
                     )
                 }
                 Box(
@@ -3444,8 +3446,8 @@ fun SharedProductCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFF0A101F))
-                    .border(width = 1.dp, color = Color(0xFF1E293B))
+                    .background(AppColors.bgCardElevated)
+                    .border(width = 1.dp, color = AppColors.border)
                     .padding(horizontal = 12.dp, vertical = 8.dp)
                     .clickable(onClick = onViewProduct),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -3456,7 +3458,7 @@ fun SharedProductCard(
                     fontSize = 16.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFFF8FAFC)
+                    color = AppColors.textPrimary
                 )
 
                 Button(
@@ -3489,7 +3491,7 @@ fun SharedProductCard(
                     fontSize = 15.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFFF8FAFC),
+                    color = AppColors.textPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -3498,7 +3500,7 @@ fun SharedProductCard(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.LocationOn, contentDescription = null, tint = Color(0xFFF43F5E), modifier = Modifier.size(13.dp))
                         Spacer(modifier = Modifier.width(3.dp))
-                        Text(product.location, fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF94A3B8))
+                        Text(product.location, fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = AppColors.textSecondary)
                     }
                 }
                 if (product.description.isNotBlank()) {
@@ -3508,7 +3510,7 @@ fun SharedProductCard(
                         fontSize = 12.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal,
-                        color = Color(0xFFCBD5E1),
+                        color = AppColors.textBody,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -3549,8 +3551,8 @@ fun SharedEventCard(
 
     Card(
         shape = RoundedCornerShape(0.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF0A101F)),
-        border = BorderStroke(1.dp, Color(0xFF1E293B)),
+        colors = CardDefaults.cardColors(containerColor = AppColors.bgCardElevated),
+        border = BorderStroke(1.dp, AppColors.border),
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 0.dp, vertical = 4.dp)
@@ -3579,14 +3581,14 @@ fun SharedEventCard(
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp,
-                        color = Color(0xFFF8FAFC)
+                        color = AppColors.textPrimary
                     )
                     Text(
                         text = "Shared an event • ${PostsApiService.formatRelativeTime(timestamp)}",
                         fontSize = 11.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal,
-                        color = Color(0xFF94A3B8)
+                        color = AppColors.textSecondary
                     )
                 }
                 Box(
@@ -3613,8 +3615,8 @@ fun SharedEventCard(
                 )
                 Card(
                     shape = RoundedCornerShape(8.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF0B1120).copy(alpha = 0.9f)),
-                    border = BorderStroke(1.dp, Color(0xFF1E293B)),
+                    colors = CardDefaults.cardColors(containerColor = AppColors.bgCard.copy(alpha = 0.94f)),
+                    border = BorderStroke(1.dp, AppColors.border),
                     modifier = Modifier
                         .padding(10.dp)
                         .align(Alignment.TopStart)
@@ -3624,7 +3626,7 @@ fun SharedEventCard(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(dateParts.first, fontSize = 10.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, color = Color(0xFF1877F2))
-                        Text(dateParts.second, fontSize = 16.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, color = Color(0xFFF8FAFC))
+                        Text(dateParts.second, fontSize = 16.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, color = AppColors.textPrimary)
                     }
                 }
             }
@@ -3636,7 +3638,7 @@ fun SharedEventCard(
                     fontSize = 16.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFFF8FAFC),
+                    color = AppColors.textPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -3646,7 +3648,7 @@ fun SharedEventCard(
                     fontSize = 12.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Normal,
-                    color = Color(0xFF94A3B8)
+                    color = AppColors.textSecondary
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
@@ -3684,8 +3686,8 @@ fun SharedStoryCard(
 ) {
     Card(
         shape = RoundedCornerShape(0.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF0A101F)),
-        border = BorderStroke(1.dp, Color(0xFF1E293B)),
+        colors = CardDefaults.cardColors(containerColor = AppColors.bgCardElevated),
+        border = BorderStroke(1.dp, AppColors.border),
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 0.dp, vertical = 4.dp)
@@ -3724,14 +3726,14 @@ fun SharedStoryCard(
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp,
-                        color = Color(0xFFF8FAFC)
+                        color = AppColors.textPrimary
                     )
                     Text(
                         text = "Shared a Story • ${PostsApiService.formatRelativeTime(timestamp)}",
                         fontSize = 11.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal,
-                        color = Color(0xFF94A3B8)
+                        color = AppColors.textSecondary
                     )
                 }
                 Box(
@@ -3810,7 +3812,7 @@ fun SharedStoryCard(
                     fontSize = 12.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Medium,
-                    color = Color(0xFF94A3B8)
+                    color = AppColors.textSecondary
                 )
                 Button(
                     onClick = onStoryClick,
@@ -3910,8 +3912,8 @@ fun SharedPostNestedCard(
 
         Card(
             shape = RoundedCornerShape(0.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF0A101F)),
-            border = BorderStroke(1.dp, Color(0xFF334155)),
+            colors = CardDefaults.cardColors(containerColor = AppColors.bgCardElevated),
+            border = BorderStroke(1.dp, AppColors.borderStrong),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 0.dp, vertical = 6.dp)
@@ -3937,7 +3939,7 @@ fun SharedPostNestedCard(
                                         .size(36.dp)
                                         .align(Alignment.TopStart)
                                         .clip(CircleShape)
-                                        .border(1.dp, Color(0xFF1E293B), CircleShape)
+                                        .border(1.dp, AppColors.border, CircleShape)
                                 )
                             } else {
                                 Box(
@@ -3946,7 +3948,7 @@ fun SharedPostNestedCard(
                                         .align(Alignment.TopStart)
                                         .clip(CircleShape)
                                         .background(Color(0xFF1877F2).copy(alpha = 0.25f))
-                                        .border(1.dp, Color(0xFF1E293B), CircleShape),
+                                        .border(1.dp, AppColors.border, CircleShape),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
@@ -3990,7 +3992,7 @@ fun SharedPostNestedCard(
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 15.sp,
-                                    color = Color(0xFFF8FAFC),
+                                    color = AppColors.textPrimary,
                                     modifier = Modifier.clickable { sharedPost.groupId?.let { onOpenGroup(it) } }
                                 )
                             } else {
@@ -3999,7 +4001,7 @@ fun SharedPostNestedCard(
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 14.sp,
-                                    color = Color(0xFFF8FAFC)
+                                    color = AppColors.textPrimary
                                 )
                             }
                             if (sharedPost.author.isVerified) {
@@ -4016,7 +4018,7 @@ fun SharedPostNestedCard(
                             fontSize = 11.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal,
-                            color = Color(0xFF94A3B8)
+                            color = AppColors.textSecondary
                         )
                     }
                 }
@@ -4054,7 +4056,7 @@ fun SharedPostNestedCard(
                         lineHeight = 28.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal,
-                        color = Color(0xFFCBD5E1)
+                        color = AppColors.textBody
                     )
                     if (hasMoreThan8Words) {
                         Spacer(modifier = Modifier.height(4.dp))
@@ -4110,7 +4112,7 @@ fun PeopleYouMayKnowSection(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFF0F172A))
+            .background(AppColors.bgCard)
             .padding(vertical = 14.dp)
     ) {
         Row(
@@ -4125,7 +4127,7 @@ fun PeopleYouMayKnowSection(
                 fontSize = 18.sp,
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.SemiBold,
-                color = Color(0xFFF8FAFC)
+                color = AppColors.textPrimary
             )
         }
 
@@ -4139,8 +4141,8 @@ fun PeopleYouMayKnowSection(
                 val isFollowing = followStates[user.id] ?: user.isFollowing
                 Card(
                     shape = RoundedCornerShape(14.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B)),
-                    border = BorderStroke(1.dp, Color(0xFF334155).copy(alpha = 0.5f)),
+                    colors = CardDefaults.cardColors(containerColor = AppColors.bgCardElevated),
+                    border = BorderStroke(1.dp, AppColors.border),
                     modifier = Modifier.width(176.dp)
                 ) {
                     Column(
@@ -4189,7 +4191,7 @@ fun PeopleYouMayKnowSection(
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 19.sp,
-                                    color = Color(0xFFF8FAFC),
+                                    color = AppColors.textPrimary,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                     modifier = Modifier
@@ -4208,7 +4210,7 @@ fun PeopleYouMayKnowSection(
                                 fontSize = 11.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
-                                color = Color(0xFF94A3B8)
+                                color = AppColors.textSecondary
                             )
 
                             Spacer(modifier = Modifier.height(10.dp))
@@ -4217,7 +4219,7 @@ fun PeopleYouMayKnowSection(
                                 onClick = { onFollowToggle(user.id) },
                                 shape = RoundedCornerShape(8.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = if (isFollowing) Color(0xFF1E293B) else Color(0xFF1877F2)
+                                    containerColor = if (isFollowing) AppColors.bgChip else AppColors.primaryBlue
                                 ),
                                 contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
                                 modifier = Modifier
@@ -4227,7 +4229,7 @@ fun PeopleYouMayKnowSection(
                                 Icon(
                                     imageVector = if (isFollowing) Icons.Filled.Check else Icons.Filled.PersonAdd,
                                     contentDescription = null,
-                                    tint = if (isFollowing) Color(0xFFF8FAFC) else Color.White,
+                                    tint = if (isFollowing) AppColors.textPrimary else Color.White,
                                     modifier = Modifier.size(13.dp)
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
@@ -4236,7 +4238,7 @@ fun PeopleYouMayKnowSection(
                                     fontSize = 12.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Medium,
-                                    color = if (isFollowing) Color(0xFFF8FAFC) else Color.White
+                                    color = if (isFollowing) AppColors.textPrimary else Color.White
                                 )
                             }
                         }
@@ -4260,7 +4262,7 @@ fun GroupsYouMayJoinSection(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFF0F172A))
+            .background(AppColors.bgCard)
             .padding(vertical = 14.dp)
     ) {
         Row(
@@ -4275,7 +4277,7 @@ fun GroupsYouMayJoinSection(
                 fontSize = 18.sp,
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.SemiBold,
-                color = Color(0xFFF8FAFC)
+                color = AppColors.textPrimary
             )
         }
 
@@ -4289,8 +4291,8 @@ fun GroupsYouMayJoinSection(
                 val isJoined = joinedStates[group.id] ?: group.isMember
                 Card(
                     shape = RoundedCornerShape(14.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B)),
-                    border = BorderStroke(1.dp, Color(0xFF334155).copy(alpha = 0.5f)),
+                    colors = CardDefaults.cardColors(containerColor = AppColors.bgCardElevated),
+                    border = BorderStroke(1.dp, AppColors.border),
                     modifier = Modifier
                         .width(236.dp)
                         .clickable { onGroupClick(group.id) }
@@ -4344,7 +4346,7 @@ fun GroupsYouMayJoinSection(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 19.sp,
                                 lineHeight = 23.sp,
-                                color = Color(0xFFF8FAFC),
+                                color = AppColors.textPrimary,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 modifier = Modifier.clickable { onGroupClick(group.id) }
@@ -4356,7 +4358,7 @@ fun GroupsYouMayJoinSection(
                                 fontSize = 11.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
-                                color = Color(0xFF94A3B8)
+                                color = AppColors.textSecondary
                             )
 
                             Spacer(modifier = Modifier.height(10.dp))
@@ -4365,7 +4367,7 @@ fun GroupsYouMayJoinSection(
                                 onClick = { onJoinToggle(group.id) },
                                 shape = RoundedCornerShape(8.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = if (isJoined) Color(0xFF334155) else Color(0xFF1877F2)
+                                    containerColor = if (isJoined) AppColors.bgChip else AppColors.primaryBlue
                                 ),
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -4377,7 +4379,7 @@ fun GroupsYouMayJoinSection(
                                     fontSize = 12.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Medium,
-                                    color = Color.White
+                                    color = if (isJoined) AppColors.textPrimary else Color.White
                                 )
                             }
                         }

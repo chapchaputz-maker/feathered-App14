@@ -152,13 +152,13 @@ fun NotificationsScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Navy900)
+            .background(AppColors.bgScreen)
             .testTag("notifications_screen")
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             // Top App Bar
             Surface(
-                color = Navy900,
+                color = AppColors.headerBg,
                 tonalElevation = 2.dp,
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -182,7 +182,7 @@ fun NotificationsScreen(
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                     contentDescription = "Back",
-                                    tint = TextPrimary
+                                    tint = AppColors.headerText
                                 )
                             }
 
@@ -193,7 +193,7 @@ fun NotificationsScreen(
                                 fontSize = 24.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.SemiBold,
-                                color = TextPrimary
+                                color = AppColors.headerText
                             )
                         }
 
@@ -214,7 +214,11 @@ fun NotificationsScreen(
                                 Icon(
                                     imageVector = Icons.Default.DoneAll,
                                     contentDescription = "Mark all as read",
-                                    tint = if (unreadCount > 0) UneraBlue else Navy700
+                                    tint = if (unreadCount > 0) {
+                                        if (AppColors.isLight) Color.White else UneraBlue
+                                    } else {
+                                        if (AppColors.isLight) Color.White.copy(alpha = 0.42f) else Navy700
+                                    }
                                 )
                             }
 
@@ -229,13 +233,21 @@ fun NotificationsScreen(
                                 modifier = Modifier
                                     .size(40.dp)
                                     .clip(CircleShape)
-                                    .background(if (isSearchVisible) UneraBlue.copy(alpha = 0.2f) else Color.Transparent)
+                                    .background(
+                                        if (isSearchVisible) {
+                                            if (AppColors.isLight) AppColors.headerIconBgActive else UneraBlue.copy(alpha = 0.2f)
+                                        } else Color.Transparent
+                                    )
                                     .testTag("notifications_search_toggle_btn")
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Search,
                                     contentDescription = "Search notifications",
-                                    tint = if (isSearchVisible) UneraBlue else TextSecondary
+                                    tint = if (isSearchVisible) {
+                                        if (AppColors.isLight) Color.White else UneraBlue
+                                    } else {
+                                        if (AppColors.isLight) Color.White else TextSecondary
+                                    }
                                 )
                             }
 
@@ -258,14 +270,14 @@ fun NotificationsScreen(
                                     if (isRefreshing) {
                                         CircularProgressIndicator(
                                             modifier = Modifier.size(16.dp),
-                                            color = UneraBlue,
+                                            color = if (AppColors.isLight) Color.White else UneraBlue,
                                             strokeWidth = 2.dp
                                         )
                                     } else {
                                         Icon(
                                             imageVector = Icons.Default.Refresh,
                                             contentDescription = "Refresh notifications",
-                                            tint = TextSecondary,
+                                            tint = if (AppColors.isLight) Color.White else TextSecondary,
                                             modifier = Modifier.size(20.dp)
                                         )
                                     }
@@ -283,13 +295,13 @@ fun NotificationsScreen(
                         OutlinedTextField(
                             value = searchQuery,
                             onValueChange = { searchQuery = it },
-                            placeholder = { Text("Search notifications...", color = TextSecondary, fontSize = 14.sp) },
+                            placeholder = { Text("Search notifications...", color = AppColors.textSecondary, fontSize = 14.sp) },
                             singleLine = true,
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.Search,
                                     contentDescription = null,
-                                    tint = TextSecondary,
+                                    tint = AppColors.textSecondary,
                                     modifier = Modifier.size(18.dp)
                                 )
                             },
@@ -299,19 +311,19 @@ fun NotificationsScreen(
                                         Icon(
                                             imageVector = Icons.Default.Close,
                                             contentDescription = "Clear",
-                                            tint = TextSecondary,
+                                            tint = AppColors.textSecondary,
                                             modifier = Modifier.size(16.dp)
                                         )
                                     }
                                 }
                             },
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Navy850,
-                                unfocusedContainerColor = Navy850,
-                                focusedBorderColor = UneraBlue,
-                                unfocusedBorderColor = Navy700,
-                                focusedTextColor = TextPrimary,
-                                unfocusedTextColor = TextPrimary
+                                focusedContainerColor = if (AppColors.isLight) Color.White else AppColors.bgCardDeep,
+                                unfocusedContainerColor = if (AppColors.isLight) Color.White else AppColors.bgCardDeep,
+                                focusedBorderColor = AppColors.primaryBlue,
+                                unfocusedBorderColor = if (AppColors.isLight) Color.White.copy(alpha = 0.7f) else AppColors.borderStrong,
+                                focusedTextColor = AppColors.textPrimary,
+                                unfocusedTextColor = AppColors.textPrimary
                             ),
                             shape = RoundedCornerShape(14.dp),
                             modifier = Modifier
@@ -323,7 +335,7 @@ fun NotificationsScreen(
                 }
             }
 
-            HorizontalDivider(color = Navy800, thickness = 1.dp)
+            HorizontalDivider(color = AppColors.headerDivider, thickness = 1.dp)
 
             // Content List
             if (isRefreshing && sortedNotifications.isEmpty()) {
@@ -339,7 +351,7 @@ fun NotificationsScreen(
                         verticalArrangement = Arrangement.Center
                     ) {
                         CircularProgressIndicator(
-                            color = UneraBlue,
+                            color = AppColors.primaryBlue,
                             strokeWidth = 3.dp,
                             modifier = Modifier.size(42.dp)
                         )
@@ -348,13 +360,13 @@ fun NotificationsScreen(
                             text = "Loading notifications...",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = TextPrimary
+                            color = AppColors.textPrimary
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "Connecting to live notifications API",
                             fontSize = 13.sp,
-                            color = TextSecondary
+                            color = AppColors.textSecondary
                         )
                     }
                 }
@@ -374,14 +386,14 @@ fun NotificationsScreen(
                             modifier = Modifier
                                 .size(76.dp)
                                 .clip(CircleShape)
-                                .background(Navy800.copy(alpha = 0.7f))
-                                .border(1.dp, Navy700, CircleShape),
+                                .background(AppColors.bgCard)
+                                .border(1.dp, AppColors.border, CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.NotificationsOff,
                                 contentDescription = null,
-                                tint = UneraBlue,
+                                tint = AppColors.primaryBlue,
                                 modifier = Modifier.size(36.dp)
                             )
                         }
@@ -393,7 +405,7 @@ fun NotificationsScreen(
                             fontSize = 18.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
-                            color = TextPrimary
+                            color = AppColors.textPrimary
                         )
 
                         Spacer(modifier = Modifier.height(8.dp))
@@ -401,7 +413,7 @@ fun NotificationsScreen(
                         Text(
                             text = if (searchQuery.isNotEmpty()) "Try searching for a different person or keyword" else "When people like, comment, or interact with your content, you'll see them here.",
                             fontSize = 14.sp,
-                            color = TextSecondary,
+                            color = AppColors.textSecondary,
                             lineHeight = 20.sp,
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center
                         )
@@ -468,7 +480,7 @@ fun NotificationsScreen(
                                     }
                                 }
                             )
-                            HorizontalDivider(color = Navy800.copy(alpha = 0.5f), thickness = 1.dp)
+                            HorizontalDivider(color = AppColors.border.copy(alpha = 0.6f), thickness = 1.dp)
                         }
                     }
 
@@ -526,7 +538,7 @@ fun NotificationsScreen(
                                     }
                                 }
                             )
-                            HorizontalDivider(color = Navy800.copy(alpha = 0.5f), thickness = 1.dp)
+                            HorizontalDivider(color = AppColors.border.copy(alpha = 0.6f), thickness = 1.dp)
                         }
                     }
 
@@ -584,7 +596,7 @@ fun NotificationsScreen(
                                     }
                                 }
                             )
-                            HorizontalDivider(color = Navy800.copy(alpha = 0.5f), thickness = 1.dp)
+                            HorizontalDivider(color = AppColors.border.copy(alpha = 0.6f), thickness = 1.dp)
                         }
                     }
 
@@ -606,19 +618,19 @@ fun NotificationsScreen(
                                     enabled = !isLoadingMore,
                                     shape = RoundedCornerShape(12.dp),
                                     colors = ButtonDefaults.buttonColors(
-                                        containerColor = Navy850,
-                                        contentColor = TextPrimary
+                                        containerColor = AppColors.bgCard,
+                                        contentColor = AppColors.textPrimary
                                     ),
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(48.dp)
-                                        .border(1.dp, Navy700, RoundedCornerShape(12.dp))
+                                        .border(1.dp, AppColors.borderStrong, RoundedCornerShape(12.dp))
                                         .testTag("notifications_load_more_btn")
                                 ) {
                                     if (isLoadingMore) {
                                         CircularProgressIndicator(
                                             modifier = Modifier.size(18.dp),
-                                            color = UneraBlue,
+                                            color = AppColors.primaryBlue,
                                             strokeWidth = 2.dp
                                         )
                                         Spacer(modifier = Modifier.width(8.dp))
@@ -654,11 +666,11 @@ fun NotificationsScreen(
                 .padding(bottom = 24.dp)
         ) {
             Surface(
-                color = if (isToastError) Color(0xFF450A0A) else Navy850,
+                color = if (isToastError) AppColors.dangerBg else AppColors.bgCard,
                 shape = RoundedCornerShape(14.dp),
                 border = androidx.compose.foundation.BorderStroke(
                     1.dp,
-                    if (isToastError) Color(0xFF991B1B) else UneraBlue
+                    if (isToastError) AppColors.dangerText.copy(alpha = 0.5f) else AppColors.primaryBlue
                 ),
                 shadowElevation = 8.dp,
                 modifier = Modifier
@@ -672,7 +684,7 @@ fun NotificationsScreen(
                     Icon(
                         imageVector = if (isToastError) Icons.Default.ErrorOutline else Icons.Default.CheckCircle,
                         contentDescription = null,
-                        tint = if (isToastError) Color(0xFFFCA5A5) else UneraBlue,
+                        tint = if (isToastError) AppColors.dangerText else AppColors.primaryBlue,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -680,7 +692,7 @@ fun NotificationsScreen(
                         text = toastMessage.orEmpty(),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
-                        color = TextPrimary
+                        color = AppColors.textPrimary
                     )
                 }
             }
@@ -706,15 +718,15 @@ private fun SectionHeader(
             fontSize = 17.sp,
             fontFamily = InterFontFamily,
             fontWeight = FontWeight.SemiBold,
-            color = TextPrimary
+            color = AppColors.textPrimary
         )
 
         if (badgeCount != null) {
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(10.dp))
-                    .background(UneraBlue.copy(alpha = 0.2f))
-                    .border(1.dp, UneraBlue.copy(alpha = 0.35f), RoundedCornerShape(10.dp))
+                    .background(AppColors.bgBlueTint)
+                    .border(1.dp, AppColors.primaryBlue.copy(alpha = 0.35f), RoundedCornerShape(10.dp))
                     .padding(horizontal = 8.dp, vertical = 2.dp)
             ) {
                 Text(
@@ -722,7 +734,7 @@ private fun SectionHeader(
                     fontSize = 11.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF38BDF8)
+                    color = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8)
                 )
             }
         }
@@ -745,12 +757,18 @@ private fun NotificationCard(
     onDeclineInvite: () -> Unit
 ) {
     val isUnread = !notification.isRead
-    val badgeInfo = remember(notification) { getNotificationBadge(notification) }
+    val defaultBadgeBg = AppColors.bgChip
+    val badgeInfo = remember(notification, defaultBadgeBg) { getNotificationBadge(notification, defaultBadgeBg) }
+    val cardBg = if (isUnread) {
+        if (AppColors.isLight) Color(0xFFE7F3FF).copy(alpha = 0.55f) else UneraBlue.copy(alpha = 0.08f)
+    } else {
+        if (AppColors.isLight) AppColors.bgCard else Color.Transparent
+    }
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(if (isUnread) UneraBlue.copy(alpha = 0.08f) else Color.Transparent)
+            .background(cardBg)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = ripple(),
@@ -776,8 +794,8 @@ private fun NotificationCard(
                     modifier = Modifier
                         .fillMaxSize()
                         .clip(CircleShape)
-                        .background(Navy800)
-                        .border(1.dp, Navy700, CircleShape)
+                        .background(AppColors.bgChip)
+                        .border(1.dp, AppColors.border, CircleShape)
                 )
 
                 // Bottom-right status badge
@@ -787,7 +805,7 @@ private fun NotificationCard(
                         .align(Alignment.BottomEnd)
                         .clip(CircleShape)
                         .background(badgeInfo.backgroundColor)
-                        .border(2.dp, Navy900, CircleShape),
+                        .border(2.dp, AppColors.bgCard, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     if (badgeInfo.emoji != null) {
@@ -821,11 +839,11 @@ private fun NotificationCard(
                     verticalAlignment = Alignment.Top
                 ) {
                     Text(
-                        text = buildMiddleText(notification),
+                        text = buildMiddleText(notification, AppColors.textPrimary),
                         fontSize = 20.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal,
-                        color = if (isUnread) TextPrimary else TextSecondary,
+                        color = if (isUnread) AppColors.textPrimary else AppColors.textSecondary,
                         lineHeight = 28.sp,
                         modifier = Modifier.weight(1f)
                     )
@@ -847,7 +865,7 @@ private fun NotificationCard(
                                     .offset(x = (-idx * 8).dp)
                                     .size(24.dp)
                                     .clip(CircleShape)
-                                    .border(1.5.dp, Navy900, CircleShape)
+                                    .border(1.5.dp, AppColors.bgCard, CircleShape)
                                     .clickable { onProfileClick(actor.id) }
                             )
                         }
@@ -861,8 +879,8 @@ private fun NotificationCard(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(10.dp))
-                            .background(Navy800.copy(alpha = 0.5f))
-                            .border(1.dp, Navy700.copy(alpha = 0.4f), RoundedCornerShape(10.dp))
+                            .background(AppColors.bgInput)
+                            .border(1.dp, AppColors.border, RoundedCornerShape(10.dp))
                             .padding(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -874,7 +892,7 @@ private fun NotificationCard(
                                 modifier = Modifier
                                     .size(38.dp)
                                     .clip(RoundedCornerShape(8.dp))
-                                    .background(Navy900)
+                                    .background(AppColors.bgChip)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                         }
@@ -886,7 +904,7 @@ private fun NotificationCard(
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
                                 fontStyle = FontStyle.Italic,
-                                color = TextSecondary,
+                                color = AppColors.textSecondary,
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
                                 lineHeight = 22.sp
@@ -928,7 +946,7 @@ private fun NotificationCard(
                         Text(
                             text = "Invitation declined",
                             fontSize = 12.sp,
-                            color = TextSecondary,
+                            color = AppColors.textSecondary,
                             fontStyle = FontStyle.Italic
                         )
                     } else {
@@ -941,7 +959,7 @@ private fun NotificationCard(
                                 enabled = !isInviteLoading,
                                 shape = RoundedCornerShape(8.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = UneraBlue,
+                                    containerColor = AppColors.primaryBlue,
                                     contentColor = Color.White
                                 ),
                                 contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
@@ -969,9 +987,9 @@ private fun NotificationCard(
                                 enabled = !isInviteLoading,
                                 shape = RoundedCornerShape(8.dp),
                                 colors = ButtonDefaults.outlinedButtonColors(
-                                    contentColor = TextSecondary
+                                    contentColor = AppColors.textSecondary
                                 ),
-                                border = androidx.compose.foundation.BorderStroke(1.dp, Navy700),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.borderStrong),
                                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
                                 modifier = Modifier.height(34.dp)
                             ) {
@@ -992,7 +1010,7 @@ private fun NotificationCard(
                         text = notification.timeAgo.ifBlank { formatRelativeTime(notification.timestamp) },
                         fontSize = 13.sp,
                         fontFamily = InterFontFamily,
-                        color = if (isUnread) Color(0xFF38BDF8) else TextSecondary,
+                        color = if (isUnread) (if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8)) else AppColors.textSecondary,
                         fontWeight = if (isUnread) FontWeight.Medium else FontWeight.Normal
                     )
 
@@ -1003,8 +1021,8 @@ private fun NotificationCard(
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(12.dp))
-                                    .background(Navy800)
-                                    .border(1.dp, Navy700, RoundedCornerShape(12.dp))
+                                    .background(AppColors.bgChip)
+                                    .border(1.dp, AppColors.border, RoundedCornerShape(12.dp))
                                     .padding(horizontal = 6.dp, vertical = 1.dp)
                             ) {
                                 Text(
@@ -1027,7 +1045,7 @@ private fun NotificationCard(
                         modifier = Modifier
                             .size(10.dp)
                             .clip(CircleShape)
-                            .background(UneraBlue)
+                            .background(AppColors.primaryBlue)
                             .shadow(4.dp, CircleShape)
                     )
                 }
@@ -1040,7 +1058,7 @@ private fun NotificationCard(
                         Icon(
                             imageVector = Icons.Default.MoreVert,
                             contentDescription = "Options",
-                            tint = TextSecondary,
+                            tint = AppColors.textSecondary,
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -1049,22 +1067,22 @@ private fun NotificationCard(
                         expanded = isMenuOpen,
                         onDismissRequest = onMenuDismiss,
                         modifier = Modifier
-                            .background(Navy850)
-                            .border(1.dp, Navy700, RoundedCornerShape(8.dp))
+                            .background(AppColors.bgCard)
+                            .border(1.dp, AppColors.borderStrong, RoundedCornerShape(8.dp))
                     ) {
                         DropdownMenuItem(
                             text = {
                                 Text(
                                     text = if (isUnread) "Mark as read" else "Mark as unread",
                                     fontSize = 13.sp,
-                                    color = TextPrimary
+                                    color = AppColors.textPrimary
                                 )
                             },
                             leadingIcon = {
                                 Icon(
                                     imageVector = if (isUnread) Icons.Default.Check else Icons.Default.MarkEmailUnread,
                                     contentDescription = null,
-                                    tint = UneraBlue,
+                                    tint = AppColors.primaryBlue,
                                     modifier = Modifier.size(16.dp)
                                 )
                             },
@@ -1076,14 +1094,14 @@ private fun NotificationCard(
                                 Text(
                                     text = "Remove this notification",
                                     fontSize = 13.sp,
-                                    color = Color(0xFFF87171)
+                                    color = AppColors.dangerText
                                 )
                             },
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.DeleteOutline,
                                     contentDescription = null,
-                                    tint = Color(0xFFF87171),
+                                    tint = AppColors.dangerText,
                                     modifier = Modifier.size(16.dp)
                                 )
                             },
@@ -1102,7 +1120,7 @@ private data class BadgeInfo(
     val backgroundColor: Color = Color(0xFF1877F2)
 )
 
-private fun getNotificationBadge(notification: Notification): BadgeInfo {
+private fun getNotificationBadge(notification: Notification, defaultBg: Color = Navy800): BadgeInfo {
     val rawType = notification.rawType.lowercase(Locale.ROOT)
     val entityType = notification.entityType.lowercase(Locale.ROOT)
     val reactionType = notification.reactionType.lowercase(Locale.ROOT)
@@ -1110,12 +1128,12 @@ private fun getNotificationBadge(notification: Notification): BadgeInfo {
     // Check reaction first
     val reactionEmoji = getReactionEmoji(reactionType)
     if (reactionEmoji.isNotBlank()) {
-        return BadgeInfo(emoji = reactionEmoji, backgroundColor = Navy800)
+        return BadgeInfo(emoji = reactionEmoji, backgroundColor = defaultBg)
     }
 
     return when {
         rawType.contains("birthday") || notification.type == NotificationType.BIRTHDAY ->
-            BadgeInfo(emoji = "🎂", backgroundColor = Navy800)
+            BadgeInfo(emoji = "🎂", backgroundColor = defaultBg)
         rawType.contains("comment") || rawType.contains("reply") || notification.type == NotificationType.COMMENT ->
             BadgeInfo(icon = Icons.Default.ChatBubble, backgroundColor = Color(0xFF10B981))
         rawType.contains("follow") || notification.type == NotificationType.FOLLOW ->
@@ -1158,7 +1176,10 @@ private fun getReactionEmoji(reactionType: String): String {
     }
 }
 
-private fun buildMiddleText(notification: Notification): androidx.compose.ui.text.AnnotatedString {
+private fun buildMiddleText(
+    notification: Notification,
+    actorNameColor: Color
+): androidx.compose.ui.text.AnnotatedString {
     return buildAnnotatedString {
         val actorName = notification.user.name
         val actorsCount = notification.actorsCount
@@ -1170,7 +1191,7 @@ private fun buildMiddleText(notification: Notification): androidx.compose.ui.tex
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.Bold,
                 fontSize = 21.sp,
-                color = TextPrimary
+                color = actorNameColor
             )
         ) {
             append(actorName)

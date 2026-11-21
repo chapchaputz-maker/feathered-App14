@@ -30,6 +30,7 @@ import coil.compose.AsyncImage
 import com.unera.social.model.AdCampaign
 import com.unera.social.model.Post
 import com.unera.social.model.User
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 
 /**
@@ -71,17 +72,18 @@ fun SponsoredPostCard(
     var likesCount by remember { mutableStateOf(ad.clicks.coerceAtLeast(1) * 3 + 12) }
     var isHidden by remember { mutableStateOf(false) }
 
+    val colors = AppColors
     if (isHidden) {
         Box(
             modifier = modifier
                 .fillMaxWidth()
-                .background(Color(0xFF0F172A))
+                .background(colors.bgCard)
                 .padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = "Ad hidden. You won't see this ad again.",
-                color = Color(0xFF94A3B8),
+                color = colors.textSecondary,
                 fontSize = 13.sp,
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.Normal
@@ -134,7 +136,7 @@ fun SponsoredPostCard(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color(0xFF0F172A))
+            .background(colors.bgCard)
             .testTag("sponsored_post_card_${ad.id}")
     ) {
         // 1. HEADER (Advertiser info + globe + menu)
@@ -149,7 +151,7 @@ fun SponsoredPostCard(
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF1E293B))
+                    .background(colors.bgInput)
                     .clickable { onProfileClick?.invoke(ad.id) }
             ) {
                 if (!mediaUrl.isNullOrBlank()) {
@@ -187,7 +189,7 @@ fun SponsoredPostCard(
                 ) {
                     Text(
                         text = ad.name.ifBlank { "Sponsored Advertiser" },
-                        color = Color(0xFFF8FAFC),
+                        color = colors.textPrimary,
                         fontSize = 16.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Bold,
@@ -208,19 +210,19 @@ fun SponsoredPostCard(
                         fontSize = 12.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Medium,
-                        color = Color(0xFFB0B3B8)
+                        color = colors.textSecondary
                     )
                     Text(
                         text = "·",
                         fontSize = 12.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal,
-                        color = Color(0xFF94A3B8)
+                        color = colors.textSecondary
                     )
                     Icon(
                         imageVector = Icons.Default.Public,
                         contentDescription = "Public",
-                        tint = Color(0xFF94A3B8),
+                        tint = colors.textSecondary,
                         modifier = Modifier.size(12.dp)
                     )
                     if (ad.location.isNotBlank() && ad.location != "Global") {
@@ -229,14 +231,14 @@ fun SponsoredPostCard(
                             fontSize = 12.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal,
-                            color = Color(0xFF94A3B8)
+                            color = colors.textSecondary
                         )
                         Text(
                             text = ad.location,
                             fontSize = 12.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal,
-                            color = Color(0xFF94A3B8),
+                            color = colors.textSecondary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -253,7 +255,7 @@ fun SponsoredPostCard(
                     Icon(
                         imageVector = Icons.Default.MoreHoriz,
                         contentDescription = "Ad Options",
-                        tint = Color(0xFF94A3B8),
+                        tint = colors.textSecondary,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -262,8 +264,8 @@ fun SponsoredPostCard(
                     expanded = showMenu,
                     onDismissRequest = { showMenu = false },
                     modifier = Modifier
-                        .background(Color(0xFF0F172A))
-                        .border(1.dp, Color(0xFF1E293B), RoundedCornerShape(8.dp))
+                        .background(colors.bgCard)
+                        .border(1.dp, colors.border, RoundedCornerShape(8.dp))
                 ) {
                     DropdownMenuItem(
                         text = {
@@ -271,13 +273,13 @@ fun SponsoredPostCard(
                                 Icon(
                                     imageVector = Icons.Default.VisibilityOff,
                                     contentDescription = null,
-                                    tint = Color(0xFF94A3B8),
+                                    tint = colors.textSecondary,
                                     modifier = Modifier.size(18.dp)
                                 )
                                 Spacer(modifier = Modifier.width(10.dp))
                                 Text(
                                     "Hide ad",
-                                    color = Color(0xFFF8FAFC),
+                                    color = colors.textPrimary,
                                     fontSize = 14.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Medium
@@ -296,13 +298,13 @@ fun SponsoredPostCard(
                                 Icon(
                                     imageVector = Icons.Default.Flag,
                                     contentDescription = null,
-                                    tint = Color(0xFF94A3B8),
+                                    tint = colors.textSecondary,
                                     modifier = Modifier.size(18.dp)
                                 )
                                 Spacer(modifier = Modifier.width(10.dp))
                                 Text(
                                     "Report ad",
-                                    color = Color(0xFFF8FAFC),
+                                    color = colors.textPrimary,
                                     fontSize = 14.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Medium
@@ -314,14 +316,14 @@ fun SponsoredPostCard(
                             onReportAd?.invoke(ad.id)
                         }
                     )
-                    HorizontalDivider(color = Color(0xFF1E293B), thickness = 1.dp)
+                    HorizontalDivider(color = colors.border, thickness = 1.dp)
                     Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
                         Text(
                             text = "Ad ID: ${ad.id}",
                             fontSize = 11.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal,
-                            color = Color(0xFF94A3B8)
+                            color = colors.textSecondary
                         )
                     }
                 }
@@ -335,7 +337,7 @@ fun SponsoredPostCard(
                 fontSize = 18.sp,
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.SemiBold,
-                color = Color(0xFFE4E6EB),
+                color = colors.textPrimary,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 14.dp, vertical = 2.dp)
@@ -352,7 +354,7 @@ fun SponsoredPostCard(
                 fontSize = 15.sp,
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.Normal,
-                color = Color(0xFFB0B3B8),
+                color = colors.textBody,
                 lineHeight = 21.sp,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -424,8 +426,8 @@ fun SponsoredPostCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0xFF0B1120))
-                .border(BorderStroke(1.dp, Color(0xFF1E293B)))
+                .background(colors.bgCardElevated)
+                .border(BorderStroke(1.dp, colors.border))
                 .clickable { handleCTAClick() }
                 .padding(horizontal = 14.dp, vertical = 10.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -437,7 +439,7 @@ fun SponsoredPostCard(
                     fontSize = 11.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF94A3B8),
+                    color = colors.textSecondary,
                     letterSpacing = 0.8.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -447,7 +449,7 @@ fun SponsoredPostCard(
                     fontSize = 14.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFFF8FAFC),
+                    color = colors.textPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.padding(top = 1.dp)
@@ -506,13 +508,13 @@ fun SponsoredPostCard(
                 Icon(
                     imageVector = if (isLiked) Icons.Default.ThumbUp else Icons.Outlined.ThumbUp,
                     contentDescription = "Like",
-                    tint = if (isLiked) Color(0xFF1877F2) else Color(0xFFB0B3B8),
+                    tint = if (isLiked) Color(0xFF1877F2) else colors.textSecondary,
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = "Like",
-                    color = if (isLiked) Color(0xFF1877F2) else Color(0xFFB0B3B8),
+                    color = if (isLiked) Color(0xFF1877F2) else colors.textSecondary,
                     fontSize = 14.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Medium
@@ -532,13 +534,13 @@ fun SponsoredPostCard(
                 Icon(
                     imageVector = Icons.Outlined.ChatBubbleOutline,
                     contentDescription = "Comment",
-                    tint = Color(0xFFB0B3B8),
+                    tint = colors.textSecondary,
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = "Comment",
-                    color = Color(0xFFB0B3B8),
+                    color = colors.textSecondary,
                     fontSize = 14.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Medium
@@ -558,13 +560,13 @@ fun SponsoredPostCard(
                 Icon(
                     imageVector = Icons.Outlined.Share,
                     contentDescription = "Share",
-                    tint = Color(0xFFB0B3B8),
+                    tint = colors.textSecondary,
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = "Share",
-                    color = Color(0xFFB0B3B8),
+                    color = colors.textSecondary,
                     fontSize = 14.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Medium
@@ -585,13 +587,13 @@ fun SponsoredPostCard(
                     Icon(
                         imageVector = Icons.Default.TrendingUp,
                         contentDescription = "Analytics",
-                        tint = Color(0xFF10B981),
+                        tint = colors.successText,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = "Analytics",
-                        color = Color(0xFF10B981),
+                        color = colors.successText,
                         fontSize = 14.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold
@@ -605,15 +607,15 @@ fun SponsoredPostCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFF0F172A))
-                    .border(BorderStroke(0.5.dp, Color(0xFF1E293B)))
+                    .background(colors.bgCard)
+                    .border(BorderStroke(0.5.dp, colors.border))
                     .padding(horizontal = 14.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
                     imageVector = Icons.Default.Campaign,
                     contentDescription = null,
-                    tint = Color(0xFF94A3B8),
+                    tint = colors.textSecondary,
                     modifier = Modifier.size(14.dp)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
@@ -622,7 +624,7 @@ fun SponsoredPostCard(
                     fontSize = 12.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Normal,
-                    color = Color(0xFF94A3B8),
+                    color = colors.textSecondary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -634,7 +636,7 @@ fun SponsoredPostCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(8.dp)
-                .background(Color(0xFF050B18))
+                .background(colors.sectionDivider)
         )
     }
 }

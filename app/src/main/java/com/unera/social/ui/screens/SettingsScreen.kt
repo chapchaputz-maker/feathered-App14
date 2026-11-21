@@ -39,18 +39,19 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.unera.social.model.User
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-// Color tokens matching web Settings.tsx
-private val WebBgDark = Color(0xFF050B18)
-private val WebCardDark = Color(0xFF0B1120)
-private val WebInputDark = Color(0xFF0F172A)
-private val WebBorderDark = Color(0xFF1E293B)
-private val WebHoverDark = Color(0xFF334155)
-private val WebTextPrimary = Color(0xFFF8FAFC)
-private val WebTextSecondary = Color(0xFF94A3B8)
+// Theme-reactive color tokens
+private val WebBgDark: Color @Composable @ReadOnlyComposable get() = AppColors.bgScreen
+private val WebCardDark: Color @Composable @ReadOnlyComposable get() = AppColors.bgCard
+private val WebInputDark: Color @Composable @ReadOnlyComposable get() = AppColors.bgInput
+private val WebBorderDark: Color @Composable @ReadOnlyComposable get() = AppColors.border
+private val WebHoverDark: Color @Composable @ReadOnlyComposable get() = AppColors.borderStrong
+private val WebTextPrimary: Color @Composable @ReadOnlyComposable get() = AppColors.textPrimary
+private val WebTextSecondary: Color @Composable @ReadOnlyComposable get() = AppColors.textSecondary
 private val WebPrimaryBlue = Color(0xFF1877F2)
 private val WebPrimaryBlueHover = Color(0xFF166FE5)
 private val WebGreen = Color(0xFF45BD62)
@@ -192,6 +193,8 @@ private val OTHER_SECTIONS = listOf(
 @Composable
 fun SettingsScreen(
     currentUser: User?,
+    isLightMode: Boolean = AppColors.isLight,
+    onToggleLightMode: (Boolean) -> Unit = {},
     onClose: () -> Unit,
     onLogout: () -> Unit,
     onUpdateUserDetails: (name: String, bio: String, work: String, education: String, location: String, website: String, gender: String, birthday: String) -> Unit,
@@ -240,51 +243,69 @@ fun SettingsScreen(
 
     BackHandler { onClose() }
 
+    val colors = AppColors
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(WebBgDark)
+            .background(colors.bgScreen)
             .testTag("settings_screen")
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = 80.dp)
         ) {
-            // Flat Top Bar (Facebook style)
+            // Top Bar (Blue header in Light Mode, dark flat bar in Dark Mode)
             item(key = "top_bar") {
-                Row(
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .background(
+                            if (colors.isLight) {
+                                Brush.horizontalGradient(listOf(colors.headerBg, colors.headerBgEnd))
+                            } else {
+                                Brush.horizontalGradient(listOf(colors.bgScreen, colors.bgScreen))
+                            }
+                        )
                         .statusBarsPadding()
-                        .padding(horizontal = 8.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(
-                        onClick = onClose,
-                        modifier = Modifier.testTag("settings_back_button")
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = WebTextPrimary,
-                            modifier = Modifier.size(24.dp)
+                        IconButton(
+                            onClick = onClose,
+                            modifier = Modifier.testTag("settings_back_button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                tint = if (colors.isLight) colors.headerIconTint else colors.textPrimary,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        Text(
+                            text = "Settings & privacy",
+                            fontSize = 20.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
+                            color = if (colors.isLight) colors.headerText else colors.textPrimary
                         )
                     }
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Text(
-                        text = "Settings & privacy",
-                        fontSize = 20.sp,
-                        fontFamily = InterFontFamily,
-                        fontWeight = FontWeight.SemiBold,
-                        color = WebTextPrimary
-                    )
+                    if (colors.isLight) {
+                        HorizontalDivider(color = colors.headerDivider, thickness = 1.dp)
+                    }
                 }
             }
 
             // Flat Profile Header Row (Facebook Style)
             item(key = "profile_header") {
+                Column(modifier = Modifier.fillMaxWidth().background(colors.bgCard)) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -326,8 +347,9 @@ fun SettingsScreen(
                         modifier = Modifier.size(22.dp)
                     )
                 }
+                }
 
-                HorizontalDivider(color = WebBorderDark.copy(alpha = 0.6f), thickness = 8.dp)
+                HorizontalDivider(color = colors.sectionDivider, thickness = 8.dp)
             }
 
             // Section 1: Account Center (Flat Facebook style)
@@ -335,6 +357,7 @@ fun SettingsScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .background(colors.bgCard)
                         .padding(horizontal = 16.dp, vertical = 14.dp)
                 ) {
                     Text(
@@ -368,17 +391,19 @@ fun SettingsScreen(
                     }
                 )
                 if (index < ACCOUNT_CENTER_SECTIONS.size - 1) {
-                    HorizontalDivider(
-                        color = WebBorderDark.copy(alpha = 0.5f),
-                        thickness = 1.dp,
-                        modifier = Modifier.padding(start = 72.dp)
-                    )
+                    Box(modifier = Modifier.fillMaxWidth().background(colors.bgCard)) {
+                        HorizontalDivider(
+                            color = WebBorderDark.copy(alpha = 0.6f),
+                            thickness = 1.dp,
+                            modifier = Modifier.padding(start = 72.dp)
+                        )
+                    }
                 }
             }
 
             item(key = "divider_account") {
-                Spacer(modifier = Modifier.height(8.dp))
-                HorizontalDivider(color = WebBorderDark.copy(alpha = 0.6f), thickness = 8.dp)
+                Box(modifier = Modifier.fillMaxWidth().background(colors.bgCard).height(8.dp))
+                HorizontalDivider(color = colors.sectionDivider, thickness = 8.dp)
             }
 
             // Section 2: Profile Details (Flat Facebook style)
@@ -386,6 +411,7 @@ fun SettingsScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .background(colors.bgCard)
                         .padding(horizontal = 16.dp, vertical = 14.dp)
                 ) {
                     Text(
@@ -407,6 +433,7 @@ fun SettingsScreen(
             }
 
             item(key = "quick_edit_profile") {
+                Column(modifier = Modifier.fillMaxWidth().background(colors.bgCard)) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -458,10 +485,11 @@ fun SettingsScreen(
                     )
                 }
                 HorizontalDivider(
-                    color = WebBorderDark.copy(alpha = 0.5f),
+                    color = WebBorderDark.copy(alpha = 0.6f),
                     thickness = 1.dp,
                     modifier = Modifier.padding(start = 72.dp)
                 )
+                }
             }
 
             items(PROFILE_DETAILS_SECTIONS.size) { index ->
@@ -471,17 +499,149 @@ fun SettingsScreen(
                     onClick = { showEditProfileModal = true }
                 )
                 if (index < PROFILE_DETAILS_SECTIONS.size - 1) {
-                    HorizontalDivider(
-                        color = WebBorderDark.copy(alpha = 0.5f),
-                        thickness = 1.dp,
-                        modifier = Modifier.padding(start = 72.dp)
-                    )
+                    Box(modifier = Modifier.fillMaxWidth().background(colors.bgCard)) {
+                        HorizontalDivider(
+                            color = WebBorderDark.copy(alpha = 0.6f),
+                            thickness = 1.dp,
+                            modifier = Modifier.padding(start = 72.dp)
+                        )
+                    }
                 }
             }
 
             item(key = "divider_profile") {
-                Spacer(modifier = Modifier.height(8.dp))
-                HorizontalDivider(color = WebBorderDark.copy(alpha = 0.6f), thickness = 8.dp)
+                Box(modifier = Modifier.fillMaxWidth().background(colors.bgCard).height(8.dp))
+                HorizontalDivider(color = colors.sectionDivider, thickness = 8.dp)
+            }
+
+            // Middle of Settings & Privacy: Appearance / Light Mode Toggle Card
+            item(key = "appearance_light_mode_section") {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(colors.bgCard)
+                        .padding(horizontal = 16.dp, vertical = 16.dp)
+                ) {
+                    Text(
+                        text = "Appearance",
+                        fontSize = 17.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
+                        color = colors.textPrimary
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = "Personalize your theme across Feathered",
+                        fontSize = 13.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
+                        color = colors.textSecondary
+                    )
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    Surface(
+                        onClick = { onToggleLightMode(!isLightMode) },
+                        shape = RoundedCornerShape(16.dp),
+                        color = if (isLightMode) colors.bgBlueTint else colors.bgCardElevated,
+                        border = BorderStroke(
+                            width = 1.5.dp,
+                            color = if (isLightMode) colors.primaryBlue.copy(alpha = 0.45f) else colors.borderStrong.copy(alpha = 0.6f)
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("settings_light_mode_card")
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 14.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .clip(CircleShape)
+                                    .background(
+                                        if (isLightMode) colors.primaryBlue
+                                        else colors.primaryBlue.copy(alpha = 0.18f)
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = if (isLightMode) Icons.Default.LightMode else Icons.Default.DarkMode,
+                                    contentDescription = if (isLightMode) "Light Mode Enabled" else "Dark Mode Enabled",
+                                    tint = if (isLightMode) Color.White else colors.primaryBlue,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.width(14.dp))
+
+                            Column(modifier = Modifier.weight(1f)) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Text(
+                                        text = "Light Mode",
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = 16.sp,
+                                        color = colors.textPrimary
+                                    )
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(6.dp))
+                                            .background(
+                                                if (isLightMode) colors.primaryBlue
+                                                else colors.border
+                                            )
+                                            .padding(horizontal = 7.dp, vertical = 2.dp)
+                                    ) {
+                                        Text(
+                                            text = if (isLightMode) "ON" else "OFF",
+                                            fontSize = 10.sp,
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.Bold,
+                                            color = if (isLightMode) Color.White else colors.textSecondary
+                                        )
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(3.dp))
+                                Text(
+                                    text = if (isLightMode) {
+                                        "Crisp white & blue theme active"
+                                    } else {
+                                        "Switch to white surfaces, blue header & black text"
+                                    },
+                                    fontSize = 13.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
+                                    color = colors.textSecondary,
+                                    lineHeight = 17.sp
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            Switch(
+                                checked = isLightMode,
+                                onCheckedChange = onToggleLightMode,
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = Color.White,
+                                    checkedTrackColor = colors.primaryBlue,
+                                    checkedBorderColor = colors.primaryBlue,
+                                    uncheckedThumbColor = colors.textSecondary,
+                                    uncheckedTrackColor = colors.bgInput,
+                                    uncheckedBorderColor = colors.borderStrong
+                                ),
+                                modifier = Modifier.testTag("settings_light_mode_switch")
+                            )
+                        }
+                    }
+                }
+                HorizontalDivider(color = colors.sectionDivider, thickness = 8.dp)
             }
 
             // Section 3: More Settings (Flat Facebook style)
@@ -489,6 +649,7 @@ fun SettingsScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .background(colors.bgCard)
                         .padding(horizontal = 16.dp, vertical = 14.dp)
                 ) {
                     Text(
@@ -525,17 +686,19 @@ fun SettingsScreen(
                     }
                 )
                 if (index < OTHER_SECTIONS.size - 1) {
-                    HorizontalDivider(
-                        color = WebBorderDark.copy(alpha = 0.5f),
-                        thickness = 1.dp,
-                        modifier = Modifier.padding(start = 72.dp)
-                    )
+                    Box(modifier = Modifier.fillMaxWidth().background(colors.bgCard)) {
+                        HorizontalDivider(
+                            color = WebBorderDark.copy(alpha = 0.6f),
+                            thickness = 1.dp,
+                            modifier = Modifier.padding(start = 72.dp)
+                        )
+                    }
                 }
             }
 
             item(key = "divider_more") {
-                Spacer(modifier = Modifier.height(8.dp))
-                HorizontalDivider(color = WebBorderDark.copy(alpha = 0.6f), thickness = 8.dp)
+                Box(modifier = Modifier.fillMaxWidth().background(colors.bgCard).height(8.dp))
+                HorizontalDivider(color = colors.sectionDivider, thickness = 8.dp)
             }
 
             // Footer & Logout (Flat Facebook style)
@@ -550,8 +713,8 @@ fun SettingsScreen(
                         onClick = onLogout,
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF7F1D1D).copy(alpha = 0.30f),
-                            contentColor = Color(0xFFF87171)
+                            containerColor = colors.dangerBg,
+                            contentColor = colors.dangerText
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -561,7 +724,7 @@ fun SettingsScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.Logout,
                             contentDescription = "Log Out",
-                            tint = Color(0xFFF87171),
+                            tint = colors.dangerText,
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
@@ -569,7 +732,8 @@ fun SettingsScreen(
                             text = "Log Out",
                             fontSize = 15.sp,
                             fontFamily = InterFontFamily,
-                            fontWeight = FontWeight.Medium
+                            fontWeight = FontWeight.SemiBold,
+                            color = colors.dangerText
                         )
                     }
 
@@ -668,6 +832,7 @@ private fun SettingsItemRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .background(AppColors.bgCard)
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 14.dp)
             .testTag("settings_row_${item.id}"),
@@ -697,7 +862,7 @@ private fun SettingsItemRow(
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 16.sp,
-                color = if (item.isDestructive) Color(0xFFF87171) else WebTextPrimary
+                color = if (item.isDestructive) AppColors.dangerText else WebTextPrimary
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
@@ -820,7 +985,7 @@ fun ChangePasswordModalDialog(
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
                                     text = error,
-                                    color = Color(0xFFFCA5A5),
+                                    color = if (AppColors.isLight) Color(0xFFB91C1C) else Color(0xFFFCA5A5),
                                     fontSize = 13.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal
@@ -848,7 +1013,7 @@ fun ChangePasswordModalDialog(
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
                                     text = success,
-                                    color = Color(0xFF6EE7B7),
+                                    color = if (AppColors.isLight) Color(0xFF065F46) else Color(0xFF6EE7B7),
                                     fontSize = 13.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal
@@ -871,7 +1036,7 @@ fun ChangePasswordModalDialog(
                                 onValueChange = { currentPassword = it },
                                 textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
                                 placeholder = {
-                                    Text("Enter current password", color = Color(0xFF64748B), fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
+                                    Text("Enter current password", color = AppColors.textMuted, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                                 },
                                 visualTransformation = if (showCurrent) VisualTransformation.None else PasswordVisualTransformation(),
                                 trailingIcon = {
@@ -913,7 +1078,7 @@ fun ChangePasswordModalDialog(
                                 onValueChange = { newPassword = it },
                                 textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
                                 placeholder = {
-                                    Text("Enter new password", color = Color(0xFF64748B), fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
+                                    Text("Enter new password", color = AppColors.textMuted, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                                 },
                                 visualTransformation = if (showNew) VisualTransformation.None else PasswordVisualTransformation(),
                                 trailingIcon = {
@@ -963,7 +1128,7 @@ fun ChangePasswordModalDialog(
                                 onValueChange = { confirmPassword = it },
                                 textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
                                 placeholder = {
-                                    Text("Re-enter new password", color = Color(0xFF64748B), fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
+                                    Text("Re-enter new password", color = AppColors.textMuted, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                                 },
                                 visualTransformation = if (showConfirm) VisualTransformation.None else PasswordVisualTransformation(),
                                 trailingIcon = {
@@ -1233,7 +1398,7 @@ fun DeleteAccountModalDialog(
                                     onValueChange = { confirmText = it },
                                     textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
                                     placeholder = {
-                                        Text("Type DELETE here", color = Color(0xFF64748B), fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
+                                        Text("Type DELETE here", color = AppColors.textMuted, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                                     },
                                     shape = RoundedCornerShape(8.dp),
                                     colors = OutlinedTextFieldDefaults.colors(
@@ -1292,7 +1457,7 @@ fun DeleteAccountModalDialog(
                                     onValueChange = { password = it },
                                     textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
                                     placeholder = {
-                                        Text("Enter your password", color = Color(0xFF64748B), fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
+                                        Text("Enter your password", color = AppColors.textMuted, fontSize = 14.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal)
                                     },
                                     visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                                     trailingIcon = {
@@ -1340,7 +1505,7 @@ fun DeleteAccountModalDialog(
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
                                     text = error,
-                                    color = Color(0xFFFCA5A5),
+                                    color = if (AppColors.isLight) Color(0xFFB91C1C) else Color(0xFFFCA5A5),
                                     fontSize = 13.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal
@@ -1542,7 +1707,7 @@ fun EditProfileDetailsModalDialog(
                                         text = error,
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Normal,
-                                        color = Color(0xFFFCA5A5),
+                                        color = if (AppColors.isLight) Color(0xFFB91C1C) else Color(0xFFFCA5A5),
                                         fontSize = 13.sp
                                     )
                                 }
@@ -1574,7 +1739,7 @@ fun EditProfileDetailsModalDialog(
                                     onValueChange = { name = it },
                                     textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
                                     placeholder = {
-                                        Text("Your full name", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF64748B), fontSize = 14.sp)
+                                        Text("Your full name", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = AppColors.textMuted, fontSize = 14.sp)
                                     },
                                     singleLine = true,
                                     shape = RoundedCornerShape(8.dp),
@@ -1618,7 +1783,7 @@ fun EditProfileDetailsModalDialog(
                                     onValueChange = { if (it.length <= 500) bio = it },
                                     textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
                                     placeholder = {
-                                        Text("Tell people about yourself...", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF64748B), fontSize = 14.sp)
+                                        Text("Tell people about yourself...", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = AppColors.textMuted, fontSize = 14.sp)
                                     },
                                     minLines = 3,
                                     maxLines = 4,
@@ -1862,7 +2027,7 @@ private fun WebEditField(
             onValueChange = onValueChange,
             textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
             placeholder = {
-                Text(placeholder, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color(0xFF64748B), fontSize = 14.sp)
+                Text(placeholder, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = AppColors.textMuted, fontSize = 14.sp)
             },
             singleLine = true,
             shape = RoundedCornerShape(8.dp),
@@ -1943,7 +2108,7 @@ fun EmailAddressModalDialog(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(WebGreen.copy(alpha = 0.15f))
+                                .background(WebGreen.copy(alpha = 0.14f))
                                 .border(1.dp, WebGreen.copy(alpha = 0.35f), RoundedCornerShape(8.dp))
                                 .padding(14.dp)
                         ) {
@@ -1954,7 +2119,7 @@ fun EmailAddressModalDialog(
                                     text = "Your primary email is verified and protected.",
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
-                                    color = Color(0xFFA7F3D0),
+                                    color = if (AppColors.isLight) Color(0xFF065F46) else Color(0xFFA7F3D0),
                                     fontSize = 13.sp
                                 )
                             }

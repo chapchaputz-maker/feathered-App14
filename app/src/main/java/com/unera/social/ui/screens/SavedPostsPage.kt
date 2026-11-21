@@ -38,20 +38,17 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.unera.social.model.*
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-// Styling constants matching web theme
-private val PageBg = Color(0xFF0B1120)
-private val CardBg = Color(0xFF0F172A)
-private val BorderDark = Color(0xFF1E293B)
-private val BorderAccent = Color(0xFF38BDF8).copy(alpha = 0.4f)
-private val AccentGold = Color(0xFFF59E0B)
-private val TextWhite = Color(0xFFF8FAFC)
-private val TextGray = Color(0xFF94A3B8)
-private val TabActive = Color(0xFF38BDF8)
-private val PrimaryBlue = Color(0xFF1877F2)
+@Composable
+private fun savedAccentGold(): Color = if (AppColors.isLight) Color(0xFFD97706) else Color(0xFFF59E0B)
+
+@Composable
+private fun savedTabActive(): Color = if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8)
+
 private val LikeRed = Color(0xFFEF4444)
 
 /**
@@ -143,126 +140,143 @@ fun SavedPostsPage(
         onSaveReel?.invoke(itemId)
     }
 
+    val accentGold = savedAccentGold()
+    val tabActive = savedTabActive()
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(PageBg)
+            .background(AppColors.bgScreen)
             .testTag("saved_posts_page")
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .widthIn(max = 700.dp)
-                .align(Alignment.TopCenter)
-        ) {
-            // Flat Top Header & Controls (matches web layout)
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 14.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+        Column(modifier = Modifier.fillMaxSize()) {
+            Surface(
+                color = AppColors.headerBg,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    if (onBack != null) {
-                        IconButton(
-                            onClick = onBack,
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFF1E293B).copy(alpha = 0.6f))
-                                .testTag("saved_posts_back_btn")
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier
+                            .widthIn(max = 700.dp)
+                            .align(Alignment.CenterHorizontally)
+                            .fillMaxWidth()
+                            .padding(horizontal = 14.dp, vertical = 14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back",
-                                tint = TextWhite,
-                                modifier = Modifier.size(20.dp)
-                            )
+                            if (onBack != null) {
+                                IconButton(
+                                    onClick = onBack,
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clip(CircleShape)
+                                        .background(AppColors.headerIconBg)
+                                        .testTag("saved_posts_back_btn")
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                        contentDescription = "Back",
+                                        tint = AppColors.headerIconTint,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            }
+
+                            Box(
+                                modifier = Modifier
+                                    .size(38.dp)
+                                    .clip(CircleShape)
+                                    .background(if (AppColors.isLight) AppColors.headerIconBg else accentGold.copy(alpha = 0.15f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Bookmark,
+                                    contentDescription = null,
+                                    tint = if (AppColors.isLight) Color.White else accentGold,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+
+                            Column {
+                                Text(
+                                    text = "Saved Posts",
+                                    fontSize = 20.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = AppColors.headerText,
+                                    lineHeight = 22.sp
+                                )
+                                Text(
+                                    text = "${allSavedItems.size} saved item${if (allSavedItems.size == 1) "" else "s"} • Stored locally",
+                                    fontSize = 12.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
+                                    color = AppColors.headerSubtext
+                                )
+                            }
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(if (AppColors.isLight) Color.White.copy(alpha = 0.18f) else AppColors.bgCard)
+                                .border(
+                                    1.dp,
+                                    if (AppColors.isLight) Color.White.copy(alpha = 0.3f) else AppColors.border,
+                                    RoundedCornerShape(12.dp)
+                                )
+                                .padding(3.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            IconButton(
+                                onClick = { viewMode = "feed" },
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(if (viewMode == "feed") (if (AppColors.isLight) Color.White else AppColors.bgChip) else Color.Transparent)
+                                    .testTag("saved_posts_feed_view_btn")
+                            ) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ViewList,
+                                    contentDescription = "Feed view",
+                                    tint = if (viewMode == "feed") tabActive else if (AppColors.isLight) Color.White else AppColors.textSecondary,
+                                    modifier = Modifier.size(17.dp)
+                                )
+                            }
+
+                            IconButton(
+                                onClick = { viewMode = "grid" },
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(if (viewMode == "grid") (if (AppColors.isLight) Color.White else AppColors.bgChip) else Color.Transparent)
+                                    .testTag("saved_posts_grid_view_btn")
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.GridView,
+                                    contentDescription = "Grid view",
+                                    tint = if (viewMode == "grid") tabActive else if (AppColors.isLight) Color.White else AppColors.textSecondary,
+                                    modifier = Modifier.size(17.dp)
+                                )
+                            }
                         }
                     }
-
-                    // Bookmark icon badge
-                    Box(
-                        modifier = Modifier
-                            .size(38.dp)
-                            .clip(CircleShape)
-                            .background(AccentGold.copy(alpha = 0.15f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Bookmark,
-                            contentDescription = null,
-                            tint = AccentGold,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-
-                    Column {
-                        Text(
-                            text = "Saved Posts",
-                            fontSize = 20.sp,
-                            fontFamily = InterFontFamily,
-                            fontWeight = FontWeight.SemiBold,
-                            color = TextWhite,
-                            lineHeight = 22.sp
-                        )
-                        Text(
-                            text = "${allSavedItems.size} saved item${if (allSavedItems.size == 1) "" else "s"} • Stored locally",
-                            fontSize = 12.sp,
-                            fontFamily = InterFontFamily,
-                            fontWeight = FontWeight.Normal,
-                            color = TextGray
-                        )
-                    }
-                }
-
-                // Grid / List Toggle Pill
-                Row(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF0F172A))
-                        .border(1.dp, BorderDark, RoundedCornerShape(12.dp))
-                        .padding(3.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    IconButton(
-                        onClick = { viewMode = "feed" },
-                        modifier = Modifier
-                            .size(32.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(if (viewMode == "feed") Color(0xFF1E293B) else Color.Transparent)
-                            .testTag("saved_posts_feed_view_btn")
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ViewList,
-                            contentDescription = "Feed view",
-                            tint = if (viewMode == "feed") TabActive else TextGray,
-                            modifier = Modifier.size(17.dp)
-                        )
-                    }
-
-                    IconButton(
-                        onClick = { viewMode = "grid" },
-                        modifier = Modifier
-                            .size(32.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(if (viewMode == "grid") Color(0xFF1E293B) else Color.Transparent)
-                            .testTag("saved_posts_grid_view_btn")
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.GridView,
-                            contentDescription = "Grid view",
-                            tint = if (viewMode == "grid") TabActive else TextGray,
-                            modifier = Modifier.size(17.dp)
-                        )
-                    }
+                    HorizontalDivider(color = AppColors.headerDivider)
                 }
             }
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .widthIn(max = 700.dp)
+                    .align(Alignment.CenterHorizontally)
+                    .fillMaxWidth()
+            ) {
 
             // Main Content Area
             if (allSavedItems.isEmpty()) {
@@ -275,8 +289,8 @@ fun SavedPostsPage(
                 ) {
                     Card(
                         shape = RoundedCornerShape(20.dp),
-                        colors = CardDefaults.cardColors(containerColor = PageBg),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, BorderDark),
+                        colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(
@@ -289,14 +303,14 @@ fun SavedPostsPage(
                                 modifier = Modifier
                                     .size(64.dp)
                                     .clip(RoundedCornerShape(16.dp))
-                                    .background(Color(0xFF0F172A))
-                                    .border(1.dp, BorderDark, RoundedCornerShape(16.dp)),
+                                    .background(AppColors.bgInput)
+                                    .border(1.dp, AppColors.border, RoundedCornerShape(16.dp)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Bookmark,
                                     contentDescription = null,
-                                    tint = AccentGold,
+                                    tint = accentGold,
                                     modifier = Modifier.size(28.dp)
                                 )
                             }
@@ -308,7 +322,7 @@ fun SavedPostsPage(
                                 fontSize = 18.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.SemiBold,
-                                color = TextWhite
+                                color = AppColors.textPrimary
                             )
 
                             Spacer(modifier = Modifier.height(8.dp))
@@ -318,7 +332,7 @@ fun SavedPostsPage(
                                 fontSize = 13.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
-                                color = TextGray,
+                                color = AppColors.textSecondary,
                                 textAlign = TextAlign.Center,
                                 lineHeight = 20.sp,
                                 modifier = Modifier.padding(horizontal = 8.dp)
@@ -330,7 +344,7 @@ fun SavedPostsPage(
                                 Button(
                                     onClick = onBack,
                                     colors = ButtonDefaults.buttonColors(
-                                        containerColor = PrimaryBlue,
+                                        containerColor = AppColors.primaryBlue,
                                         contentColor = Color.White
                                     ),
                                     shape = RoundedCornerShape(12.dp),
@@ -449,8 +463,8 @@ fun SavedPostsPage(
                             )
 
                             HorizontalDivider(
-                                thickness = 1.dp,
-                                color = BorderDark
+                                thickness = if (AppColors.isLight) 6.dp else 1.dp,
+                                color = AppColors.sectionDivider
                             )
                         }
 
@@ -465,6 +479,7 @@ fun SavedPostsPage(
                     }
                 }
             }
+        }
         }
 
         // ==========================================
@@ -598,7 +613,7 @@ fun SavedPostsPage(
                                     text = "@${videoItem.author.username}",
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Normal,
-                                    color = TextGray,
+                                    color = Color(0xFFCBD5E1),
                                     fontSize = 12.sp
                                 )
                             }
@@ -707,7 +722,7 @@ fun SavedPostsPage(
                                 onClick = { handleRemove(videoItem.id) },
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = Color(0xFF1E293B),
-                                    contentColor = AccentGold
+                                    contentColor = Color(0xFFF59E0B)
                                 ),
                                 shape = RoundedCornerShape(10.dp),
                                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
@@ -715,7 +730,7 @@ fun SavedPostsPage(
                                 Icon(
                                     imageVector = Icons.Default.Bookmark,
                                     contentDescription = null,
-                                    tint = AccentGold,
+                                    tint = Color(0xFFF59E0B),
                                     modifier = Modifier.size(16.dp)
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
@@ -740,8 +755,8 @@ fun SavedPostsPage(
             ) {
                 Card(
                     shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = CardBg),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, BorderDark),
+                    colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(max = 520.dp)
@@ -751,7 +766,6 @@ fun SavedPostsPage(
                             .fillMaxSize()
                             .padding(18.dp)
                     ) {
-                        // Title row
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -762,7 +776,7 @@ fun SavedPostsPage(
                                 fontSize = 17.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.SemiBold,
-                                color = TextWhite
+                                color = AppColors.textPrimary
                             )
 
                             IconButton(
@@ -772,7 +786,7 @@ fun SavedPostsPage(
                                 Icon(
                                     imageVector = Icons.Default.Close,
                                     contentDescription = "Close",
-                                    tint = TextGray,
+                                    tint = AppColors.textSecondary,
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
@@ -780,10 +794,9 @@ fun SavedPostsPage(
 
                         HorizontalDivider(
                             modifier = Modifier.padding(vertical = 12.dp),
-                            color = BorderDark
+                            color = AppColors.border
                         )
 
-                        // Comments scrollable list
                         LazyColumn(
                             modifier = Modifier
                                 .weight(1f)
@@ -800,7 +813,7 @@ fun SavedPostsPage(
                                     ) {
                                         Text(
                                             text = "No comments yet. Start the conversation!",
-                                            color = TextGray,
+                                            color = AppColors.textSecondary,
                                             fontSize = 13.sp,
                                             fontFamily = InterFontFamily,
                                             fontWeight = FontWeight.Normal,
@@ -827,7 +840,7 @@ fun SavedPostsPage(
                                             modifier = Modifier
                                                 .weight(1f)
                                                 .clip(RoundedCornerShape(12.dp))
-                                                .background(Color(0xFF162137).copy(alpha = 0.5f))
+                                                .background(AppColors.bgInput)
                                                 .padding(10.dp)
                                         ) {
                                             Row(
@@ -839,14 +852,14 @@ fun SavedPostsPage(
                                                     fontFamily = InterFontFamily,
                                                     fontWeight = FontWeight.Bold,
                                                     fontSize = 13.sp,
-                                                    color = TextWhite
+                                                    color = AppColors.textPrimary
                                                 )
                                                 Text(
                                                     text = comment.timestamp,
                                                     fontSize = 11.sp,
                                                     fontFamily = InterFontFamily,
                                                     fontWeight = FontWeight.Normal,
-                                                    color = TextGray
+                                                    color = AppColors.textSecondary
                                                 )
                                             }
                                             Spacer(modifier = Modifier.height(3.dp))
@@ -855,7 +868,7 @@ fun SavedPostsPage(
                                                 fontSize = 13.sp,
                                                 fontFamily = InterFontFamily,
                                                 fontWeight = FontWeight.Normal,
-                                                color = TextWhite
+                                                color = AppColors.textBody
                                             )
                                         }
                                     }
@@ -865,7 +878,6 @@ fun SavedPostsPage(
 
                         Spacer(modifier = Modifier.height(10.dp))
 
-                        // Input field
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,
@@ -875,16 +887,16 @@ fun SavedPostsPage(
                                 value = newCommentText,
                                 onValueChange = { newCommentText = it },
                                 textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
-                                placeholder = { Text("Write a comment...", color = TextGray, fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
+                                placeholder = { Text("Write a comment...", color = AppColors.textMuted, fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal) },
                                 singleLine = true,
                                 shape = RoundedCornerShape(14.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = TabActive,
-                                    unfocusedBorderColor = BorderDark,
-                                    focusedTextColor = TextWhite,
-                                    unfocusedTextColor = TextWhite,
-                                    focusedContainerColor = Color(0xFF0B1120),
-                                    unfocusedContainerColor = Color(0xFF0B1120)
+                                    focusedBorderColor = AppColors.primaryBlue,
+                                    unfocusedBorderColor = AppColors.border,
+                                    focusedTextColor = AppColors.textPrimary,
+                                    unfocusedTextColor = AppColors.textPrimary,
+                                    focusedContainerColor = AppColors.bgInput,
+                                    unfocusedContainerColor = AppColors.bgInput
                                 ),
                                 modifier = Modifier.weight(1f)
                             )
@@ -901,7 +913,7 @@ fun SavedPostsPage(
                                 modifier = Modifier
                                     .size(44.dp)
                                     .clip(CircleShape)
-                                    .background(PrimaryBlue)
+                                    .background(AppColors.primaryBlue)
                             ) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.Send,
@@ -931,10 +943,17 @@ private fun SavedGridItemCard(
     onAuthorClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val media = item.mediaUrl ?: item.reel?.thumbnailUrl
+    val hasMedia = !media.isNullOrBlank()
+    val accentGold = savedAccentGold()
+    val tabActive = savedTabActive()
+
     Card(
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF050B18)),
-        border = androidx.compose.foundation.BorderStroke(1.dp, BorderDark),
+        colors = CardDefaults.cardColors(
+            containerColor = if (hasMedia) Color(0xFF050B18) else AppColors.bgCard
+        ),
+        border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
         modifier = modifier
             .fillMaxWidth()
             .aspectRatio(0.8f)
@@ -942,9 +961,7 @@ private fun SavedGridItemCard(
             .testTag("saved_grid_item_${item.id}")
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            val media = item.mediaUrl ?: item.reel?.thumbnailUrl
-
-            if (!media.isNullOrBlank()) {
+            if (hasMedia) {
                 AsyncImage(
                     model = media,
                     contentDescription = null,
@@ -990,12 +1007,12 @@ private fun SavedGridItemCard(
                         Icon(
                             imageVector = Icons.Default.Videocam,
                             contentDescription = null,
-                            tint = TabActive,
+                            tint = tabActive,
                             modifier = Modifier.size(12.dp)
                         )
                         Text(
                             text = "Video",
-                            color = TabActive,
+                            color = tabActive,
                             fontSize = 11.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold
@@ -1016,7 +1033,7 @@ private fun SavedGridItemCard(
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal,
                         fontStyle = FontStyle.Italic,
-                        color = TextGray,
+                        color = AppColors.textPrimary,
                         textAlign = TextAlign.Center,
                         maxLines = 5,
                         overflow = TextOverflow.Ellipsis
@@ -1058,7 +1075,7 @@ private fun SavedGridItemCard(
                     Icon(
                         imageVector = Icons.Default.Bookmark,
                         contentDescription = "Remove from saved",
-                        tint = AccentGold,
+                        tint = accentGold,
                         modifier = Modifier.size(16.dp)
                     )
                 }
@@ -1131,10 +1148,13 @@ private fun SavedFeedItemCard(
 ) {
     var isLikedState by remember { mutableStateOf(item.isLiked) }
     var likesCountState by remember { mutableIntStateOf(item.likesCount) }
+    val accentGold = savedAccentGold()
+    val tabActive = savedTabActive()
 
     Column(
         modifier = modifier
             .fillMaxWidth()
+            .background(AppColors.bgCard)
             .padding(vertical = 12.dp)
             .testTag("saved_feed_item_${item.id}")
     ) {
@@ -1160,7 +1180,7 @@ private fun SavedFeedItemCard(
                     modifier = Modifier
                         .size(42.dp)
                         .clip(CircleShape)
-                        .border(1.dp, BorderDark, CircleShape)
+                        .border(1.dp, AppColors.border, CircleShape)
                 )
 
                 Column {
@@ -1170,7 +1190,7 @@ private fun SavedFeedItemCard(
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp,
-                            color = TextWhite
+                            color = AppColors.textPrimary
                         )
                         if (item.author.isVerified) {
                             Spacer(modifier = Modifier.width(4.dp))
@@ -1182,7 +1202,7 @@ private fun SavedFeedItemCard(
                         fontSize = 12.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal,
-                        color = TextGray
+                        color = AppColors.textSecondary
                     )
                 }
             }
@@ -1193,13 +1213,13 @@ private fun SavedFeedItemCard(
                 modifier = Modifier
                     .size(36.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF1E293B).copy(alpha = 0.5f))
+                    .background(AppColors.bgInput)
                     .testTag("saved_feed_remove_${item.id}")
             ) {
                 Icon(
                     imageVector = Icons.Default.Bookmark,
                     contentDescription = "Remove from saved",
-                    tint = AccentGold,
+                    tint = accentGold,
                     modifier = Modifier.size(18.dp)
                 )
             }
@@ -1214,7 +1234,7 @@ private fun SavedFeedItemCard(
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.Normal,
                 lineHeight = 20.sp,
-                color = TextWhite,
+                color = AppColors.textPrimary,
                 modifier = Modifier.padding(horizontal = 14.dp)
             )
         }
@@ -1279,12 +1299,12 @@ private fun SavedFeedItemCard(
                         Icon(
                             imageVector = Icons.Default.Videocam,
                             contentDescription = null,
-                            tint = TabActive,
+                            tint = tabActive,
                             modifier = Modifier.size(14.dp)
                         )
                         Text(
                             text = "Video",
-                            color = TabActive,
+                            color = tabActive,
                             fontSize = 11.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold
@@ -1320,7 +1340,7 @@ private fun SavedFeedItemCard(
                     Icon(
                         imageVector = if (isLikedState) Icons.Default.Favorite else Icons.Outlined.FavoriteBorder,
                         contentDescription = "Like",
-                        tint = if (isLikedState) LikeRed else TextGray,
+                        tint = if (isLikedState) LikeRed else AppColors.textSecondary,
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
@@ -1329,7 +1349,7 @@ private fun SavedFeedItemCard(
                         fontSize = 13.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Medium,
-                        color = if (isLikedState) LikeRed else TextGray
+                        color = if (isLikedState) LikeRed else AppColors.textSecondary
                     )
                 }
 
@@ -1341,7 +1361,7 @@ private fun SavedFeedItemCard(
                     Icon(
                         imageVector = Icons.Outlined.ChatBubbleOutline,
                         contentDescription = "Comment",
-                        tint = TextGray,
+                        tint = AppColors.textSecondary,
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
@@ -1350,7 +1370,7 @@ private fun SavedFeedItemCard(
                         fontSize = 13.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Medium,
-                        color = TextGray
+                        color = AppColors.textSecondary
                     )
                 }
 
@@ -1362,7 +1382,7 @@ private fun SavedFeedItemCard(
                     Icon(
                         imageVector = Icons.Outlined.Share,
                         contentDescription = "Share",
-                        tint = TextGray,
+                        tint = AppColors.textSecondary,
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
@@ -1371,7 +1391,7 @@ private fun SavedFeedItemCard(
                         fontSize = 13.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Medium,
-                        color = TextGray
+                        color = AppColors.textSecondary
                     )
                 }
             }
@@ -1382,13 +1402,13 @@ private fun SavedFeedItemCard(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
-                    .background(AccentGold.copy(alpha = 0.12f))
+                    .background(accentGold.copy(alpha = 0.12f))
                     .padding(horizontal = 8.dp, vertical = 4.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.Bookmark,
                     contentDescription = null,
-                    tint = AccentGold,
+                    tint = accentGold,
                     modifier = Modifier.size(14.dp)
                 )
                 Text(
@@ -1396,7 +1416,7 @@ private fun SavedFeedItemCard(
                     fontSize = 12.sp,
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.SemiBold,
-                    color = AccentGold
+                    color = accentGold
                 )
             }
         }
@@ -1423,10 +1443,10 @@ private fun SeeMoreButton(
             onClick = onClick,
             enabled = !isLoading,
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF1E293B),
-                contentColor = TextWhite
+                containerColor = AppColors.bgCardElevated,
+                contentColor = AppColors.textPrimary
             ),
-            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF334155)),
+            border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.borderStrong),
             shape = RoundedCornerShape(12.dp),
             contentPadding = PaddingValues(horizontal = 22.dp, vertical = 10.dp),
             modifier = Modifier.testTag("saved_posts_see_more_btn")
@@ -1435,7 +1455,7 @@ private fun SeeMoreButton(
                 CircularProgressIndicator(
                     modifier = Modifier.size(16.dp),
                     strokeWidth = 2.dp,
-                    color = Color.White
+                    color = AppColors.primaryBlue
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
@@ -1443,7 +1463,7 @@ private fun SeeMoreButton(
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Medium,
                     fontSize = 13.sp,
-                    color = TextWhite
+                    color = AppColors.textPrimary
                 )
             } else {
                 Text(
@@ -1451,14 +1471,14 @@ private fun SeeMoreButton(
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Medium,
                     fontSize = 13.sp,
-                    color = TextWhite
+                    color = AppColors.textPrimary
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowDown,
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
-                    tint = TextWhite
+                    tint = AppColors.textPrimary
                 )
             }
         }

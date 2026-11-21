@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.SubcomposeAsyncImage
+import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 
 /**
@@ -60,7 +61,7 @@ fun Spinner(
             modifier = Modifier.size(size),
             color = color,
             strokeWidth = strokeWidth,
-            trackColor = Color(0xFF1E293B).copy(alpha = 0.3f)
+            trackColor = AppColors.border.copy(alpha = 0.4f)
         )
     }
 }
@@ -167,7 +168,7 @@ fun ProfessionalLoader(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFF050B18))
+            .background(AppColors.bgScreen)
             .testTag("professional_loader"),
         contentAlignment = Alignment.Center
     ) {
@@ -257,7 +258,7 @@ fun ProfessionalLoader(
                     .width(trackWidth)
                     .height(4.dp)
                     .clip(RoundedCornerShape(2.dp))
-                    .background(Color(0xFF0F172A))
+                    .background(AppColors.bgCard)
             ) {
                 // Background progress fill with pulse
                 Box(
@@ -294,7 +295,7 @@ fun ProfessionalLoader(
             // Subtitle / Tagline
             Text(
                 text = tagline.uppercase(),
-                color = Color(0xFF94A3B8).copy(alpha = taglineAlpha),
+                color = AppColors.textSecondary.copy(alpha = taglineAlpha),
                 fontSize = 12.sp,
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.SemiBold,
