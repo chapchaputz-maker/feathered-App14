@@ -104,6 +104,18 @@ object MediaUploadHelper {
         val height: Int
     )
 
+    data class BackgroundImageUploadBundle(
+        val feedUrl: String,
+        val thumbnailUrl: String,
+        val width: Int,
+        val height: Int,
+        val isAnimated: Boolean,
+        val dominantColor: String,
+        val recommendedTextColor: String,
+        val recommendedOverlayColor: String,
+        val recommendedOverlayOpacity: Float
+    )
+
     data class VideoUploadResult(
         val originalUrl: String,
         val url1080: String,
@@ -587,7 +599,9 @@ object MediaUploadHelper {
         fileBytes: ByteArray,
         fileName: String,
         mimeType: String,
-        folder: String = "posts"
+        folder: String = "posts",
+        authToken: String? = null,
+        userId: Long = 0L
     ): JSONObject? = withContext(Dispatchers.IO) {
         try {
             val boundary = "==FeatheredSingle-${UUID.randomUUID()}=="
@@ -598,7 +612,14 @@ object MediaUploadHelper {
                 connectTimeout = 30000
                 readTimeout = 30000
                 setRequestProperty("Content-Type", "multipart/form-data; boundary=$boundary")
+                setRequestProperty("Accept", "application/json")
                 setRequestProperty("User-Agent", USER_AGENT)
+                if (!authToken.isNullOrBlank()) {
+                    setRequestProperty("Authorization", "Bearer $authToken")
+                }
+                if (userId > 0L) {
+                    setRequestProperty("x-user-id", userId.toString())
+                }
             }
 
             val dos = DataOutputStream(conn.outputStream)
@@ -645,6 +666,217 @@ object MediaUploadHelper {
             e.printStackTrace()
         }
         null
+    }
+
+    private fun extractUploadUrl(json: JSONObject?): String? {
+        if (json == null) return null
+        val uploaded = json.optJSONObject("uploaded")
+        val mediaUrls = json.optJSONObject("media_urls")
+        return listOf(
+            json.optString("url"),
+            json.optString("file_url"),
+            uploaded?.optJSONObject("original")?.optString("url"),
+            uploaded?.optJSONObject("feed")?.optString("url"),
+            uploaded?.optJSONObject("thumbnail")?.optString("url"),
+            mediaUrls?.optString("feed"),
+            mediaUrls?.optString("original"),
+            mediaUrls?.optString("full")
+        ).firstOrNull { !it.isNullOrBlank() && it != "null" }
+    }
+
+    private fun compressBitmapToWebp(source: Bitmap, maxDimension: Int, quality: Int): Triple<ByteArray, Int, Int> {
+        val width = source.width.coerceAtLeast(1)
+        val height = source.height.coerceAtLeast(1)
+        val maxSide = maxOf(width, height)
+        val scale = if (maxSide > maxDimension) maxDimension.toFloat() / maxSide.toFloat() else 1f
+        val targetW = (width * scale).toInt().coerceAtLeast(1)
+        val targetH = (height * scale).toInt().coerceAtLeast(1)
+
+        val scaled = if (scale < 1f) {
+            Bitmap.createScaledBitmap(source, targetW, targetH, true)
+        } else {
+            source
+        }
+
+        val baos = ByteArrayOutputStream()
+        val format = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            Bitmap.CompressFormat.WEBP_LOSSY
+        } else {
+            @Suppress("DEPRECATION")
+            Bitmap.CompressFormat.WEBP
+        }
+        val ok = scaled.compress(format, quality, baos)
+        if (!ok || baos.size() == 0) {
+            baos.reset()
+            scaled.compress(Bitmap.CompressFormat.JPEG, quality, baos)
+        }
+        val bytes = baos.toByteArray()
+        val outW = scaled.width
+        val outH = scaled.height
+        if (scaled != source) {
+            scaled.recycle()
+        }
+        return Triple(bytes, outW, outH)
+    }
+
+    private fun extractDominantAndContrast(bitmap: Bitmap): Pair<String, Triple<String, String, Float>> {
+        val sample = Bitmap.createScaledBitmap(bitmap, 24, 24, true)
+        var rSum = 0L
+        var gSum = 0L
+        var bSum = 0L
+        val count = 24 * 24
+        for (y in 0 until 24) {
+            for (x in 0 until 24) {
+                val px = sample.getPixel(x, y)
+                rSum += (px shr 16) and 0xFF
+                gSum += (px shr 8) and 0xFF
+                bSum += px and 0xFF
+            }
+        }
+        if (sample != bitmap) sample.recycle()
+        val r = (rSum / count).toInt().coerceIn(0, 255)
+        val g = (gSum / count).toInt().coerceIn(0, 255)
+        val b = (bSum / count).toInt().coerceIn(0, 255)
+        val domHex = String.format("#%02X%02X%02X", r, g, b)
+        val luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255.0
+        val contrastMeta = if (luminance > 0.62) {
+            Triple("#0F172A", "#FFFFFF", 0.16f)
+        } else {
+            Triple("#FFFFFF", "#000000", 0.24f)
+        }
+        return Pair(domHex, contrastMeta)
+    }
+
+    /**
+     * Checks whether the selected Uri is an animated GIF or animated WebP.
+     * Returns pair(isAnimated, mimeType) if animated, else null.
+     */
+    fun detectAnimatedImage(context: Context, uri: Uri): Pair<Boolean, String> {
+        return try {
+            val mime = context.contentResolver.getType(uri)?.lowercase().orEmpty()
+            val header = ByteArray(4096)
+            val readLen = context.contentResolver.openInputStream(uri)?.use { it.read(header) } ?: 0
+            if (readLen >= 6) {
+                val headStr = String(header, 0, minOf(readLen, 16), Charsets.US_ASCII)
+                if (headStr.startsWith("GIF87a") || headStr.startsWith("GIF89a") || mime == "image/gif") {
+                    return Pair(true, "image/gif")
+                }
+            }
+            if (readLen >= 21) {
+                val riff = String(header, 0, 4, Charsets.US_ASCII)
+                val webp = String(header, 8, 4, Charsets.US_ASCII)
+                if (riff == "RIFF" && webp == "WEBP") {
+                    val fullHeader = String(header, 0, readLen, Charsets.ISO_8859_1)
+                    val isVp8xAnim = readLen >= 21 &&
+                        String(header, 12, 4, Charsets.US_ASCII) == "VP8X" &&
+                        (header[20].toInt() and 0x02) != 0
+                    if (isVp8xAnim || fullHeader.contains("ANIM") || fullHeader.contains("ANMF")) {
+                        return Pair(true, "image/webp")
+                    }
+                }
+            }
+            Pair(false, if (mime.isNotBlank()) mime else "image/webp")
+        } catch (_: Exception) {
+            Pair(false, "image/webp")
+        }
+    }
+
+    /**
+     * Admin Realistic Background Pipeline:
+     * 1. Processes picked image into high-quality feed.webp (max 1440px, 92% quality) & thumb.webp (max 420px, 86% quality)
+     *    (or preserves original animated WebP/GIF bytes for feed while generating thumb.webp).
+     * 2. Uploads feed.webp to POST /api/upload -> url
+     * 3. Uploads thumb.webp to POST /api/upload -> thumbnail_url
+     */
+    suspend fun processAndUploadBackgroundImages(
+        context: Context,
+        uri: Uri,
+        userId: Long,
+        onProgress: ((stage: String, progress: Float) -> Unit)? = null
+    ): BackgroundImageUploadBundle? = withContext(Dispatchers.IO) {
+        onProgress?.invoke("Processing high-quality feed & thumbnail WebP...", 0.15f)
+        val token = UserSessionManager.getAuthToken(context)
+        val (isAnimated, animatedMime) = detectAnimatedImage(context, uri)
+        val (bitmap, _) = decodeAndOrientBitmap(context, uri)
+        if (bitmap == null) return@withContext null
+
+        try {
+            val (domColor, contrast) = extractDominantAndContrast(bitmap)
+            val (textColor, overlayColor, overlayOpacity) = contrast
+
+            val feedBytes: ByteArray
+            val feedWidth: Int
+            val feedHeight: Int
+            val feedExt: String
+            val feedMime: String
+
+            if (isAnimated) {
+                val rawBytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                if (rawBytes != null && rawBytes.isNotEmpty()) {
+                    feedBytes = rawBytes
+                    feedWidth = bitmap.width
+                    feedHeight = bitmap.height
+                    feedExt = if (animatedMime == "image/gif") "gif" else "webp"
+                    feedMime = animatedMime
+                } else {
+                    val (compressed, w, h) = compressBitmapToWebp(bitmap, 1440, 92)
+                    feedBytes = compressed
+                    feedWidth = w
+                    feedHeight = h
+                    feedExt = "webp"
+                    feedMime = "image/webp"
+                }
+            } else {
+                val (compressed, w, h) = compressBitmapToWebp(bitmap, 1440, 92)
+                feedBytes = compressed
+                feedWidth = w
+                feedHeight = h
+                feedExt = "webp"
+                feedMime = "image/webp"
+            }
+
+            val (thumbBytes, _, _) = compressBitmapToWebp(bitmap, 420, 86)
+
+            val ts = System.currentTimeMillis()
+            onProgress?.invoke("Uploading feed.$feedExt...", 0.45f)
+            val feedResp = uploadSingleFile(
+                fileBytes = feedBytes,
+                fileName = "bg_feed_$ts.$feedExt",
+                mimeType = feedMime,
+                folder = "backgrounds/feed",
+                authToken = token,
+                userId = userId
+            )
+            val feedUrl = extractUploadUrl(feedResp) ?: return@withContext null
+
+            onProgress?.invoke("Uploading thumb.webp...", 0.72f)
+            val thumbResp = uploadSingleFile(
+                fileBytes = thumbBytes,
+                fileName = "bg_thumb_$ts.webp",
+                mimeType = "image/webp",
+                folder = "backgrounds/thumbs",
+                authToken = token,
+                userId = userId
+            )
+            val thumbUrl = extractUploadUrl(thumbResp) ?: feedUrl
+
+            BackgroundImageUploadBundle(
+                feedUrl = feedUrl,
+                thumbnailUrl = thumbUrl,
+                width = feedWidth,
+                height = feedHeight,
+                isAnimated = isAnimated,
+                dominantColor = domColor,
+                recommendedTextColor = textColor,
+                recommendedOverlayColor = overlayColor,
+                recommendedOverlayOpacity = overlayOpacity
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        } finally {
+            bitmap.recycle()
+        }
     }
 
     /**

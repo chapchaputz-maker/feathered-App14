@@ -337,6 +337,7 @@ object PostsApiService {
                         val bgId = parts.firstOrNull()?.substringAfter(":")?.trim()
                         if (!bgId.isNullOrBlank()) {
                             put("background_id", bgId)
+                            put("animated_background_id", bgId.toLongOrNull() ?: bgId)
                         }
                         for (part in parts.drop(1)) {
                             val idx = part.indexOf(':')
@@ -1055,9 +1056,12 @@ object PostsApiService {
         rawObj: JSONObject,
         metaObj: JSONObject?
     ): String? {
-        val bgId = obj.optString("background_id").takeIf { it.isNotBlank() && it != "null" }
-            ?: rawObj.optString("background_id").takeIf { it.isNotBlank() && it != "null" }
-            ?: metaObj?.optString("background_id")?.takeIf { it.isNotBlank() && it != "null" }
+        val bgId = obj.optString("animated_background_id").takeIf { it.isNotBlank() && it != "null" && it != "0" }
+            ?: obj.optString("background_id").takeIf { it.isNotBlank() && it != "null" && it != "0" }
+            ?: rawObj.optString("animated_background_id").takeIf { it.isNotBlank() && it != "null" && it != "0" }
+            ?: rawObj.optString("background_id").takeIf { it.isNotBlank() && it != "null" && it != "0" }
+            ?: metaObj?.optString("animated_background_id")?.takeIf { it.isNotBlank() && it != "null" && it != "0" }
+            ?: metaObj?.optString("background_id")?.takeIf { it.isNotBlank() && it != "null" && it != "0" }
             ?: return null
         val sb = StringBuilder("reality:$bgId")
         val bgType = obj.optString("background_type").takeIf { it.isNotBlank() && it != "null" }

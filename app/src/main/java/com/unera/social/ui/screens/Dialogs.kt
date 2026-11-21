@@ -1299,40 +1299,40 @@ fun CreatePostModal(
                                         if (activeCategory == AnimatedBgCategory.REALITY) {
                                             val realitySubCats = remember(remoteBackgrounds) {
                                                 val cats = remoteBackgrounds.map { it.normalizedSubCategory() }.distinct().filter { it != "All" }
-                                                if (cats.size > 1) listOf("All") + cats else emptyList()
+                                                if (cats.isNotEmpty()) listOf("All") + cats else listOf("All")
                                             }
 
-                                            if (realitySubCats.isNotEmpty()) {
-                                                LazyRow(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .padding(horizontal = 14.dp, vertical = 2.dp),
-                                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                                    verticalAlignment = Alignment.CenterVertically
-                                                ) {
-                                                    items(realitySubCats) { sub ->
-                                                        val isSubSelected = activeRealitySubCategory == sub
-                                                        Box(
-                                                            modifier = Modifier
-                                                                .clip(RoundedCornerShape(12.dp))
-                                                                .background(if (isSubSelected) AppColors.bgBlueTint else AppColors.bgCard)
-                                                                .border(
-                                                                    1.dp,
-                                                                    if (isSubSelected) AppColors.primaryBlue else AppColors.border,
-                                                                    RoundedCornerShape(12.dp)
-                                                                )
-                                                                .clickable { activeRealitySubCategory = sub }
-                                                                .padding(horizontal = 8.dp, vertical = 4.dp)
-                                                                .testTag("reality_subcat_${sub.lowercase()}")
-                                                        ) {
-                                                            Text(
-                                                                text = sub,
-                                                                fontSize = 11.sp,
-                                                                fontFamily = InterFontFamily,
-                                                                fontWeight = if (isSubSelected) FontWeight.SemiBold else FontWeight.Normal,
-                                                                color = if (isSubSelected) (if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8)) else AppColors.textSecondary
+                                            LazyRow(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(horizontal = 14.dp, vertical = 2.dp)
+                                                    .testTag("reality_categories_row"),
+                                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                items(realitySubCats) { sub ->
+                                                    val isSubSelected = activeRealitySubCategory == sub
+                                                    val catCount = if (sub == "All") remoteBackgrounds.size else remoteBackgrounds.count { it.normalizedSubCategory().equals(sub, ignoreCase = true) }
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .clip(RoundedCornerShape(12.dp))
+                                                            .background(if (isSubSelected) AppColors.bgBlueTint else AppColors.bgCard)
+                                                            .border(
+                                                                1.dp,
+                                                                if (isSubSelected) AppColors.primaryBlue else AppColors.border,
+                                                                RoundedCornerShape(12.dp)
                                                             )
-                                                        }
+                                                            .clickable { activeRealitySubCategory = sub }
+                                                            .padding(horizontal = 9.dp, vertical = 5.dp)
+                                                            .testTag("reality_subcat_${sub.lowercase()}")
+                                                    ) {
+                                                        Text(
+                                                            text = if (catCount > 0) "$sub ($catCount)" else sub,
+                                                            fontSize = 11.sp,
+                                                            fontFamily = InterFontFamily,
+                                                            fontWeight = if (isSubSelected) FontWeight.SemiBold else FontWeight.Normal,
+                                                            color = if (isSubSelected) (if (AppColors.isLight) AppColors.primaryBlue else Color(0xFF38BDF8)) else AppColors.textSecondary
+                                                        )
                                                     }
                                                 }
                                             }
@@ -1438,6 +1438,7 @@ fun CreatePostModal(
                                                                 .testTag("reality_bg_item_${bg.id}"),
                                                             contentAlignment = Alignment.Center
                                                         ) {
+                                                            // Data saver: render strictly thumbnail_url (0 KB full feed image downloaded until clicked)
                                                             RemoteImageBackgroundLayer(
                                                                 background = bg,
                                                                 modifier = Modifier.matchParentSize(),

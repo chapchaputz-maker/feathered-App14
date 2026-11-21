@@ -22,6 +22,7 @@ import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
+import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
 import kotlin.math.max
@@ -332,6 +333,138 @@ object BackgroundsApiService {
                 _isLoading.value = false
             }
             _backgrounds.value
+        }
+    }
+
+    /**
+     * Admin-only endpoint: POST /api/admin/backgrounds (JSON) -> D1 row in background_images.
+     * Immediately updates local StateFlow and cache so the new row appears in the picker.
+     */
+    suspend fun createAdminBackground(
+        context: Context,
+        userId: Long,
+        name: String,
+        url: String,
+        thumbnailUrl: String,
+        category: String,
+        isAnimated: Boolean = false,
+        width: Int = 0,
+        height: Int = 0,
+        dominantColor: String? = null,
+        textColor: String? = null,
+        overlayColor: String? = null,
+        overlayOpacity: Float = 0.24f,
+        sortOrder: Int = 0
+    ): Result<RemotePostBackground> = withContext(Dispatchers.IO) {
+        var conn: HttpURLConnection? = null
+        try {
+            val token = UserSessionManager.getAuthToken(context)
+            val cleanName = name.trim().ifBlank { "Realistic Scene" }
+            val cleanCategory = category.trim().ifBlank { "realistic" }
+            val payload = JSONObject().apply {
+                put("name", cleanName)
+                put("url", url)
+                put("thumbnail_url", thumbnailUrl)
+                put("poster_url", thumbnailUrl)
+                put("is_animated", isAnimated)
+                if (width > 0) put("width", width)
+                if (height > 0) put("height", height)
+                if (!dominantColor.isNullOrBlank()) put("dominant_color", dominantColor)
+                if (!textColor.isNullOrBlank()) put("text_color", textColor)
+                if (!overlayColor.isNullOrBlank()) put("overlay_color", overlayColor)
+                put("overlay_opacity", overlayOpacity.toDouble())
+                put("category", cleanCategory)
+                put("sort_order", sortOrder)
+            }
+
+            conn = (URL("$BASE_URL/api/admin/backgrounds").openConnection() as HttpURLConnection).apply {
+                requestMethod = "POST"
+                doOutput = true
+                connectTimeout = 20000
+                readTimeout = 20000
+                setRequestProperty("Content-Type", "application/json")
+                setRequestProperty("Accept", "application/json")
+                setRequestProperty("User-Agent", USER_AGENT)
+                if (userId > 0L) {
+                    setRequestProperty("x-user-id", userId.toString())
+                }
+                if (!token.isNullOrBlank()) {
+                    setRequestProperty("Authorization", "Bearer $token")
+                }
+            }
+
+            OutputStreamWriter(conn.outputStream, Charsets.UTF_8).use { writer ->
+                writer.write(payload.toString())
+                writer.flush()
+            }
+
+            val code = conn.responseCode
+            val stream = if (code in 200..299) conn.inputStream else conn.errorStream
+            val raw = stream?.let { BufferedReader(InputStreamReader(it)).use { r -> r.readText() }.trim() }.orEmpty()
+
+            if (code in 200..299) {
+                val root = if (raw.startsWith("{")) JSONObject(raw) else JSONObject()
+                val recordObj = root.optJSONObject("background")
+                    ?: root.optJSONObject("data")
+                    ?: root.optJSONObject("record")
+                    ?: root.optJSONObject("item")
+                    ?: root
+
+                val parsed = parseItem(recordObj, 0) ?: run {
+                    val returnedId = recordObj.opt("id")?.toString()?.takeIf { it.isNotBlank() && it != "null" }
+                        ?: root.opt("id")?.toString()?.takeIf { it.isNotBlank() && it != "null" }
+                        ?: System.currentTimeMillis().toString()
+                    RemotePostBackground(
+                        id = returnedId,
+                        name = cleanName,
+                        url = resolveMediaUrl(url),
+                        thumbnailUrl = resolveMediaUrl(thumbnailUrl),
+                        posterUrl = resolveMediaUrl(thumbnailUrl),
+                        isAnimated = isAnimated,
+                        width = width,
+                        height = height,
+                        dominantColor = dominantColor,
+                        textColor = textColor,
+                        overlayColor = overlayColor,
+                        overlayOpacity = overlayOpacity,
+                        category = cleanCategory,
+                        sortOrder = sortOrder
+                    )
+                }
+
+                // Immediately merge into in-memory list & cache, then sync from /api/backgrounds/animated
+                val mergedImmediate = listOf(parsed) + _backgrounds.value.filterNot { it.id == parsed.id }
+                _backgrounds.value = mergedImmediate
+                saveToCache(context.applicationContext, mergedImmediate)
+
+                val refreshed = requestEndpoint("$BASE_URL/api/backgrounds/animated")
+                if (refreshed.isNotEmpty()) {
+                    hasFetchedFromNetwork = true
+                    val finalList = if (refreshed.any { it.id == parsed.id }) {
+                        refreshed
+                    } else {
+                        listOf(parsed) + refreshed
+                    }
+                    _backgrounds.value = finalList
+                    saveToCache(context.applicationContext, finalList)
+                }
+
+                Result.success(parsed)
+            } else {
+                val errMsg = if (raw.startsWith("{")) {
+                    val errJson = JSONObject(raw)
+                    errJson.optString("error").takeIf { it.isNotBlank() && it != "null" }
+                        ?: errJson.optString("message").takeIf { it.isNotBlank() && it != "null" }
+                        ?: "Server returned HTTP $code"
+                } else {
+                    "Server returned HTTP $code"
+                }
+                Result.failure(IllegalStateException(errMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        } finally {
+            conn?.disconnect()
         }
     }
 

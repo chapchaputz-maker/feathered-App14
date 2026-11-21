@@ -29,6 +29,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil.compose.AsyncImage
+import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.size.Precision
 import coil.size.Size as CoilSize
@@ -2576,8 +2577,9 @@ fun RemoteImageBackgroundLayer(
             else -> background.url
         }
     }
-    val posterUrl = remember(background, primaryUrl) {
-        background.effectivePosterUrl.takeIf { it.isNotBlank() && it != primaryUrl }
+    val posterUrl = remember(background, primaryUrl, useThumbnailOnly) {
+        if (useThumbnailOnly) null
+        else background.effectivePosterUrl.takeIf { it.isNotBlank() && it != primaryUrl }
     }
 
     var mainLoaded by remember(primaryUrl) { mutableStateOf(false) }
@@ -2608,6 +2610,8 @@ fun RemoteImageBackgroundLayer(
             .data(primaryUrl)
             .size(targetSize)
             .precision(Precision.INEXACT)
+            .diskCachePolicy(CachePolicy.ENABLED)
+            .memoryCachePolicy(CachePolicy.ENABLED)
             .crossfade(!useThumbnailOnly)
             .build()
     }
@@ -2618,6 +2622,8 @@ fun RemoteImageBackgroundLayer(
                 .data(it)
                 .size(CoilSize(480, 480))
                 .precision(Precision.INEXACT)
+                .diskCachePolicy(CachePolicy.ENABLED)
+                .memoryCachePolicy(CachePolicy.ENABLED)
                 .build()
         }
     }

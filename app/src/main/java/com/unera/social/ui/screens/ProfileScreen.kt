@@ -44,6 +44,7 @@ import com.unera.social.data.PostsApiService
 import com.unera.social.model.*
 import com.unera.social.ui.components.InstagramVideoCard
 import com.unera.social.ui.components.GalleryViewerDialog
+import com.unera.social.ui.components.AdminBackgroundStudioCard
 import com.unera.social.ui.theme.*
 import android.net.Uri
 import androidx.activity.compose.BackHandler
@@ -786,6 +787,17 @@ fun ProfileScreen(
                                 )
                             }
                         }
+                    }
+
+                    // Platform Admin-Only Background Image Uploader
+                    if (isMe && !isGuest && currentUser.role.equals("admin", ignoreCase = true)) {
+                        Spacer(modifier = Modifier.height(14.dp))
+                        AdminBackgroundStudioCard(
+                            currentUser = currentUser,
+                            onUploadSuccess = { uploadedBg ->
+                                toastMessage = "\"${uploadedBg.name}\" added to Reality backgrounds!"
+                            }
+                        )
                     }
 
                     // Suspension Warning Banner if active
