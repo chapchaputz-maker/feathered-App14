@@ -94,6 +94,7 @@ class SmartNavigationController(
     fun <T> navigate(
         destinationType: DestinationType,
         hasCachedData: Boolean,
+        showBriefLoaderWhenCached: Boolean = false,
         onCachedCommit: (() -> Unit)? = null,
         onBackgroundRefresh: (suspend () -> Unit)? = null,
         onFetchData: suspend (reportProgress: (Float) -> Unit) -> T?,
@@ -105,6 +106,57 @@ class SmartNavigationController(
         _lastTransitionType.value = destinationType
 
         if (hasCachedData && onCachedCommit != null) {
+            if (showBriefLoaderWhenCached && !reducedMotionProvider()) {
+                _state.value = NavigationLoadingState(
+                    requestId = requestId,
+                    phase = NavigationPhase.LOADING,
+                    destinationType = destinationType,
+                    progress = 0.24f,
+                    isVisible = true,
+                    isFinishingGlow = false
+                )
+                activeJob = scope.launch {
+                    try {
+                        delay(70L)
+                        if (!isCurrent(requestId)) return@launch
+                        _state.value = _state.value.copy(progress = 0.62f, isVisible = true)
+                        delay(70L)
+                        if (!isCurrent(requestId)) return@launch
+                        _state.value = _state.value.copy(
+                            phase = NavigationPhase.FINISHING,
+                            progress = 1.0f,
+                            isVisible = true,
+                            isFinishingGlow = true
+                        )
+                        delay(75L)
+                        if (!isCurrent(requestId)) return@launch
+                        onCachedCommit()
+                    } catch (ce: CancellationException) {
+                        throw ce
+                    } finally {
+                        if (isCurrent(requestId)) {
+                            _state.value = NavigationLoadingState(
+                                requestId = requestId,
+                                phase = NavigationPhase.IDLE,
+                                destinationType = destinationType,
+                                progress = 0f,
+                                isVisible = false,
+                                isFinishingGlow = false
+                            )
+                        }
+                    }
+
+                    if (onBackgroundRefresh != null) {
+                        try {
+                            onBackgroundRefresh()
+                        } catch (_: CancellationException) {
+                        } catch (_: Exception) {
+                        }
+                    }
+                }
+                return requestId
+            }
+
             _state.value = NavigationLoadingState(
                 requestId = requestId,
                 phase = NavigationPhase.IDLE,
@@ -145,7 +197,7 @@ class SmartNavigationController(
             try {
                 // Only show the ring if loading takes longer than perceptibleDelayMs
                 revealJob = launch {
-                    delay(perceptibleDelayMs)
+                    if (perceptibleDelayMs > 0L) delay(perceptibleDelayMs)
                     if (isCurrent(requestId) && _state.value.phase == NavigationPhase.LOADING) {
                         _state.value = _state.value.copy(isVisible = true)
                     }
@@ -211,6 +263,78 @@ class SmartNavigationController(
             } finally {
                 revealJob?.cancel()
                 tickerJob?.cancel()
+                if (isCurrent(requestId)) {
+                    _state.value = NavigationLoadingState(
+                        requestId = requestId,
+                        phase = NavigationPhase.IDLE,
+                        destinationType = destinationType,
+                        progress = 0f,
+                        isVisible = false,
+                        isFinishingGlow = false
+                    )
+                }
+            }
+        }
+        return requestId
+    }
+
+    /**
+     * Triggers the signature circular progress ring for interactive transitions such as
+     * opening Share, Full Post Image Preview, "What's on your mind?" composer, or modal viewers.
+     */
+    fun launchInteractiveTransition(
+        destinationType: DestinationType,
+        durationMs: Long = 215L,
+        onReady: () -> Unit
+    ): Long {
+        activeJob?.cancel()
+        val requestId = requestSeq.incrementAndGet()
+        _lastTransitionType.value = destinationType
+
+        if (reducedMotionProvider() || durationMs <= 0L) {
+            _state.value = NavigationLoadingState(
+                requestId = requestId,
+                phase = NavigationPhase.IDLE,
+                destinationType = destinationType,
+                progress = 0f,
+                isVisible = false,
+                isFinishingGlow = false
+            )
+            onReady()
+            return requestId
+        }
+
+        _state.value = NavigationLoadingState(
+            requestId = requestId,
+            phase = NavigationPhase.LOADING,
+            destinationType = destinationType,
+            progress = 0.24f,
+            isVisible = true,
+            isFinishingGlow = false
+        )
+
+        activeJob = scope.launch {
+            try {
+                val stepMs = (durationMs / 3L).coerceAtLeast(35L)
+                delay(stepMs)
+                if (!isCurrent(requestId)) return@launch
+                _state.value = _state.value.copy(progress = 0.62f, isVisible = true)
+
+                delay(stepMs)
+                if (!isCurrent(requestId)) return@launch
+                _state.value = _state.value.copy(
+                    phase = NavigationPhase.FINISHING,
+                    progress = 1.0f,
+                    isVisible = true,
+                    isFinishingGlow = true
+                )
+
+                delay(stepMs)
+                if (!isCurrent(requestId)) return@launch
+                onReady()
+            } catch (ce: CancellationException) {
+                throw ce
+            } finally {
                 if (isCurrent(requestId)) {
                     _state.value = NavigationLoadingState(
                         requestId = requestId,

@@ -260,7 +260,9 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
 
     val navigationController = SmartNavigationController(
         scope = viewModelScope,
-        reducedMotionProvider = { isReducedMotionEnabled(getApplication<Application>().applicationContext) }
+        reducedMotionProvider = { isReducedMotionEnabled(getApplication<Application>().applicationContext) },
+        perceptibleDelayMs = 25L,
+        finishingHoldMs = 120L
     )
 
     private fun pushBackStackCurrent() {
@@ -788,6 +790,7 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
         navigationController.navigate(
             destinationType = destType,
             hasCachedData = hasCachedScreenData,
+            showBriefLoaderWhenCached = prevState.currentScreen != screen,
             onCachedCommit = {
                 commitScreen()
             },
@@ -2977,6 +2980,7 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
         navigationController.navigate(
             destinationType = DestinationType.MESSAGES,
             hasCachedData = hasCachedChat,
+            showBriefLoaderWhenCached = true,
             onCachedCommit = {
                 commitOpen(initialMsgs, conv.rawConversationId.takeIf { it > 0 })
             },
@@ -4108,6 +4112,7 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
         navigationController.navigate(
             destinationType = DestinationType.PROFILE,
             hasCachedData = hasCachedProfile,
+            showBriefLoaderWhenCached = true,
             onCachedCommit = {
                 val bestUser = SmartNavigationCache.getProfile(user.id)?.data ?: user
                 commitProfile(bestUser, cachedPosts)
@@ -4289,11 +4294,18 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun setShowCreatePostDialog(show: Boolean, initialPicker: String? = null) {
-        if (show && (_uiState.value.isGuest || !_uiState.value.isLoggedIn)) {
+        if (!show) {
+            navigationController.cancelActive()
+            _uiState.update { it.copy(showCreatePostDialog = false, createPostInitialPicker = null) }
+            return
+        }
+        if (_uiState.value.isGuest || !_uiState.value.isLoggedIn) {
             openAuth("login")
             return
         }
-        _uiState.update { it.copy(showCreatePostDialog = show, createPostInitialPicker = if (show) initialPicker else null) }
+        navigationController.launchInteractiveTransition(DestinationType.OTHER) {
+            _uiState.update { it.copy(showCreatePostDialog = true, createPostInitialPicker = initialPicker) }
+        }
     }
 
     fun setSelectedPostForComments(post: Post?, preserveNotificationTarget: Boolean = false) {
@@ -4366,6 +4378,7 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
                 DestinationType.COMMENTS
             },
             hasCachedData = hasCachedComments,
+            showBriefLoaderWhenCached = true,
             onCachedCommit = {
                 val preparedPost = if (initialComments.isNotEmpty() && post.comments.isEmpty()) {
                     post.copy(comments = initialComments)
@@ -4401,7 +4414,14 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun setShowSearchDialog(show: Boolean) {
-        _uiState.update { it.copy(showSearchDialog = show) }
+        if (!show) {
+            navigationController.cancelActive()
+            _uiState.update { it.copy(showSearchDialog = false) }
+            return
+        }
+        navigationController.launchInteractiveTransition(DestinationType.OTHER) {
+            _uiState.update { it.copy(showSearchDialog = true) }
+        }
     }
 
     fun setShowNotificationsOverlay(show: Boolean) {
@@ -4417,6 +4437,7 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
         navigationController.navigate(
             destinationType = DestinationType.NOTIFICATIONS,
             hasCachedData = hasCached,
+            showBriefLoaderWhenCached = true,
             onCachedCommit = {
                 if (_uiState.value.notifications.isEmpty() && cachedEntry != null) {
                     _uiState.update { it.copy(notifications = cachedEntry.data) }
@@ -4478,25 +4499,29 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
         if (product != null) {
             SmartNavigationCache.cacheProduct(product)
             SmartNavigationCache.markVisited("product:${product.id}")
-            navigationController.recordTransition(DestinationType.MARKETPLACE_ITEM)
+            navigationController.launchInteractiveTransition(DestinationType.MARKETPLACE_ITEM) {
+                _uiState.update { it.copy(selectedProductForDetail = product) }
+            }
         } else {
             navigationController.cancelActive()
+            _uiState.update { it.copy(selectedProductForDetail = null) }
         }
-        _uiState.update { it.copy(selectedProductForDetail = product) }
     }
 
     fun openVideoReel(post: Post) {
-        pushBackStackCurrent()
-        _uiState.update { state ->
-            val existing = state.videoPosts
-            val updated = if (existing.any { it.id == post.id }) existing else listOf(post) + existing
-            state.copy(
-                selectedVideoPostId = post.id,
-                videoPosts = updated,
-                currentScreen = Screen.REELS,
-                canNavigateBack = navBackStack.isNotEmpty(),
-                isReturningBack = false
-            )
+        navigationController.launchInteractiveTransition(DestinationType.REELS) {
+            pushBackStackCurrent()
+            _uiState.update { state ->
+                val existing = state.videoPosts
+                val updated = if (existing.any { it.id == post.id }) existing else listOf(post) + existing
+                state.copy(
+                    selectedVideoPostId = post.id,
+                    videoPosts = updated,
+                    currentScreen = Screen.REELS,
+                    canNavigateBack = navBackStack.isNotEmpty(),
+                    isReturningBack = false
+                )
+            }
         }
     }
 
@@ -4526,7 +4551,14 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun openImageViewer(url: String?) {
-        _uiState.update { it.copy(fullScreenImageViewerUrl = url) }
+        if (url.isNullOrBlank()) {
+            _uiState.update { it.copy(fullScreenImageViewerUrl = null) }
+            return
+        }
+        SmartNavigationCache.prefetchThumbnail(getApplication<Application>().applicationContext, url, 1080)
+        navigationController.launchInteractiveTransition(DestinationType.POST) {
+            _uiState.update { it.copy(fullScreenImageViewerUrl = url) }
+        }
     }
 
     fun closeImageViewer() {

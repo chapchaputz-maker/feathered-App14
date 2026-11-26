@@ -544,4 +544,59 @@ class SmartNavigationTest {
         assertNull(CommentsCache.getCachedComments("post", 20L))
         assertEquals(ScrollRestorationController.ListPosition(0, 0), scrollController.getSavedListPosition("FEED"))
     }
+
+    @Test
+    fun interactiveTransition_showsSignatureLoaderRingBeforeOpeningModalOrPreview() = runBlocking {
+        val controller = SmartNavigationController(scope = scope)
+        val observedVisible = mutableListOf<Boolean>()
+        val collector = launch { controller.state.collect { observedVisible.add(it.isVisible) } }
+
+        var opened = false
+        val done = CompletableDeferred<Unit>()
+        controller.launchInteractiveTransition(
+            destinationType = DestinationType.POST,
+            durationMs = 150L
+        ) {
+            opened = true
+            done.complete(Unit)
+        }
+
+        done.await()
+        delay(20L)
+        collector.cancel()
+
+        assertTrue("Interactive transition (share/image preview/composer) must visibly show loader", observedVisible.any { it })
+        assertTrue(opened)
+        assertEquals(NavigationPhase.IDLE, controller.state.value.phase)
+    }
+
+    @Test
+    fun cachedPageToPage_withShowBriefLoaderWhenCached_animatesRingAndCommits() = runBlocking {
+        val controller = SmartNavigationController(scope = scope)
+        val observedStates = mutableListOf<NavigationLoadingState>()
+        val collector = launch { controller.state.collect { observedStates.add(it) } }
+
+        var switched = false
+        val done = CompletableDeferred<Unit>()
+        controller.navigate(
+            destinationType = DestinationType.MARKETPLACE_LIST,
+            hasCachedData = true,
+            showBriefLoaderWhenCached = true,
+            onCachedCommit = {
+                switched = true
+                done.complete(Unit)
+            },
+            onFetchData = { null },
+            onCommit = { }
+        )
+
+        done.await()
+        delay(20L)
+        collector.cancel()
+
+        assertTrue(switched)
+        assertTrue(observedStates.any { it.isVisible && it.phase == NavigationPhase.LOADING })
+        assertTrue(observedStates.any { it.phase == NavigationPhase.FINISHING && it.progress == 1.0f })
+        assertEquals(NavigationPhase.IDLE, controller.state.value.phase)
+    }
 }

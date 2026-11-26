@@ -64,6 +64,8 @@ import com.unera.social.model.*
 import com.unera.social.ui.components.FacebookReactionDock
 import com.unera.social.ui.components.ShareBottomSheetDialog
 import com.unera.social.ui.components.ReelCommentsBottomSheetDialog
+import com.unera.social.ui.navigation.DestinationType
+import com.unera.social.ui.navigation.LocalSmartNavigationController
 import com.unera.social.ui.theme.InterFontFamily
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -184,6 +186,7 @@ fun ReelsScreen(
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
     val coroutineScope = rememberCoroutineScope()
+    val navController = LocalSmartNavigationController.current
 
     var activeDiscussionsPost by remember { mutableStateOf<Post?>(null) }
     var shareSheetPost by remember { mutableStateOf<Post?>(null) }
@@ -326,10 +329,35 @@ fun ReelsScreen(
     ) {
         if (isLoading && mixedVideos.isEmpty()) {
             Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+                modifier = Modifier
+                    .fillMaxSize()
+                    .statusBarsPadding()
+                    .navigationBarsPadding()
             ) {
+                if (onBack != null) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(start = 16.dp, top = 14.dp)
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(Color.Black.copy(alpha = 0.5f))
+                            .border(BorderStroke(1.dp, Color.White.copy(alpha = 0.25f)), CircleShape)
+                            .clickable(onClick = onBack),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ChevronLeft,
+                            contentDescription = "Back",
+                            tint = Color.White,
+                            modifier = Modifier
+                                .size(28.dp)
+                                .offset(x = (-1).dp)
+                        )
+                    }
+                }
                 Column(
+                    modifier = Modifier.align(Alignment.Center),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
@@ -381,7 +409,11 @@ fun ReelsScreen(
                         onOpenComments?.invoke(p)
                     },
                     onShare = { postId, count -> onShare?.invoke(postId, count) },
-                    onShareClick = { p -> shareSheetPost = p },
+                    onShareClick = { p ->
+                        navController?.launchInteractiveTransition(DestinationType.OTHER) {
+                            shareSheetPost = p
+                        } ?: run { shareSheetPost = p }
+                    },
                     onFollow = { authorId -> onFollow?.invoke(authorId) },
                     onProfileClick = { authorId -> onProfileClick?.invoke(authorId) },
                     onSavePost = { postId -> onSavePost?.invoke(postId) },
@@ -396,13 +428,39 @@ fun ReelsScreen(
         } else {
             // Empty State
             Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+                modifier = Modifier
+                    .fillMaxSize()
+                    .statusBarsPadding()
+                    .navigationBarsPadding()
             ) {
+                if (onBack != null) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(start = 16.dp, top = 14.dp)
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(Color.Black.copy(alpha = 0.5f))
+                            .border(BorderStroke(1.dp, Color.White.copy(alpha = 0.25f)), CircleShape)
+                            .clickable(onClick = onBack),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ChevronLeft,
+                            contentDescription = "Back",
+                            tint = Color.White,
+                            modifier = Modifier
+                                .size(28.dp)
+                                .offset(x = (-1).dp)
+                        )
+                    }
+                }
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(16.dp),
-                    modifier = Modifier.padding(24.dp)
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(24.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.OndemandVideo,
@@ -945,12 +1003,17 @@ private fun FacebookVideoItemView(
                     Brush.verticalGradient(
                         colors = listOf(
                             Color.Transparent,
-                            Color.Black.copy(alpha = 0.45f),
-                            Color.Black.copy(alpha = 0.9f)
+                            Color.Black.copy(alpha = 0.55f),
+                            Color.Black.copy(alpha = 0.92f)
                         )
                     )
                 )
-                .padding(bottom = 12.dp)
+                .windowInsetsPadding(
+                    WindowInsets.navigationBars
+                        .union(WindowInsets.displayCutout)
+                        .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal)
+                )
+                .padding(bottom = 14.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -973,7 +1036,7 @@ private fun FacebookVideoItemView(
                         // Creator Row (Avatar, Name, Verified, Follow Button)
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             val authorAvatar = post.author.profileImageUrl.ifBlank {
                                 "https://ui-avatars.com/api/?name=${post.author.name}&background=1877F2&color=fff&bold=true"
@@ -992,11 +1055,15 @@ private fun FacebookVideoItemView(
 
                             Text(
                                 text = post.author.name,
-                                fontSize = 19.sp,
+                                fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
                                 fontFamily = InterFontFamily,
                                 color = Color.White,
-                                modifier = Modifier.clickable { onProfileClick(post.author.id) }
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier
+                                    .weight(1f, fill = false)
+                                    .clickable { onProfileClick(post.author.id) }
                             )
 
                             Icon(
@@ -1210,21 +1277,25 @@ private fun FacebookVideoItemView(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(6.dp))
 
                 // BOTTOM SCRUBBER & DURATION ROW
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 2.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     // Time Indicator (e.g. 0:02 / 2:13)
                     Text(
                         text = "${formatVideoTime(currentPositionMs)} / ${formatVideoTime(durationMs)}",
-                        color = Color.White.copy(alpha = 0.9f),
+                        color = Color.White.copy(alpha = 0.95f),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
-                        fontFamily = InterFontFamily
+                        fontFamily = InterFontFamily,
+                        maxLines = 1,
+                        softWrap = false
                     )
 
                     // Smooth Video Scrubber
@@ -1239,11 +1310,11 @@ private fun FacebookVideoItemView(
                         colors = SliderDefaults.colors(
                             thumbColor = Color.White,
                             activeTrackColor = Color.White,
-                            inactiveTrackColor = Color.White.copy(alpha = 0.3f)
+                            inactiveTrackColor = Color.White.copy(alpha = 0.35f)
                         ),
                         modifier = Modifier
                             .weight(1f)
-                            .height(28.dp)
+                            .heightIn(min = 36.dp)
                     )
 
                     // Adaptive HD Quality Indicator Badge (If 1080p exists)
@@ -1255,7 +1326,7 @@ private fun FacebookVideoItemView(
                         }
                         Surface(
                             shape = RoundedCornerShape(4.dp),
-                            color = if (is1080pActive) FbBlue else Color.White.copy(alpha = 0.22f),
+                            color = if (is1080pActive) FbBlue else Color.White.copy(alpha = 0.24f),
                             modifier = Modifier
                                 .clickable {
                                     qualityMode = when (qualityMode) {
@@ -1279,7 +1350,9 @@ private fun FacebookVideoItemView(
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 fontFamily = InterFontFamily,
-                                modifier = Modifier.padding(horizontal = 5.dp, vertical = 3.dp)
+                                maxLines = 1,
+                                softWrap = false,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp)
                             )
                         }
                     }
@@ -1287,20 +1360,24 @@ private fun FacebookVideoItemView(
                     // Volume Mute / Unmute Toggle
                     IconButton(
                         onClick = { isMuted = !isMuted },
-                        modifier = Modifier.size(36.dp)
+                        modifier = Modifier
+                            .size(40.dp)
+                            .testTag("reel_mute_button")
                     ) {
                         Icon(
                             imageVector = if (isMuted) Icons.Default.VolumeOff else Icons.Default.VolumeUp,
                             contentDescription = if (isMuted) "Unmute" else "Mute",
                             tint = Color.White,
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(21.dp)
                         )
                     }
 
                     // More Options (`...`)
                     IconButton(
                         onClick = { showMoreOptionsSheet = true },
-                        modifier = Modifier.size(36.dp)
+                        modifier = Modifier
+                            .size(40.dp)
+                            .testTag("reel_more_options_button")
                     ) {
                         Icon(
                             imageVector = Icons.Default.MoreHoriz,

@@ -224,7 +224,7 @@ private fun PostButtonSignatureLoadingRing(
     val ringAlpha by animateFloatAsState(
         targetValue = if (loadingState.isVisible) 1f else 0f,
         animationSpec = tween(
-            durationMillis = if (reducedMotion) 0 else if (loadingState.isVisible) 130 else 180,
+            durationMillis = if (reducedMotion) 0 else if (loadingState.isVisible) 70 else 130,
             easing = FastOutSlowInEasing
         ),
         label = "post_ring_alpha"
@@ -235,11 +235,11 @@ private fun PostButtonSignatureLoadingRing(
     val animatedProgress by animateFloatAsState(
         targetValue = when {
             loadingState.phase == NavigationPhase.FINISHING -> 1f
-            loadingState.isVisible -> loadingState.progress.coerceIn(0.14f, 0.94f)
+            loadingState.isVisible -> loadingState.progress.coerceIn(0.18f, 0.94f)
             else -> 0f
         },
         animationSpec = tween(
-            durationMillis = if (reducedMotion) 0 else if (loadingState.phase == NavigationPhase.FINISHING) 150 else 140,
+            durationMillis = if (reducedMotion) 0 else if (loadingState.phase == NavigationPhase.FINISHING) 90 else 95,
             easing = FastOutSlowInEasing
         ),
         label = "post_ring_progress"

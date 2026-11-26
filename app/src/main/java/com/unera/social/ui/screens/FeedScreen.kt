@@ -55,6 +55,8 @@ import com.unera.social.data.EventsApiService
 import com.unera.social.data.SmartNavigationCache
 import com.unera.social.model.*
 import com.unera.social.ui.components.*
+import com.unera.social.ui.navigation.DestinationType
+import com.unera.social.ui.navigation.LocalSmartNavigationController
 import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 import com.unera.social.ui.theme.InterTypography
@@ -358,6 +360,7 @@ fun FeedScreen(
 
     val listState = rememberRestoredLazyListState(key = "FEED")
     val feedContext = LocalContext.current
+    val navController = LocalSmartNavigationController.current
 
     // Rank MarketPoint products for you once so both logged-in and guest users meet relevant items while scrolling
     val rankedMarketProducts = remember(products, currentUser.id, currentUser.location) {
@@ -582,7 +585,13 @@ fun FeedScreen(
                         }
                     },
                     onShare = {
-                        if (isGuest) onRequestAuth() else shareSheetPost = post
+                        if (isGuest) {
+                            onRequestAuth()
+                        } else {
+                            navController?.launchInteractiveTransition(DestinationType.OTHER) {
+                                shareSheetPost = post
+                            } ?: run { shareSheetPost = post }
+                        }
                     },
                     onSave = {
                         if (isGuest) onRequestAuth() else onSavePost(post.id)
@@ -590,8 +599,16 @@ fun FeedScreen(
                     onUserClick = { onUserClick(post.author) },
                     onAuthorClick = { user -> onUserClick(user) },
                     onOpenGallery = { imgs, idx ->
-                        activePostForGallery = post
-                        galleryState = Pair(imgs, idx)
+                        imgs.getOrNull(idx)?.let { previewUrl ->
+                            SmartNavigationCache.prefetchThumbnail(feedContext, previewUrl, 1080)
+                        }
+                        navController?.launchInteractiveTransition(DestinationType.POST) {
+                            activePostForGallery = post
+                            galleryState = Pair(imgs, idx)
+                        } ?: run {
+                            activePostForGallery = post
+                            galleryState = Pair(imgs, idx)
+                        }
                     },
                     onOpenReactions = {
                         if (isGuest) onRequestAuth() else reactionsSheetPost = post
@@ -776,7 +793,9 @@ fun FeedScreen(
                     },
                     onShare = {
                         galleryState = null
-                        shareSheetPost = currentPost
+                        navController?.launchInteractiveTransition(DestinationType.OTHER) {
+                            shareSheetPost = currentPost
+                        } ?: run { shareSheetPost = currentPost }
                     },
                     onSave = { onSavePost(currentPost.id) }
                 )
@@ -957,40 +976,29 @@ fun CreatePostSection(
             ) {
                 Text(
                     text = "What's on your mind?",
-                    fontSize = 14.sp,
+                    fontSize = 16.sp,
                     fontFamily = InterFontFamily,
-                    fontWeight = FontWeight.Normal,
+                    fontWeight = FontWeight.SemiBold,
                     color = AppColors.textSecondary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
             }
 
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(4.dp))
 
-            // Green Photo quick button
-            Row(
+            // Green Photo quick icon button (icon only, pushed to right corner)
+            IconButton(
+                onClick = onPhotoClick,
                 modifier = Modifier
-                    .clip(RoundedCornerShape(10.dp))
-                    .clickable(onClick = onPhotoClick)
-                    .padding(horizontal = 8.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .size(48.dp)
+                    .testTag("create_post_photo_button")
             ) {
                 Icon(
                     imageVector = Icons.Default.Image,
                     contentDescription = "Photo",
                     tint = Color(0xFF10B981),
-                    modifier = Modifier.size(22.dp)
-                )
-                Spacer(modifier = Modifier.width(5.dp))
-                Text(
-                    text = "Photo",
-                    color = AppColors.textBody,
-                    fontFamily = InterFontFamily,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 14.sp,
-                    maxLines = 1,
-                    softWrap = false
+                    modifier = Modifier.size(24.dp)
                 )
             }
         }
@@ -1748,20 +1756,20 @@ fun WebPostCard(
                             containerColor = if (actualIsFollowing) AppColors.bgChip else AppColors.primaryBlue
                         ),
                         shape = RoundedCornerShape(8.dp),
-                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
-                        modifier = Modifier.height(30.dp)
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                        modifier = Modifier.height(34.dp)
                     ) {
                         Icon(
                             imageVector = if (actualIsFollowing) Icons.Filled.Check else Icons.Filled.PersonAdd,
                             contentDescription = null,
                             tint = if (actualIsFollowing) AppColors.textPrimary else Color.White,
-                            modifier = Modifier.size(13.dp)
+                            modifier = Modifier.size(14.dp)
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
+                        Spacer(modifier = Modifier.width(5.dp))
                         Text(
                             text = if (actualIsFollowing) "Following" else "Follow",
                             color = if (actualIsFollowing) AppColors.textPrimary else Color.White,
-                            fontSize = 12.sp,
+                            fontSize = 14.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Medium
                         )
@@ -2233,13 +2241,13 @@ fun WebPostCard(
                         fontWeight = FontWeight.Normal
                     )
                     Text(
-                        text = "${post.sharesCount} Shares",
+                        text = "${formatCount(post.sharesCount)} Shares",
                         color = AppColors.textSecondary,
                         fontSize = 19.sp,
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.SemiBold,
                         maxLines = 1,
-                        softWrap = false,
+                        overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.clickable(onClick = onShare)
                     )
                 }
@@ -4239,21 +4247,21 @@ fun PeopleYouMayKnowSection(
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = if (isFollowing) AppColors.bgChip else AppColors.primaryBlue
                                 ),
-                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(34.dp)
+                                    .height(36.dp)
                             ) {
                                 Icon(
                                     imageVector = if (isFollowing) Icons.Filled.Check else Icons.Filled.PersonAdd,
                                     contentDescription = null,
                                     tint = if (isFollowing) AppColors.textPrimary else Color.White,
-                                    modifier = Modifier.size(13.dp)
+                                    modifier = Modifier.size(14.dp)
                                 )
-                                Spacer(modifier = Modifier.width(4.dp))
+                                Spacer(modifier = Modifier.width(5.dp))
                                 Text(
                                     text = if (isFollowing) "Following" else "Follow",
-                                    fontSize = 12.sp,
+                                    fontSize = 14.sp,
                                     fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Medium,
                                     color = if (isFollowing) AppColors.textPrimary else Color.White

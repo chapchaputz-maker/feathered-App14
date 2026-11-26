@@ -226,27 +226,54 @@ fun GalleryViewerDialog(
                         .background(Color(0xFF0B1120))
                         .padding(horizontal = 16.dp, vertical = 12.dp)
                 ) {
-                    FlowRow(
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 8.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "${post.likesCount} Reactions",
+                            text = "${formatCount(post.likesCount)} React..",
                             color = Color(0xFFF8FAFC),
                             fontSize = 19.sp,
                             fontFamily = InterFontFamily,
-                            fontWeight = FontWeight.SemiBold
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f, fill = false)
                         )
-                        Text(
-                            text = "${post.commentsCount} Discussions • ${post.sharesCount} Shares",
-                            color = Color(0xFF94A3B8),
-                            fontSize = 19.sp,
-                            fontFamily = InterFontFamily,
-                            fontWeight = FontWeight.SemiBold
-                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(5.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "${formatCount(post.commentsCount)} Discuss..",
+                                color = Color(0xFF94A3B8),
+                                fontSize = 19.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Text(
+                                text = "•",
+                                color = Color(0xFF94A3B8),
+                                fontSize = 19.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal
+                            )
+                            Text(
+                                text = "${formatCount(post.sharesCount)} Shares",
+                                color = Color(0xFF94A3B8),
+                                fontSize = 19.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
                     }
 
                     HorizontalDivider(color = Color(0xFF1E293B), thickness = 1.dp)
@@ -1080,13 +1107,14 @@ fun DiscussionsSheetDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(AppColors.headerBg)
-                        .padding(horizontal = 14.dp, vertical = 10.dp),
+                        .padding(horizontal = 12.dp, vertical = 10.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(
+                        modifier = Modifier.weight(1f),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         IconButton(
                             onClick = onDismiss,
@@ -1104,32 +1132,44 @@ fun DiscussionsSheetDialog(
 
                         Text(
                             text = sheetTitle,
-                            fontSize = 21.sp,
+                            fontSize = 19.sp,
+                            fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Bold,
-                            color = AppColors.headerText
+                            color = AppColors.headerText,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f, fill = false)
                         )
                     }
 
+                    Spacer(modifier = Modifier.width(6.dp))
+
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Text(
-                            text = "${formatCount(totalDiscussions)} discussions",
+                            text = "${formatCount(totalDiscussions)} Discuss..",
                             color = if (AppColors.isLight) AppColors.headerSubtext else Color(0xFFCBD5E1),
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.SemiBold
+                            fontSize = 14.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
 
                         TextButton(
                             onClick = onDismiss,
-                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp)
                         ) {
                             Text(
                                 text = "See less",
                                 color = if (AppColors.isLight) Color.White else AppColors.primaryBlue,
                                 fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                softWrap = false
                             )
                         }
                     }
@@ -1796,10 +1836,14 @@ fun ReelCommentsBottomSheetDialog(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = if (totalDiscussions > 0) "${formatCount(totalDiscussions)} discussions" else "Discussions",
-                            fontSize = 18.sp,
+                            text = if (totalDiscussions > 0) "${formatCount(totalDiscussions)} Discuss.." else "Discussions",
+                            fontSize = 19.sp,
+                            fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Bold,
-                            color = AppColors.textPrimary
+                            color = AppColors.textPrimary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f, fill = false)
                         )
 
                         IconButton(

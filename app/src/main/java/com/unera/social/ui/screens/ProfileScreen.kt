@@ -45,6 +45,8 @@ import com.unera.social.model.*
 import com.unera.social.ui.components.InstagramVideoCard
 import com.unera.social.ui.components.GalleryViewerDialog
 import com.unera.social.ui.components.AdminBackgroundStudioCard
+import com.unera.social.ui.navigation.DestinationType
+import com.unera.social.ui.navigation.LocalSmartNavigationController
 import com.unera.social.ui.theme.*
 import android.net.Uri
 import androidx.activity.compose.BackHandler
@@ -128,6 +130,7 @@ fun ProfileScreen(
     var activePostForGallery by remember { mutableStateOf<Post?>(null) }
 
     val clipboardManager = LocalClipboardManager.current
+    val navController = LocalSmartNavigationController.current
 
     val userPosts = remember(allPosts, user.id) {
         allPosts.filter { it.author.id == user.id }
@@ -438,7 +441,11 @@ fun ProfileScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(175.dp)
-                            .clickable { lightboxImage = user.coverImageUrl }
+                            .clickable {
+                                navController?.launchInteractiveTransition(DestinationType.POST) {
+                                    lightboxImage = user.coverImageUrl
+                                } ?: run { lightboxImage = user.coverImageUrl }
+                            }
                     )
 
                     // Edit cover button if owner
@@ -497,7 +504,9 @@ fun ProfileScreen(
                             fontSize = 32.sp,
                             onClick = {
                                 if (user.profileImageUrl.isNotBlank()) {
-                                    lightboxImage = user.profileImageUrl
+                                    navController?.launchInteractiveTransition(DestinationType.POST) {
+                                        lightboxImage = user.profileImageUrl
+                                    } ?: run { lightboxImage = user.profileImageUrl }
                                 }
                             }
                         )
@@ -960,7 +969,10 @@ fun ProfileScreen(
                                     if (isGuest) onRequestAuth() else onSavePost(post.id)
                                 },
                                 onShare = {
-                                    if (isGuest) onRequestAuth() else onSharePost(post.id)
+                                    if (isGuest) onRequestAuth()
+                                    else navController?.launchInteractiveTransition(DestinationType.OTHER) {
+                                        onSharePost(post.id)
+                                    } ?: onSharePost(post.id)
                                 },
                                 onOpenVideo = { postToOpen ->
                                     onOpenVideo?.invoke(postToOpen)
@@ -968,8 +980,13 @@ fun ProfileScreen(
                                 onPushMore = onPushMore,
                                 pushedPosts = pushedPosts,
                                 onOpenGallery = { imgs, idx ->
-                                    activePostForGallery = post
-                                    galleryState = Pair(imgs, idx)
+                                    navController?.launchInteractiveTransition(DestinationType.POST) {
+                                        activePostForGallery = post
+                                        galleryState = Pair(imgs, idx)
+                                    } ?: run {
+                                        activePostForGallery = post
+                                        galleryState = Pair(imgs, idx)
+                                    }
                                 },
                                 onOpenProduct = onOpenProduct,
                                 onDeletePost = onDeletePost,
@@ -1015,7 +1032,10 @@ fun ProfileScreen(
                                     if (isGuest) onRequestAuth() else onSavePost(post.id)
                                 },
                                 onShare = {
-                                    if (isGuest) onRequestAuth() else onSharePost(post.id)
+                                    if (isGuest) onRequestAuth()
+                                    else navController?.launchInteractiveTransition(DestinationType.OTHER) {
+                                        onSharePost(post.id)
+                                    } ?: onSharePost(post.id)
                                 },
                                 onOpenVideo = { postToOpen ->
                                     onOpenVideo?.invoke(postToOpen)
@@ -1023,8 +1043,13 @@ fun ProfileScreen(
                                 onPushMore = onPushMore,
                                 pushedPosts = pushedPosts,
                                 onOpenGallery = { imgs, idx ->
-                                    activePostForGallery = post
-                                    galleryState = Pair(imgs, idx)
+                                    navController?.launchInteractiveTransition(DestinationType.POST) {
+                                        activePostForGallery = post
+                                        galleryState = Pair(imgs, idx)
+                                    } ?: run {
+                                        activePostForGallery = post
+                                        galleryState = Pair(imgs, idx)
+                                    }
                                 },
                                 onOpenProduct = onOpenProduct,
                                 onDeletePost = onDeletePost,
@@ -1159,8 +1184,13 @@ fun ProfileScreen(
                                                 .aspectRatio(1f)
                                                 .clip(RoundedCornerShape(6.dp))
                                                 .clickable {
-                                                    activePostForGallery = post
-                                                    galleryState = Pair(mediaUrls, 0)
+                                                    navController?.launchInteractiveTransition(DestinationType.POST) {
+                                                        activePostForGallery = post
+                                                        galleryState = Pair(mediaUrls, 0)
+                                                    } ?: run {
+                                                        activePostForGallery = post
+                                                        galleryState = Pair(mediaUrls, 0)
+                                                    }
                                                 }
                                         )
                                     }

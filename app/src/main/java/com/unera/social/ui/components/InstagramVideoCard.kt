@@ -561,21 +561,21 @@ fun InstagramVideoCard(
                             contentColor = if (localFollowing) AppColors.textPrimary else Color.White
                         ),
                         shape = RoundedCornerShape(8.dp),
-                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
-                        modifier = Modifier.height(30.dp)
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                        modifier = Modifier.height(34.dp)
                     ) {
                         Icon(
                             imageVector = if (localFollowing) Icons.Filled.Check else Icons.Filled.PersonAdd,
                             contentDescription = null,
                             tint = if (localFollowing) AppColors.textPrimary else Color.White,
-                            modifier = Modifier.size(13.dp)
+                            modifier = Modifier.size(14.dp)
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
+                        Spacer(modifier = Modifier.width(5.dp))
                         Text(
                             text = if (localFollowing) "Following" else "Follow",
                             color = if (localFollowing) AppColors.textPrimary else Color.White,
                             fontFamily = InterFontFamily,
-                            fontSize = 12.sp,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold
                         )
                     }
@@ -881,20 +881,29 @@ fun InstagramVideoCard(
                     } else {
                         showReactionsSheet = true
                     }
-                }
+                },
+                fontSize = 19.sp,
+                fontWeight = FontWeight.SemiBold,
+                fontFamily = InterFontFamily,
+                abbreviateLabel = true,
+                modifier = Modifier.weight(1f, fill = false)
             )
+
+            Spacer(modifier = Modifier.width(6.dp))
 
             // Right side: Discussions and Shares counts
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(14.dp)
+                horizontalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 Text(
-                    text = "$localCommentCount ${if (localCommentCount == 1) "Discussion" else "Discussions"}",
+                    text = "${formatCount(localCommentCount)} Discuss..",
                     fontFamily = InterFontFamily,
-                    fontSize = 13.5.sp,
+                    fontSize = 19.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = AppColors.textSecondary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.clickable {
                         if (isGuest) {
                             onRequestAuth?.invoke()
@@ -904,11 +913,19 @@ fun InstagramVideoCard(
                 )
                 if (localShareCount > 0) {
                     Text(
-                        text = "$localShareCount ${if (localShareCount == 1) "Share" else "Shares"}",
+                        text = "•",
                         fontFamily = InterFontFamily,
-                        fontSize = 13.5.sp,
-                        fontWeight = FontWeight.Medium,
+                        fontSize = 19.sp,
+                        color = AppColors.textSecondary
+                    )
+                    Text(
+                        text = "${formatCount(localShareCount)} Shares",
+                        fontFamily = InterFontFamily,
+                        fontSize = 19.sp,
+                        fontWeight = FontWeight.SemiBold,
                         color = AppColors.textSecondary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.clickable {
                             if (isGuest) {
                                 onRequestAuth?.invoke()
@@ -1449,9 +1466,11 @@ fun VideoDiscussionModal(
                             Text(
                                 text = "Video Discussion",
                                 fontFamily = InterFontFamily,
-                                fontSize = 16.sp,
+                                fontSize = 19.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = AppColors.headerText
+                                color = AppColors.headerText,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                             Surface(
                                 color = AppColors.headerIconBg,

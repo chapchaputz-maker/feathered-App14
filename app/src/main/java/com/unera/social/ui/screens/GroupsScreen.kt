@@ -62,6 +62,8 @@ import com.unera.social.ui.components.DiscussionsSheetDialog
 import com.unera.social.ui.components.GalleryViewerDialog
 import com.unera.social.ui.components.ShareBottomSheetDialog
 import com.unera.social.ui.components.ReactionsSheetDialog
+import com.unera.social.ui.navigation.DestinationType
+import com.unera.social.ui.navigation.LocalSmartNavigationController
 import com.unera.social.data.PostsApiService
 import com.unera.social.ui.components.MediaGrid
 import androidx.compose.ui.platform.testTag
@@ -843,6 +845,7 @@ fun GroupDetailScreen(
     var activeGalleryState by remember { mutableStateOf<Pair<List<String>, Int>?>(null) }
     var activePostForGallery by remember { mutableStateOf<Post?>(null) }
     val context = LocalContext.current
+    val navController = LocalSmartNavigationController.current
 
     val isOwner = group.adminId == currentUser.id
     val isMember = isOwner || group.isMember || group.members.contains(currentUser.id)
@@ -1175,10 +1178,16 @@ fun GroupDetailScreen(
                         onLike = { onToggleLikePost(post.id, "like") },
                         onReact = { reaction -> onToggleLikePost(post.id, reaction) },
                         onComment = {
-                            activeDiscussionPost = post.toPost(group)
+                            val targetPost = post.toPost(group)
+                            navController?.launchInteractiveTransition(DestinationType.COMMENTS) {
+                                activeDiscussionPost = targetPost
+                            } ?: run { activeDiscussionPost = targetPost }
                         },
                         onShare = {
-                            activeSharePost = post.toPost(group)
+                            val targetPost = post.toPost(group)
+                            navController?.launchInteractiveTransition(DestinationType.OTHER) {
+                                activeSharePost = targetPost
+                            } ?: run { activeSharePost = targetPost }
                         },
                         onSave = {
                             Toast.makeText(context, "Post saved to your bookmarks", Toast.LENGTH_SHORT).show()
@@ -1186,8 +1195,14 @@ fun GroupDetailScreen(
                         onDelete = if (isOwner || post.author.id == currentUser.id) { { onDeletePost(post.id) } } else null,
                         onProfileClick = onProfileClick,
                         onOpenGallery = { imgs, idx ->
-                            activePostForGallery = post.toPost(group)
-                            activeGalleryState = Pair(imgs, idx)
+                            val targetPost = post.toPost(group)
+                            navController?.launchInteractiveTransition(DestinationType.POST) {
+                                activePostForGallery = targetPost
+                                activeGalleryState = Pair(imgs, idx)
+                            } ?: run {
+                                activePostForGallery = targetPost
+                                activeGalleryState = Pair(imgs, idx)
+                            }
                         },
                         onOpenReactions = {
                             activeReactionsPost = post.toPost(group)
@@ -1549,12 +1564,19 @@ fun GroupDetailScreen(
             },
             onSharePost = {
                 activeDiscussionPost = null
-                activeSharePost = curPost
+                navController?.launchInteractiveTransition(DestinationType.OTHER) {
+                    activeSharePost = curPost
+                } ?: run { activeSharePost = curPost }
             },
             onSavePost = { },
             onOpenGallery = { imgs, idx ->
-                activePostForGallery = curPost
-                activeGalleryState = Pair(imgs, idx)
+                navController?.launchInteractiveTransition(DestinationType.POST) {
+                    activePostForGallery = curPost
+                    activeGalleryState = Pair(imgs, idx)
+                } ?: run {
+                    activePostForGallery = curPost
+                    activeGalleryState = Pair(imgs, idx)
+                }
             }
         )
     }
