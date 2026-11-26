@@ -37,6 +37,8 @@ object CommentsCache {
     // Persistent in-memory cache: "itemType:id" -> List<Comment>
     // Survives pull-to-refresh so comment previews do not disappear
     private val memoryCache = ConcurrentHashMap<String, List<Comment>>()
+    private val cacheTimestamps = ConcurrentHashMap<String, Long>()
+    private const val COMMENTS_TTL_MS = 90_000L
 
     // In-flight deduplication to prevent duplicate HTTP calls for the same post preview
     private val inFlight = ConcurrentHashMap<String, Boolean>()
@@ -73,9 +75,32 @@ object CommentsCache {
         return memoryCache[cacheKey(itemType, id)]
     }
 
+    fun isFresh(itemType: String, id: Long, nowMs: Long = System.currentTimeMillis()): Boolean {
+        val ts = cacheTimestamps[cacheKey(itemType, id)] ?: return false
+        return (nowMs - ts) <= COMMENTS_TTL_MS
+    }
+
     fun setCachedComments(itemType: String, id: Long, comments: List<Comment>) {
         if (comments.isEmpty()) return
-        memoryCache[cacheKey(itemType, id)] = comments
+        val key = cacheKey(itemType, id)
+        memoryCache[key] = comments
+        cacheTimestamps[key] = System.currentTimeMillis()
+        _cacheVersion.value += 1
+    }
+
+    fun invalidatePost(postId: Long) {
+        val suffix = ":$postId"
+        memoryCache.keys.filter { it.endsWith(suffix) }.forEach {
+            memoryCache.remove(it)
+            cacheTimestamps.remove(it)
+        }
+        _cacheVersion.value += 1
+    }
+
+    fun clearAll() {
+        memoryCache.clear()
+        cacheTimestamps.clear()
+        inFlight.clear()
         _cacheVersion.value += 1
     }
 

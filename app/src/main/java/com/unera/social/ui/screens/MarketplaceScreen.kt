@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -30,10 +31,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
+import com.unera.social.data.SmartNavigationCache
 import com.unera.social.model.Product
 import com.unera.social.model.User
 import com.unera.social.ui.components.rememberRestoredLazyGridState
 import com.unera.social.ui.theme.*
+import kotlinx.coroutines.flow.collectLatest
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -428,6 +431,17 @@ fun MarketplaceScreen(
         }
 
         val gridState = rememberRestoredLazyGridState(key = "MARKETPLACE")
+        val marketContext = LocalContext.current
+
+        LaunchedEffect(gridState, filteredProducts.size) {
+            snapshotFlow { gridState.firstVisibleItemIndex }
+                .collectLatest { firstIdx ->
+                    val end = (firstIdx + 6).coerceAtMost(filteredProducts.size)
+                    for (i in firstIdx.coerceAtLeast(0) until end) {
+                        SmartNavigationCache.prefetchProduct(marketContext, filteredProducts[i])
+                    }
+                }
+        }
 
         // Main 2-Column Product Grid matching web `grid grid-cols-2 gap-[2px] px-[2px] pt-[2px]`
         if (filteredProducts.isNotEmpty()) {

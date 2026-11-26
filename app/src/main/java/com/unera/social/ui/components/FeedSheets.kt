@@ -41,6 +41,8 @@ import com.unera.social.model.Comment
 import com.unera.social.model.Post
 import com.unera.social.model.User
 import com.unera.social.model.UserReaction
+import com.unera.social.ui.navigation.CoordinatedDestinationReveal
+import com.unera.social.ui.navigation.DestinationType
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -887,7 +889,9 @@ fun DiscussionsSheetDialog(
     var expandedCommentIds by remember { mutableStateOf(setOf<Long>()) }
     var showEmojiPicker by remember { mutableStateOf(false) }
     var selectedCommentForActions by remember { mutableStateOf<Comment?>(null) }
-    val listState = rememberLazyListState()
+    val scrollController = LocalScrollRestoration.current
+    val savedCommentPosition = remember(post.id) { scrollController.getSavedListPosition("COMMENTS_${post.id}") }
+    val listState = rememberRestoredLazyListState(key = "COMMENTS_${post.id}")
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
@@ -941,7 +945,9 @@ fun DiscussionsSheetDialog(
     // - Default: scroll to latest discussion
     LaunchedEffect(liveComments.size, isLoadingComments, postTarget) {
         if (!isLoadingComments && !hasAutoScrolledToTarget) {
-            if (postTarget?.mode == NotificationPostMode.VIEW_POST_TOP) {
+            if (postTarget == null && (savedCommentPosition.index > 0 || savedCommentPosition.offset > 0)) {
+                hasAutoScrolledToTarget = true
+            } else if (postTarget?.mode == NotificationPostMode.VIEW_POST_TOP) {
                 hasAutoScrolledToTarget = true
                 listState.scrollToItem(0)
             } else if (liveComments.isNotEmpty()) {
@@ -1048,6 +1054,10 @@ fun DiscussionsSheetDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
+        CoordinatedDestinationReveal(
+            destinationType = if (postTarget?.mode == NotificationPostMode.VIEW_POST_TOP) DestinationType.POST else DestinationType.COMMENTS,
+            key = post.id
+        ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -1668,6 +1678,7 @@ fun DiscussionsSheetDialog(
                     replyingToAuthor = comment.author.name
                 }
             )
+        }
         }
     }
 }

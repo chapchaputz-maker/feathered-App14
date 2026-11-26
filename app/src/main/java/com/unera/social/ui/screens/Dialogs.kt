@@ -53,6 +53,8 @@ import com.unera.social.ui.components.CommentActionModal
 import com.unera.social.ui.components.RemoteImageBackgroundLayer
 import com.unera.social.ui.components.TextPostBackgroundTemplate
 import com.unera.social.ui.components.VerifiedBadge
+import com.unera.social.ui.navigation.CoordinatedDestinationReveal
+import com.unera.social.ui.navigation.DestinationType
 import com.unera.social.ui.theme.*
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
@@ -1974,6 +1976,10 @@ fun ProductDetailDialog(
         onDismissRequest = onDismiss,
         properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)
     ) {
+        CoordinatedDestinationReveal(
+            destinationType = DestinationType.MARKETPLACE_ITEM,
+            key = product.id
+        ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -2373,6 +2379,7 @@ fun ProductDetailDialog(
                     )
                 }
             }
+        }
         }
     }
 }

@@ -42,6 +42,9 @@ import com.unera.social.model.User
 import com.unera.social.ui.components.ChatWindow
 import com.unera.social.ui.components.FeatheredAvatar
 import com.unera.social.ui.components.VerifiedBadge
+import com.unera.social.ui.components.rememberRestoredLazyListState
+import com.unera.social.ui.navigation.CoordinatedDestinationReveal
+import com.unera.social.ui.navigation.DestinationType
 import com.unera.social.ui.theme.*
 
 /**
@@ -88,36 +91,41 @@ fun MessagesScreen(
                 lastTimestamp = "Just now"
             )
 
-        ChatWindow(
-            conversation = activeConv,
-            currentUser = currentUser,
-            isRecipientOnline = recipientOnline || activeConv.participant.isOnline,
-            recipientLastSeen = recipientLastSeen,
-            onBack = onCloseConversation,
-            onSendMessage = { text, replyToId ->
-                onSendMessage(activeConv.id, text, replyToId, emptyList())
-            },
-            onSendAttachment = { att, text ->
-                onSendMessage(activeConv.id, text, null, listOf(att))
-            },
-            onSendFile = { uri, text ->
-                onSendFile?.invoke(activeConv.id, uri, text)
-            },
-            onSendVoiceNote = { bytes, durationSec ->
-                onSendVoiceNote?.invoke(activeConv.id, bytes, durationSec)
-            },
-            onEditMessage = { msgId, text ->
-                onEditMessage?.invoke(activeConv.id, msgId, text)
-            },
-            onDeleteMessage = { msgId, deleteForEveryone ->
-                onDeleteMessage?.invoke(activeConv.id, msgId, deleteForEveryone)
-            },
-            onStartCall = { user, mode ->
-                onStartCall?.invoke(user, mode)
-            },
-            onViewProduct = onViewProduct,
-            modifier = modifier
-        )
+        CoordinatedDestinationReveal(
+            destinationType = DestinationType.MESSAGES,
+            key = activeConversationId
+        ) {
+            ChatWindow(
+                conversation = activeConv,
+                currentUser = currentUser,
+                isRecipientOnline = recipientOnline || activeConv.participant.isOnline,
+                recipientLastSeen = recipientLastSeen,
+                onBack = onCloseConversation,
+                onSendMessage = { text, replyToId ->
+                    onSendMessage(activeConv.id, text, replyToId, emptyList())
+                },
+                onSendAttachment = { att, text ->
+                    onSendMessage(activeConv.id, text, null, listOf(att))
+                },
+                onSendFile = { uri, text ->
+                    onSendFile?.invoke(activeConv.id, uri, text)
+                },
+                onSendVoiceNote = { bytes, durationSec ->
+                    onSendVoiceNote?.invoke(activeConv.id, bytes, durationSec)
+                },
+                onEditMessage = { msgId, text ->
+                    onEditMessage?.invoke(activeConv.id, msgId, text)
+                },
+                onDeleteMessage = { msgId, deleteForEveryone ->
+                    onDeleteMessage?.invoke(activeConv.id, msgId, deleteForEveryone)
+                },
+                onStartCall = { user, mode ->
+                    onStartCall?.invoke(user, mode)
+                },
+                onViewProduct = onViewProduct,
+                modifier = modifier
+            )
+        }
         return
     }
 
@@ -149,7 +157,7 @@ fun MessagesScreen(
 
     // Pagination: initial 10 chats, then infinite scroll loading the next 10
     var visibleChatCount by remember { mutableIntStateOf(10) }
-    val conversationsListState = rememberLazyListState()
+    val conversationsListState = rememberRestoredLazyListState(key = "MESSAGES_LIST")
 
     val shouldLoadMore by remember {
         derivedStateOf {

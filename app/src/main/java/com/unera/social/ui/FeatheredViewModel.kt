@@ -12,6 +12,7 @@ import com.unera.social.data.MarketplaceApiService
 import com.unera.social.data.MockData
 import com.unera.social.data.PostsApiService
 import com.unera.social.data.StoriesApiService
+import com.unera.social.data.FollowDataResult
 import com.unera.social.data.UserApiService
 import com.unera.social.data.UserSessionManager
 import com.unera.social.data.VideosApiService
@@ -28,8 +29,12 @@ import com.unera.social.data.MessagesCache
 import com.unera.social.data.IncomingCall
 import com.unera.social.data.PresenceStatus
 import com.unera.social.data.CallEvent
+import com.unera.social.data.SmartNavigationCache
 import com.unera.social.model.*
 import com.unera.social.ui.components.PostUploadState
+import com.unera.social.ui.navigation.DestinationType
+import com.unera.social.ui.navigation.SmartNavigationController
+import com.unera.social.ui.navigation.isReducedMotionEnabled
 import com.unera.social.ui.screens.toPost
 import com.unera.social.ui.theme.ThemePreferences
 import org.json.JSONObject
@@ -220,7 +225,9 @@ data class FeatheredUiState(
     val postUploadState: PostUploadState? = null,
     val fullScreenImageViewerUrl: String? = null,
     val isAppLoading: Boolean = false,
-    val isLightMode: Boolean = false
+    val isLightMode: Boolean = false,
+    val canNavigateBack: Boolean = false,
+    val isReturningBack: Boolean = false
 )
 
 class FeatheredViewModel(application: Application) : AndroidViewModel(application) {
@@ -241,6 +248,122 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val _uiState = MutableStateFlow(FeatheredUiState())
     val uiState: StateFlow<FeatheredUiState> = _uiState.asStateFlow()
+
+    data class NavBackEntry(
+        val screen: Screen,
+        val selectedUserProfile: User? = null,
+        val selectedUserProfileTab: String = "Posts",
+        val activeGroupId: Long? = null
+    )
+
+    private val navBackStack = ArrayDeque<NavBackEntry>()
+
+    val navigationController = SmartNavigationController(
+        scope = viewModelScope,
+        reducedMotionProvider = { isReducedMotionEnabled(getApplication<Application>().applicationContext) }
+    )
+
+    private fun pushBackStackCurrent() {
+        val state = _uiState.value
+        val currentEntry = NavBackEntry(
+            screen = state.currentScreen,
+            selectedUserProfile = state.selectedUserProfile,
+            selectedUserProfileTab = state.selectedUserProfileTab,
+            activeGroupId = state.activeGroupId
+        )
+        if (navBackStack.lastOrNull() != currentEntry) {
+            navBackStack.addLast(currentEntry)
+            if (navBackStack.size > 24) {
+                navBackStack.removeFirst()
+            }
+        }
+    }
+
+    fun navigateBack(): Boolean {
+        navigationController.cancelActive()
+        val state = _uiState.value
+        if (state.fullScreenImageViewerUrl != null) {
+            closeImageViewer()
+            return true
+        }
+        if (state.showMenuOverlay) {
+            setShowMenuOverlay(false)
+            return true
+        }
+        if (state.showNotificationsOverlay) {
+            setShowNotificationsOverlay(false)
+            return true
+        }
+        if (state.showSearchDialog) {
+            setShowSearchDialog(false)
+            setSearchQuery("")
+            return true
+        }
+        if (state.activeConversationId != null) {
+            closeConversation()
+            return true
+        }
+        if (navBackStack.isNotEmpty()) {
+            val prev = navBackStack.removeLast()
+            navigationController.recordTransition(
+                when (prev.screen) {
+                    Screen.PROFILE -> DestinationType.PROFILE
+                    Screen.MARKETPLACE -> DestinationType.MARKETPLACE_LIST
+                    Screen.MESSAGES -> DestinationType.MESSAGES
+                    else -> DestinationType.FEED
+                }
+            )
+            _uiState.update {
+                it.copy(
+                    currentScreen = prev.screen,
+                    selectedUserProfile = prev.selectedUserProfile,
+                    selectedUserProfileTab = prev.selectedUserProfileTab,
+                    activeGroupId = prev.activeGroupId,
+                    canNavigateBack = navBackStack.isNotEmpty(),
+                    isReturningBack = true
+                )
+            }
+            return true
+        }
+        if (state.currentScreen != Screen.FEED) {
+            navigationController.recordTransition(DestinationType.FEED)
+            _uiState.update {
+                it.copy(
+                    currentScreen = Screen.FEED,
+                    selectedUserProfile = null,
+                    canNavigateBack = false,
+                    isReturningBack = true
+                )
+            }
+            return true
+        }
+        return false
+    }
+
+    fun prefetchProfile(user: User) {
+        SmartNavigationCache.prefetchProfile(
+            context = getApplication<Application>().applicationContext,
+            scope = viewModelScope,
+            userId = user.id,
+            knownUser = user
+        )
+    }
+
+    fun prefetchPost(post: Post) {
+        SmartNavigationCache.prefetchPost(
+            context = getApplication<Application>().applicationContext,
+            scope = viewModelScope,
+            post = post,
+            viewerId = _uiState.value.currentUser.id
+        )
+    }
+
+    fun prefetchProduct(product: Product) {
+        SmartNavigationCache.prefetchProduct(
+            context = getApplication<Application>().applicationContext,
+            product = product
+        )
+    }
 
     init {
         // Session restore on app load matching App.tsx auto-on-app-load
@@ -480,6 +603,8 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
                     isFeedLoading = false
                 )
             }
+            SmartNavigationCache.markScreenRefreshed("FEED")
+            enrichedPosts.forEach { SmartNavigationCache.cachePost(it) }
 
             // Check for missing authors whose ID is > 0 but not yet in cached users
             val missingUserIds = enrichedPosts
@@ -507,12 +632,15 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    fun fetchUserProfilePosts(userId: Long) {
+    fun fetchUserProfilePosts(userId: Long, showLoadingIndicator: Boolean = true) {
         launchSafe {
-            _uiState.update { it.copy(isProfilePostsLoading = true) }
+            if (showLoadingIndicator && (_uiState.value.userProfilePosts[userId].isNullOrEmpty())) {
+                _uiState.update { it.copy(isProfilePostsLoading = true) }
+            }
             val userPosts = PostsApiService.fetchUserPosts(userId)
             val currentUsers = _uiState.value.users
             val enriched = enrichPostsWithAuthors(userPosts, currentUsers)
+            SmartNavigationCache.cacheProfilePosts(userId, enriched)
             _uiState.update { state ->
                 val updatedMap = state.userProfilePosts + (userId to enriched)
                 state.copy(
@@ -525,8 +653,11 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun refreshLiveProducts() {
         launchSafe {
-            _uiState.update { it.copy(isProductsLoading = true) }
+            if (_uiState.value.products.isEmpty()) {
+                _uiState.update { it.copy(isProductsLoading = true) }
+            }
             val liveProducts = MarketplaceApiService.fetchLiveProducts()
+            SmartNavigationCache.cacheProducts(liveProducts)
             _uiState.update { state ->
                 state.copy(
                     products = liveProducts,
@@ -542,6 +673,7 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
             val liveEvents = EventsApiService.fetchLiveEvents(uid)
             if (liveEvents.isNotEmpty()) {
                 val enriched = enrichEventsWithOrganizers(liveEvents, _uiState.value.users)
+                SmartNavigationCache.markScreenRefreshed("EVENTS")
                 _uiState.update { state ->
                     state.copy(events = enriched)
                 }
@@ -598,33 +730,197 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun setScreen(screen: Screen) {
-        _uiState.update {
-            it.copy(
-                currentScreen = screen,
-                activeConversationId = if (screen != Screen.MESSAGES) null else it.activeConversationId
-            )
+        val prevState = _uiState.value
+        val destType = when (screen) {
+            Screen.FEED -> DestinationType.FEED
+            Screen.PROFILE -> DestinationType.PROFILE
+            Screen.MARKETPLACE -> DestinationType.MARKETPLACE_LIST
+            Screen.MESSAGES -> DestinationType.MESSAGES
+            Screen.GROUPS -> DestinationType.GROUPS
+            Screen.EVENTS -> DestinationType.EVENTS
+            Screen.MUSIC -> DestinationType.MUSIC
+            Screen.REELS -> DestinationType.REELS
+            else -> DestinationType.OTHER
         }
-        if (screen == Screen.MARKETPLACE) {
-            refreshLiveProducts()
-        } else if (screen == Screen.EVENTS) {
-            refreshLiveEvents()
-        } else if (screen == Screen.DISCOVER_PEOPLE) {
-            fetchPeopleYouMayKnow()
-            fetchLiveUsers()
-        } else if (screen == Screen.FEED) {
-            refreshFeed()
-            refreshStories()
-        } else if (screen == Screen.REELS) {
-            refreshVideos()
-            refreshFeedAds()
-        } else if (screen == Screen.PROFILE) {
-            val uid = _uiState.value.selectedUserProfile?.id ?: _uiState.value.currentUser.id
-            fetchUserProfilePosts(uid)
-        } else if (screen == Screen.GROUPS) {
-            refreshGroups()
-        } else if (screen == Screen.MUSIC) {
-            refreshLiveSongs()
+
+        if (screen == Screen.PROFILE && prevState.selectedUserProfile == null) {
+            openCurrentUserProfile()
+            return
         }
+
+        val hasCachedScreenData = when (screen) {
+            Screen.FEED -> prevState.posts.isNotEmpty() || SmartNavigationCache.isScreenFresh("FEED")
+            Screen.MARKETPLACE -> prevState.products.isNotEmpty() || SmartNavigationCache.isScreenFresh("MARKETPLACE")
+            Screen.EVENTS -> prevState.events.isNotEmpty() || SmartNavigationCache.isScreenFresh("EVENTS")
+            Screen.GROUPS -> prevState.groups.isNotEmpty() || SmartNavigationCache.isScreenFresh("GROUPS")
+            Screen.MUSIC -> prevState.songs.isNotEmpty() || SmartNavigationCache.isScreenFresh("MUSIC")
+            Screen.REELS -> prevState.videoPosts.isNotEmpty() || prevState.posts.any { !it.videoUrl.isNullOrBlank() } || SmartNavigationCache.isScreenFresh("REELS")
+            Screen.MESSAGES -> {
+                val uid = prevState.currentUser.id
+                prevState.isGuest || uid <= 0L || prevState.conversations.isNotEmpty() ||
+                    MessagesCache.getCachedConversations(getApplication<Application>().applicationContext, uid).isNotEmpty()
+            }
+            Screen.PROFILE -> {
+                val uid = prevState.selectedUserProfile?.id ?: prevState.currentUser.id
+                prevState.userProfilePosts.containsKey(uid) || SmartNavigationCache.getProfilePosts(uid) != null
+            }
+            else -> true
+        }
+
+        val commitScreen: () -> Unit = {
+            if (prevState.currentScreen != screen) {
+                if (screen == Screen.FEED) {
+                    navBackStack.clear()
+                } else {
+                    pushBackStackCurrent()
+                }
+            }
+            _uiState.update {
+                it.copy(
+                    currentScreen = screen,
+                    activeConversationId = if (screen != Screen.MESSAGES) null else it.activeConversationId,
+                    canNavigateBack = navBackStack.isNotEmpty(),
+                    isReturningBack = false
+                )
+            }
+        }
+
+        navigationController.navigate(
+            destinationType = destType,
+            hasCachedData = hasCachedScreenData,
+            onCachedCommit = {
+                commitScreen()
+            },
+            onBackgroundRefresh = {
+                when (screen) {
+                    Screen.FEED -> {
+                        if (!SmartNavigationCache.isScreenFresh("FEED")) {
+                            refreshFeed()
+                            refreshStories()
+                        }
+                    }
+                    Screen.MARKETPLACE -> {
+                        if (!SmartNavigationCache.isScreenFresh("MARKETPLACE")) {
+                            refreshLiveProducts()
+                        }
+                    }
+                    Screen.EVENTS -> {
+                        if (!SmartNavigationCache.isScreenFresh("EVENTS")) {
+                            refreshLiveEvents()
+                        }
+                    }
+                    Screen.DISCOVER_PEOPLE -> {
+                        fetchPeopleYouMayKnow()
+                        fetchLiveUsers()
+                    }
+                    Screen.REELS -> {
+                        if (!SmartNavigationCache.isScreenFresh("REELS")) {
+                            refreshVideos()
+                            refreshFeedAds()
+                        }
+                    }
+                    Screen.PROFILE -> {
+                        val uid = _uiState.value.selectedUserProfile?.id ?: _uiState.value.currentUser.id
+                        val cachedPosts = SmartNavigationCache.getProfilePosts(uid)
+                        if (cachedPosts == null || !cachedPosts.isFresh()) {
+                            fetchUserProfilePosts(uid, showLoadingIndicator = false)
+                        }
+                    }
+                    Screen.GROUPS -> {
+                        if (!SmartNavigationCache.isScreenFresh("GROUPS")) {
+                            refreshGroups()
+                        }
+                    }
+                    Screen.MUSIC -> {
+                        if (!SmartNavigationCache.isScreenFresh("MUSIC")) {
+                            refreshLiveSongs()
+                        }
+                    }
+                    Screen.MESSAGES -> {
+                        refreshConversations(silent = true)
+                    }
+                    else -> Unit
+                }
+            },
+            onFetchData = { reportProgress ->
+                when (screen) {
+                    Screen.MARKETPLACE -> {
+                        val liveProducts = MarketplaceApiService.fetchLiveProducts()
+                        reportProgress(0.85f)
+                        SmartNavigationCache.cacheProducts(liveProducts)
+                        _uiState.update { it.copy(products = liveProducts, isProductsLoading = false) }
+                        true
+                    }
+                    Screen.GROUPS -> {
+                        val viewerId = _uiState.value.currentUser.id
+                        val liveGroups = GroupsApiService.fetchGroups(viewerId)
+                        reportProgress(0.55f)
+                        val rawSuggestions = GroupsApiService.fetchGroupSuggestions(viewerId)
+                        val joinedIds = liveGroups.filter { g ->
+                            g.isMember || (viewerId > 0L && (g.adminId == viewerId || g.members.contains(viewerId)))
+                        }.map { it.id }.toSet()
+                        val suggestions = rawSuggestions.filter { g ->
+                            g.id !in joinedIds && !g.isMember && (viewerId <= 0L || (g.adminId != viewerId && !g.members.contains(viewerId)))
+                        }
+                        val invites = GroupsApiService.fetchGroupInvites(viewerId)
+                        SmartNavigationCache.markScreenRefreshed("GROUPS")
+                        _uiState.update {
+                            it.copy(
+                                groups = liveGroups,
+                                groupSuggestions = suggestions,
+                                groupInvites = invites,
+                                isGroupsLoading = false
+                            )
+                        }
+                        true
+                    }
+                    Screen.MUSIC -> {
+                        val liveSongs = SongsApiService.fetchSongs()
+                        reportProgress(0.85f)
+                        SmartNavigationCache.markScreenRefreshed("MUSIC")
+                        _uiState.update { it.copy(songs = liveSongs, isSongsLoading = false) }
+                        true
+                    }
+                    Screen.MESSAGES -> {
+                        val uid = _uiState.value.currentUser.id
+                        val ctx = getApplication<Application>().applicationContext
+                        val token = UserSessionManager.getAuthToken(ctx)
+                        val live = MessagesApiService.fetchConversations(uid, token)
+                        reportProgress(0.85f)
+                        if (live.isNotEmpty()) {
+                            MessagesCache.setCachedConversations(ctx, uid, live)
+                            _uiState.update { it.copy(conversations = live, isConversationsLoading = false) }
+                        }
+                        true
+                    }
+                    Screen.FEED -> {
+                        refreshFeed()
+                        refreshStories()
+                        true
+                    }
+                    Screen.EVENTS -> {
+                        refreshLiveEvents()
+                        true
+                    }
+                    Screen.REELS -> {
+                        refreshVideos()
+                        refreshFeedAds()
+                        true
+                    }
+                    else -> true
+                }
+            },
+            onCommit = {
+                commitScreen()
+                if (screen == Screen.DISCOVER_PEOPLE) {
+                    fetchPeopleYouMayKnow()
+                    fetchLiveUsers()
+                }
+            },
+            onUnavailableOrError = {
+                commitScreen()
+            }
+        )
     }
 
     fun setMarketMode(mode: String) {
@@ -1834,9 +2130,14 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
     fun deletePost(postId: Long) {
         val post = _uiState.value.posts.find { it.id == postId }
         val pid = post?.product?.id ?: postId
+        SmartNavigationCache.invalidatePost(postId)
+        if (post?.product != null || post?.postType == "product") {
+            SmartNavigationCache.invalidateProduct(pid)
+        }
         _uiState.update { state ->
             state.copy(
                 posts = state.posts.filterNot { it.id == postId },
+                userProfilePosts = state.userProfilePosts.mapValues { (_, list) -> list.filterNot { it.id == postId } },
                 products = if (post?.product != null || post?.postType == "product") state.products.filterNot { it.id == pid } else state.products
             )
         }
@@ -1867,6 +2168,7 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun hidePost(postId: Long) {
+        SmartNavigationCache.invalidatePost(postId)
         _uiState.update { state ->
             state.copy(posts = state.posts.filterNot { it.id == postId })
         }
@@ -2640,37 +2942,89 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
         val uid = _uiState.value.currentUser.id
         val token = UserSessionManager.getAuthToken(context)
 
-        _uiState.update { state ->
-            val updated = state.conversations.map {
-                if (it.id == convId) it.copy(unreadCount = 0) else it
-            }
-            state.copy(
-                conversations = updated,
-                activeConversationId = convId
-            )
-        }
-
         val conv = _uiState.value.conversations.find { it.id == convId } ?: return
         val otherId = conv.participant.id
-
-        // Load cached messages first for instantaneous display
-        if (conv.messages.isEmpty() && uid > 0 && otherId > 0) {
-            val cachedMsgs = MessagesCache.getCachedMessages(context, uid, otherId)
-            if (cachedMsgs.isNotEmpty()) {
-                _uiState.update { state ->
-                    state.copy(
-                        conversations = state.conversations.map {
-                            if (it.id == convId) it.copy(messages = cachedMsgs) else it
-                        }
-                    )
-                }
-            }
+        val diskCachedMsgs = if (conv.messages.isEmpty() && uid > 0 && otherId > 0) {
+            MessagesCache.getCachedMessages(context, uid, otherId)
+        } else {
+            emptyList()
         }
+        val initialMsgs = if (conv.messages.isNotEmpty()) conv.messages else diskCachedMsgs
+        val isBrandNewEmptyChat = conv.rawConversationId <= 0L && conv.lastMessage.isBlank() && initialMsgs.isEmpty()
+        val hasCachedChat = initialMsgs.isNotEmpty() || isBrandNewEmptyChat || SmartNavigationCache.hasVisited("conv:$convId")
+
+        val commitOpen: (List<ChatMessage>, Long?) -> Unit = { msgsToShow, resolvedCid ->
+            SmartNavigationCache.markVisited("conv:$convId")
+            _uiState.update { state ->
+                val updated = state.conversations.map {
+                    if (it.id == convId) {
+                        val merged = if (msgsToShow.isNotEmpty()) mergeMessages(it.messages, msgsToShow) else it.messages
+                        it.copy(
+                            unreadCount = 0,
+                            messages = merged,
+                            rawConversationId = resolvedCid ?: it.rawConversationId
+                        )
+                    } else it
+                }
+                state.copy(
+                    conversations = updated,
+                    activeConversationId = convId
+                )
+            }
+            startInChatPolling(convId, otherId, resolvedCid ?: conv.rawConversationId)
+        }
+
+        navigationController.navigate(
+            destinationType = DestinationType.MESSAGES,
+            hasCachedData = hasCachedChat,
+            onCachedCommit = {
+                commitOpen(initialMsgs, conv.rawConversationId.takeIf { it > 0 })
+            },
+            onFetchData = { reportProgress ->
+                var cid = conv.rawConversationId.takeIf { it > 0 }
+                    ?: MessagesCache.getCachedConversationId(context, uid, otherId).takeIf { it > 0 }
+                    ?: conv.id.toLongOrNull()
+
+                if ((cid == null || cid <= 0L) && uid > 0 && otherId > 0) {
+                    val all = MessagesApiService.fetchConversations(uid, token)
+                    val match = all.find { it.participant.id == otherId }
+                    if (match != null && match.rawConversationId > 0) {
+                        cid = match.rawConversationId
+                        MessagesCache.setCachedConversationId(context, uid, otherId, cid)
+                    }
+                    reportProgress(0.45f)
+                }
+
+                val history = if (cid != null && cid > 0L && uid > 0) {
+                    val fetched = MessagesApiService.fetchMessageHistory(cid, uid, token)
+                    if (fetched.isNotEmpty() && otherId > 0) {
+                        MessagesCache.setCachedMessages(context, uid, otherId, fetched)
+                    }
+                    reportProgress(0.85f)
+                    fetched
+                } else emptyList()
+
+                Pair(history, cid)
+            },
+            onCommit = { (history, resolvedCid) ->
+                commitOpen(history, resolvedCid)
+            },
+            onUnavailableOrError = {
+                commitOpen(initialMsgs, conv.rawConversationId.takeIf { it > 0 })
+            }
+        )
+    }
+
+    private fun startInChatPolling(convId: String, otherId: Long, knownCid: Long) {
+        val context = getApplication<Application>().applicationContext
+        val uid = _uiState.value.currentUser.id
+        val token = UserSessionManager.getAuthToken(context)
+        val conv = _uiState.value.conversations.find { it.id == convId } ?: return
 
         // Start live in-chat polling
         inChatPollJob?.cancel()
         inChatPollJob = viewModelScope.launch {
-            var cid = conv.rawConversationId.takeIf { it > 0 }
+            var cid = knownCid.takeIf { it > 0 }
                 ?: MessagesCache.getCachedConversationId(context, uid, otherId).takeIf { it > 0 }
                 ?: conv.id.toLongOrNull()
 
@@ -3170,6 +3524,7 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
                     limit = fetchLimit,
                     offset = 0
                 )
+                SmartNavigationCache.cacheNotifications(curUid, liveNotifs)
                 _uiState.update { state ->
                     state.copy(
                         notifications = liveNotifs,
@@ -3425,18 +3780,25 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
                 if (entityId != null && entityId > 0L && (isCommentAction || isReactionOrShareAction)) {
                     val foundPost = _uiState.value.posts.find { it.id == entityId }
                         ?: _uiState.value.userProfilePosts.values.flatten().find { it.id == entityId }
+                        ?: SmartNavigationCache.getPost(entityId)?.data
                     if (foundPost != null) {
                         openPostWithTarget(foundPost)
                     } else {
-                        launchSafe {
-                            val curUid = _uiState.value.currentUser.id
-                            val token = UserSessionManager.getAuthToken(getApplication<Application>().applicationContext)
-                            val fetched = PostsApiService.fetchPostById(entityId, curUid, token)
-                            if (fetched != null) {
-                                val enriched = enrichPostsWithAuthors(listOf(fetched), _uiState.value.users).firstOrNull() ?: fetched
+                        val curUid = _uiState.value.currentUser.id
+                        val token = UserSessionManager.getAuthToken(getApplication<Application>().applicationContext)
+                        navigationController.navigate(
+                            destinationType = DestinationType.POST,
+                            hasCachedData = false,
+                            onFetchData = { reportProgress ->
+                                val fetched = PostsApiService.fetchPostById(entityId, curUid, token)
+                                reportProgress(0.82f)
+                                fetched?.let { enrichPostsWithAuthors(listOf(it), _uiState.value.users).firstOrNull() ?: it }
+                            },
+                            onCommit = { enriched ->
+                                SmartNavigationCache.cachePost(enriched)
                                 openPostWithTarget(enriched)
                             }
-                        }
+                        )
                     }
                 }
             }
@@ -3462,6 +3824,7 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
                     val foundVideo = _uiState.value.videoPosts.find { it.id == entityId }
                         ?: _uiState.value.posts.find { it.id == entityId }
                         ?: _uiState.value.userProfilePosts.values.flatten().find { it.id == entityId }
+                        ?: SmartNavigationCache.getPost(entityId)?.data
                     if (foundVideo != null) {
                         if (isCommentAction) {
                             openPostWithTarget(foundVideo)
@@ -3469,21 +3832,28 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
                             openVideoReel(foundVideo)
                         }
                     } else {
-                        launchSafe {
-                            val curUid = _uiState.value.currentUser.id
-                            val token = UserSessionManager.getAuthToken(getApplication<Application>().applicationContext)
-                            val fetched = PostsApiService.fetchPostById(entityId, curUid, token)
-                            if (fetched != null) {
-                                val enriched = enrichPostsWithAuthors(listOf(fetched), _uiState.value.users).firstOrNull() ?: fetched
+                        val curUid = _uiState.value.currentUser.id
+                        val token = UserSessionManager.getAuthToken(getApplication<Application>().applicationContext)
+                        navigationController.navigate(
+                            destinationType = if (isCommentAction) DestinationType.COMMENTS else DestinationType.REELS,
+                            hasCachedData = false,
+                            onFetchData = { reportProgress ->
+                                val fetched = PostsApiService.fetchPostById(entityId, curUid, token)
+                                reportProgress(0.82f)
+                                fetched?.let { enrichPostsWithAuthors(listOf(it), _uiState.value.users).firstOrNull() ?: it }
+                            },
+                            onCommit = { enriched ->
+                                SmartNavigationCache.cachePost(enriched)
                                 if (isCommentAction) {
                                     openPostWithTarget(enriched)
                                 } else {
                                     openVideoReel(enriched)
                                 }
-                            } else {
+                            },
+                            onUnavailableOrError = {
                                 setScreen(Screen.REELS)
                             }
-                        }
+                        )
                     }
                 } else {
                     setScreen(Screen.REELS)
@@ -3502,22 +3872,32 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
                     val targetPost = _uiState.value.posts.find { it.id == entityId }
                         ?: _uiState.value.videoPosts.find { it.id == entityId }
                         ?: _uiState.value.userProfilePosts.values.flatten().find { it.id == entityId }
+                        ?: SmartNavigationCache.getPost(entityId)?.data
                     if (targetPost != null) {
                         openPostWithTarget(targetPost)
                     } else {
-                        launchSafe {
-                            val curUid = _uiState.value.currentUser.id
-                            val token = UserSessionManager.getAuthToken(getApplication<Application>().applicationContext)
-                            val fetched = PostsApiService.fetchPostById(entityId, curUid, token)
-                            if (fetched != null) {
-                                val enriched = enrichPostsWithAuthors(listOf(fetched), _uiState.value.users).firstOrNull() ?: fetched
+                        val curUid = _uiState.value.currentUser.id
+                        val token = UserSessionManager.getAuthToken(getApplication<Application>().applicationContext)
+                        navigationController.navigate(
+                            destinationType = if (isCommentAction) DestinationType.COMMENTS else DestinationType.POST,
+                            hasCachedData = false,
+                            onFetchData = { reportProgress ->
+                                val fetched = PostsApiService.fetchPostById(entityId, curUid, token)
+                                reportProgress(0.84f)
+                                fetched?.let { enrichPostsWithAuthors(listOf(it), _uiState.value.users).firstOrNull() ?: it }
+                            },
+                            onCommit = { enriched ->
+                                SmartNavigationCache.cachePost(enriched)
                                 openPostWithTarget(enriched)
-                            } else if (notification.user.id > 0L) {
-                                openUserProfileById(notification.user.id)
-                            } else {
-                                setScreen(Screen.FEED)
+                            },
+                            onUnavailableOrError = {
+                                if (notification.user.id > 0L) {
+                                    openUserProfileById(notification.user.id)
+                                } else {
+                                    setScreen(Screen.FEED)
+                                }
                             }
-                        }
+                        )
                     }
                 } else if (notification.user.id > 0L && (entityType == "profile" || rawType == "follow")) {
                     openUserProfileById(notification.user.id)
@@ -3696,63 +4076,151 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun openUserProfile(user: User, tab: String = "Posts") {
-        _uiState.update { state ->
-            state.copy(
-                selectedUserProfile = user,
-                selectedUserProfileTab = tab,
-                currentScreen = Screen.PROFILE
-            )
-        }
-        fetchUserProfilePosts(user.id)
-        viewModelScope.launch {
-            val followData = UserApiService.fetchUserFollowData(user.id)
-            if (followData != null) {
-                val currentUid = _uiState.value.currentUser.id
-                val isF = followData.followers.contains(currentUid)
-                _uiState.update { state ->
-                    val updatedProfile = if (state.selectedUserProfile?.id == user.id) {
-                        state.selectedUserProfile?.copy(
-                            followersCount = followData.followers.size,
-                            followingCount = followData.following.size,
-                            isFollowing = isF
-                        )
-                    } else state.selectedUserProfile
-                    state.copy(
-                        selectedUserProfile = updatedProfile,
-                        users = state.users.map {
-                            if (it.id == user.id) it.copy(
-                                followersCount = followData.followers.size,
-                                followingCount = followData.following.size,
-                                isFollowing = isF
-                            ) else it
-                        }
-                    )
-                }
+        val cachedPostsEntry = SmartNavigationCache.getProfilePosts(user.id)
+        val cachedPosts = cachedPostsEntry?.data ?: _uiState.value.userProfilePosts[user.id]
+        val hasCachedProfile = cachedPosts != null || SmartNavigationCache.hasVisited("profile:${user.id}")
+
+        val commitProfile: (User, List<Post>?) -> Unit = { resolvedUser, fetchedPosts ->
+            SmartNavigationCache.cacheProfile(resolvedUser)
+            if (fetchedPosts != null) {
+                SmartNavigationCache.cacheProfilePosts(resolvedUser.id, fetchedPosts)
             }
+            pushBackStackCurrent()
+            _uiState.update { state ->
+                val updatedMap = if (fetchedPosts != null) {
+                    state.userProfilePosts + (resolvedUser.id to fetchedPosts)
+                } else {
+                    state.userProfilePosts
+                }
+                state.copy(
+                    selectedUserProfile = resolvedUser,
+                    selectedUserProfileTab = tab,
+                    currentScreen = Screen.PROFILE,
+                    userProfilePosts = updatedMap,
+                    users = (state.users.map { if (it.id == resolvedUser.id) resolvedUser else it } +
+                        if (state.users.none { it.id == resolvedUser.id }) listOf(resolvedUser) else emptyList()),
+                    canNavigateBack = navBackStack.isNotEmpty(),
+                    isReturningBack = false
+                )
+            }
+        }
+
+        navigationController.navigate(
+            destinationType = DestinationType.PROFILE,
+            hasCachedData = hasCachedProfile,
+            onCachedCommit = {
+                val bestUser = SmartNavigationCache.getProfile(user.id)?.data ?: user
+                commitProfile(bestUser, cachedPosts)
+            },
+            onBackgroundRefresh = {
+                val isFresh = cachedPostsEntry?.isFresh() == true
+                if (!isFresh) {
+                    fetchUserProfilePosts(user.id, showLoadingIndicator = false)
+                }
+                val followData = UserApiService.fetchUserFollowData(user.id)
+                if (followData != null) {
+                    applyFollowDataToProfile(user.id, followData)
+                }
+            },
+            onFetchData = { reportProgress ->
+                val posts = PostsApiService.fetchUserPosts(user.id)
+                val enriched = enrichPostsWithAuthors(posts, _uiState.value.users)
+                reportProgress(0.65f)
+                val followData = UserApiService.fetchUserFollowData(user.id)
+                val currentUid = _uiState.value.currentUser.id
+                val finalUser = if (followData != null) {
+                    user.copy(
+                        followersCount = followData.followers.size,
+                        followingCount = followData.following.size,
+                        isFollowing = followData.followers.contains(currentUid)
+                    )
+                } else user
+                reportProgress(0.90f)
+                Pair(finalUser, enriched)
+            },
+            onCommit = { (finalUser, enriched) ->
+                commitProfile(finalUser, enriched)
+            },
+            onUnavailableOrError = {
+                commitProfile(user, cachedPosts)
+            }
+        )
+    }
+
+    private fun applyFollowDataToProfile(userId: Long, followData: FollowDataResult) {
+        val currentUid = _uiState.value.currentUser.id
+        val isF = followData.followers.contains(currentUid)
+        _uiState.update { state ->
+            val updatedProfile = if (state.selectedUserProfile?.id == userId) {
+                state.selectedUserProfile?.copy(
+                    followersCount = followData.followers.size,
+                    followingCount = followData.following.size,
+                    isFollowing = isF
+                )
+            } else state.selectedUserProfile
+            updatedProfile?.let { SmartNavigationCache.cacheProfile(it) }
+            state.copy(
+                selectedUserProfile = updatedProfile,
+                users = state.users.map {
+                    if (it.id == userId) it.copy(
+                        followersCount = followData.followers.size,
+                        followingCount = followData.following.size,
+                        isFollowing = isF
+                    ) else it
+                }
+            )
         }
     }
 
     fun openUserProfileById(userId: Long, tab: String = "Posts") {
-        val cached = _uiState.value.users.find { it.id == userId }
-        if (cached != null) {
-            openUserProfile(cached, tab = tab)
-        } else {
-            viewModelScope.launch {
+        val cachedUser = SmartNavigationCache.getProfile(userId)?.data
+            ?: _uiState.value.users.find { it.id == userId }
+        if (cachedUser != null) {
+            openUserProfile(cachedUser, tab = tab)
+            return
+        }
+
+        navigationController.navigate(
+            destinationType = DestinationType.PROFILE,
+            hasCachedData = false,
+            onFetchData = { reportProgress ->
                 val liveUser = VideosApiService.fetchUser(userId)
-                if (liveUser != null) {
-                    _uiState.update { state ->
-                        state.copy(users = (state.users + liveUser).distinctBy { it.id })
-                    }
-                    openUserProfile(liveUser, tab = tab)
-                } else {
-                    val fromPost = _uiState.value.posts.find { it.author.id == userId }?.author
-                        ?: _uiState.value.videoPosts.find { it.author.id == userId }?.author
-                    if (fromPost != null) {
-                        openUserProfile(fromPost, tab = tab)
-                    }
+                    ?: UserApiService.fetchUserById(userId)
+                    ?: _uiState.value.posts.find { it.author.id == userId }?.author
+                    ?: _uiState.value.videoPosts.find { it.author.id == userId }?.author
+                    ?: return@navigate null
+                reportProgress(0.45f)
+                val posts = PostsApiService.fetchUserPosts(userId)
+                val enriched = enrichPostsWithAuthors(posts, _uiState.value.users + liveUser)
+                reportProgress(0.80f)
+                val followData = UserApiService.fetchUserFollowData(userId)
+                val currentUid = _uiState.value.currentUser.id
+                val finalUser = if (followData != null) {
+                    liveUser.copy(
+                        followersCount = followData.followers.size,
+                        followingCount = followData.following.size,
+                        isFollowing = followData.followers.contains(currentUid)
+                    )
+                } else liveUser
+                Pair(finalUser, enriched)
+            },
+            onCommit = { (finalUser, enriched) ->
+                SmartNavigationCache.cacheProfile(finalUser)
+                SmartNavigationCache.cacheProfilePosts(finalUser.id, enriched)
+                pushBackStackCurrent()
+                _uiState.update { state ->
+                    state.copy(
+                        users = (state.users + finalUser).distinctBy { it.id },
+                        userProfilePosts = state.userProfilePosts + (finalUser.id to enriched),
+                        selectedUserProfile = finalUser,
+                        selectedUserProfileTab = tab,
+                        currentScreen = Screen.PROFILE,
+                        canNavigateBack = navBackStack.isNotEmpty(),
+                        isReturningBack = false
+                    )
                 }
             }
-        }
+        )
     }
 
     fun openCurrentUserProfile() {
@@ -3761,28 +4229,7 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
             return
         }
         val current = _uiState.value.currentUser
-        _uiState.update { state ->
-            state.copy(
-                selectedUserProfile = current,
-                currentScreen = Screen.PROFILE
-            )
-        }
-        fetchUserProfilePosts(current.id)
-        viewModelScope.launch {
-            val followData = UserApiService.fetchUserFollowData(current.id)
-            if (followData != null) {
-                _uiState.update { state ->
-                    val updatedCurrent = state.currentUser.copy(
-                        followersCount = followData.followers.size,
-                        followingCount = followData.following.size
-                    )
-                    state.copy(
-                        currentUser = updatedCurrent,
-                        selectedUserProfile = if (state.selectedUserProfile?.id == current.id) updatedCurrent else state.selectedUserProfile
-                    )
-                }
-            }
-        }
+        openUserProfile(current, tab = "Posts")
     }
 
     fun toggleVerifyUser(userId: Long) {
@@ -3850,56 +4297,107 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun setSelectedPostForComments(post: Post?, preserveNotificationTarget: Boolean = false) {
-        _uiState.update {
-            it.copy(
-                selectedPostForComments = post,
-                notificationPostTarget = if (post == null || !preserveNotificationTarget) null else it.notificationPostTarget
-            )
+        if (post == null) {
+            navigationController.cancelActive()
+            _uiState.update {
+                it.copy(
+                    selectedPostForComments = null,
+                    notificationPostTarget = null
+                )
+            }
+            return
         }
-        if (post != null) {
+
+        val itemType = CommentsCache.resolveItemType(post)
+        val cachedComments = CommentsCache.getCachedComments(itemType, post.id)
+        val initialComments = when {
+            post.comments.isNotEmpty() -> post.comments
+            !cachedComments.isNullOrEmpty() -> cachedComments
+            else -> emptyList()
+        }
+        val hasCachedComments = initialComments.isNotEmpty() || post.commentsCount <= 0
+
+        val commitPostSheet: (Post) -> Unit = { resolvedPost ->
+            SmartNavigationCache.cachePost(resolvedPost)
+            SmartNavigationCache.markVisited("comments:${resolvedPost.id}")
+            _uiState.update {
+                it.copy(
+                    selectedPostForComments = resolvedPost,
+                    notificationPostTarget = if (!preserveNotificationTarget) null else it.notificationPostTarget
+                )
+            }
+        }
+
+        val fetchCommentsForPost: suspend () -> List<Comment> = {
             val pid = post.product?.id ?: post.id
             if (post.product != null || post.postType == "product") {
-                viewModelScope.launch {
-                    val liveReviews = MarketplaceApiService.fetchProductReviews(pid, _uiState.value.currentUser.id)
-                    if (liveReviews.isNotEmpty()) {
-                        _uiState.update { state ->
-                            val updatedPosts = state.posts.map { p ->
-                                if (p.id == post.id) p.copy(comments = liveReviews, commentsCount = liveReviews.size) else p
-                            }
-                            val updatedSel = if (state.selectedPostForComments?.id == post.id) {
-                                state.selectedPostForComments?.copy(comments = liveReviews, commentsCount = liveReviews.size)
-                            } else state.selectedPostForComments
-                            state.copy(
-                                posts = updatedPosts,
-                                selectedPostForComments = updatedSel
-                            )
-                        }
-                    }
-                }
+                MarketplaceApiService.fetchProductReviews(pid, _uiState.value.currentUser.id)
             } else {
-                viewModelScope.launch {
-                    val liveComments = VideosApiService.fetchComments(post.id, _uiState.value.currentUser.id)
-                    if (liveComments.isNotEmpty()) {
-                        _uiState.update { state ->
-                            val updatedPosts = state.posts.map { p ->
-                                if (p.id == post.id) p.copy(comments = liveComments, commentsCount = liveComments.size) else p
-                            }
-                            val updatedVideoPosts = state.videoPosts.map { p ->
-                                if (p.id == post.id) p.copy(comments = liveComments, commentsCount = liveComments.size) else p
-                            }
-                            val updatedSel = if (state.selectedPostForComments?.id == post.id) {
-                                state.selectedPostForComments?.copy(comments = liveComments, commentsCount = liveComments.size)
-                            } else state.selectedPostForComments
-                            state.copy(
-                                posts = updatedPosts,
-                                videoPosts = updatedVideoPosts,
-                                selectedPostForComments = updatedSel
-                            )
-                        }
+                FeedInteractionApiService.fetchComments(post, _uiState.value.currentUser.id)
+            }
+        }
+
+        val applyFetchedComments: (List<Comment>) -> Unit = { liveComments ->
+            if (liveComments.isNotEmpty()) {
+                CommentsCache.setCachedComments(itemType, post.id, liveComments)
+                _uiState.update { state ->
+                    val updatedPosts = state.posts.map { p ->
+                        if (p.id == post.id) p.copy(comments = liveComments, commentsCount = liveComments.size) else p
                     }
+                    val updatedVideoPosts = state.videoPosts.map { p ->
+                        if (p.id == post.id) p.copy(comments = liveComments, commentsCount = liveComments.size) else p
+                    }
+                    val updatedSel = if (state.selectedPostForComments?.id == post.id) {
+                        state.selectedPostForComments?.copy(comments = liveComments, commentsCount = liveComments.size)
+                    } else state.selectedPostForComments
+                    state.copy(
+                        posts = updatedPosts,
+                        videoPosts = updatedVideoPosts,
+                        selectedPostForComments = updatedSel
+                    )
                 }
             }
         }
+
+        navigationController.navigate(
+            destinationType = if (preserveNotificationTarget && _uiState.value.notificationPostTarget?.mode == NotificationPostMode.VIEW_POST_TOP) {
+                DestinationType.POST
+            } else {
+                DestinationType.COMMENTS
+            },
+            hasCachedData = hasCachedComments,
+            onCachedCommit = {
+                val preparedPost = if (initialComments.isNotEmpty() && post.comments.isEmpty()) {
+                    post.copy(comments = initialComments)
+                } else post
+                commitPostSheet(preparedPost)
+            },
+            onBackgroundRefresh = {
+                if (!CommentsCache.isFresh(itemType, post.id)) {
+                    val liveComments = fetchCommentsForPost()
+                    applyFetchedComments(liveComments)
+                }
+            },
+            onFetchData = { reportProgress ->
+                val liveComments = fetchCommentsForPost()
+                reportProgress(0.85f)
+                if (liveComments.isNotEmpty()) {
+                    CommentsCache.setCachedComments(itemType, post.id, liveComments)
+                    post.copy(comments = liveComments, commentsCount = liveComments.size)
+                } else {
+                    post
+                }
+            },
+            onCommit = { preparedPost ->
+                commitPostSheet(preparedPost)
+                if (preparedPost.comments.isNotEmpty()) {
+                    applyFetchedComments(preparedPost.comments)
+                }
+            },
+            onUnavailableOrError = {
+                commitPostSheet(post)
+            }
+        )
     }
 
     fun setShowSearchDialog(show: Boolean) {
@@ -3907,10 +4405,57 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun setShowNotificationsOverlay(show: Boolean) {
-        _uiState.update { it.copy(showNotificationsOverlay = show) }
-        if (show) {
-            refreshNotifications(silent = false)
+        if (!show) {
+            navigationController.cancelActive()
+            _uiState.update { it.copy(showNotificationsOverlay = false) }
+            return
         }
+        val curUid = _uiState.value.currentUser.id
+        val cachedEntry = SmartNavigationCache.getNotifications(curUid)
+        val hasCached = _uiState.value.notifications.isNotEmpty() || cachedEntry != null || curUid <= 0L || _uiState.value.isGuest
+
+        navigationController.navigate(
+            destinationType = DestinationType.NOTIFICATIONS,
+            hasCachedData = hasCached,
+            onCachedCommit = {
+                if (_uiState.value.notifications.isEmpty() && cachedEntry != null) {
+                    _uiState.update { it.copy(notifications = cachedEntry.data) }
+                }
+                _uiState.update { it.copy(showNotificationsOverlay = true) }
+            },
+            onBackgroundRefresh = {
+                if (cachedEntry == null || !cachedEntry.isFresh()) {
+                    refreshNotifications(silent = _uiState.value.notifications.isNotEmpty())
+                }
+            },
+            onFetchData = { reportProgress ->
+                val token = UserSessionManager.getAuthToken(getApplication<Application>().applicationContext)
+                val liveNotifs = NotificationsApiService.fetchNotifications(
+                    userId = curUid,
+                    token = token,
+                    knownUsers = _uiState.value.users,
+                    knownGroups = _uiState.value.groups,
+                    limit = 10,
+                    offset = 0
+                )
+                reportProgress(0.88f)
+                SmartNavigationCache.cacheNotifications(curUid, liveNotifs)
+                liveNotifs
+            },
+            onCommit = { liveNotifs ->
+                _uiState.update {
+                    it.copy(
+                        notifications = liveNotifs,
+                        hasMoreNotifications = liveNotifs.size >= 10,
+                        isNotificationsLoading = false,
+                        showNotificationsOverlay = true
+                    )
+                }
+            },
+            onUnavailableOrError = {
+                _uiState.update { it.copy(showNotificationsOverlay = true) }
+            }
+        )
     }
 
     fun setShowCreateEventDialog(show: Boolean) {
@@ -3930,33 +4475,53 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun setSelectedProductForDetail(product: Product?) {
+        if (product != null) {
+            SmartNavigationCache.cacheProduct(product)
+            SmartNavigationCache.markVisited("product:${product.id}")
+            navigationController.recordTransition(DestinationType.MARKETPLACE_ITEM)
+        } else {
+            navigationController.cancelActive()
+        }
         _uiState.update { it.copy(selectedProductForDetail = product) }
     }
 
     fun openVideoReel(post: Post) {
+        pushBackStackCurrent()
         _uiState.update { state ->
             val existing = state.videoPosts
             val updated = if (existing.any { it.id == post.id }) existing else listOf(post) + existing
             state.copy(
                 selectedVideoPostId = post.id,
                 videoPosts = updated,
-                currentScreen = Screen.REELS
+                currentScreen = Screen.REELS,
+                canNavigateBack = navBackStack.isNotEmpty(),
+                isReturningBack = false
             )
         }
     }
 
     fun openProductById(pid: Long) {
         val existing = _uiState.value.products.find { it.id == pid }
+            ?: SmartNavigationCache.getProduct(pid)?.data
         if (existing != null) {
             setSelectedProductForDetail(existing)
         } else {
-            viewModelScope.launch {
-                val prod = MarketplaceApiService.fetchProductById(pid)
-                if (prod != null) {
-                    _uiState.update { it.copy(products = listOf(prod) + it.products) }
-                    setSelectedProductForDetail(prod)
+            navigationController.navigate(
+                destinationType = DestinationType.MARKETPLACE_ITEM,
+                hasCachedData = false,
+                onFetchData = { reportProgress ->
+                    val prod = MarketplaceApiService.fetchProductById(pid)
+                    reportProgress(0.86f)
+                    prod
+                },
+                onCommit = { prod ->
+                    SmartNavigationCache.cacheProduct(prod)
+                    _uiState.update { state ->
+                        val updated = if (state.products.any { it.id == prod.id }) state.products else listOf(prod) + state.products
+                        state.copy(products = updated, selectedProductForDetail = prod)
+                    }
                 }
-            }
+            )
         }
     }
 
@@ -4606,8 +5171,11 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun refreshLiveSongs() {
         launchSafe {
-            _uiState.update { it.copy(isSongsLoading = true) }
+            if (_uiState.value.songs.isEmpty()) {
+                _uiState.update { it.copy(isSongsLoading = true) }
+            }
             val liveSongs = SongsApiService.fetchSongs()
+            SmartNavigationCache.markScreenRefreshed("MUSIC")
             _uiState.update { state ->
                 state.copy(
                     songs = liveSongs,
@@ -4823,7 +5391,9 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun refreshGroups() {
         launchSafe {
-            _uiState.update { it.copy(isGroupsLoading = true) }
+            if (_uiState.value.groups.isEmpty()) {
+                _uiState.update { it.copy(isGroupsLoading = true) }
+            }
             val viewerId = _uiState.value.currentUser.id
             val liveGroups = GroupsApiService.fetchGroups(viewerId)
             val rawSuggestions = GroupsApiService.fetchGroupSuggestions(viewerId)
@@ -4836,6 +5406,7 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
                     (viewerId <= 0L || (g.adminId != viewerId && !g.members.contains(viewerId)))
             }
             val invites = GroupsApiService.fetchGroupInvites(viewerId)
+            SmartNavigationCache.markScreenRefreshed("GROUPS")
             _uiState.update { state ->
                 state.copy(
                     groups = liveGroups,
@@ -5821,6 +6392,9 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
     fun logoutUser() {
         stopMessagingServices()
         stopNotificationsPolling()
+        navigationController.cancelActive()
+        navBackStack.clear()
+        SmartNavigationCache.clearUserScopedCaches()
         val context = getApplication<Application>().applicationContext
         UserSessionManager.clearUser(context)
         _uiState.update { state ->
@@ -5832,7 +6406,11 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
                 authMode = "login",
                 conversations = emptyList(),
                 activeConversationId = null,
-                notifications = emptyList()
+                notifications = emptyList(),
+                userProfilePosts = emptyMap(),
+                selectedUserProfile = null,
+                canNavigateBack = false,
+                isReturningBack = false
             )
         }
         refreshFeed()

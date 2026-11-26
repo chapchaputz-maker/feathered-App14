@@ -52,11 +52,13 @@ import com.unera.social.data.MarketplaceApiService
 import com.unera.social.data.PostsApiService
 import com.unera.social.data.CommentsCache
 import com.unera.social.data.EventsApiService
+import com.unera.social.data.SmartNavigationCache
 import com.unera.social.model.*
 import com.unera.social.ui.components.*
 import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 import com.unera.social.ui.theme.InterTypography
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -355,6 +357,7 @@ fun FeedScreen(
     }
 
     val listState = rememberRestoredLazyListState(key = "FEED")
+    val feedContext = LocalContext.current
 
     // Rank MarketPoint products for you once so both logged-in and guest users meet relevant items while scrolling
     val rankedMarketProducts = remember(products, currentUser.id, currentUser.location) {
@@ -413,6 +416,21 @@ fun FeedScreen(
             }
             result
         }
+    }
+
+    // Lightweight prefetch of upcoming posts' avatars & comment previews while scrolling
+    LaunchedEffect(listState, feedPosts.size, currentUser.id) {
+        snapshotFlow { listState.firstVisibleItemIndex }
+            .collectLatest { firstIdx ->
+                val postStart = (firstIdx - 1).coerceAtLeast(0)
+                val postEnd = (postStart + 3).coerceAtMost(feedPosts.size)
+                for (i in postStart until postEnd) {
+                    val upcoming = feedPosts[i]
+                    if (upcoming.id > 0L) {
+                        SmartNavigationCache.prefetchPost(feedContext, this, upcoming, currentUser.id)
+                    }
+                }
+            }
     }
 
     MaterialTheme(
@@ -560,7 +578,7 @@ fun FeedScreen(
                         if (isGuest) {
                             onRequestAuth()
                         } else {
-                            discussionsSheetPost = post
+                            onCommentPost(post)
                         }
                     },
                     onShare = {
@@ -754,7 +772,7 @@ fun FeedScreen(
                     onReact = { reaction -> onReactPost?.invoke(currentPost.id, reaction) ?: onLikePost(currentPost.id) },
                     onComment = {
                         galleryState = null
-                        discussionsSheetPost = currentPost
+                        if (isGuest) onRequestAuth() else onCommentPost(currentPost)
                     },
                     onShare = {
                         galleryState = null

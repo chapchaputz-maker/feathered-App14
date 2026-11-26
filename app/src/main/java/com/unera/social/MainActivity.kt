@@ -12,10 +12,15 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -52,6 +57,9 @@ import com.unera.social.ui.components.CallScreen
 import com.unera.social.ui.components.CallMode
 import com.unera.social.ui.components.CallPhase
 import com.unera.social.ui.components.FacebookSplashScreen
+import com.unera.social.ui.navigation.LocalSmartNavigationController
+import com.unera.social.ui.navigation.destinationContentTransform
+import com.unera.social.ui.navigation.isReducedMotionEnabled
 import com.unera.social.ui.screens.*
 import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.FeatheredTheme
@@ -102,10 +110,18 @@ fun FeatheredApp(
     viewModel: FeatheredViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val navLoadingState by viewModel.navigationController.state.collectAsState()
     val scrollRestorationController = remember { ScrollRestorationController() }
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+    val reducedMotion = remember(context) { isReducedMotionEnabled(context) }
     var showSplash by remember { mutableStateOf(true) }
+
+    LaunchedEffect(uiState.isLoggedIn, uiState.currentUser.id) {
+        if (!uiState.isLoggedIn && uiState.currentUser.id <= 0L) {
+            scrollRestorationController.clearAll()
+        }
+    }
 
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -126,6 +142,9 @@ fun FeatheredApp(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
+        CompositionLocalProvider(
+            LocalSmartNavigationController provides viewModel.navigationController
+        ) {
         ProvideScrollRestoration(controller = scrollRestorationController) {
         ScrollRestoration(
             currentRoute = uiState.currentScreen,
@@ -135,8 +154,16 @@ fun FeatheredApp(
         val unreadNotificationsCount = uiState.notifications.count { !it.isRead }
         val unreadMessagesCount = uiState.conversations.sumOf { it.unreadCount }
 
-    // System Back Handler
-    BackHandler(enabled = uiState.currentScreen != Screen.FEED || uiState.showNotificationsOverlay || uiState.showMenuOverlay || uiState.showSearchDialog || uiState.fullScreenImageViewerUrl != null) {
+    // System Back Handler preserving navigation history & scroll position
+    BackHandler(
+        enabled = uiState.canNavigateBack ||
+            uiState.activeConversationId != null ||
+            uiState.currentScreen != Screen.FEED ||
+            uiState.showNotificationsOverlay ||
+            uiState.showMenuOverlay ||
+            uiState.showSearchDialog ||
+            uiState.fullScreenImageViewerUrl != null
+    ) {
         if (uiState.fullScreenImageViewerUrl != null) {
             viewModel.closeImageViewer()
         } else if (uiState.showMenuOverlay) {
@@ -149,7 +176,7 @@ fun FeatheredApp(
         } else if (uiState.activeConversationId != null) {
             viewModel.closeConversation()
         } else {
-            viewModel.setScreen(Screen.FEED)
+            viewModel.navigateBack()
         }
     }
 
@@ -244,6 +271,7 @@ fun FeatheredApp(
                         currentScreen = uiState.currentScreen,
                         unreadMessagesCount = unreadMessagesCount,
                         marketplaceBadgeCount = uiState.products.size.coerceAtMost(99),
+                        loadingState = navLoadingState,
                         onTabSelected = { selectedScreen ->
                             if (uiState.currentScreen == selectedScreen) {
                                 // Tapped active tab, scroll to top (like Facebook / Instagram native behavior)
@@ -271,78 +299,24 @@ fun FeatheredApp(
         ) {
             val screenModifier = Modifier.padding(innerPadding)
 
-            if (uiState.showNotificationsOverlay) {
-                NotificationsScreen(
-                    notifications = uiState.notifications,
-                    users = uiState.users,
-                    groups = uiState.groups,
-                    currentUser = uiState.currentUser,
-                    onBack = { viewModel.setShowNotificationsOverlay(false) },
-                    onProfileClick = { userId ->
-                        viewModel.setShowNotificationsOverlay(false)
-                        viewModel.openUserProfileById(userId)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(AppColors.bgScreen)
+            ) {
+                AnimatedContent(
+                    targetState = Triple(uiState.currentScreen, uiState.selectedUserProfile?.id, uiState.activeGroupId),
+                    transitionSpec = {
+                        destinationContentTransform(
+                            targetScreen = targetState.first,
+                            initialScreen = initialState.first,
+                            isReturningBack = uiState.isReturningBack,
+                            reducedMotion = reducedMotion
+                        )
                     },
-                    onOpenNotification = { notif ->
-                        viewModel.openNotification(notif)
-                    },
-                    onMarkAllAsRead = { viewModel.markNotificationsAsRead() },
-                    onDeleteNotification = { notifId -> viewModel.deleteNotification(notifId) },
-                    onToggleRead = { notifId, isRead -> viewModel.markNotificationRead(notifId, isRead) },
-                    onAcceptGroupInvite = { notifId, groupId -> viewModel.acceptGroupInvite(notifId, groupId) },
-                    onDeclineGroupInvite = { notifId, groupId -> viewModel.declineGroupInvite(notifId, groupId) },
-                    onLoadMore = { viewModel.loadMoreNotifications() },
-                    hasMore = uiState.hasMoreNotifications,
-                    isLoadingMore = uiState.isLoadingMoreNotifications,
-                    isRefreshing = uiState.isNotificationsLoading,
-                    onRefresh = { viewModel.refreshNotifications(silent = false) },
-                    modifier = screenModifier
-                )
-            } else if (uiState.showSearchDialog || uiState.currentScreen == Screen.SEARCH) {
-                SearchScreen(
-                    onBack = {
-                        viewModel.setShowSearchDialog(false)
-                        viewModel.setSearchQuery("")
-                        if (uiState.currentScreen == Screen.SEARCH) {
-                            viewModel.setScreen(Screen.FEED)
-                        }
-                    },
-                    users = uiState.users,
-                    posts = uiState.posts,
-                    reels = uiState.reels,
-                    groups = uiState.groups,
-                    marketplaceItems = uiState.products,
-                    currentUser = uiState.currentUser,
-                    onProfileClick = { userId ->
-                        viewModel.setShowSearchDialog(false)
-                        viewModel.openUserProfileById(userId)
-                    },
-                    onOpenGroup = { groupId ->
-                        viewModel.setShowSearchDialog(false)
-                        viewModel.setActiveGroupId(groupId)
-                        viewModel.setScreen(Screen.GROUPS)
-                    },
-                    onFollow = { userId ->
-                        viewModel.toggleFollowUser(userId)
-                    },
-                    onVideoClick = { reel ->
-                        viewModel.setShowSearchDialog(false)
-                        viewModel.setScreen(Screen.REELS)
-                    },
-                    onPostClick = { post ->
-                        viewModel.setShowSearchDialog(false)
-                        viewModel.setSelectedPostForComments(post)
-                    },
-                    onViewProduct = { productId ->
-                        viewModel.setShowSearchDialog(false)
-                        val prod = uiState.products.find { it.id == productId }
-                        if (prod != null) {
-                            viewModel.setSelectedProductForDetail(prod)
-                        }
-                    },
-                    modifier = screenModifier
-                )
-            } else {
-            when (uiState.currentScreen) {
+                    label = "feathered_screen_transition"
+                ) { (activeScreen, _, _) ->
+            when (activeScreen) {
                 Screen.FEED -> {
                     FeedScreen(
                         isGuest = uiState.isGuest,
@@ -594,8 +568,8 @@ fun FeatheredApp(
                         pushedPosts = uiState.pushedPosts,
                         onOpenVideo = { post -> viewModel.openVideoReel(post) },
                         initialTab = uiState.selectedUserProfileTab,
-                        onBack = if (activeUser.id != uiState.currentUser.id) {
-                            { viewModel.openCurrentUserProfile() }
+                        onBack = if (activeUser.id != uiState.currentUser.id || uiState.canNavigateBack) {
+                            { viewModel.navigateBack() }
                         } else null,
                         modifier = screenModifier
                     )
@@ -852,9 +826,93 @@ fun FeatheredApp(
                     )
                 }
             }
+            }
+
+            // Coordinated Notifications overlay (slide-in + fade without destroying feed scroll behind it)
+            AnimatedVisibility(
+                visible = uiState.showNotificationsOverlay,
+                enter = fadeIn(tween(if (reducedMotion) 60 else 200, easing = FastOutSlowInEasing)) +
+                    slideInVertically(tween(if (reducedMotion) 60 else 220, easing = FastOutSlowInEasing)) { it / 18 },
+                exit = fadeOut(tween(if (reducedMotion) 60 else 150, easing = FastOutSlowInEasing)) +
+                    slideOutVertically(tween(if (reducedMotion) 60 else 170, easing = FastOutSlowInEasing)) { it / 20 }
+            ) {
+                NotificationsScreen(
+                    notifications = uiState.notifications,
+                    users = uiState.users,
+                    groups = uiState.groups,
+                    currentUser = uiState.currentUser,
+                    onBack = { viewModel.setShowNotificationsOverlay(false) },
+                    onProfileClick = { userId ->
+                        viewModel.setShowNotificationsOverlay(false)
+                        viewModel.openUserProfileById(userId)
+                    },
+                    onOpenNotification = { notif ->
+                        viewModel.openNotification(notif)
+                    },
+                    onMarkAllAsRead = { viewModel.markNotificationsAsRead() },
+                    onDeleteNotification = { notifId -> viewModel.deleteNotification(notifId) },
+                    onToggleRead = { notifId, isRead -> viewModel.markNotificationRead(notifId, isRead) },
+                    onAcceptGroupInvite = { notifId, groupId -> viewModel.acceptGroupInvite(notifId, groupId) },
+                    onDeclineGroupInvite = { notifId, groupId -> viewModel.declineGroupInvite(notifId, groupId) },
+                    onLoadMore = { viewModel.loadMoreNotifications() },
+                    hasMore = uiState.hasMoreNotifications,
+                    isLoadingMore = uiState.isLoadingMoreNotifications,
+                    isRefreshing = uiState.isNotificationsLoading,
+                    onRefresh = { viewModel.refreshNotifications(silent = false) },
+                    modifier = screenModifier
+                )
+            }
+
+            // Coordinated Search overlay
+            AnimatedVisibility(
+                visible = uiState.showSearchDialog || uiState.currentScreen == Screen.SEARCH,
+                enter = fadeIn(tween(if (reducedMotion) 60 else 180, easing = FastOutSlowInEasing)),
+                exit = fadeOut(tween(if (reducedMotion) 60 else 140, easing = FastOutSlowInEasing))
+            ) {
+                SearchScreen(
+                    onBack = {
+                        viewModel.setShowSearchDialog(false)
+                        viewModel.setSearchQuery("")
+                        if (uiState.currentScreen == Screen.SEARCH) {
+                            viewModel.navigateBack()
+                        }
+                    },
+                    users = uiState.users,
+                    posts = uiState.posts,
+                    reels = uiState.reels,
+                    groups = uiState.groups,
+                    marketplaceItems = uiState.products,
+                    currentUser = uiState.currentUser,
+                    onProfileClick = { userId ->
+                        viewModel.setShowSearchDialog(false)
+                        viewModel.openUserProfileById(userId)
+                    },
+                    onOpenGroup = { groupId ->
+                        viewModel.setShowSearchDialog(false)
+                        viewModel.setActiveGroupId(groupId)
+                        viewModel.setScreen(Screen.GROUPS)
+                    },
+                    onFollow = { userId ->
+                        viewModel.toggleFollowUser(userId)
+                    },
+                    onVideoClick = { _ ->
+                        viewModel.setShowSearchDialog(false)
+                        viewModel.setScreen(Screen.REELS)
+                    },
+                    onPostClick = { post ->
+                        viewModel.setShowSearchDialog(false)
+                        viewModel.setSelectedPostForComments(post)
+                    },
+                    onViewProduct = { productId ->
+                        viewModel.setShowSearchDialog(false)
+                        viewModel.openProductById(productId)
+                    },
+                    modifier = screenModifier
+                )
+            }
+            }
         }
     }
-}
 
     // Modal Dialogs
     if (uiState.showCreatePostDialog) {
@@ -939,6 +997,25 @@ fun FeatheredApp(
                 viewModel.setSelectedPostForComments(null)
                 viewModel.setActiveGroupId(gid)
                 viewModel.setScreen(Screen.GROUPS)
+            },
+            onOpenGallery = { imgs, _ ->
+                imgs.firstOrNull()?.let { viewModel.openImageViewer(it) }
+            },
+            onPlayMusic = { song ->
+                viewModel.playTrack(
+                    AudioTrack(
+                        id = song.id,
+                        title = song.title,
+                        artist = song.artist,
+                        url = song.audioUrl,
+                        cover = song.cover,
+                        duration = song.durationSeconds,
+                        uploaderId = song.uploaderId,
+                        type = "music",
+                        isVerified = song.isVerified,
+                        likesCount = song.stats.likes
+                    )
+                )
             }
         )
     }
@@ -1196,6 +1273,7 @@ fun FeatheredApp(
     if (uiState.isAppLoading) {
         ProfessionalLoader()
     }
+        }
         }
 
         // Facebook/Meta 1:1 launch splash screen
