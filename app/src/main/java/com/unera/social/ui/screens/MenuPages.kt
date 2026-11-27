@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -35,9 +36,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.unera.social.data.PostsApiService
+import com.unera.social.model.Event
 import com.unera.social.model.Post
+import com.unera.social.model.Product
+import com.unera.social.model.Song
 import com.unera.social.model.Story
 import com.unera.social.model.User
+import com.unera.social.ui.components.GalleryViewerDialog
+import com.unera.social.ui.components.ReactionsSheetDialog
+import com.unera.social.ui.components.ShareBottomSheetDialog
+import com.unera.social.ui.components.TextPostBackgroundView
 import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
 import java.util.Calendar
@@ -664,198 +673,329 @@ fun BirthdaysPage(
 
 // ============================================================
 // 4. MEMORIES PAGE
-// Matches web MemoriesPage in MenuPages.tsx
+// Matches web MemoriesPage in MenuPages.tsx — sorted old to new with FeedScreen WebPostCard parity
 // ============================================================
+private fun postEpochMillisForMemories(post: Post): Long {
+    val now = System.currentTimeMillis()
+    val rawCandidates = listOfNotNull(post.createdAt, post.timestamp)
+    for (raw in rawCandidates) {
+        val parsed = PostsApiService.parseDateToEpochMillis(raw)
+        if (parsed != null && parsed > 0L) return parsed
+        val trimmed = raw.trim().lowercase()
+        if (trimmed == "just now") return now
+        val match = Regex(
+            """^(\d+)\s*(m|min|mins|minute|minutes|h|hr|hrs|hour|hours|d|day|days|w|wk|wks|week|weeks|mo|month|months|y|yr|yrs|year|years)\b"""
+        ).find(trimmed)
+        if (match != null) {
+            val amount = match.groupValues[1].toLongOrNull() ?: 0L
+            val unit = match.groupValues[2]
+            val deltaMillis = when {
+                unit.startsWith("m") && !unit.startsWith("mo") -> amount * 60_000L
+                unit.startsWith("h") -> amount * 3_600_000L
+                unit.startsWith("d") -> amount * 86_400_000L
+                unit.startsWith("w") -> amount * 7L * 86_400_000L
+                unit.startsWith("mo") -> amount * 30L * 86_400_000L
+                unit.startsWith("y") -> amount * 365L * 86_400_000L
+                else -> 0L
+            }
+            if (deltaMillis > 0L) return now - deltaMillis
+        }
+    }
+    return Long.MAX_VALUE
+}
+
 @Composable
 fun MemoriesPage(
     currentUser: User,
     posts: List<Post>,
     onLikePost: (Long) -> Unit,
     onCommentPost: (Post) -> Unit,
+    allUsers: List<User> = emptyList(),
+    onReactPost: ((Long, String) -> Unit)? = null,
+    onSharePost: ((Long) -> Unit)? = null,
+    onSavePost: ((Long) -> Unit)? = null,
+    onFollowUser: ((Long) -> Unit)? = null,
+    onUserClick: ((User) -> Unit)? = null,
+    onOpenProduct: ((Product) -> Unit)? = null,
+    onOpenEvent: ((Event) -> Unit)? = null,
+    onOpenGroup: ((Long) -> Unit)? = null,
+    onPlayMusic: ((Song) -> Unit)? = null,
+    onOpenVideo: ((Post) -> Unit)? = null,
+    onDeletePost: ((Long) -> Unit)? = null,
+    onEditPost: ((Long, String) -> Unit)? = null,
+    onHidePost: ((Long) -> Unit)? = null,
+    onReportPost: ((Long, String) -> Unit)? = null,
+    onLikeComment: ((Long, Long) -> Unit)? = null,
+    onRsvpEvent: ((Long, String, String) -> Unit)? = null,
+    onRequestAuth: (() -> Unit)? = null,
     onBack: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
-    val memoryPosts = remember(posts, currentUser) {
-        posts.filter { it.author.id == currentUser.id }
+    val memoryPosts = remember(posts, currentUser.id) {
+        posts
+            .filter { it.author.id == currentUser.id }
+            .distinctBy { it.id }
+            .sortedWith(compareBy<Post>({ postEpochMillisForMemories(it) }, { it.id }))
     }
 
-    Column(
+    val listState = rememberLazyListState()
+    var galleryState by remember { mutableStateOf<Pair<List<String>, Int>?>(null) }
+    var activePostForGallery by remember { mutableStateOf<Post?>(null) }
+    var reactionsSheetPost by remember { mutableStateOf<Post?>(null) }
+    var shareSheetPost by remember { mutableStateOf<Post?>(null) }
+
+    Box(
         modifier = modifier
             .fillMaxSize()
             .background(AppColors.bgScreen)
             .testTag("memories_page")
     ) {
-        Surface(
-            color = AppColors.headerBg,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(64.dp)
-                        .padding(horizontal = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    if (onBack != null) {
-                        IconButton(
-                            onClick = onBack,
+        Column(modifier = Modifier.fillMaxSize()) {
+            Surface(
+                color = AppColors.headerBg,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier
+                            .widthIn(max = 700.dp)
+                            .align(Alignment.CenterHorizontally)
+                            .fillMaxWidth()
+                            .height(64.dp)
+                            .padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        if (onBack != null) {
+                            IconButton(
+                                onClick = onBack,
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(CircleShape)
+                                    .background(AppColors.headerIconBg)
+                                    .testTag("memories_back_btn")
+                            ) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Back",
+                                    tint = AppColors.headerIconTint,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+
+                        Box(
                             modifier = Modifier
-                                .size(40.dp)
+                                .size(36.dp)
                                 .clip(CircleShape)
-                                .background(AppColors.headerIconBg)
-                                .testTag("memories_back_btn")
+                                .background(if (AppColors.isLight) AppColors.headerIconBg else Color(0xFF818CF8).copy(alpha = 0.15f)),
+                            contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back",
-                                tint = AppColors.headerIconTint,
+                                imageVector = Icons.Default.History,
+                                contentDescription = null,
+                                tint = if (AppColors.isLight) Color.White else Color(0xFF818CF8),
                                 modifier = Modifier.size(20.dp)
                             )
                         }
-                    }
 
-                    Box(
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clip(CircleShape)
-                            .background(if (AppColors.isLight) AppColors.headerIconBg else Color(0xFF818CF8).copy(alpha = 0.15f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.History,
-                            contentDescription = null,
-                            tint = if (AppColors.isLight) Color.White else Color(0xFF818CF8),
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-
-                    Column {
-                        Text(
-                            text = "Memories",
-                            fontSize = 20.sp,
-                            fontFamily = InterFontFamily,
-                            fontWeight = FontWeight.SemiBold,
-                            color = AppColors.headerText
-                        )
-                        Text(
-                            text = "On this day in previous years",
-                            fontSize = 12.sp,
-                            fontFamily = InterFontFamily,
-                            fontWeight = FontWeight.Normal,
-                            color = AppColors.headerSubtext
-                        )
-                    }
-                }
-                HorizontalDivider(color = AppColors.headerDivider)
-            }
-        }
-
-        if (memoryPosts.isEmpty()) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(20.dp)
-            ) {
-                Surface(
-                    shape = RoundedCornerShape(24.dp),
-                    color = AppColors.bgCard,
-                    border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(36.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.AccessTime,
-                            contentDescription = null,
-                            tint = AppColors.textSecondary.copy(alpha = 0.5f),
-                            modifier = Modifier.size(48.dp)
-                        )
-                        Spacer(modifier = Modifier.height(14.dp))
-                        Text(
-                            text = "No Memories Found",
-                            fontSize = 18.sp,
-                            fontFamily = InterFontFamily,
-                            fontWeight = FontWeight.SemiBold,
-                            color = AppColors.textPrimary
-                        )
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Text(
-                            text = "When you share posts and moments, your memories will appear here.",
-                            fontSize = 13.sp,
-                            fontFamily = InterFontFamily,
-                            fontWeight = FontWeight.Normal,
-                            color = AppColors.textSecondary,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
-            }
-        } else {
-            LazyColumn(
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(memoryPosts, key = { it.id }) { post ->
-                    Surface(
-                        shape = RoundedCornerShape(16.dp),
-                        color = AppColors.bgCard,
-                        border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Surface(
-                                    shape = RoundedCornerShape(8.dp),
-                                    color = Color(0xFF6366F1).copy(alpha = 0.14f)
-                                ) {
-                                    Text(
-                                        text = "1 year ago today",
-                                        fontSize = 12.sp,
-                                        fontFamily = InterFontFamily,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = if (AppColors.isLight) Color(0xFF4F46E5) else Color(0xFF818CF8),
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                                    )
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(12.dp))
-
+                        Column {
                             Text(
-                                text = post.content,
-                                fontSize = 15.sp,
+                                text = "Memories",
+                                fontSize = 20.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold,
+                                color = AppColors.headerText
+                            )
+                            Text(
+                                text = "${memoryPosts.size} ${if (memoryPosts.size == 1) "post" else "posts"} • Oldest to newest",
+                                fontSize = 12.sp,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
-                                color = AppColors.textPrimary
+                                color = AppColors.headerSubtext
                             )
+                        }
+                    }
+                    HorizontalDivider(color = AppColors.headerDivider)
+                }
+            }
 
-                            if (post.mediaUrl != null) {
-                                Spacer(modifier = Modifier.height(12.dp))
-                                AsyncImage(
-                                    model = post.mediaUrl,
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .widthIn(max = 700.dp)
+                    .align(Alignment.CenterHorizontally)
+                    .fillMaxWidth()
+            ) {
+                if (memoryPosts.isEmpty()) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(20.dp)
+                    ) {
+                        Surface(
+                            shape = RoundedCornerShape(24.dp),
+                            color = AppColors.bgCard,
+                            border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.border),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(36.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.AccessTime,
                                     contentDescription = null,
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(200.dp)
-                                        .clip(RoundedCornerShape(12.dp))
+                                    tint = AppColors.textSecondary.copy(alpha = 0.5f),
+                                    modifier = Modifier.size(48.dp)
+                                )
+                                Spacer(modifier = Modifier.height(14.dp))
+                                Text(
+                                    text = "No Memories Found",
+                                    fontSize = 18.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = AppColors.textPrimary
+                                )
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Text(
+                                    text = "When you share posts and moments, your memories will appear here.",
+                                    fontSize = 13.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Normal,
+                                    color = AppColors.textSecondary,
+                                    textAlign = TextAlign.Center
                                 )
                             }
                         }
                     }
+                } else {
+                    LazyColumn(
+                        state = listState,
+                        contentPadding = PaddingValues(bottom = 40.dp),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(memoryPosts, key = { "memory_${it.id}" }) { post ->
+                            val itemKey = "memory_${post.id}"
+                            val isItemVisible by remember(listState, itemKey) {
+                                derivedStateOf {
+                                    listState.layoutInfo.visibleItemsInfo.any { it.key == itemKey }
+                                }
+                            }
+                            val liveFollowing = allUsers.find { it.id == post.author.id }?.isFollowing
+                                ?: post.author.isFollowing
+
+                            WebPostCard(
+                                post = post,
+                                currentUser = currentUser,
+                                isFollowing = liveFollowing,
+                                isVisible = isItemVisible,
+                                onFollowToggle = { onFollowUser?.invoke(post.author.id) },
+                                onLike = { onLikePost(post.id) },
+                                onReact = { reaction ->
+                                    onReactPost?.invoke(post.id, reaction) ?: onLikePost(post.id)
+                                },
+                                onComment = { onCommentPost(post) },
+                                onShare = { shareSheetPost = post },
+                                onSave = { onSavePost?.invoke(post.id) },
+                                onUserClick = { onUserClick?.invoke(post.author) },
+                                onAuthorClick = { user -> onUserClick?.invoke(user) },
+                                onOpenGallery = { imgs, idx ->
+                                    activePostForGallery = post
+                                    galleryState = Pair(imgs, idx)
+                                },
+                                onOpenReactions = { reactionsSheetPost = post },
+                                onOpenProduct = { onOpenProduct?.invoke(it) },
+                                onOpenEvent = { onOpenEvent?.invoke(it) },
+                                onOpenGroup = { onOpenGroup?.invoke(it) },
+                                onPlayMusic = { onPlayMusic?.invoke(it) },
+                                onOpenVideo = { onOpenVideo?.invoke(it) },
+                                onDeletePost = { onDeletePost?.invoke(it) },
+                                onEditPost = { id, text -> onEditPost?.invoke(id, text) },
+                                onHidePost = { onHidePost?.invoke(it) },
+                                onReportPost = onReportPost,
+                                allUsers = allUsers,
+                                onLikeComment = onLikeComment,
+                                onRequestAuth = { onRequestAuth?.invoke() },
+                                onRsvpEvent = onRsvpEvent,
+                                modifier = Modifier.testTag("memory_post_item_${post.id}")
+                            )
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(8.dp)
+                                    .background(AppColors.bgScreen)
+                            )
+                        }
+                    }
                 }
             }
+        }
+
+        galleryState?.let { (imgs, idx) ->
+            activePostForGallery?.let { currentPost ->
+                GalleryViewerDialog(
+                    images = imgs,
+                    initialIndex = idx,
+                    post = currentPost,
+                    onDismiss = {
+                        galleryState = null
+                        activePostForGallery = null
+                    },
+                    onLike = { onLikePost(currentPost.id) },
+                    onReact = { reaction ->
+                        onReactPost?.invoke(currentPost.id, reaction) ?: onLikePost(currentPost.id)
+                    },
+                    onComment = {
+                        galleryState = null
+                        onCommentPost(currentPost)
+                    },
+                    onShare = {
+                        galleryState = null
+                        shareSheetPost = currentPost
+                    },
+                    onSave = { onSavePost?.invoke(currentPost.id) }
+                )
+            }
+        }
+
+        reactionsSheetPost?.let { currentPost ->
+            ReactionsSheetDialog(
+                post = currentPost,
+                allUsers = allUsers,
+                onDismiss = { reactionsSheetPost = null },
+                onUserClick = { user ->
+                    reactionsSheetPost = null
+                    onUserClick?.invoke(user)
+                }
+            )
+        }
+
+        shareSheetPost?.let { currentPost ->
+            ShareBottomSheetDialog(
+                post = currentPost,
+                onDismiss = { shareSheetPost = null },
+                onShareToFeed = {
+                    shareSheetPost = null
+                    onSharePost?.invoke(currentPost.id)
+                },
+                onShareToGroup = {
+                    shareSheetPost = null
+                    onSharePost?.invoke(currentPost.id)
+                },
+                onSendMessage = {
+                    shareSheetPost = null
+                    onSharePost?.invoke(currentPost.id)
+                },
+                onCopyLink = {
+                    shareSheetPost = null
+                    onSharePost?.invoke(currentPost.id)
+                }
+            )
         }
     }
 }
@@ -1079,15 +1219,30 @@ fun StoryFeedPage(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        AsyncImage(
-                            model = story.mediaUrl,
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(260.dp)
-                                .clip(RoundedCornerShape(14.dp))
-                        )
+                        if (story.type == "text" || story.mediaUrl.isBlank()) {
+                            TextPostBackgroundView(
+                                backgroundStyle = story.backgroundStyle,
+                                content = story.textContent.ifBlank { "Sharing moments on Unera ✨" },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(260.dp)
+                                    .clip(RoundedCornerShape(14.dp)),
+                                isVisible = true,
+                                minHeight = 0.dp,
+                                defaultFontSizeSp = 20,
+                                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 20.dp)
+                            )
+                        } else {
+                            AsyncImage(
+                                model = story.mediaUrl,
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(260.dp)
+                                    .clip(RoundedCornerShape(14.dp))
+                            )
+                        }
 
                         Spacer(modifier = Modifier.height(12.dp))
 

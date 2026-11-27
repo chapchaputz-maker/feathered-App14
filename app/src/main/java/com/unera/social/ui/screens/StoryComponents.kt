@@ -26,12 +26,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import com.unera.social.ui.components.DiscussButton
+import com.unera.social.ui.components.FacebookReactionButton
+import com.unera.social.ui.components.ShareBottomSheetDialog
 import com.unera.social.ui.components.VerifiedBadge
-import com.unera.social.ui.components.FACEBOOK_REACTIONS
+import com.unera.social.ui.components.TextPostBackgroundView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -40,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
+import com.unera.social.model.Post
 import com.unera.social.model.Story
 import com.unera.social.model.User
 import com.unera.social.ui.theme.*
@@ -72,7 +77,8 @@ fun StoryViewerDialog(
     onReact: (String) -> Unit,
     onDeleteStory: (() -> Unit)? = null,
     onToggleFollow: ((Long) -> Unit)? = null,
-    onProfileClick: ((Long) -> Unit)? = null
+    onProfileClick: ((Long) -> Unit)? = null,
+    onShare: ((String) -> Unit)? = null
 ) {
     // Current story index among allStories
     val currentIndex = allStories.indexOfFirst { it.id == story.id }.let { if (it >= 0) it else 0 }
@@ -84,20 +90,22 @@ fun StoryViewerDialog(
     var showReactionsTray by remember { mutableStateOf(false) }
     var showViewersSheet by remember { mutableStateOf(false) }
     var showCommentSheet by remember { mutableStateOf(false) }
-    var replyText by remember { mutableStateOf("") }
+    var showShareSheet by remember { mutableStateOf(false) }
     var localLiked by remember(story.id, story.myReaction) {
         mutableStateOf(story.myReaction != null || story.isLiked)
     }
 
-    // Auto-advance progress timer (approx 5s for stories, paused if held down)
-    LaunchedEffect(story.id, isPaused) {
-        if (!isPaused) {
+    val effectivePaused = isPaused || showReactionsTray || showViewersSheet || showCommentSheet || showShareSheet
+
+    // Auto-advance progress timer (approx 5s for stories, paused if held down or modal open)
+    LaunchedEffect(story.id, effectivePaused) {
+        if (!effectivePaused) {
             val stepMs = 50L
             val totalMs = 5000L
             val increment = stepMs.toFloat() / totalMs.toFloat()
             while (progress < 1f) {
                 delay(stepMs)
-                if (!isPaused) {
+                if (!effectivePaused) {
                     progress = (progress + increment).coerceAtMost(1f)
                 }
             }
@@ -118,7 +126,7 @@ fun StoryViewerDialog(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFF050B18))
+                .background(Color.Black)
                 .testTag("story_viewer_dialog")
         ) {
             // Main Story Content Container (max-w 480dp on tablet, full on mobile)
@@ -127,7 +135,7 @@ fun StoryViewerDialog(
                     .fillMaxSize()
                     .widthIn(max = 480.dp)
                     .align(Alignment.Center)
-                    .background(Color(0xFF0B1120))
+                    .background(Color.Black)
                     // Gesture detection: Left tap = prev, Right tap = next, Long press = pause
                     .pointerInput(story.id) {
                         detectTapGestures(
@@ -163,8 +171,8 @@ fun StoryViewerDialog(
                         .background(
                             Brush.verticalGradient(
                                 colors = listOf(
-                                    Color(0xFF0B1120).copy(alpha = 0.9f),
-                                    Color(0xFF0B1120).copy(alpha = 0.4f),
+                                    Color.Black.copy(alpha = 0.85f),
+                                    Color.Black.copy(alpha = 0.35f),
                                     Color.Transparent
                                 )
                             )
@@ -181,8 +189,8 @@ fun StoryViewerDialog(
                             Brush.verticalGradient(
                                 colors = listOf(
                                     Color.Transparent,
-                                    Color(0xFF0B1120).copy(alpha = 0.8f),
-                                    Color(0xFF0B1120)
+                                    Color.Black.copy(alpha = 0.78f),
+                                    Color.Black
                                 )
                             )
                         )
@@ -425,51 +433,7 @@ fun StoryViewerDialog(
                     }
                 }
 
-                // 5. Reactions Tray Popup (Like, Love, Wow, Haha, Sad, Angry)
-                AnimatedVisibility(
-                    visible = showReactionsTray,
-                    enter = fadeIn() + scaleIn(initialScale = 0.8f),
-                    exit = fadeOut() + scaleOut(targetScale = 0.8f),
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 90.dp)
-                ) {
-                    Surface(
-                        shape = RoundedCornerShape(30.dp),
-                        color = Color(0xFF0F172A).copy(alpha = 0.95f),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E293B)),
-                        shadowElevation = 8.dp
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            FACEBOOK_REACTIONS.forEach { reaction ->
-                                Box(
-                                    modifier = Modifier
-                                        .size(36.dp)
-                                        .clip(CircleShape)
-                                        .clickable {
-                                            onReact(reaction.type)
-                                            localLiked = true
-                                            showReactionsTray = false
-                                        }
-                                        .padding(2.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    androidx.compose.foundation.Image(
-                                        painter = androidx.compose.ui.res.painterResource(id = reaction.resId),
-                                        contentDescription = reaction.label,
-                                        contentScale = ContentScale.Fit,
-                                        modifier = Modifier.fillMaxSize()
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // 6. Bottom Action Bar: Reactions count, Discussion, Share, Quick comment input
+                // 5. Bottom Action Bar: React, Discuss, and Share matching FeedScreen exactly
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -478,150 +442,156 @@ fun StoryViewerDialog(
                         .navigationBarsPadding()
                 ) {
                     // Interaction counts summary row
-                    if (story.reactionsCount > 0 || story.commentsCount > 0) {
+                    if (story.reactionsCount > 0 || story.commentsCount > 0 || story.sharesCount > 0) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 4.dp, vertical = 4.dp),
+                                .padding(horizontal = 4.dp, vertical = 6.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            // Reaction emojis & count
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                Surface(
-                                    shape = CircleShape,
-                                    color = Color(0xFF1877F2),
-                                    modifier = Modifier.size(18.dp)
+                            if (story.reactionsCount > 0) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
-                                    Box(contentAlignment = Alignment.Center) {
-                                        Text("❤️", fontFamily = InterFontFamily, fontSize = 10.sp)
+                                    Surface(
+                                        shape = CircleShape,
+                                        color = Color(0xFF1877F2),
+                                        modifier = Modifier.size(18.dp)
+                                    ) {
+                                        Box(contentAlignment = Alignment.Center) {
+                                            Text("❤️", fontFamily = InterFontFamily, fontSize = 10.sp)
+                                        }
                                     }
+                                    Text(
+                                        text = "${formatCount(story.reactionsCount)} React..",
+                                        fontFamily = InterFontFamily,
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = Color.White
+                                    )
                                 }
-                                Text(
-                                    text = "${story.reactionsCount} reactions",
-                                    fontFamily = InterFontFamily,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = Color.White
-                                )
+                            } else {
+                                Spacer(modifier = Modifier.width(1.dp))
                             }
 
-                            // Discussions count
-                            if (story.commentsCount > 0) {
-                                Text(
-                                    text = "${story.commentsCount} discussions",
-                                    fontFamily = InterFontFamily,
-                                    fontWeight = FontWeight.Normal,
-                                    fontSize = 12.sp,
-                                    color = Color.White.copy(alpha = 0.7f),
-                                    modifier = Modifier.clickable {
-                                        isPaused = true
-                                        showCommentSheet = true
-                                    }
-                                )
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                if (story.commentsCount > 0) {
+                                    Text(
+                                        text = "${formatCount(story.commentsCount)} Discuss..",
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = 14.sp,
+                                        color = Color.White.copy(alpha = 0.85f),
+                                        modifier = Modifier.clickable {
+                                            isPaused = true
+                                            showCommentSheet = true
+                                        }
+                                    )
+                                }
+                                if (story.sharesCount > 0) {
+                                    Text(
+                                        text = "${formatCount(story.sharesCount)} Shares",
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = 14.sp,
+                                        color = Color.White.copy(alpha = 0.85f),
+                                        modifier = Modifier.clickable {
+                                            isPaused = true
+                                            showShareSheet = true
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
 
-                    // Main Action Row: Quick Reply Field + Reaction + Comment + Share
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        // Quick reply input
-                        OutlinedTextField(
-                            value = replyText,
-                            onValueChange = { replyText = it },
-                            textStyle = LocalTextStyle.current.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Normal),
-                            placeholder = {
-                                Text("Reply to ${story.author.name}…", fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = Color.White.copy(alpha = 0.5f), fontSize = 13.sp)
-                            },
-                            singleLine = true,
-                            shape = RoundedCornerShape(24.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color.White.copy(alpha = 0.1f),
-                                unfocusedContainerColor = Color.White.copy(alpha = 0.08f),
-                                focusedBorderColor = Color(0xFF1877F2),
-                                unfocusedBorderColor = Color.White.copy(alpha = 0.2f),
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White
-                            ),
-                            trailingIcon = {
-                                if (replyText.isNotBlank()) {
-                                    IconButton(onClick = {
-                                        replyText = ""
-                                    }) {
-                                        Icon(
-                                            imageVector = Icons.AutoMirrored.Filled.Send,
-                                            contentDescription = "Send Reply",
-                                            tint = Color(0xFF1877F2),
-                                            modifier = Modifier.size(18.dp)
-                                        )
-                                    }
-                                }
-                            },
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(46.dp)
-                        )
+                    HorizontalDivider(
+                        color = Color.White.copy(alpha = 0.14f),
+                        thickness = 1.dp,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
 
-                        // Heart reaction button (tap = toggle like, long click = open emoji tray)
-                        IconButton(
-                            onClick = {
+                    // Main Action Row: React, Discuss, Share (exact FeedScreen icons & typography)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp, vertical = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        FacebookReactionButton(
+                            isLiked = localLiked,
+                            myReaction = story.myReaction,
+                            likesCount = story.reactionsCount,
+                            onLike = {
                                 localLiked = !localLiked
                                 onReact("like")
                             },
-                            modifier = Modifier
-                                .size(42.dp)
-                                .clip(CircleShape)
-                                .background(Color.White.copy(alpha = 0.12f))
-                        ) {
-                            Icon(
-                                imageVector = if (localLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                                contentDescription = "React",
-                                tint = if (localLiked) Color(0xFFF43F5E) else Color.White,
-                                modifier = Modifier.size(22.dp)
-                            )
-                        }
+                            onReact = { reactionType ->
+                                localLiked = true
+                                onReact(reactionType)
+                            },
+                            showReactionDock = showReactionsTray,
+                            onToggleReactionDock = { showReactionsTray = it },
+                            fontSize = 19.sp,
+                            fontFamily = InterFontFamily,
+                            unlikedTint = Color.White,
+                            modifier = Modifier.testTag("story_react_btn")
+                        )
 
-                        // Open emoji tray button
-                        IconButton(
-                            onClick = { showReactionsTray = !showReactionsTray },
-                            modifier = Modifier
-                                .size(42.dp)
-                                .clip(CircleShape)
-                                .background(Color.White.copy(alpha = 0.12f))
-                        ) {
-                            Text("😍", fontFamily = InterFontFamily, fontSize = 18.sp)
-                        }
-
-                        // Comment sheet opener
-                        IconButton(
+                        DiscussButton(
+                            commentCount = story.commentsCount,
                             onClick = {
                                 isPaused = true
                                 showCommentSheet = true
                             },
+                            testTag = "story_discuss_btn",
+                            fontSize = 19.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = InterFontFamily,
+                            defaultTint = Color.White
+                        )
+
+                        Row(
                             modifier = Modifier
-                                .size(42.dp)
-                                .clip(CircleShape)
-                                .background(Color.White.copy(alpha = 0.12f))
+                                .clip(RoundedCornerShape(8.dp))
+                                .clickable {
+                                    isPaused = true
+                                    showShareSheet = true
+                                }
+                                .padding(horizontal = 6.dp, vertical = 6.dp)
+                                .testTag("story_share_btn"),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Outlined.ChatBubbleOutline,
-                                contentDescription = "Discussions",
+                                imageVector = Icons.Default.Send,
+                                contentDescription = "Share",
                                 tint = Color.White,
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .graphicsLayer(rotationZ = -35f)
                             )
+                            if (story.sharesCount > 0) {
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = formatCount(story.sharesCount),
+                                    color = Color.White,
+                                    fontSize = 19.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
                         }
                     }
                 }
             }
 
-            // 7. Story Viewers Modal Sheet
+            // 6. Story Viewers Modal Sheet
             if (showViewersSheet) {
                 StoryViewersModal(
                     viewers = story.viewers,
@@ -634,7 +604,7 @@ fun StoryViewerDialog(
                 )
             }
 
-            // 8. Story Comments / Discussion Modal Sheet
+            // 7. Story Comments / Discussion Modal Sheet
             if (showCommentSheet) {
                 StoryDiscussionsModal(
                     story = story,
@@ -642,6 +612,51 @@ fun StoryViewerDialog(
                     onDismiss = {
                         showCommentSheet = false
                         isPaused = false
+                    }
+                )
+            }
+
+            // 8. Story Share Bottom Sheet Modal
+            if (showShareSheet) {
+                val sharePostProxy = remember(story) {
+                    Post(
+                        id = story.id,
+                        userId = story.author.id,
+                        author = story.author,
+                        content = story.textContent,
+                        timestamp = story.timestamp,
+                        mediaUrl = story.mediaUrl.ifBlank { null },
+                        backgroundStyle = story.backgroundStyle,
+                        likesCount = story.reactionsCount,
+                        commentsCount = story.commentsCount,
+                        sharesCount = story.sharesCount
+                    )
+                }
+                ShareBottomSheetDialog(
+                    post = sharePostProxy,
+                    onDismiss = {
+                        showShareSheet = false
+                        isPaused = false
+                    },
+                    onShareToFeed = {
+                        showShareSheet = false
+                        isPaused = false
+                        onShare?.invoke("feed")
+                    },
+                    onShareToGroup = {
+                        showShareSheet = false
+                        isPaused = false
+                        onShare?.invoke("group")
+                    },
+                    onSendMessage = {
+                        showShareSheet = false
+                        isPaused = false
+                        onShare?.invoke("message")
+                    },
+                    onCopyLink = {
+                        showShareSheet = false
+                        isPaused = false
+                        onShare?.invoke("copy")
                     }
                 )
             }
@@ -658,52 +673,23 @@ private fun StoryMediaContent(
     modifier: Modifier = Modifier
 ) {
     if (story.type == "text" || story.mediaUrl.isBlank()) {
-        // Text story with colored gradient
-        val brush = remember(story.backgroundStyle) {
-            when {
-                story.backgroundStyle.contains("#F3425F") -> Brush.linearGradient(listOf(Color(0xFFF3425F), Color(0xFFE41E3F)))
-                story.backgroundStyle.contains("#45BD62") -> Brush.linearGradient(listOf(Color(0xFF45BD62), Color(0xFF31A24C)))
-                story.backgroundStyle.contains("#F7B928") -> Brush.linearGradient(listOf(Color(0xFFF7B928), Color(0xFFE3A300)))
-                story.backgroundStyle.contains("#A033FF") -> Brush.linearGradient(listOf(Color(0xFFA033FF), Color(0xFF7B1FA2)))
-                else -> Brush.linearGradient(listOf(Color(0xFF1877F2), Color(0xFF0055FF)))
-            }
-        }
-
-        Box(
-            modifier = modifier
-                .background(brush)
-                .padding(32.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = story.textContent.ifBlank { "Sharing moments on Unera ✨" },
-                fontFamily = InterFontFamily,
-                color = Color.White,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Center,
-                lineHeight = 32.sp
-            )
-        }
+        TextPostBackgroundView(
+            backgroundStyle = story.backgroundStyle,
+            content = story.textContent.ifBlank { "Sharing moments on Unera ✨" },
+            modifier = modifier.fillMaxSize(),
+            isVisible = true,
+            minHeight = 0.dp,
+            defaultFontSizeSp = 28,
+            contentPadding = PaddingValues(horizontal = 26.dp, vertical = 104.dp)
+        )
     } else {
-        // High quality uncropped story image with ambient blurred background
+        // Pure black dark cinema backdrop (matching Videos / ReelsScreen)
         Box(
             modifier = modifier
                 .fillMaxSize()
                 .background(Color.Black),
             contentAlignment = Alignment.Center
         ) {
-            // Ambient subtle background fill
-            AsyncImage(
-                model = story.mediaUrl,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .alpha(0.35f)
-            )
-
-            // Pristine, uncropped, 100% original aspect ratio foreground
             AsyncImage(
                 model = story.mediaUrl,
                 contentDescription = "Story Media",
@@ -728,9 +714,9 @@ fun StoryViewersModal(
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = Color(0xFF0F172A),
+        containerColor = Color(0xFF121212),
         contentColor = Color.White,
-        dragHandle = { BottomSheetDefaults.DragHandle(color = Color(0xFF334155)) }
+        dragHandle = { BottomSheetDefaults.DragHandle(color = Color(0xFF333333)) }
     ) {
         Column(
             modifier = Modifier
@@ -871,9 +857,9 @@ fun StoryDiscussionsModal(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = Color(0xFF0F172A),
+        containerColor = Color(0xFF121212),
         contentColor = Color.White,
-        dragHandle = { BottomSheetDefaults.DragHandle(color = Color(0xFF334155)) }
+        dragHandle = { BottomSheetDefaults.DragHandle(color = Color(0xFF333333)) }
     ) {
         Column(
             modifier = Modifier
@@ -933,7 +919,7 @@ fun StoryDiscussionsModal(
                         Column(
                             modifier = Modifier
                                 .weight(1f)
-                                .background(Color(0xFF1E293B), RoundedCornerShape(12.dp))
+                                .background(Color(0xFF1C1C1C), RoundedCornerShape(12.dp))
                                 .padding(10.dp)
                         ) {
                             Row(
@@ -966,10 +952,10 @@ fun StoryDiscussionsModal(
                     singleLine = true,
                     shape = RoundedCornerShape(20.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFF1E293B),
-                        unfocusedContainerColor = Color(0xFF1E293B),
+                        focusedContainerColor = Color(0xFF1C1C1C),
+                        unfocusedContainerColor = Color(0xFF1C1C1C),
                         focusedBorderColor = Color(0xFF1877F2),
-                        unfocusedBorderColor = Color(0xFF334155),
+                        unfocusedBorderColor = Color(0xFF2E2E2E),
                         focusedTextColor = Color.White,
                         unfocusedTextColor = Color.White
                     ),

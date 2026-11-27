@@ -842,6 +842,18 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
                     Screen.MESSAGES -> {
                         refreshConversations(silent = true)
                     }
+                    Screen.ADS_MANAGER -> {
+                        fetchMyAds()
+                    }
+                    Screen.MEMORIES -> {
+                        val uid = _uiState.value.currentUser.id
+                        if (uid > 0L && !_uiState.value.isGuest) {
+                            val cachedPosts = SmartNavigationCache.getProfilePosts(uid)
+                            if (cachedPosts == null || !cachedPosts.isFresh()) {
+                                fetchUserProfilePosts(uid, showLoadingIndicator = false)
+                            }
+                        }
+                    }
                     else -> Unit
                 }
             },
@@ -4915,6 +4927,16 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
     fun shareStory(storyId: Long, destination: String = "feed", message: String = "") {
         val currentUserId = _uiState.value.currentUser.id
         viewModelScope.launch {
+            _uiState.update { state ->
+                state.copy(
+                    stories = state.stories.map { s ->
+                        if (s.id == storyId) s.copy(sharesCount = s.sharesCount + 1) else s
+                    },
+                    selectedStory = state.selectedStory?.let { sel ->
+                        if (sel.id == storyId) sel.copy(sharesCount = sel.sharesCount + 1) else sel
+                    }
+                )
+            }
             StoriesApiService.shareStory(storyId, currentUserId, destination, message)
         }
     }
@@ -6213,6 +6235,9 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
     ) {
         val currentUserId = _uiState.value.currentUser.id
         val tempId = System.currentTimeMillis()
+        val startLocalDate = try { java.time.LocalDate.now() } catch (_: Exception) { null }
+        val startDateStr = startLocalDate?.toString() ?: "2026-03-11"
+        val endDateStr = startLocalDate?.plusDays(days.toLong().coerceAtLeast(1L))?.toString() ?: "2026-03-18"
         val newCampaign = AdCampaign(
             id = tempId,
             name = name.ifBlank { "Campaign #${tempId % 1000}" },
@@ -6228,8 +6253,8 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
             location = location.ifBlank { "Global" },
             budget = budget,
             days = days,
-            startDate = "2026-03-11",
-            endDate = "2026-03-${11 + days}",
+            startDate = startDateStr,
+            endDate = endDateStr,
             impressions = 0,
             views = 0,
             clicks = 0,

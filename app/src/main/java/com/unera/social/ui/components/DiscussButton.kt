@@ -64,14 +64,15 @@ fun DiscussButton(
     testTag: String = "discuss_button",
     fontSize: TextUnit = 14.sp,
     fontWeight: FontWeight = FontWeight.SemiBold,
-    fontFamily: FontFamily? = InterFontFamily
+    fontFamily: FontFamily? = InterFontFamily,
+    defaultTint: Color = AppColors.textPrimary
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
     val colors = AppColors
     val contentColor by animateColorAsState(
-        targetValue = if (isPressed) colors.primaryBlue else colors.textPrimary,
+        targetValue = if (isPressed) colors.primaryBlue else defaultTint,
         animationSpec = tween(durationMillis = 150),
         label = "discuss_content_color"
     )

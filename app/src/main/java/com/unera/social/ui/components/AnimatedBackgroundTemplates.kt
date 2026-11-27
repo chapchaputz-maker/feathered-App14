@@ -590,7 +590,7 @@ data class TextPostStyling(
                                 explicitColor = true
                             }
                         } catch (_: Exception) {}
-                        "size" -> size = v.toIntOrNull()?.coerceIn(16, 32) ?: 23
+                        "size" -> size = v.toIntOrNull()?.coerceIn(16, 36) ?: 23
                         "font" -> font = v
                         "weight", "bold" -> when (v.lowercase()) {
                             "bold", "true", "700", "800", "900" -> boldOverride = true

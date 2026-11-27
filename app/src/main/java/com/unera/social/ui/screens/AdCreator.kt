@@ -1,5 +1,6 @@
 package com.unera.social.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -97,6 +98,18 @@ fun AdCreator(
     var durationDays by remember { mutableFloatStateOf(7f) }
     var isSubmitting by remember { mutableStateOf(false) }
 
+    val distinctUserPosts = remember(userPosts) { userPosts.distinctBy { it.id } }
+
+    BackHandler(enabled = step > 1 && step < 4) {
+        step -= 1
+    }
+
+    LaunchedEffect(step, selectedPost) {
+        if ((step == 2 || step == 3) && selectedPost == null) {
+            step = 1
+        }
+    }
+
     val currentPostMedia = remember(selectedPost) {
         val p = selectedPost
         when {
@@ -148,7 +161,6 @@ fun AdCreator(
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(AppColors.headerBg)
-                            .statusBarsPadding()
                             .padding(horizontal = 16.dp, vertical = 14.dp)
                     ) {
                         Row(
@@ -365,7 +377,7 @@ fun AdCreator(
                     }
                 }
 
-                if (userPosts.isEmpty()) {
+                if (distinctUserPosts.isEmpty()) {
                     item(key = "no_posts_view") {
                         Box(
                             modifier = Modifier
@@ -399,7 +411,7 @@ fun AdCreator(
                                 .padding(horizontal = 16.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            userPosts.chunked(2).forEach { rowPosts ->
+                            distinctUserPosts.chunked(2).forEach { rowPosts ->
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -425,7 +437,7 @@ fun AdCreator(
                     }
                 } else {
                     // List mode
-                    items(userPosts, key = { it.id }) { post ->
+                    items(distinctUserPosts, key = { it.id }) { post ->
                         Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
                             PostSelectionRow(
                                 post = post,

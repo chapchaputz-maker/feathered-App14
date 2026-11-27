@@ -724,7 +724,9 @@ object StoriesApiService {
         val type = obj.optString("type", "image")
         val mediaUrl = obj.optString("media_url", "")
         val textContent = obj.optString("text_content", "")
-        val backgroundStyle = obj.optString("background_style", "linear-gradient(45deg, #1877F2, #0055FF)")
+        val rawBg = obj.optString("background_style", "")
+        val backgroundStyle = rawBg.takeIf { it.isNotBlank() && !it.equals("null", ignoreCase = true) }
+            ?: "linear-gradient(45deg, #1877F2, #0055FF)"
         val musicTitle = obj.optString("music_title").takeIf { !it.isNullOrBlank() && it != "null" }
         val musicUrl = obj.optString("music_url").takeIf { !it.isNullOrBlank() && it != "null" }
 

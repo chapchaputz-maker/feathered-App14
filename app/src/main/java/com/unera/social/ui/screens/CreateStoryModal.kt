@@ -25,13 +25,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -43,11 +49,19 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import coil.compose.AsyncImage
+import com.unera.social.data.BackgroundsApiService
+import com.unera.social.data.RemotePostBackground
 import com.unera.social.data.StoriesApiService
 import com.unera.social.model.Song
 import com.unera.social.model.User
+import com.unera.social.ui.components.ALL_TEXT_POST_BACKGROUNDS
+import com.unera.social.ui.components.AnimatedBgCategory
+import com.unera.social.ui.components.AnimatedPostBackground
+import com.unera.social.ui.components.RemoteImageBackgroundLayer
+import com.unera.social.ui.components.TextPostBackgroundTemplate
 import com.unera.social.ui.theme.AppColors
 import com.unera.social.ui.theme.InterFontFamily
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 
@@ -110,14 +124,38 @@ fun CreateStoryDialog(
     isSubmitting: Boolean = false
 ) {
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
     var mode by remember { mutableStateOf("media") } // "media" or "text"
     var textContent by remember { mutableStateOf("") }
     var selectedColorIndex by remember { mutableIntStateOf(0) }
+    var activeCategoryKey by remember { mutableStateOf("STORY") } // "STORY" or AnimatedBgCategory.name
+    var selectedTemplate by remember { mutableStateOf<TextPostBackgroundTemplate?>(null) }
+    var selectedRemoteBackground by remember { mutableStateOf<RemotePostBackground?>(null) }
+    var activeRealitySubCategory by remember { mutableStateOf("All") }
+    var showTextStyleControls by remember { mutableStateOf(false) }
+
+    // Text formatting controls (mirrors CreatePostDialog)
+    var textAlignment by remember { mutableStateOf(TextAlign.Center) }
+    var textPosition by remember { mutableStateOf("center") }
+    var textTextColor by remember { mutableStateOf(Color.White) }
+    var textFontSizeSp by remember { mutableIntStateOf(28) }
+    var textIsBold by remember { mutableStateOf(true) }
+    var textFontStyle by remember { mutableStateOf("sans") }
+
     var picks by remember { mutableStateOf<List<MediaPick>>(emptyList()) }
     var activePickIndex by remember { mutableIntStateOf(0) }
     var selectedMusic by remember { mutableStateOf<SelectedMusicInfo?>(null) }
     var showMusicPicker by remember { mutableStateOf(false) }
     var localSubmitting by remember { mutableStateOf(false) }
+
+    val remoteBackgrounds by BackgroundsApiService.backgrounds.collectAsState()
+    val isLoadingRemoteBgs by BackgroundsApiService.isLoading.collectAsState()
+    val remoteBgError by BackgroundsApiService.errorMessage.collectAsState()
+
+    LaunchedEffect(Unit) {
+        BackgroundsApiService.ensureLoaded(context)
+    }
 
     val activeGradient = STORY_COLORS[selectedColorIndex]
 
@@ -166,10 +204,38 @@ fun CreateStoryDialog(
     val busy = isSubmitting || localSubmitting
     val canShare = (mode == "text" && textContent.trim().isNotBlank()) || (mode == "media" && picks.isNotEmpty())
 
+    val buildFinalBackgroundCss: () -> String = {
+        val alignStr = when (textAlignment) {
+            TextAlign.Start -> "left"
+            TextAlign.End -> "right"
+            else -> "center"
+        }
+        val colorHex = String.format("#%06X", (0xFFFFFF and textTextColor.toArgb()))
+        val weightStr = if (textIsBold) "bold" else "normal"
+        val isDefaultStyling = textAlignment == TextAlign.Center &&
+            textPosition == "center" &&
+            textTextColor == Color.White &&
+            textFontSizeSp == 28 &&
+            textIsBold &&
+            textFontStyle == "sans"
+
+        val remote = selectedRemoteBackground
+        val tpl = selectedTemplate
+        when {
+            remote != null ->
+                "reality:${remote.id}|bgtype:${remote.backgroundTypeValue}|align:$alignStr|pos:$textPosition|color:$colorHex|size:$textFontSizeSp|font:$textFontStyle|weight:$weightStr"
+            tpl != null && tpl.styleString.isNotBlank() ->
+                "${tpl.styleString}|align:$alignStr|pos:$textPosition|color:$colorHex|size:$textFontSizeSp|font:$textFontStyle|weight:$weightStr"
+            isDefaultStyling -> activeGradient.css
+            else ->
+                "${activeGradient.css}|align:$alignStr|pos:$textPosition|color:$colorHex|size:$textFontSizeSp|font:$textFontStyle|weight:$weightStr"
+        }
+    }
+
     val handleShare = {
         if (canShare && !busy) {
             localSubmitting = true
-            val backgroundCss = activeGradient.css
+            val backgroundCss = if (mode == "text") buildFinalBackgroundCss() else activeGradient.css
             val musicTitleStr = selectedMusic?.let { "${it.title} - ${it.artist}" }
             val musicUrlStr = selectedMusic?.url
 
@@ -208,53 +274,210 @@ fun CreateStoryDialog(
     ) {
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = Color(0xFF050B18)
+            color = Color.Black
         ) {
-            Box(
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .background(Color.Black)
                     .statusBarsPadding()
                     .navigationBarsPadding()
             ) {
-                // Main Preview Canvas (center)
+                // Top Header Bar (pure black cinema header)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .background(Color.Black)
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    TextButton(
+                        onClick = { if (!busy) onDismiss() },
+                        enabled = !busy,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF1A1A1A),
+                            contentColor = Color.White
+                        ),
+                        shape = RoundedCornerShape(20.dp),
+                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 4.dp),
+                        modifier = Modifier
+                            .height(34.dp)
+                            .testTag("story_discard_btn")
+                    ) {
+                        Text(
+                            text = "Discard",
+                            fontFamily = InterFontFamily,
+                            color = Color.White,
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 13.sp
+                        )
+                    }
+
+                    Text(
+                        text = "Create Story",
+                        fontFamily = InterFontFamily,
+                        color = Color.White,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 18.sp
+                    )
+
+                    Button(
+                        onClick = { handleShare() },
+                        enabled = canShare && !busy,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF1877F2),
+                            disabledContainerColor = Color(0xFF262626),
+                            contentColor = Color.White,
+                            disabledContentColor = Color.White.copy(alpha = 0.5f)
+                        ),
+                        shape = RoundedCornerShape(20.dp),
+                        contentPadding = PaddingValues(horizontal = 18.dp, vertical = 4.dp),
+                        modifier = Modifier
+                            .height(34.dp)
+                            .testTag("story_share_btn")
+                    ) {
+                        if (busy) {
+                            CircularProgressIndicator(
+                                color = Color.White,
+                                modifier = Modifier.size(14.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text(
+                                text = "Share",
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 13.sp
+                            )
+                        }
+                    }
+                }
+
+                // Main Preview Canvas (flexes cleanly above bottom dock)
                 Box(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(top = 56.dp, bottom = if (mode == "text") 150.dp else 100.dp)
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .background(Color.Black)
                 ) {
                     if (mode == "text") {
-                        // Text Mode: Fullscreen gradient canvas with centered text input
+                        val currentRemote = selectedRemoteBackground
+                        val currentTpl = selectedTemplate
+                        val editorAlignment = when (textPosition) {
+                            "top" -> when (textAlignment) {
+                                TextAlign.Start -> Alignment.TopStart
+                                TextAlign.End -> Alignment.TopEnd
+                                else -> Alignment.TopCenter
+                            }
+                            "bottom" -> when (textAlignment) {
+                                TextAlign.Start -> Alignment.BottomStart
+                                TextAlign.End -> Alignment.BottomEnd
+                                else -> Alignment.BottomCenter
+                            }
+                            else -> when (textAlignment) {
+                                TextAlign.Start -> Alignment.CenterStart
+                                TextAlign.End -> Alignment.CenterEnd
+                                else -> Alignment.Center
+                            }
+                        }
+                        val isDarkEditorText = textTextColor.luminance() < 0.45f
+                        val editorTextShadow = if (isDarkEditorText) {
+                            Shadow(color = Color.White.copy(alpha = 0.55f), offset = Offset(1f, 1f), blurRadius = 6f)
+                        } else {
+                            Shadow(color = Color.Black.copy(alpha = 0.80f), offset = Offset(2f, 2f), blurRadius = 9f)
+                        }
+                        val editorFontWeight = if (textIsBold) FontWeight.Bold else FontWeight.Normal
+                        val editorFontFamily = when (textFontStyle) {
+                            "serif" -> FontFamily.Serif
+                            "monospace" -> FontFamily.Monospace
+                            "cursive" -> FontFamily.Cursive
+                            else -> InterFontFamily
+                        }
+                        val editorFontStyle = if (textFontStyle == "italic") FontStyle.Italic else FontStyle.Normal
+
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .background(Brush.linearGradient(activeGradient.colors))
-                                .padding(horizontal = 24.dp),
-                            contentAlignment = Alignment.Center
+                                .then(
+                                    when {
+                                        currentRemote != null -> Modifier
+                                        currentTpl != null && currentTpl.isAnimated -> Modifier
+                                        currentTpl != null && currentTpl.baseColors.isNotEmpty() ->
+                                            Modifier.background(Brush.linearGradient(currentTpl.baseColors))
+                                        else -> Modifier.background(Brush.linearGradient(activeGradient.colors))
+                                    }
+                                ),
+                            contentAlignment = editorAlignment
                         ) {
+                            if (currentRemote != null) {
+                                RemoteImageBackgroundLayer(
+                                    background = currentRemote,
+                                    modifier = Modifier.matchParentSize(),
+                                    isVisible = true
+                                )
+                                val scrimAlpha = currentRemote.effectiveOverlayAlpha(textTextColor)
+                                Box(
+                                    modifier = Modifier
+                                        .matchParentSize()
+                                        .background(currentRemote.parsedOverlayColor().copy(alpha = scrimAlpha))
+                                )
+                                if (textPosition == "top" || textPosition == "bottom") {
+                                    Box(
+                                        modifier = Modifier
+                                            .matchParentSize()
+                                            .background(
+                                                if (textPosition == "top") {
+                                                    Brush.verticalGradient(listOf(Color.Black.copy(alpha = 0.28f), Color.Transparent))
+                                                } else {
+                                                    Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.28f)))
+                                                }
+                                            )
+                                    )
+                                }
+                            } else if (currentTpl != null && currentTpl.isAnimated) {
+                                AnimatedPostBackground(
+                                    templateId = currentTpl.id,
+                                    modifier = Modifier.matchParentSize(),
+                                    isVisible = true
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .matchParentSize()
+                                        .background(Color.Black.copy(alpha = 0.22f))
+                                )
+                            }
+
                             BasicTextField(
                                 value = textContent,
                                 onValueChange = { textContent = it },
                                 textStyle = TextStyle(
-                                    fontFamily = InterFontFamily,
-                                    color = Color.White,
-                                    fontSize = 32.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    textAlign = TextAlign.Center
+                                    fontFamily = editorFontFamily,
+                                    fontStyle = editorFontStyle,
+                                    color = textTextColor,
+                                    fontSize = textFontSizeSp.sp,
+                                    lineHeight = (textFontSizeSp * 1.4f).sp,
+                                    fontWeight = editorFontWeight,
+                                    textAlign = textAlignment,
+                                    shadow = editorTextShadow
                                 ),
-                                cursorBrush = SolidColor(Color.White),
+                                cursorBrush = SolidColor(textTextColor),
                                 decorationBox = { innerTextField ->
                                     Box(
                                         modifier = Modifier.fillMaxWidth(),
-                                        contentAlignment = Alignment.Center
+                                        contentAlignment = editorAlignment
                                     ) {
                                         if (textContent.isEmpty()) {
                                             Text(
                                                 text = "Start typing...",
-                                                fontFamily = InterFontFamily,
-                                                color = Color.White.copy(alpha = 0.45f),
-                                                fontSize = 32.sp,
-                                                fontWeight = FontWeight.SemiBold,
-                                                textAlign = TextAlign.Center
+                                                fontFamily = editorFontFamily,
+                                                fontStyle = editorFontStyle,
+                                                color = textTextColor.copy(alpha = 0.55f),
+                                                fontSize = textFontSizeSp.sp,
+                                                fontWeight = editorFontWeight,
+                                                textAlign = textAlignment,
+                                                modifier = Modifier.fillMaxWidth()
                                             )
                                         }
                                         innerTextField()
@@ -262,17 +485,18 @@ fun CreateStoryDialog(
                                 },
                                 modifier = Modifier
                                     .fillMaxWidth()
+                                    .padding(horizontal = 24.dp, vertical = if (selectedMusic != null) 64.dp else 28.dp)
                                     .wrapContentHeight()
+                                    .testTag("story_text_input")
                             )
                         }
                     } else {
-                        // Media Mode: Photos only (Videos disabled)
+                        // Media Mode: Photos only (Videos disabled) on pure black
                         if (picks.isEmpty()) {
-                            // Empty placeholder matching web
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .background(Color(0xFF050B18))
+                                    .background(Color.Black)
                                     .clickable {
                                         pickMultipleMediaLauncher.launch(
                                             PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
@@ -289,8 +513,8 @@ fun CreateStoryDialog(
                                         modifier = Modifier
                                             .size(80.dp)
                                             .clip(CircleShape)
-                                            .background(Color(0xFF0F172A))
-                                            .border(1.dp, Color(0xFF1E293B), CircleShape),
+                                            .background(Color(0xFF141414))
+                                            .border(1.dp, Color(0xFF262626), CircleShape),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Icon(
@@ -318,32 +542,21 @@ fun CreateStoryDialog(
                                         text = "Choose high quality photos for your story",
                                         fontFamily = InterFontFamily,
                                         fontWeight = FontWeight.Normal,
-                                        color = Color(0xFF94A3B8),
+                                        color = Color(0xFF9CA3AF),
                                         fontSize = 14.sp,
                                         textAlign = TextAlign.Center
                                     )
                                 }
                             }
                         } else {
-                            // Media Preview with active pick - true aspect ratio with ambient backdrop
+                            // Media Preview with active pick - pure black cinema backdrop (matching Videos)
                             val activePick = picks.getOrNull(activePickIndex) ?: picks.first()
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .background(Color(0xFF050B18)),
+                                    .background(Color.Black),
                                 contentAlignment = Alignment.Center
                             ) {
-                                // Subtle ambient background to eliminate harsh gaps
-                                AsyncImage(
-                                    model = activePick.uri,
-                                    contentDescription = "Story preview ambient",
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .alpha(0.25f)
-                                )
-
-                                // Crisp uncropped foreground image preserving full quality and aspect ratio
                                 AsyncImage(
                                     model = activePick.uri,
                                     contentDescription = "Story preview",
@@ -366,7 +579,7 @@ fun CreateStoryDialog(
                                         .padding(16.dp)
                                         .size(40.dp)
                                         .clip(CircleShape)
-                                        .background(Color.Black.copy(alpha = 0.55f))
+                                        .background(Color.Black.copy(alpha = 0.65f))
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Delete,
@@ -376,14 +589,14 @@ fun CreateStoryDialog(
                                     )
                                 }
 
-                                // Dot indicators if multiple items
+                                // Dot indicators & thumbnail strip if multiple items
                                 if (picks.size > 1) {
                                     Row(
                                         modifier = Modifier
                                             .align(Alignment.BottomCenter)
                                             .padding(bottom = 74.dp)
                                             .clip(RoundedCornerShape(20.dp))
-                                            .background(Color.Black.copy(alpha = 0.45f))
+                                            .background(Color.Black.copy(alpha = 0.55f))
                                             .padding(horizontal = 8.dp, vertical = 4.dp),
                                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                                     ) {
@@ -399,7 +612,6 @@ fun CreateStoryDialog(
                                         }
                                     }
 
-                                    // Thumbnail strip at bottom
                                     LazyRow(
                                         modifier = Modifier
                                             .align(Alignment.BottomCenter)
@@ -417,7 +629,7 @@ fun CreateStoryDialog(
                                                     .clip(RoundedCornerShape(10.dp))
                                                     .border(
                                                         width = if (isSelected) 2.5.dp else 1.dp,
-                                                        color = if (isSelected) Color(0xFF1877F2) else Color.White.copy(alpha = 0.2f),
+                                                        color = if (isSelected) Color(0xFF1877F2) else Color.White.copy(alpha = 0.25f),
                                                         shape = RoundedCornerShape(10.dp)
                                                     )
                                                     .clickable { activePickIndex = idx }
@@ -431,14 +643,13 @@ fun CreateStoryDialog(
                                             }
                                         }
 
-                                        // Plus button to add more media
                                         item {
                                             Box(
                                                 modifier = Modifier
                                                     .size(56.dp)
                                                     .clip(RoundedCornerShape(10.dp))
                                                     .background(Color.White.copy(alpha = 0.12f))
-                                                    .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(10.dp))
+                                                    .border(1.dp, Color.White.copy(alpha = 0.25f), RoundedCornerShape(10.dp))
                                                     .clickable {
                                                         pickMultipleMediaLauncher.launch(
                                                             PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
@@ -464,11 +675,11 @@ fun CreateStoryDialog(
                     selectedMusic?.let { music ->
                         Surface(
                             shape = RoundedCornerShape(16.dp),
-                            color = Color.Black.copy(alpha = 0.65f),
+                            color = Color.Black.copy(alpha = 0.72f),
                             border = BorderStroke(1.dp, Color.White.copy(alpha = 0.2f)),
                             modifier = Modifier
                                 .align(Alignment.TopCenter)
-                                .padding(top = 16.dp)
+                                .padding(top = 12.dp)
                         ) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -525,106 +736,567 @@ fun CreateStoryDialog(
                     }
                 }
 
-                // Top Header Bar
-                Row(
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .fillMaxWidth()
-                        .background(Color(0xFF0B1120))
-                        .padding(horizontal = 16.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    TextButton(
-                        onClick = { if (!busy) onDismiss() },
-                        enabled = !busy,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF1E293B),
-                            contentColor = Color.White
-                        ),
-                        shape = RoundedCornerShape(20.dp),
-                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 4.dp),
-                        modifier = Modifier.height(34.dp)
-                    ) {
-                        Text(
-                            text = "Discard",
-                            fontFamily = InterFontFamily,
-                            color = Color.White,
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 13.sp
-                        )
-                    }
-
-                    Text(
-                        text = "Create Story",
-                        fontFamily = InterFontFamily,
-                        color = Color.White,
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 18.sp
-                    )
-
-                    Button(
-                        onClick = { handleShare() },
-                        enabled = canShare && !busy,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF1877F2),
-                            disabledContainerColor = Color(0xFF334155),
-                            contentColor = Color.White,
-                            disabledContentColor = Color.White.copy(alpha = 0.5f)
-                        ),
-                        shape = RoundedCornerShape(20.dp),
-                        contentPadding = PaddingValues(horizontal = 18.dp, vertical = 4.dp),
-                        modifier = Modifier.height(34.dp)
-                    ) {
-                        if (busy) {
-                            CircularProgressIndicator(
-                                color = Color.White,
-                                modifier = Modifier.size(14.dp),
-                                strokeWidth = 2.dp
-                            )
-                        } else {
-                            Text(
-                                text = "Share",
-                                fontFamily = InterFontFamily,
-                                fontWeight = FontWeight.Medium,
-                                fontSize = 13.sp
-                            )
-                        }
-                    }
-                }
-
-                // Bottom Dock
+                // Bottom Dock (Pure Black matching Videos)
                 Column(
                     modifier = Modifier
-                        .align(Alignment.BottomCenter)
                         .fillMaxWidth()
-                        .background(Color(0xFF0B1120))
-                        .border(1.dp, Color(0xFF1E293B))
-                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                        .background(Color.Black)
+                        .border(1.dp, Color(0xFF1C1C1C))
+                        .padding(horizontal = 14.dp, vertical = 10.dp)
                 ) {
-                    // Color gradient picker (Text Mode only)
                     if (mode == "text") {
+                        // Collapsible Text Formatting Toolbar (Alignment, Vertical Pos, Bold, Font, Color, Size)
+                        AnimatedVisibility(visible = showTextStyleControls) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 10.dp)
+                                    .clip(RoundedCornerShape(14.dp))
+                                    .background(Color(0xFF121212))
+                                    .border(1.dp, Color(0xFF242424), RoundedCornerShape(14.dp))
+                                    .padding(horizontal = 10.dp, vertical = 8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                // Row 1: Align, Vertical Pos, Bold, Font Style
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .background(Color(0xFF1E1E1E))
+                                            .padding(2.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                    ) {
+                                        IconButton(
+                                            onClick = { textAlignment = TextAlign.Start },
+                                            modifier = Modifier
+                                                .size(28.dp)
+                                                .background(if (textAlignment == TextAlign.Start) Color(0xFF1877F2) else Color.Transparent, RoundedCornerShape(6.dp))
+                                        ) {
+                                            Icon(Icons.Default.FormatAlignLeft, contentDescription = "Align Left", tint = Color.White, modifier = Modifier.size(15.dp))
+                                        }
+                                        IconButton(
+                                            onClick = { textAlignment = TextAlign.Center },
+                                            modifier = Modifier
+                                                .size(28.dp)
+                                                .background(if (textAlignment == TextAlign.Center) Color(0xFF1877F2) else Color.Transparent, RoundedCornerShape(6.dp))
+                                        ) {
+                                            Icon(Icons.Default.FormatAlignCenter, contentDescription = "Align Center", tint = Color.White, modifier = Modifier.size(15.dp))
+                                        }
+                                        IconButton(
+                                            onClick = { textAlignment = TextAlign.End },
+                                            modifier = Modifier
+                                                .size(28.dp)
+                                                .background(if (textAlignment == TextAlign.End) Color(0xFF1877F2) else Color.Transparent, RoundedCornerShape(6.dp))
+                                        ) {
+                                            Icon(Icons.Default.FormatAlignRight, contentDescription = "Align Right", tint = Color.White, modifier = Modifier.size(15.dp))
+                                        }
+                                    }
+
+                                    Row(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .background(Color(0xFF1E1E1E))
+                                            .padding(2.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                    ) {
+                                        IconButton(
+                                            onClick = { textPosition = "top" },
+                                            modifier = Modifier
+                                                .size(28.dp)
+                                                .background(if (textPosition == "top") Color(0xFF1877F2) else Color.Transparent, RoundedCornerShape(6.dp))
+                                        ) {
+                                            Icon(Icons.Default.VerticalAlignTop, contentDescription = "Top", tint = Color.White, modifier = Modifier.size(15.dp))
+                                        }
+                                        IconButton(
+                                            onClick = { textPosition = "center" },
+                                            modifier = Modifier
+                                                .size(28.dp)
+                                                .background(if (textPosition == "center") Color(0xFF1877F2) else Color.Transparent, RoundedCornerShape(6.dp))
+                                        ) {
+                                            Icon(Icons.Default.VerticalAlignCenter, contentDescription = "Center", tint = Color.White, modifier = Modifier.size(15.dp))
+                                        }
+                                        IconButton(
+                                            onClick = { textPosition = "bottom" },
+                                            modifier = Modifier
+                                                .size(28.dp)
+                                                .background(if (textPosition == "bottom") Color(0xFF1877F2) else Color.Transparent, RoundedCornerShape(6.dp))
+                                        ) {
+                                            Icon(Icons.Default.VerticalAlignBottom, contentDescription = "Bottom", tint = Color.White, modifier = Modifier.size(15.dp))
+                                        }
+                                    }
+
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(28.dp)
+                                                .clip(RoundedCornerShape(8.dp))
+                                                .background(if (textIsBold) Color(0xFF1877F2) else Color(0xFF1E1E1E))
+                                                .clickable { textIsBold = !textIsBold },
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text("B", fontSize = 13.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Bold, color = Color.White)
+                                        }
+
+                                        Box(
+                                            modifier = Modifier
+                                                .clip(RoundedCornerShape(8.dp))
+                                                .background(Color(0xFF1E1E1E))
+                                                .clickable {
+                                                    textFontStyle = when (textFontStyle) {
+                                                        "sans" -> "serif"
+                                                        "serif" -> "display"
+                                                        "display" -> "italic"
+                                                        "italic" -> "cursive"
+                                                        else -> "sans"
+                                                    }
+                                                }
+                                                .padding(horizontal = 9.dp, vertical = 5.dp)
+                                        ) {
+                                            Text(
+                                                text = when (textFontStyle) {
+                                                    "serif" -> "Serif"
+                                                    "display" -> "Display"
+                                                    "italic" -> "Italic"
+                                                    "cursive" -> "Script"
+                                                    else -> "Sans"
+                                                },
+                                                fontSize = 11.sp,
+                                                fontFamily = InterFontFamily,
+                                                fontWeight = FontWeight.SemiBold,
+                                                color = Color(0xFF38BDF8)
+                                            )
+                                        }
+                                    }
+                                }
+
+                                // Row 2: Text color swatches + Auto contrast + Font size stepper
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .height(24.dp)
+                                                .clip(RoundedCornerShape(6.dp))
+                                                .background(Color(0xFF1E1E1E))
+                                                .border(1.dp, Color(0xFF38BDF8), RoundedCornerShape(6.dp))
+                                                .clickable {
+                                                    textTextColor = selectedRemoteBackground?.resolvedDefaultTextColor()
+                                                        ?: selectedTemplate?.defaultTextColor
+                                                        ?: Color.White
+                                                }
+                                                .padding(horizontal = 7.dp),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text("Auto", fontSize = 10.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, color = Color(0xFF38BDF8))
+                                        }
+
+                                        val swatches = listOf(
+                                            Color.White,
+                                            Color(0xFFFEF08A),
+                                            Color(0xFFA5F3FC),
+                                            Color(0xFFFECDD3),
+                                            Color(0xFFBBF7D0),
+                                            Color(0xFF0F172A)
+                                        )
+                                        swatches.forEach { c ->
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(22.dp)
+                                                    .clip(CircleShape)
+                                                    .background(c)
+                                                    .border(
+                                                        if (textTextColor == c) 2.dp else 1.dp,
+                                                        if (textTextColor == c) Color(0xFF1877F2) else Color.White.copy(alpha = 0.35f),
+                                                        CircleShape
+                                                    )
+                                                    .clickable { textTextColor = c }
+                                            )
+                                        }
+                                    }
+
+                                    Row(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .background(Color(0xFF1E1E1E))
+                                            .padding(horizontal = 4.dp, vertical = 2.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(24.dp)
+                                                .clip(RoundedCornerShape(6.dp))
+                                                .clickable { if (textFontSizeSp > 18) textFontSizeSp -= 2 },
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text("A-", fontSize = 11.sp, color = Color.White, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+                                        }
+                                        Text(
+                                            text = "${textFontSizeSp}sp",
+                                            fontSize = 11.sp,
+                                            color = Color.White.copy(alpha = 0.75f),
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                        Box(
+                                            modifier = Modifier
+                                                .size(24.dp)
+                                                .clip(RoundedCornerShape(6.dp))
+                                                .clickable { if (textFontSizeSp < 36) textFontSizeSp += 2 },
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text("A+", fontSize = 12.sp, color = Color.White, fontFamily = InterFontFamily, fontWeight = FontWeight.Bold)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // Background Category Chips: Preserved Story Gradients + All Create Post Categories
                         LazyRow(
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(bottom = 12.dp)
+                                .padding(bottom = 8.dp)
+                                .testTag("story_bg_categories")
                         ) {
-                            items(STORY_COLORS.indices.toList()) { idx ->
-                                val grad = STORY_COLORS[idx]
-                                val isSelected = selectedColorIndex == idx
+                            item(key = "cat_story") {
+                                val isCatSelected = activeCategoryKey == "STORY"
                                 Box(
                                     modifier = Modifier
-                                        .size(38.dp)
-                                        .clip(CircleShape)
-                                        .background(Brush.linearGradient(grad.colors))
-                                        .border(
-                                            width = if (isSelected) 3.dp else 1.dp,
-                                            color = if (isSelected) Color.White else Color.Transparent,
-                                            shape = CircleShape
+                                        .clip(RoundedCornerShape(16.dp))
+                                        .background(if (isCatSelected) Color(0xFF1877F2) else Color(0xFF1A1A1A))
+                                        .clickable { activeCategoryKey = "STORY" }
+                                        .padding(horizontal = 10.dp, vertical = 6.dp)
+                                        .testTag("story_bg_category_story")
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text("🌈", fontSize = 12.sp, fontFamily = InterFontFamily)
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text(
+                                            text = "Gradients",
+                                            fontSize = 12.sp,
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = if (isCatSelected) FontWeight.SemiBold else FontWeight.Medium,
+                                            color = Color.White
                                         )
-                                        .clickable { selectedColorIndex = idx }
-                                )
+                                    }
+                                }
+                            }
+
+                            items(AnimatedBgCategory.values()) { cat ->
+                                val isCatSelected = activeCategoryKey == cat.name
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(16.dp))
+                                        .background(if (isCatSelected) Color(0xFF1877F2) else Color(0xFF1A1A1A))
+                                        .clickable {
+                                            activeCategoryKey = cat.name
+                                            if (cat == AnimatedBgCategory.REALITY && !isLoadingRemoteBgs) {
+                                                coroutineScope.launch {
+                                                    BackgroundsApiService.fetchBackgrounds(context, forceRefresh = true)
+                                                }
+                                            }
+                                        }
+                                        .padding(horizontal = 10.dp, vertical = 6.dp)
+                                        .testTag("story_bg_category_${cat.name.lowercase()}")
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(cat.emoji, fontSize = 12.sp, fontFamily = InterFontFamily)
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text(
+                                            text = cat.label,
+                                            fontSize = 12.sp,
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = if (isCatSelected) FontWeight.SemiBold else FontWeight.Medium,
+                                            color = Color.White
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        // Background Swatches / Thumbnails for Active Category
+                        when (activeCategoryKey) {
+                            "STORY" -> {
+                                LazyRow(
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 10.dp)
+                                ) {
+                                    items(STORY_COLORS.indices.toList()) { idx ->
+                                        val grad = STORY_COLORS[idx]
+                                        val isSelected = selectedTemplate == null &&
+                                            selectedRemoteBackground == null &&
+                                            selectedColorIndex == idx
+                                        Box(
+                                            modifier = Modifier
+                                                .size(42.dp)
+                                                .clip(CircleShape)
+                                                .background(Brush.linearGradient(grad.colors))
+                                                .border(
+                                                    width = if (isSelected) 3.dp else 1.dp,
+                                                    color = if (isSelected) Color.White else Color.White.copy(alpha = 0.25f),
+                                                    shape = CircleShape
+                                                )
+                                                .clickable {
+                                                    selectedTemplate = null
+                                                    selectedRemoteBackground = null
+                                                    selectedColorIndex = idx
+                                                }
+                                        )
+                                    }
+                                }
+                            }
+
+                            AnimatedBgCategory.REALITY.name -> {
+                                val realitySubCats = remember(remoteBackgrounds) {
+                                    val cats = remoteBackgrounds.map { it.normalizedSubCategory() }.distinct().filter { it != "All" }
+                                    if (cats.isNotEmpty()) listOf("All") + cats else listOf("All")
+                                }
+
+                                LazyRow(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 6.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    item(key = "story_reality_sync") {
+                                        Box(
+                                            modifier = Modifier
+                                                .clip(RoundedCornerShape(12.dp))
+                                                .background(Color(0xFF141414))
+                                                .border(1.dp, Color(0xFF2B2B2B), RoundedCornerShape(12.dp))
+                                                .clickable(enabled = !isLoadingRemoteBgs) {
+                                                    coroutineScope.launch {
+                                                        BackgroundsApiService.fetchBackgrounds(context, forceRefresh = true)
+                                                    }
+                                                }
+                                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                                        ) {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                            ) {
+                                                if (isLoadingRemoteBgs) {
+                                                    CircularProgressIndicator(
+                                                        modifier = Modifier.size(11.dp),
+                                                        strokeWidth = 1.5.dp,
+                                                        color = Color(0xFF38BDF8)
+                                                    )
+                                                } else {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Refresh,
+                                                        contentDescription = "Refresh Reality backgrounds",
+                                                        tint = Color(0xFF38BDF8),
+                                                        modifier = Modifier.size(12.dp)
+                                                    )
+                                                }
+                                                Text(
+                                                    text = "Sync",
+                                                    fontSize = 11.sp,
+                                                    fontFamily = InterFontFamily,
+                                                    fontWeight = FontWeight.Medium,
+                                                    color = Color(0xFF38BDF8)
+                                                )
+                                            }
+                                        }
+                                    }
+
+                                    items(realitySubCats) { sub ->
+                                        val isSubSelected = activeRealitySubCategory == sub
+                                        val catCount = if (sub == "All") remoteBackgrounds.size else remoteBackgrounds.count { it.normalizedSubCategory().equals(sub, ignoreCase = true) }
+                                        Box(
+                                            modifier = Modifier
+                                                .clip(RoundedCornerShape(12.dp))
+                                                .background(if (isSubSelected) Color(0xFF1877F2).copy(alpha = 0.22f) else Color(0xFF141414))
+                                                .border(
+                                                    1.dp,
+                                                    if (isSubSelected) Color(0xFF1877F2) else Color(0xFF262626),
+                                                    RoundedCornerShape(12.dp)
+                                                )
+                                                .clickable { activeRealitySubCategory = sub }
+                                                .padding(horizontal = 9.dp, vertical = 4.dp)
+                                        ) {
+                                            Text(
+                                                text = if (catCount > 0) "$sub ($catCount)" else sub,
+                                                fontSize = 11.sp,
+                                                fontFamily = InterFontFamily,
+                                                fontWeight = if (isSubSelected) FontWeight.SemiBold else FontWeight.Normal,
+                                                color = if (isSubSelected) Color(0xFF38BDF8) else Color(0xFF9CA3AF)
+                                            )
+                                        }
+                                    }
+                                }
+
+                                val filteredRemoteBackgrounds = remember(remoteBackgrounds, activeRealitySubCategory) {
+                                    if (activeRealitySubCategory == "All") remoteBackgrounds
+                                    else remoteBackgrounds.filter { it.normalizedSubCategory().equals(activeRealitySubCategory, ignoreCase = true) }
+                                }
+
+                                LazyRow(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 10.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    if (isLoadingRemoteBgs && filteredRemoteBackgrounds.isEmpty()) {
+                                        item(key = "story_reality_loading") {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(50.dp)
+                                                    .clip(RoundedCornerShape(10.dp))
+                                                    .background(Color(0xFF1A1A1A)),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                CircularProgressIndicator(
+                                                    modifier = Modifier.size(18.dp),
+                                                    strokeWidth = 2.dp,
+                                                    color = Color(0xFF1877F2)
+                                                )
+                                            }
+                                        }
+                                    } else if (filteredRemoteBackgrounds.isEmpty()) {
+                                        item(key = "story_reality_retry") {
+                                            Box(
+                                                modifier = Modifier
+                                                    .height(50.dp)
+                                                    .clip(RoundedCornerShape(10.dp))
+                                                    .background(Color(0xFF141414))
+                                                    .border(1.dp, Color(0xFF2B2B2B), RoundedCornerShape(10.dp))
+                                                    .clickable {
+                                                        coroutineScope.launch {
+                                                            BackgroundsApiService.fetchBackgrounds(context, forceRefresh = true)
+                                                        }
+                                                    }
+                                                    .padding(horizontal = 12.dp),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                                    Icon(Icons.Default.Refresh, contentDescription = "Retry", tint = Color(0xFF38BDF8), modifier = Modifier.size(15.dp))
+                                                    Spacer(modifier = Modifier.width(6.dp))
+                                                    Text(
+                                                        text = if (!remoteBgError.isNullOrBlank()) "Retry" else "Reload",
+                                                        fontSize = 11.sp,
+                                                        color = Color.White,
+                                                        fontFamily = InterFontFamily,
+                                                        fontWeight = FontWeight.Medium
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        items(filteredRemoteBackgrounds, key = { "story_remote_${it.id}" }) { bg ->
+                                            val isSelected = selectedRemoteBackground?.id == bg.id
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(50.dp)
+                                                    .clip(RoundedCornerShape(10.dp))
+                                                    .border(
+                                                        if (isSelected) 2.5.dp else 1.dp,
+                                                        if (isSelected) Color.White else Color(0xFF2E2E2E),
+                                                        RoundedCornerShape(10.dp)
+                                                    )
+                                                    .clickable {
+                                                        selectedTemplate = null
+                                                        selectedRemoteBackground = bg
+                                                        textTextColor = bg.resolvedDefaultTextColor()
+                                                    },
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                // Data-saver thumbnail only until selected
+                                                RemoteImageBackgroundLayer(
+                                                    background = bg,
+                                                    modifier = Modifier.matchParentSize(),
+                                                    isVisible = true,
+                                                    useThumbnailOnly = true
+                                                )
+                                                if (bg.isAnimated) {
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .align(Alignment.BottomEnd)
+                                                            .padding(3.dp)
+                                                            .size(9.dp)
+                                                            .clip(CircleShape)
+                                                            .background(Color(0xFF38BDF8))
+                                                            .border(1.dp, Color.White, CircleShape)
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            else -> {
+                                val selectedCat = AnimatedBgCategory.values().find { it.name == activeCategoryKey }
+                                val templates = remember(activeCategoryKey) {
+                                    if (selectedCat == null) emptyList()
+                                    else ALL_TEXT_POST_BACKGROUNDS.filter {
+                                        it.category == selectedCat && it.id != "none"
+                                    }
+                                }
+                                LazyRow(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 10.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    items(templates, key = { it.id }) { bg ->
+                                        val isSelected = selectedRemoteBackground == null && selectedTemplate?.id == bg.id
+                                        Box(
+                                            modifier = Modifier
+                                                .size(46.dp)
+                                                .clip(RoundedCornerShape(10.dp))
+                                                .background(Brush.linearGradient(bg.baseColors))
+                                                .border(
+                                                    if (isSelected) 2.5.dp else 1.dp,
+                                                    if (isSelected) Color.White else Color.White.copy(alpha = 0.25f),
+                                                    RoundedCornerShape(10.dp)
+                                                )
+                                                .clickable {
+                                                    selectedRemoteBackground = null
+                                                    selectedTemplate = bg
+                                                    textTextColor = bg.defaultTextColor
+                                                },
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = bg.iconEmoji,
+                                                fontSize = 18.sp,
+                                                fontFamily = InterFontFamily
+                                            )
+                                            if (bg.isAnimated) {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .align(Alignment.BottomEnd)
+                                                        .padding(2.dp)
+                                                        .size(9.dp)
+                                                        .clip(CircleShape)
+                                                        .background(Color(0xFF38BDF8))
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -639,8 +1311,8 @@ fun CreateStoryDialog(
                         Row(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(16.dp))
-                                .background(Color(0xFF070D1D))
-                                .border(1.dp, Color(0xFF1E293B), RoundedCornerShape(16.dp))
+                                .background(Color(0xFF121212))
+                                .border(1.dp, Color(0xFF262626), RoundedCornerShape(16.dp))
                                 .padding(4.dp),
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
@@ -650,8 +1322,10 @@ fun CreateStoryDialog(
                                     containerColor = if (mode == "text") Color(0xFF1877F2) else Color.Transparent
                                 ),
                                 shape = RoundedCornerShape(12.dp),
-                                contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
-                                modifier = Modifier.height(36.dp)
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                                modifier = Modifier
+                                    .height(36.dp)
+                                    .testTag("story_mode_text_btn")
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.TextFields,
@@ -659,7 +1333,7 @@ fun CreateStoryDialog(
                                     tint = if (mode == "text") Color.White else Color.White.copy(alpha = 0.6f),
                                     modifier = Modifier.size(16.dp)
                                 )
-                                Spacer(modifier = Modifier.width(6.dp))
+                                Spacer(modifier = Modifier.width(5.dp))
                                 Text(
                                     text = "Text",
                                     fontFamily = InterFontFamily,
@@ -675,8 +1349,10 @@ fun CreateStoryDialog(
                                     containerColor = if (mode == "media") Color(0xFF1877F2) else Color.Transparent
                                 ),
                                 shape = RoundedCornerShape(12.dp),
-                                contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
-                                modifier = Modifier.height(36.dp)
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                                modifier = Modifier
+                                    .height(36.dp)
+                                    .testTag("story_mode_media_btn")
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.PhotoLibrary,
@@ -684,7 +1360,7 @@ fun CreateStoryDialog(
                                     tint = if (mode == "media") Color.White else Color.White.copy(alpha = 0.6f),
                                     modifier = Modifier.size(16.dp)
                                 )
-                                Spacer(modifier = Modifier.width(6.dp))
+                                Spacer(modifier = Modifier.width(5.dp))
                                 Text(
                                     text = "Media",
                                     fontFamily = InterFontFamily,
@@ -695,18 +1371,38 @@ fun CreateStoryDialog(
                             }
                         }
 
-                        // Right Action Icons: Camera, Media Plus, Music
+                        // Right Action Icons: Aa Style (in Text mode), Camera, Media Plus, Music
                         Row(
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            // Camera Button
+                            if (mode == "text") {
+                                IconButton(
+                                    onClick = { showTextStyleControls = !showTextStyleControls },
+                                    modifier = Modifier
+                                        .size(42.dp)
+                                        .clip(CircleShape)
+                                        .background(
+                                            if (showTextStyleControls) Color(0xFF1877F2) else Color.White.copy(alpha = 0.12f)
+                                        )
+                                        .testTag("story_text_style_toggle")
+                                ) {
+                                    Text(
+                                        text = "Aa",
+                                        fontFamily = InterFontFamily,
+                                        color = Color.White,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 14.sp
+                                    )
+                                }
+                            }
+
                             IconButton(
                                 onClick = { takePhotoLauncher.launch(null) },
                                 modifier = Modifier
-                                    .size(44.dp)
+                                    .size(42.dp)
                                     .clip(CircleShape)
-                                    .background(Color.White.copy(alpha = 0.1f))
+                                    .background(Color.White.copy(alpha = 0.12f))
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.PhotoCamera,
@@ -716,7 +1412,6 @@ fun CreateStoryDialog(
                                 )
                             }
 
-                            // Add Media Button
                             IconButton(
                                 onClick = {
                                     pickMultipleMediaLauncher.launch(
@@ -724,9 +1419,9 @@ fun CreateStoryDialog(
                                     )
                                 },
                                 modifier = Modifier
-                                    .size(44.dp)
+                                    .size(42.dp)
                                     .clip(CircleShape)
-                                    .background(Color.White.copy(alpha = 0.1f))
+                                    .background(Color.White.copy(alpha = 0.12f))
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Add,
@@ -736,14 +1431,13 @@ fun CreateStoryDialog(
                                 )
                             }
 
-                            // Music Button (Opens Live Music Picker)
                             IconButton(
                                 onClick = { showMusicPicker = true },
                                 modifier = Modifier
-                                    .size(44.dp)
+                                    .size(42.dp)
                                     .clip(CircleShape)
                                     .background(
-                                        if (selectedMusic != null) Color(0xFF45BD62) else Color.White.copy(alpha = 0.1f)
+                                        if (selectedMusic != null) Color(0xFF45BD62) else Color.White.copy(alpha = 0.12f)
                                     )
                             ) {
                                 Icon(

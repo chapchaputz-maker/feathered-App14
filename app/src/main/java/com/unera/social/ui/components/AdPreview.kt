@@ -4,11 +4,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -541,8 +541,13 @@ fun AdPreview(
         }
     }
 
-    // Fullscreen Lightbox Dialog
+    // Fullscreen Swipeable Lightbox Dialog (Facebook-style HorizontalPager, no manual arrows)
     if (showLightbox && allMediaUrls.isNotEmpty()) {
+        val lightboxPagerState = rememberPagerState(
+            initialPage = selectedImageIndex.coerceIn(0, allMediaUrls.size - 1),
+            pageCount = { allMediaUrls.size }
+        )
+
         Dialog(
             onDismissRequest = { showLightbox = false },
             properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -554,11 +559,37 @@ fun AdPreview(
                     .clickable { showLightbox = false },
                 contentAlignment = Alignment.Center
             ) {
+                HorizontalPager(
+                    state = lightboxPagerState,
+                    beyondViewportPageCount = 1,
+                    pageSpacing = 12.dp,
+                    key = { idx -> "${idx}_${allMediaUrls[idx]}" },
+                    modifier = Modifier.fillMaxSize()
+                ) { page ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 12.dp, vertical = 64.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        AsyncImage(
+                            model = allMediaUrls[page],
+                            contentDescription = "Full Size Preview ${page + 1}",
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier
+                                .fillMaxWidth(0.95f)
+                                .fillMaxHeight(0.88f)
+                                .clickable(enabled = false) {}
+                        )
+                    }
+                }
+
                 // Close button
                 IconButton(
                     onClick = { showLightbox = false },
                     modifier = Modifier
                         .align(Alignment.TopEnd)
+                        .statusBarsPadding()
                         .padding(16.dp)
                         .size(40.dp)
                         .clip(CircleShape)
@@ -572,70 +603,19 @@ fun AdPreview(
                     )
                 }
 
-                // Previous button
-                if (allMediaUrls.size > 1) {
-                    IconButton(
-                        onClick = {
-                            selectedImageIndex = (selectedImageIndex - 1 + allMediaUrls.size) % allMediaUrls.size
-                        },
-                        modifier = Modifier
-                            .align(Alignment.CenterStart)
-                            .padding(16.dp)
-                            .size(44.dp)
-                            .clip(CircleShape)
-                            .background(Color.White.copy(alpha = 0.15f))
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Previous",
-                            tint = Color.White,
-                            modifier = Modifier.size(22.dp)
-                        )
-                    }
-
-                    IconButton(
-                        onClick = {
-                            selectedImageIndex = (selectedImageIndex + 1) % allMediaUrls.size
-                        },
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .padding(16.dp)
-                            .size(44.dp)
-                            .clip(CircleShape)
-                            .background(Color.White.copy(alpha = 0.15f))
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                            contentDescription = "Next",
-                            tint = Color.White,
-                            modifier = Modifier.size(22.dp)
-                        )
-                    }
-                }
-
-                // Full size Image
-                AsyncImage(
-                    model = allMediaUrls[selectedImageIndex.coerceIn(0, allMediaUrls.size - 1)],
-                    contentDescription = "Full Size Preview",
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier
-                        .fillMaxWidth(0.92f)
-                        .fillMaxHeight(0.85f)
-                        .clickable(enabled = false) {}
-                )
-
                 // Counter pill
                 if (allMediaUrls.size > 1) {
                     Box(
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
+                            .navigationBarsPadding()
                             .padding(24.dp)
                             .clip(CircleShape)
                             .background(Color.Black.copy(alpha = 0.60f))
                             .padding(horizontal = 14.dp, vertical = 6.dp)
                     ) {
                         Text(
-                            text = "${selectedImageIndex + 1} / ${allMediaUrls.size}",
+                            text = "${lightboxPagerState.currentPage + 1} / ${allMediaUrls.size}",
                             color = Color.White,
                             fontSize = 13.sp,
                             fontFamily = InterFontFamily,

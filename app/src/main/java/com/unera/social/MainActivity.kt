@@ -53,6 +53,7 @@ import com.unera.social.ui.components.ImageViewer
 import com.unera.social.ui.components.ProfessionalLoader
 import com.unera.social.ui.components.Spinner
 import com.unera.social.ui.components.DiscussionsSheetDialog
+import com.unera.social.ui.components.GalleryViewerDialog
 import com.unera.social.ui.components.CallScreen
 import com.unera.social.ui.components.CallMode
 import com.unera.social.ui.components.CallPhase
@@ -620,29 +621,102 @@ fun FeatheredApp(
                             val targetUser = uiState.users.find { it.id == userId }
                             if (targetUser != null) {
                                 viewModel.openUserProfile(targetUser)
+                            } else {
+                                viewModel.openUserProfileById(userId)
                             }
                         },
-                        onVideoClick = { reel ->
+                        onVideoClick = { _ ->
                             viewModel.setScreen(Screen.REELS)
                         },
                         onOpenComments = { post ->
                             viewModel.setSelectedPostForComments(post)
                         },
+                        onReact = { postId, reaction -> viewModel.reactToPost(postId, reaction) },
                         onLikePost = { viewModel.toggleLikePost(it) },
                         onCommentPost = { viewModel.setSelectedPostForComments(it) },
                         onSavePost = { viewModel.toggleSavePost(it) },
                         onSaveReel = { viewModel.toggleSaveReel(it) },
                         onShare = { viewModel.sharePost(it.id) },
+                        onFollowUser = { viewModel.toggleFollowUser(it) },
+                        onOpenProduct = { viewModel.setSelectedProductForDetail(it) },
+                        onOpenEvent = { _ -> viewModel.setScreen(Screen.EVENTS) },
+                        onOpenGroup = { groupId ->
+                            viewModel.setActiveGroupId(groupId)
+                            viewModel.setScreen(Screen.GROUPS)
+                        },
+                        onPlayMusic = { song ->
+                            val track = com.unera.social.model.AudioTrack(
+                                id = song.id,
+                                title = song.title,
+                                artist = song.artist,
+                                url = song.audioUrl,
+                                cover = song.cover,
+                                duration = song.durationSeconds,
+                                uploaderId = song.uploaderId,
+                                type = "music",
+                                isVerified = song.isVerified,
+                                likesCount = song.stats.likes
+                            )
+                            viewModel.playTrack(track)
+                        },
+                        onOpenVideo = { post -> viewModel.openVideoReel(post) },
+                        onDeletePost = { viewModel.deletePost(it) },
+                        onEditPost = { id, text -> viewModel.editPost(id, text) },
+                        onHidePost = { viewModel.hidePost(it) },
+                        onLikeComment = { postId, commentId -> viewModel.likeComment(postId, commentId) },
+                        onRequestAuth = { viewModel.openAuth("login") },
                         onBack = { viewModel.setScreen(Screen.FEED) },
                         modifier = screenModifier
                     )
                 }
                 Screen.MEMORIES -> {
+                    val combinedMemoryPosts = remember(
+                        uiState.posts,
+                        uiState.userProfilePosts,
+                        uiState.currentUser.id
+                    ) {
+                        val feedMine = uiState.posts.filter { it.author.id == uiState.currentUser.id }
+                        val profileMine = uiState.userProfilePosts[uiState.currentUser.id].orEmpty()
+                        (feedMine + profileMine).distinctBy { it.id }
+                    }
                     MemoriesPage(
                         currentUser = uiState.currentUser,
-                        posts = uiState.posts,
+                        posts = combinedMemoryPosts,
+                        allUsers = uiState.users,
                         onLikePost = { viewModel.toggleLikePost(it) },
                         onCommentPost = { viewModel.setSelectedPostForComments(it) },
+                        onReactPost = { postId, reaction -> viewModel.reactToPost(postId, reaction) },
+                        onSharePost = { viewModel.sharePost(it) },
+                        onSavePost = { viewModel.toggleSavePost(it) },
+                        onFollowUser = { viewModel.toggleFollowUser(it) },
+                        onUserClick = { viewModel.openUserProfile(it) },
+                        onOpenProduct = { viewModel.setSelectedProductForDetail(it) },
+                        onOpenEvent = { _ -> viewModel.setScreen(Screen.EVENTS) },
+                        onOpenGroup = { groupId ->
+                            viewModel.setActiveGroupId(groupId)
+                            viewModel.setScreen(Screen.GROUPS)
+                        },
+                        onPlayMusic = { song ->
+                            val track = com.unera.social.model.AudioTrack(
+                                id = song.id,
+                                title = song.title,
+                                artist = song.artist,
+                                url = song.audioUrl,
+                                cover = song.cover,
+                                duration = song.durationSeconds,
+                                uploaderId = song.uploaderId,
+                                type = "music",
+                                isVerified = song.isVerified,
+                                likesCount = song.stats.likes
+                            )
+                            viewModel.playTrack(track)
+                        },
+                        onOpenVideo = { post -> viewModel.openVideoReel(post) },
+                        onDeletePost = { viewModel.deletePost(it) },
+                        onEditPost = { id, text -> viewModel.editPost(id, text) },
+                        onHidePost = { viewModel.hidePost(it) },
+                        onLikeComment = { postId, commentId -> viewModel.likeComment(postId, commentId) },
+                        onRequestAuth = { viewModel.openAuth("login") },
                         onBack = { viewModel.setScreen(Screen.FEED) },
                         modifier = screenModifier
                     )
@@ -944,6 +1018,8 @@ fun FeatheredApp(
 
     if (uiState.selectedPostForComments != null) {
         val selectedPost = uiState.selectedPostForComments!!
+        var commentsGalleryState by remember(selectedPost.id) { mutableStateOf<Pair<List<String>, Int>?>(null) }
+
         DiscussionsSheetDialog(
             post = selectedPost,
             currentUser = uiState.currentUser,
@@ -998,8 +1074,10 @@ fun FeatheredApp(
                 viewModel.setActiveGroupId(gid)
                 viewModel.setScreen(Screen.GROUPS)
             },
-            onOpenGallery = { imgs, _ ->
-                imgs.firstOrNull()?.let { viewModel.openImageViewer(it) }
+            onOpenGallery = { imgs, idx ->
+                if (imgs.isNotEmpty()) {
+                    commentsGalleryState = Pair(imgs, idx.coerceIn(0, imgs.size - 1))
+                }
             },
             onPlayMusic = { song ->
                 viewModel.playTrack(
@@ -1018,6 +1096,20 @@ fun FeatheredApp(
                 )
             }
         )
+
+        commentsGalleryState?.let { (imgs, idx) ->
+            GalleryViewerDialog(
+                images = imgs,
+                initialIndex = idx,
+                post = selectedPost,
+                onDismiss = { commentsGalleryState = null },
+                onLike = { viewModel.toggleLikePost(selectedPost.id) },
+                onReact = { reaction -> viewModel.reactToPost(selectedPost.id, reaction) },
+                onComment = { commentsGalleryState = null },
+                onShare = { viewModel.sharePost(selectedPost.id) },
+                onSave = { viewModel.toggleSavePost(selectedPost.id) }
+            )
+        }
     }
 
     if (uiState.selectedProductForDetail != null) {
@@ -1141,6 +1233,9 @@ fun FeatheredApp(
             },
             onReact = { reaction ->
                 viewModel.reactToStory(currentStory.id, reaction)
+            },
+            onShare = { destination ->
+                viewModel.shareStory(currentStory.id, destination)
             },
             onDeleteStory = {
                 viewModel.deleteStory(currentStory.id)

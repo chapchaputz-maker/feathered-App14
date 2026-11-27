@@ -4,13 +4,12 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -448,8 +447,13 @@ fun MediaPreviewModal(
     initialIndex: Int,
     onDismiss: () -> Unit
 ) {
-    var currentIndex by remember { mutableStateOf(initialIndex.coerceIn(0, media.size - 1)) }
-    var dragAccumulator by remember { mutableStateOf(0f) }
+    if (media.isEmpty()) return
+
+    val safeInitialIndex = initialIndex.coerceIn(0, media.size - 1)
+    val pagerState = rememberPagerState(
+        initialPage = safeInitialIndex,
+        pageCount = { media.size }
+    )
 
     BackHandler {
         onDismiss()
@@ -462,30 +466,43 @@ fun MediaPreviewModal(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.92f))
+                .background(Color.Black.copy(alpha = 0.94f))
                 .clickable { onDismiss() }
-                .pointerInput(media.size) {
-                    if (media.size > 1) {
-                        detectHorizontalDragGestures(
-                            onDragEnd = {
-                                if (dragAccumulator > 60f) {
-                                    // Swipe Right -> previous
-                                    currentIndex = if (currentIndex == 0) media.size - 1 else currentIndex - 1
-                                } else if (dragAccumulator < -60f) {
-                                    // Swipe Left -> next
-                                    currentIndex = if (currentIndex == media.size - 1) 0 else currentIndex + 1
-                                }
-                                dragAccumulator = 0f
-                            },
-                            onHorizontalDrag = { _, dragAmount ->
-                                dragAccumulator += dragAmount
-                            }
-                        )
-                    }
-                }
                 .testTag("media_preview_modal"),
             contentAlignment = Alignment.Center
         ) {
+            // Smooth Facebook-style HorizontalPager (swipe left/right with finger, no manual arrows)
+            HorizontalPager(
+                state = pagerState,
+                beyondViewportPageCount = 1,
+                pageSpacing = 12.dp,
+                key = { idx -> "${idx}_${media[idx].url}" },
+                modifier = Modifier
+                    .fillMaxSize()
+                    .testTag("media_preview_pager")
+            ) { page ->
+                val currentItem = media[page]
+                val fullPreviewUrl = currentItem.full ?: currentItem.feed ?: currentItem.url
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 12.dp, vertical = 72.dp)
+                        .clickable(enabled = false) { /* Consume click so tapping image doesn't dismiss */ },
+                    contentAlignment = Alignment.Center
+                ) {
+                    SeamlessImage(
+                        urls = currentItem.versions ?: ImageVersions.fromUrl(fullPreviewUrl),
+                        contentDescription = currentItem.alt ?: "Preview image ${page + 1}",
+                        contentScale = ContentScale.Fit,
+                        priority = ImagePriority.HIGH,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(0.9f)
+                            .clip(RoundedCornerShape(8.dp))
+                    )
+                }
+            }
+
             // Header Bar: Counter & Close Button
             Row(
                 modifier = Modifier
@@ -502,7 +519,7 @@ fun MediaPreviewModal(
                     shape = RoundedCornerShape(14.dp)
                 ) {
                     Text(
-                        text = "${currentIndex + 1} / ${media.size}",
+                        text = "${pagerState.currentPage + 1} / ${media.size}",
                         color = Color.White,
                         fontSize = 13.sp,
                         fontFamily = InterFontFamily,
@@ -529,70 +546,30 @@ fun MediaPreviewModal(
                 }
             }
 
-            // Main Display Image (Centered, Fit, with max 90vh)
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 24.dp, vertical = 72.dp)
-                    .clickable(enabled = false) { /* Consume click so tapping image doesn't dismiss */ },
-                contentAlignment = Alignment.Center
-            ) {
-                val currentItem = media[currentIndex]
-                val fullPreviewUrl = currentItem.full ?: currentItem.feed ?: currentItem.url
-                SeamlessImage(
-                    urls = currentItem.versions ?: ImageVersions.fromUrl(fullPreviewUrl),
-                    contentDescription = currentItem.alt ?: "Preview image ${currentIndex + 1}",
-                    contentScale = ContentScale.Fit,
-                    priority = ImagePriority.HIGH,
+            // Subtle page indicator dots when multiple images exist
+            if (media.size in 2..10) {
+                Row(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(0.9f)
-                        .clip(RoundedCornerShape(8.dp))
-                )
-            }
-
-            // Navigation Arrows (if media.size > 1)
-            if (media.size > 1) {
-                // Left Arrow ←
-                IconButton(
-                    onClick = {
-                        currentIndex = if (currentIndex == 0) media.size - 1 else currentIndex - 1
-                    },
-                    modifier = Modifier
-                        .align(Alignment.CenterStart)
-                        .padding(start = 12.dp)
-                        .size(48.dp)
+                        .align(Alignment.BottomCenter)
+                        .navigationBarsPadding()
+                        .padding(bottom = 24.dp)
                         .clip(CircleShape)
                         .background(Color.Black.copy(alpha = 0.55f))
-                        .testTag("media_preview_prev")
+                        .padding(horizontal = 10.dp, vertical = 6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Previous image",
-                        tint = Color.White,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-
-                // Right Arrow →
-                IconButton(
-                    onClick = {
-                        currentIndex = if (currentIndex == media.size - 1) 0 else currentIndex + 1
-                    },
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(end = 12.dp)
-                        .size(48.dp)
-                        .clip(CircleShape)
-                        .background(Color.Black.copy(alpha = 0.55f))
-                        .testTag("media_preview_next")
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = "Next image",
-                        tint = Color.White,
-                        modifier = Modifier.size(24.dp)
-                    )
+                    repeat(media.size) { idx ->
+                        val isActive = idx == pagerState.currentPage
+                        Box(
+                            modifier = Modifier
+                                .size(if (isActive) 7.dp else 5.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    if (isActive) Color.White else Color.White.copy(alpha = 0.4f)
+                                )
+                        )
+                    }
                 }
             }
         }

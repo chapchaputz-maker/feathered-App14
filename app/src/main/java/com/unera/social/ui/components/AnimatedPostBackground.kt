@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
@@ -2661,8 +2662,141 @@ fun RemoteImageBackgroundLayer(
 }
 
 /**
- * TextPostBackgroundView - The complete presentation layer for a background-styled text post.
- * Handles classic CSS-like gradients, Compose Canvas animated scenes, and Reality database-fetched
+ * Resolves gradient colors for all 6 Create Post classic themes, all 12 Story gradients,
+ * and named short keys (red/blue/green/purple/dark/fire).
+ */
+fun resolveStoryOrPostGradientColors(styleOrId: String?): List<Color> {
+    val clean = styleOrId?.trim()?.removeSurrounding("\"")?.replace("\\\"", "\"") ?: ""
+    val base = clean.substringBefore("|").trim()
+    return when {
+        // Classic 6 Create Post gradients
+        base.contains("#FF0057", ignoreCase = true) || base.equals("red", ignoreCase = true) ->
+            listOf(Color(0xFFFF0057), Color(0xFFE64C4C))
+        base.contains("#a8ff78", ignoreCase = true) || base.equals("green", ignoreCase = true) ->
+            listOf(Color(0xFFA8FF78), Color(0xFF78FFD6))
+        base.contains("#e65c00", ignoreCase = true) || base.equals("purple", ignoreCase = true) ->
+            listOf(Color(0xFFE65C00), Color(0xFFF9D423))
+        base.contains("#00C6FF", ignoreCase = true) || base.equals("blue", ignoreCase = true) ->
+            listOf(Color(0xFF00C6FF), Color(0xFF0072FF))
+        base.contains("#f6d365", ignoreCase = true) || base.equals("fire", ignoreCase = true) ->
+            listOf(Color(0xFFF6D365), Color(0xFFFDA085))
+        // 12 Story gradients (check #000000 before #434343 so story dark matches exact order)
+        base.contains("#000000", ignoreCase = true) ->
+            listOf(Color(0xFF000000), Color(0xFF434343))
+        base.contains("#434343", ignoreCase = true) || base.equals("dark", ignoreCase = true) ->
+            listOf(Color(0xFF434343), Color(0xFF000000))
+        base.contains("#F3425F", ignoreCase = true) ->
+            listOf(Color(0xFFF3425F), Color(0xFFE41E3F))
+        base.contains("#45BD62", ignoreCase = true) ->
+            listOf(Color(0xFF45BD62), Color(0xFF31A24C))
+        base.contains("#F7B928", ignoreCase = true) ->
+            listOf(Color(0xFFF7B928), Color(0xFFE3A300))
+        base.contains("#A033FF", ignoreCase = true) ->
+            listOf(Color(0xFFA033FF), Color(0xFF7B1FA2))
+        base.contains("#FF7E5F", ignoreCase = true) ->
+            listOf(Color(0xFFFF7E5F), Color(0xFFFEB47B))
+        base.contains("#2193b0", ignoreCase = true) ->
+            listOf(Color(0xFF2193B0), Color(0xFF6DD5ED))
+        base.contains("#ee9ca7", ignoreCase = true) ->
+            listOf(Color(0xFFEE9CA7), Color(0xFFFFDDE1))
+        base.contains("#42275a", ignoreCase = true) ->
+            listOf(Color(0xFF42275A), Color(0xFF734B6D))
+        base.contains("#BDC3C7", ignoreCase = true) ->
+            listOf(Color(0xFFBDC3C7), Color(0xFF2C3E50))
+        base.contains("#1877F2", ignoreCase = true) ->
+            listOf(Color(0xFF1877F2), Color(0xFF0055FF))
+        else -> listOf(Color(0xFF1877F2), Color(0xFF0055FF))
+    }
+}
+
+/**
+ * Compact background-only layer for Story strip thumbnails and small story previews.
+ * Supports Reality DB backgrounds (thumbnail-only when compact), Canvas animated scenes,
+ * Create Post classic themes, and all 12 Story gradients.
+ */
+@Composable
+fun StoryBackgroundLayer(
+    backgroundStyle: String?,
+    modifier: Modifier = Modifier,
+    isVisible: Boolean = true,
+    useThumbnailOnly: Boolean = true
+) {
+    val context = LocalContext.current
+    val cleanStyle = remember(backgroundStyle) {
+        backgroundStyle?.trim()?.removeSurrounding("\"")?.replace("\\\"", "\"") ?: ""
+    }
+    val remoteBackgrounds by BackgroundsApiService.backgrounds.collectAsState()
+    val isReality = remember(cleanStyle) {
+        BackgroundsApiService.isRealityStyle(cleanStyle)
+    }
+
+    LaunchedEffect(cleanStyle) {
+        if (BackgroundsApiService.isRealityStyle(cleanStyle)) {
+            BackgroundsApiService.ensureLoaded(context)
+            if (BackgroundsApiService.findRemoteBackground(cleanStyle) == null) {
+                BackgroundsApiService.extractBackgroundId(cleanStyle)?.let { bgId ->
+                    BackgroundsApiService.fetchBackgroundById(context, bgId)
+                }
+            }
+        }
+    }
+
+    val remoteBackground = remember(cleanStyle, remoteBackgrounds) {
+        BackgroundsApiService.findRemoteBackground(cleanStyle)
+    }
+    val isCanvasAnimated = remember(cleanStyle, remoteBackground, isReality) {
+        remoteBackground == null &&
+            !isReality &&
+            (cleanStyle.contains("animated:") || findBackgroundTemplate(cleanStyle)?.isAnimated == true)
+    }
+
+    Box(modifier = modifier.clipToBounds()) {
+        if (remoteBackground != null) {
+            RemoteImageBackgroundLayer(
+                background = remoteBackground,
+                modifier = Modifier.matchParentSize(),
+                isVisible = isVisible,
+                useThumbnailOnly = useThumbnailOnly
+            )
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(
+                        remoteBackground.parsedOverlayColor()
+                            .copy(alpha = remoteBackground.overlayOpacity.coerceIn(0.15f, 0.55f))
+                    )
+            )
+        } else if (isReality) {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(Brush.linearGradient(listOf(Color(0xFF111827), Color(0xFF1F2937))))
+            )
+        } else if (isCanvasAnimated) {
+            AnimatedPostBackground(
+                templateId = cleanStyle,
+                modifier = Modifier.matchParentSize(),
+                isVisible = isVisible
+            )
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(Color.Black.copy(alpha = 0.20f))
+            )
+        } else {
+            val colors = remember(cleanStyle) { resolveStoryOrPostGradientColors(cleanStyle) }
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(Brush.linearGradient(colors))
+            )
+        }
+    }
+}
+
+/**
+ * TextPostBackgroundView - The complete presentation layer for a background-styled text post or story.
+ * Handles classic CSS-like gradients, all Story gradients, Compose Canvas animated scenes, and Reality database-fetched
  * static/animated image backgrounds with full text styling, positioning, and contrast adjustment.
  */
 @Composable
@@ -2671,7 +2805,10 @@ fun TextPostBackgroundView(
     content: String,
     modifier: Modifier = Modifier,
     isVisible: Boolean = true,
-    onTextClick: (() -> Unit)? = null
+    onTextClick: (() -> Unit)? = null,
+    minHeight: Dp = 320.dp,
+    defaultFontSizeSp: Int? = null,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 26.dp, vertical = 26.dp)
 ) {
     if (content.isBlank() && backgroundStyle.isNullOrBlank()) return
 
@@ -2714,6 +2851,13 @@ fun TextPostBackgroundView(
         }
     }
 
+    val effectiveFontSizeSp = remember(cleanStyle, styling, defaultFontSizeSp) {
+        val hasExplicitSize = cleanStyle.split("|").any {
+            it.trim().lowercase().startsWith("size:")
+        }
+        if (hasExplicitSize || defaultFontSizeSp == null) styling.fontSizeSp else defaultFontSizeSp
+    }
+
     // Determine combined horizontal + vertical Box alignment from parsed styling
     val boxAlignment = remember(styling.alignment, styling.position) {
         when (styling.position) {
@@ -2738,7 +2882,7 @@ fun TextPostBackgroundView(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = 320.dp)
+            .then(if (minHeight > 0.dp) Modifier.heightIn(min = minHeight) else Modifier)
             .clipToBounds()
             .then(if (onTextClick != null) Modifier.clickable { onTextClick() } else Modifier),
         contentAlignment = boxAlignment
@@ -2756,7 +2900,7 @@ fun TextPostBackgroundView(
                     .matchParentSize()
                     .background(
                         Brush.linearGradient(
-                            listOf(Color(0xFF0F172A), Color(0xFF1E293B))
+                            listOf(Color(0xFF0A0A0A), Color(0xFF171717))
                         )
                     )
             )
@@ -2768,17 +2912,9 @@ fun TextPostBackgroundView(
                 isVisible = isVisible
             )
         } else if (!cleanStyle.startsWith("style:none") && !cleanStyle.startsWith("none")) {
-            // Render Classic Linear Gradient (Preserves 100% existing posts)
+            // Render Classic Linear Gradient or Story Gradient
             val gradientColors = remember(cleanStyle) {
-                when {
-                    cleanStyle.contains("#FF0057") -> listOf(Color(0xFFFF0057), Color(0xFFE64C4C))
-                    cleanStyle.contains("#a8ff78") -> listOf(Color(0xFFA8FF78), Color(0xFF78FFD6))
-                    cleanStyle.contains("#e65c00") -> listOf(Color(0xFFE65C00), Color(0xFFF9D423))
-                    cleanStyle.contains("#00C6FF") -> listOf(Color(0xFF00C6FF), Color(0xFF0072FF))
-                    cleanStyle.contains("#434343") -> listOf(Color(0xFF434343), Color(0xFF000000))
-                    cleanStyle.contains("#f6d365") -> listOf(Color(0xFFF6D365), Color(0xFFFDA085))
-                    else -> listOf(Color(0xFF1877F2), Color(0xFF0055FF))
-                }
+                resolveStoryOrPostGradientColors(cleanStyle)
             }
             Box(
                 modifier = Modifier
@@ -2838,18 +2974,21 @@ fun TextPostBackgroundView(
             }
         }
 
-        // Content box that drives minimum 320dp height while strictly respecting parsed alignment & position
+        // Content box respecting parsed alignment & position while supporting both dynamic minHeight posts and fillMaxSize stories
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .defaultMinSize(minHeight = 320.dp)
-                .padding(horizontal = 26.dp, vertical = 26.dp),
+                .then(
+                    if (minHeight > 0.dp) Modifier.defaultMinSize(minHeight = minHeight)
+                    else Modifier.fillMaxHeight()
+                )
+                .padding(contentPadding),
             contentAlignment = boxAlignment
         ) {
             Text(
                 text = content,
                 color = effectiveTextColor,
-                fontSize = styling.fontSizeSp.sp,
+                fontSize = effectiveFontSizeSp.sp,
                 fontWeight = styling.resolvedFontWeight(),
                 fontFamily = when (styling.fontStyleName.lowercase()) {
                     "serif" -> FontFamily.Serif
@@ -2864,7 +3003,7 @@ fun TextPostBackgroundView(
                     androidx.compose.ui.text.font.FontStyle.Normal
                 },
                 textAlign = styling.alignment,
-                lineHeight = (styling.fontSizeSp * 1.45f).sp,
+                lineHeight = (effectiveFontSizeSp * 1.45f).sp,
                 style = androidx.compose.ui.text.TextStyle(shadow = textShadow),
                 modifier = Modifier.fillMaxWidth()
             )

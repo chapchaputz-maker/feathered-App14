@@ -289,7 +289,8 @@ fun FacebookReactionButton(
     onToggleReactionDock: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     fontSize: TextUnit = 14.sp,
-    fontFamily: FontFamily? = InterFontFamily
+    fontFamily: FontFamily? = InterFontFamily,
+    unlikedTint: Color = AppColors.textPrimary
 ) {
     val context = LocalContext.current
     val currentReaction = getFacebookReaction(myReaction)
@@ -394,14 +395,14 @@ fun FacebookReactionButton(
                     Icon(
                         imageVector = Icons.Outlined.FavoriteBorder,
                         contentDescription = "Like",
-                        tint = AppColors.textPrimary,
+                        tint = unlikedTint,
                         modifier = Modifier.size(22.dp)
                     )
                     if (likesCount > 0) {
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = likesCount.toString(),
-                            color = AppColors.textPrimary,
+                            color = unlikedTint,
                             fontSize = fontSize,
                             fontFamily = fontFamily,
                             fontWeight = FontWeight.SemiBold

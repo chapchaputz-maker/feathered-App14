@@ -1183,6 +1183,16 @@ object PostsApiService {
         }
     }
 
+    fun parseDateToEpochMillis(raw: String?): Long? {
+        if (raw.isNullOrBlank() || raw.equals("null", ignoreCase = true)) return null
+        val trimmed = raw.trim()
+        val numeric = trimmed.toLongOrNull()
+        if (numeric != null && numeric > 0L) {
+            return if (numeric > 100_000_000_000L) numeric else numeric * 1000L
+        }
+        return parseDateToMillis(trimmed)
+    }
+
     private fun parseDateToMillis(str: String): Long? {
         val patterns = listOf(
             "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'",

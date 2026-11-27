@@ -54,6 +54,7 @@ fun AdDashboardView(
     campaigns: List<AdCampaign>,
     onBack: (() -> Unit)? = null,
     onNavigateToCampaigns: (() -> Unit)? = null,
+    isEmbedded: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     var selectedTimeRange by remember { mutableStateOf("Last 7 days") }
@@ -107,304 +108,150 @@ fun AdDashboardView(
     val skyText = if (AppColors.isLight) Color(0xFF0284C7) else Color(0xFF38BDF8)
     val amberText = if (AppColors.isLight) Color(0xFFD97706) else Color(0xFFFBBF24)
 
-    LazyColumn(
-        modifier = modifier
-            .fillMaxSize()
-            .background(AppColors.bgScreen)
-            .testTag("ad_dashboard_view"),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp)
-    ) {
-        // 1. Header with optional Back and Switch to Campaigns
-        item(key = "dashboard_header") {
+    val topCampaigns = remember(campaigns) {
+        campaigns.distinctBy { it.id }.sortedByDescending { it.impressions }.take(5)
+    }
+
+    val headerSection: @Composable () -> Unit = {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (onBack != null) {
+                IconButton(
+                    onClick = onBack,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(AppColors.bgChip)
+                        .testTag("dashboard_back_btn")
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = AppColors.textPrimary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+            }
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Ad Analytics",
+                    fontSize = 24.sp,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold,
+                    color = AppColors.textPrimary,
+                    letterSpacing = (-0.5).sp
+                )
+                Text(
+                    text = "Track your campaign performance and analytics.",
+                    fontSize = 13.sp,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Normal,
+                    color = AppColors.textSecondary,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
+            }
+
+            if (onNavigateToCampaigns != null) {
+                Button(
+                    onClick = onNavigateToCampaigns,
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = AppColors.bgCard,
+                        contentColor = AppColors.textPrimary
+                    ),
+                    border = BorderStroke(1.dp, AppColors.border),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+                    modifier = Modifier.height(36.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Campaign,
+                        contentDescription = null,
+                        tint = skyText,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "Campaigns",
+                        fontSize = 12.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Medium,
+                        color = AppColors.textPrimary
+                    )
+                }
+            }
+        }
+    }
+
+    val statsGridSection: @Composable () -> Unit = {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                if (onBack != null) {
-                    IconButton(
-                        onClick = onBack,
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .background(AppColors.bgChip)
-                            .testTag("dashboard_back_btn")
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = AppColors.textPrimary,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                }
-
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "Ad Analytics",
-                        fontSize = 24.sp,
-                        fontFamily = InterFontFamily,
-                        fontWeight = FontWeight.SemiBold,
-                        color = AppColors.textPrimary,
-                        letterSpacing = (-0.5).sp
-                    )
-                    Text(
-                        text = "Track your campaign performance and analytics.",
-                        fontSize = 13.sp,
-                        fontFamily = InterFontFamily,
-                        fontWeight = FontWeight.Normal,
-                        color = AppColors.textSecondary,
-                        modifier = Modifier.padding(top = 2.dp)
-                    )
-                }
-
-                if (onNavigateToCampaigns != null) {
-                    Button(
-                        onClick = onNavigateToCampaigns,
-                        shape = RoundedCornerShape(10.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = AppColors.bgCard,
-                            contentColor = AppColors.textPrimary
-                        ),
-                        border = BorderStroke(1.dp, AppColors.border),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
-                        modifier = Modifier.height(36.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Campaign,
-                            contentDescription = null,
-                            tint = skyText,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = "Campaigns",
-                            fontSize = 12.sp,
-                            fontFamily = InterFontFamily,
-                            fontWeight = FontWeight.Medium,
-                            color = AppColors.textPrimary
-                        )
-                    }
-                }
+                DashboardStatCard(
+                    title = "Total Impressions",
+                    value = formatNumber(totalImpressions),
+                    icon = Icons.Default.Visibility,
+                    trend = "up",
+                    trendValue = "12.5%",
+                    iconBgColor = Color(0xFF3B82F6).copy(alpha = 0.15f),
+                    iconTint = blueText,
+                    modifier = Modifier.weight(1f)
+                )
+                DashboardStatCard(
+                    title = "Total Clicks",
+                    value = formatNumber(totalClicks),
+                    icon = Icons.Default.TouchApp,
+                    trend = "up",
+                    trendValue = "8.2%",
+                    iconBgColor = Color(0xFF10B981).copy(alpha = 0.15f),
+                    iconTint = emeraldText,
+                    modifier = Modifier.weight(1f)
+                )
             }
-        }
 
-        // 2. Primary 4 Stat Cards in 2x2 grid (mobile friendly) matching web
-        item(key = "stats_grid") {
-            Column(
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    DashboardStatCard(
-                        title = "Total Impressions",
-                        value = formatNumber(totalImpressions),
-                        icon = Icons.Default.Visibility,
-                        trend = "up",
-                        trendValue = "12.5%",
-                        iconBgColor = Color(0xFF3B82F6).copy(alpha = 0.15f),
-                        iconTint = blueText,
-                        modifier = Modifier.weight(1f)
-                    )
-                    DashboardStatCard(
-                        title = "Total Clicks",
-                        value = formatNumber(totalClicks),
-                        icon = Icons.Default.TouchApp,
-                        trend = "up",
-                        trendValue = "8.2%",
-                        iconBgColor = Color(0xFF10B981).copy(alpha = 0.15f),
-                        iconTint = emeraldText,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    DashboardStatCard(
-                        title = "Total Views",
-                        value = formatNumber(totalViews),
-                        icon = Icons.Default.PlayArrow,
-                        trend = "down",
-                        trendValue = "3.1%",
-                        iconBgColor = Color(0xFFF59E0B).copy(alpha = 0.15f),
-                        iconTint = amberText,
-                        modifier = Modifier.weight(1f)
-                    )
-                    DashboardStatCard(
-                        title = "Total Spend",
-                        value = "$${totalSpend}",
-                        icon = Icons.Default.AttachMoney,
-                        trend = "up",
-                        trendValue = "15.3%",
-                        iconBgColor = Color(0xFFF43F5E).copy(alpha = 0.15f),
-                        iconTint = Color(0xFFE11D48),
-                        subtitleNote = "100% Free Promo",
-                        modifier = Modifier.weight(1f)
-                    )
-                }
+                DashboardStatCard(
+                    title = "Total Views",
+                    value = formatNumber(totalViews),
+                    icon = Icons.Default.PlayArrow,
+                    trend = "down",
+                    trendValue = "3.1%",
+                    iconBgColor = Color(0xFFF59E0B).copy(alpha = 0.15f),
+                    iconTint = amberText,
+                    modifier = Modifier.weight(1f)
+                )
+                DashboardStatCard(
+                    title = "Total Spend",
+                    value = "$${totalSpend}",
+                    icon = Icons.Default.AttachMoney,
+                    trend = "up",
+                    trendValue = "15.3%",
+                    iconBgColor = Color(0xFFF43F5E).copy(alpha = 0.15f),
+                    iconTint = Color(0xFFE11D48),
+                    subtitleNote = "100% Free Promo",
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
+    }
 
-        // 3. Second Row Stats: Click-Through Rate (CTR) Gauge & Active Campaigns
-        item(key = "second_row_stats") {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                // Click-Through Rate Card with custom Progress Bar
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
-                    border = BorderStroke(1.dp, AppColors.border)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(18.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column {
-                                Text(
-                                    text = "Click-Through Rate (CTR)",
-                                    fontSize = 13.sp,
-                                    fontFamily = InterFontFamily,
-                                    color = AppColors.textSecondary,
-                                    fontWeight = FontWeight.Medium
-                                )
-                                Text(
-                                    text = "$overallCtr%",
-                                    fontSize = 32.sp,
-                                    fontFamily = InterFontFamily,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = AppColors.textPrimary,
-                                    modifier = Modifier.padding(top = 4.dp)
-                                )
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .size(52.dp)
-                                    .clip(CircleShape)
-                                    .background(Color(0xFF3B82F6).copy(alpha = 0.15f)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.TrendingUp,
-                                    contentDescription = "CTR Chart",
-                                    tint = blueText,
-                                    modifier = Modifier.size(28.dp)
-                                )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        // Gradient Progress bar matching web
-                        val ctrNum = overallCtr.toFloatOrNull() ?: 0f
-                        val progressFraction = (ctrNum / 10f).coerceIn(0.05f, 1f)
-
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(8.dp)
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(AppColors.bgChip)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth(fraction = progressFraction)
-                                    .fillMaxHeight()
-                                    .clip(RoundedCornerShape(4.dp))
-                                    .background(
-                                        Brush.horizontalGradient(
-                                            listOf(Color(0xFF3B82F6), Color(0xFF10B981))
-                                        )
-                                    )
-                            )
-                        }
-
-                        Text(
-                            text = "Industry average: 1.5 - 2.5%",
-                            fontSize = 12.sp,
-                            fontFamily = InterFontFamily,
-                            fontWeight = FontWeight.Normal,
-                            color = AppColors.textMuted,
-                            modifier = Modifier.padding(top = 10.dp)
-                        )
-                    }
-                }
-
-                // Active Campaigns Card
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
-                    border = BorderStroke(1.dp, AppColors.border)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(18.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column {
-                            Text(
-                                text = "Active Campaigns",
-                                fontSize = 13.sp,
-                                fontFamily = InterFontFamily,
-                                color = AppColors.textSecondary,
-                                fontWeight = FontWeight.Medium
-                            )
-                            Text(
-                                text = "$activeCampaigns",
-                                fontSize = 32.sp,
-                                fontFamily = InterFontFamily,
-                                fontWeight = FontWeight.SemiBold,
-                                color = AppColors.textPrimary,
-                                modifier = Modifier.padding(top = 4.dp)
-                            )
-                            Text(
-                                text = "out of ${campaigns.size} total",
-                                fontSize = 12.sp,
-                                fontFamily = InterFontFamily,
-                                fontWeight = FontWeight.Normal,
-                                color = AppColors.textMuted,
-                                modifier = Modifier.padding(top = 2.dp)
-                            )
-                        }
-
-                        Box(
-                            modifier = Modifier
-                                .size(52.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFF10B981).copy(alpha = 0.15f)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.CalendarToday,
-                                contentDescription = "Active Campaigns",
-                                tint = emeraldText,
-                                modifier = Modifier.size(26.dp)
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
-        // 4. Weekly Performance Chart Card matching web Dashboard.tsx
-        item(key = "weekly_performance_chart") {
+    val secondRowStatsSection: @Composable () -> Unit = {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // Click-Through Rate Card with custom Progress Bar
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
@@ -416,322 +263,496 @@ fun AdDashboardView(
                         .fillMaxWidth()
                         .padding(18.dp)
                 ) {
-                    // Title and Filter Dropdown
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = "Weekly Performance",
-                            fontSize = 17.sp,
-                            fontFamily = InterFontFamily,
-                            fontWeight = FontWeight.SemiBold,
-                            color = AppColors.textPrimary
-                        )
-
-                        Box {
-                            Surface(
-                                onClick = { showTimeDropdown = true },
-                                shape = RoundedCornerShape(8.dp),
-                                color = AppColors.bgInput,
-                                border = BorderStroke(1.dp, AppColors.borderStrong)
-                            ) {
-                                Row(
-                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = selectedTimeRange,
-                                        fontSize = 12.sp,
-                                        fontFamily = InterFontFamily,
-                                        color = AppColors.textBody,
-                                        fontWeight = FontWeight.Medium
-                                    )
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Icon(
-                                        imageVector = Icons.Default.ArrowDropDown,
-                                        contentDescription = null,
-                                        tint = AppColors.textSecondary,
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                }
-                            }
-
-                            DropdownMenu(
-                                expanded = showTimeDropdown,
-                                onDismissRequest = { showTimeDropdown = false },
-                                modifier = Modifier.background(AppColors.bgCard)
-                            ) {
-                                listOf("Last 7 days", "Last 30 days", "Last 90 days").forEach { opt ->
-                                    DropdownMenuItem(
-                                        text = {
-                                            Text(
-                                                opt,
-                                                color = AppColors.textPrimary,
-                                                fontSize = 13.sp,
-                                                fontFamily = InterFontFamily,
-                                                fontWeight = FontWeight.Medium
-                                            )
-                                        },
-                                        onClick = {
-                                            selectedTimeRange = opt
-                                            showTimeDropdown = false
-                                        }
-                                    )
-                                }
-                            }
+                        Column {
+                            Text(
+                                text = "Click-Through Rate (CTR)",
+                                fontSize = 13.sp,
+                                fontFamily = InterFontFamily,
+                                color = AppColors.textSecondary,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Text(
+                                text = "$overallCtr%",
+                                fontSize = 32.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold,
+                                color = AppColors.textPrimary,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
                         }
-                    }
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    // Bar Chart representation (Impressions & Clicks overlaid bars)
-                    var selectedDayTooltip by remember { mutableStateOf<WeeklyDayData?>(null) }
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(140.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.Bottom
-                    ) {
-                        weeklyData.forEach { day ->
-                            val imprFraction = (day.impressions / maxWeeklyImpression).coerceIn(0.1f, 1f)
-                            val clickFraction = ((day.clicks * 20f) / maxWeeklyImpression).coerceIn(0.05f, 0.9f)
-                            val isSelected = selectedDayTooltip?.day == day.day
-
-                            Column(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .fillMaxHeight()
-                                    .clickable {
-                                        selectedDayTooltip = if (isSelected) null else day
-                                    },
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Bottom
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .weight(1f),
-                                    contentAlignment = Alignment.BottomCenter
-                                ) {
-                                    // Background bar container
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .fillMaxHeight()
-                                            .clip(RoundedCornerShape(6.dp))
-                                            .background(AppColors.bgChip.copy(alpha = 0.65f))
-                                    )
-
-                                    // Impressions bar (blue)
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .fillMaxHeight(fraction = imprFraction)
-                                            .clip(RoundedCornerShape(6.dp))
-                                            .background(
-                                                if (isSelected) Color(0xFF3B82F6)
-                                                else Color(0xFF3B82F6).copy(alpha = 0.8f)
-                                            )
-                                    )
-
-                                    // Clicks bar (emerald) on bottom overlay
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .fillMaxHeight(fraction = clickFraction)
-                                            .clip(RoundedCornerShape(bottomStart = 6.dp, bottomEnd = 6.dp))
-                                            .background(
-                                                if (isSelected) Color(0xFF10B981)
-                                                else Color(0xFF10B981).copy(alpha = 0.85f)
-                                            )
-                                    )
-                                }
-
-                                Spacer(modifier = Modifier.height(6.dp))
-
-                                Text(
-                                    text = day.day,
-                                    fontSize = 11.sp,
-                                    fontFamily = InterFontFamily,
-                                    color = if (isSelected) AppColors.textPrimary else AppColors.textMuted,
-                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
-                                )
-                            }
-                        }
-                    }
-
-                    // Tooltip display for clicked day
-                    selectedDayTooltip?.let { day ->
-                        Surface(
+                        Box(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 10.dp),
-                            shape = RoundedCornerShape(8.dp),
-                            color = AppColors.bgInput,
-                            border = BorderStroke(1.dp, AppColors.borderStrong)
+                                .size(52.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFF3B82F6).copy(alpha = 0.15f)),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 12.dp, vertical = 8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "${day.day} Breakdown",
-                                    fontSize = 12.sp,
-                                    fontFamily = InterFontFamily,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = AppColors.textPrimary
-                                )
-                                Text(
-                                    text = "Impressions: ${day.impressions} • Clicks: ${day.clicks}",
-                                    fontSize = 12.sp,
-                                    fontFamily = InterFontFamily,
-                                    fontWeight = FontWeight.Normal,
-                                    color = skyText
-                                )
-                            }
+                            Icon(
+                                imageVector = Icons.Default.TrendingUp,
+                                contentDescription = "CTR Chart",
+                                tint = blueText,
+                                modifier = Modifier.size(28.dp)
+                            )
                         }
                     }
 
-                    // Chart Legend
-                    Row(
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    val ctrNum = overallCtr.toFloatOrNull() ?: 0f
+                    val progressFraction = (ctrNum / 10f).coerceIn(0.05f, 1f)
+
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 16.dp)
-                            .border(BorderStroke(0.5.dp, AppColors.border), RoundedCornerShape(0.dp))
-                            .padding(top = 12.dp),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
+                            .height(8.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(AppColors.bgChip)
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(10.dp)
-                                    .clip(RoundedCornerShape(2.dp))
-                                    .background(Color(0xFF3B82F6))
-                            )
-                            Text(text = "Impressions", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = AppColors.textSecondary)
-                        }
-
-                        Spacer(modifier = Modifier.width(24.dp))
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(10.dp)
-                                    .clip(RoundedCornerShape(2.dp))
-                                    .background(Color(0xFF10B981))
-                            )
-                            Text(text = "Clicks", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = AppColors.textSecondary)
-                        }
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth(fraction = progressFraction)
+                                .fillMaxHeight()
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(
+                                    Brush.horizontalGradient(
+                                        listOf(Color(0xFF3B82F6), Color(0xFF10B981))
+                                    )
+                                )
+                        )
                     }
+
+                    Text(
+                        text = "Industry average: 1.5 - 2.5%",
+                        fontSize = 12.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
+                        color = AppColors.textMuted,
+                        modifier = Modifier.padding(top = 10.dp)
+                    )
                 }
             }
-        }
 
-        // 5. Top Performing Campaigns Section
-        item(key = "top_performing_header") {
-            Column(modifier = Modifier.fillMaxWidth()) {
+            // Active Campaigns Card
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+                border = BorderStroke(1.dp, AppColors.border)
+            ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(18.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
                         Text(
-                            text = "Top Performing Campaigns",
-                            fontSize = 18.sp,
+                            text = "Active Campaigns",
+                            fontSize = 13.sp,
                             fontFamily = InterFontFamily,
-                            fontWeight = FontWeight.SemiBold,
-                            color = AppColors.textPrimary
+                            color = AppColors.textSecondary,
+                            fontWeight = FontWeight.Medium
                         )
                         Text(
-                            text = "Campaigns ranked by engagement and impressions",
+                            text = "$activeCampaigns",
+                            fontSize = 32.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.SemiBold,
+                            color = AppColors.textPrimary,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                        Text(
+                            text = "out of ${campaigns.size} total",
                             fontSize = 12.sp,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Normal,
-                            color = AppColors.textSecondary,
+                            color = AppColors.textMuted,
                             modifier = Modifier.padding(top = 2.dp)
                         )
                     }
 
-                    if (campaigns.isNotEmpty()) {
-                        Text(
-                            text = "${campaigns.take(5).size} shown",
-                            fontSize = 11.sp,
-                            fontFamily = InterFontFamily,
-                            fontWeight = FontWeight.Normal,
-                            color = AppColors.textMuted
+                    Box(
+                        modifier = Modifier
+                            .size(52.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFF10B981).copy(alpha = 0.15f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.CalendarToday,
+                            contentDescription = "Active Campaigns",
+                            tint = emeraldText,
+                            modifier = Modifier.size(26.dp)
                         )
                     }
                 }
             }
         }
+    }
 
-        if (campaigns.isEmpty()) {
-            item(key = "top_performing_empty") {
-                Card(
+    val weeklyChartSection: @Composable () -> Unit = {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+            border = BorderStroke(1.dp, AppColors.border)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(18.dp)
+            ) {
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
-                    border = BorderStroke(1.dp, AppColors.border)
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column(
+                    Text(
+                        text = "Weekly Performance",
+                        fontSize = 17.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
+                        color = AppColors.textPrimary
+                    )
+
+                    Box {
+                        Surface(
+                            onClick = { showTimeDropdown = true },
+                            shape = RoundedCornerShape(8.dp),
+                            color = AppColors.bgInput,
+                            border = BorderStroke(1.dp, AppColors.borderStrong)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = selectedTimeRange,
+                                    fontSize = 12.sp,
+                                    fontFamily = InterFontFamily,
+                                    color = AppColors.textBody,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Icon(
+                                    imageVector = Icons.Default.ArrowDropDown,
+                                    contentDescription = null,
+                                    tint = AppColors.textSecondary,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                        }
+
+                        DropdownMenu(
+                            expanded = showTimeDropdown,
+                            onDismissRequest = { showTimeDropdown = false },
+                            modifier = Modifier.background(AppColors.bgCard)
+                        ) {
+                            listOf("Last 7 days", "Last 30 days", "Last 90 days").forEach { opt ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            opt,
+                                            color = AppColors.textPrimary,
+                                            fontSize = 13.sp,
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                    },
+                                    onClick = {
+                                        selectedTimeRange = opt
+                                        showTimeDropdown = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                var selectedDayTooltip by remember { mutableStateOf<WeeklyDayData?>(null) }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(140.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    weeklyData.forEach { day ->
+                        val imprFraction = (day.impressions / maxWeeklyImpression).coerceIn(0.1f, 1f)
+                        val clickFraction = ((day.clicks * 20f) / maxWeeklyImpression).coerceIn(0.05f, 0.9f)
+                        val isSelected = selectedDayTooltip?.day == day.day
+
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                                .clickable {
+                                    selectedDayTooltip = if (isSelected) null else day
+                                },
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Bottom
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f),
+                                contentAlignment = Alignment.BottomCenter
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .fillMaxHeight()
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(AppColors.bgChip.copy(alpha = 0.65f))
+                                )
+
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .fillMaxHeight(fraction = imprFraction)
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(
+                                            if (isSelected) Color(0xFF3B82F6)
+                                            else Color(0xFF3B82F6).copy(alpha = 0.8f)
+                                        )
+                                )
+
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .fillMaxHeight(fraction = clickFraction)
+                                        .clip(RoundedCornerShape(bottomStart = 6.dp, bottomEnd = 6.dp))
+                                        .background(
+                                            if (isSelected) Color(0xFF10B981)
+                                            else Color(0xFF10B981).copy(alpha = 0.85f)
+                                        )
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(6.dp))
+
+                            Text(
+                                text = day.day,
+                                fontSize = 11.sp,
+                                fontFamily = InterFontFamily,
+                                color = if (isSelected) AppColors.textPrimary else AppColors.textMuted,
+                                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
+                            )
+                        }
+                    }
+                }
+
+                selectedDayTooltip?.let { day ->
+                    Surface(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(32.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                            .padding(top = 10.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        color = AppColors.bgInput,
+                        border = BorderStroke(1.dp, AppColors.borderStrong)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "${day.day} Breakdown",
+                                fontSize = 12.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.SemiBold,
+                                color = AppColors.textPrimary
+                            )
+                            Text(
+                                text = "Impressions: ${day.impressions} • Clicks: ${day.clicks}",
+                                fontSize = 12.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Normal,
+                                color = skyText
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                HorizontalDivider(color = AppColors.border, thickness = 0.5.dp)
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(56.dp)
-                                .clip(CircleShape)
-                                .background(AppColors.bgChip),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.TrendingUp,
-                                contentDescription = null,
-                                tint = AppColors.textMuted,
-                                modifier = Modifier.size(28.dp)
-                            )
-                        }
-                        Text(
-                            text = "No campaigns yet",
-                            fontSize = 15.sp,
-                            fontFamily = InterFontFamily,
-                            fontWeight = FontWeight.SemiBold,
-                            color = AppColors.textPrimary
+                                .size(10.dp)
+                                .clip(RoundedCornerShape(2.dp))
+                                .background(Color(0xFF3B82F6))
                         )
-                        Text(
-                            text = "Create your first ad to see performance data",
-                            fontSize = 12.sp,
-                            fontFamily = InterFontFamily,
-                            fontWeight = FontWeight.Normal,
-                            color = AppColors.textSecondary
+                        Text(text = "Impressions", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = AppColors.textSecondary)
+                    }
+
+                    Spacer(modifier = Modifier.width(24.dp))
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(10.dp)
+                                .clip(RoundedCornerShape(2.dp))
+                                .background(Color(0xFF10B981))
                         )
+                        Text(text = "Clicks", fontSize = 12.sp, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, color = AppColors.textSecondary)
                     }
                 }
             }
-        } else {
-            // Render top campaigns (sorted by engagement/impressions)
-            val topCampaigns = campaigns.sortedByDescending { it.impressions }.take(5)
+        }
+    }
 
-            items(topCampaigns, key = { "top_ad_${it.id}" }) { ad ->
-                TopCampaignPerformanceCard(ad = ad)
+    val topPerformingHeaderSection: @Composable () -> Unit = {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = "Top Performing Campaigns",
+                        fontSize = 18.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
+                        color = AppColors.textPrimary
+                    )
+                    Text(
+                        text = "Campaigns ranked by engagement and impressions",
+                        fontSize = 12.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
+                        color = AppColors.textSecondary,
+                        modifier = Modifier.padding(top = 2.dp)
+                    )
+                }
+
+                if (campaigns.isNotEmpty()) {
+                    Text(
+                        text = "${topCampaigns.size} shown",
+                        fontSize = 11.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Normal,
+                        color = AppColors.textMuted
+                    )
+                }
+            }
+        }
+    }
+
+    val emptyCampaignsSection: @Composable () -> Unit = {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = AppColors.bgCard),
+            border = BorderStroke(1.dp, AppColors.border)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(CircleShape)
+                        .background(AppColors.bgChip),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.TrendingUp,
+                        contentDescription = null,
+                        tint = AppColors.textMuted,
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
+                Text(
+                    text = "No campaigns yet",
+                    fontSize = 15.sp,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold,
+                    color = AppColors.textPrimary
+                )
+                Text(
+                    text = "Create your first ad to see performance data",
+                    fontSize = 12.sp,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Normal,
+                    color = AppColors.textSecondary
+                )
+            }
+        }
+    }
+
+    if (isEmbedded) {
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .background(AppColors.bgScreen)
+                .padding(bottom = 16.dp)
+                .testTag("ad_dashboard_view"),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            headerSection()
+            statsGridSection()
+            secondRowStatsSection()
+            weeklyChartSection()
+            topPerformingHeaderSection()
+            if (topCampaigns.isEmpty()) {
+                emptyCampaignsSection()
+            } else {
+                topCampaigns.forEach { ad ->
+                    TopCampaignPerformanceCard(ad = ad)
+                }
+            }
+        }
+    } else {
+        LazyColumn(
+            modifier = modifier
+                .fillMaxSize()
+                .background(AppColors.bgScreen)
+                .testTag("ad_dashboard_view"),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            item(key = "dashboard_header") { headerSection() }
+            item(key = "stats_grid") { statsGridSection() }
+            item(key = "second_row_stats") { secondRowStatsSection() }
+            item(key = "weekly_performance_chart") { weeklyChartSection() }
+            item(key = "top_performing_header") { topPerformingHeaderSection() }
+            if (topCampaigns.isEmpty()) {
+                item(key = "top_performing_empty") { emptyCampaignsSection() }
+            } else {
+                items(topCampaigns, key = { "top_ad_${it.id}" }) { ad ->
+                    TopCampaignPerformanceCard(ad = ad)
+                }
             }
         }
     }

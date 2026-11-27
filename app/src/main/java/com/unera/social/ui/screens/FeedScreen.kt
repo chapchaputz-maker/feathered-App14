@@ -1185,32 +1185,33 @@ fun StoriesSection(
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
                     if (story.type == "text" || story.mediaUrl.isBlank()) {
-                        val gradientColors = remember(story.backgroundStyle) {
-                            when {
-                                story.backgroundStyle.contains("#F3425F") -> listOf(Color(0xFFF3425F), Color(0xFFE41E3F))
-                                story.backgroundStyle.contains("#45BD62") -> listOf(Color(0xFF45BD62), Color(0xFF31A24C))
-                                story.backgroundStyle.contains("#F7B928") -> listOf(Color(0xFFF7B928), Color(0xFFE3A300))
-                                story.backgroundStyle.contains("#A033FF") -> listOf(Color(0xFFA033FF), Color(0xFF7B1FA2))
-                                else -> listOf(Color(0xFF1877F2), Color(0xFF0055FF))
-                            }
+                        val cardStyling = remember(story.backgroundStyle) {
+                            TextPostStyling.parse(story.backgroundStyle)
                         }
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(Brush.linearGradient(gradientColors))
-                                .padding(10.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = story.textContent.ifBlank { "Story" },
-                                color = Color.White,
-                                fontSize = 11.sp,
-                                fontFamily = InterFontFamily,
-                                fontWeight = FontWeight.SemiBold,
-                                maxLines = 4,
-                                textAlign = TextAlign.Center,
-                                overflow = TextOverflow.Ellipsis
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            StoryBackgroundLayer(
+                                backgroundStyle = story.backgroundStyle,
+                                modifier = Modifier.matchParentSize(),
+                                isVisible = true,
+                                useThumbnailOnly = true
                             )
+                            Box(
+                                modifier = Modifier
+                                    .matchParentSize()
+                                    .padding(horizontal = 10.dp, vertical = 14.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = story.textContent.ifBlank { "Story" },
+                                    color = if (cardStyling.hasExplicitColor) cardStyling.textColor else Color.White,
+                                    fontSize = 11.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold,
+                                    maxLines = 4,
+                                    textAlign = TextAlign.Center,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
                         }
                     } else {
                         AsyncImage(
@@ -3230,33 +3231,15 @@ fun FeedStoryCard(
             ) {
                 val isTextStory = story.type == "text" || (story.mediaUrl.isBlank() && (story.textContent.isNotBlank() || post.content.isNotBlank()))
                 if (isTextStory) {
-                    val brush = remember(story.backgroundStyle) {
-                        when (story.backgroundStyle) {
-                            "red" -> Brush.linearGradient(listOf(Color(0xFFFF0057), Color(0xFFE64C4C)))
-                            "blue" -> Brush.linearGradient(listOf(Color(0xFF00C6FF), Color(0xFF0072FF)))
-                            "green" -> Brush.linearGradient(listOf(Color(0xFFA8FF78), Color(0xFF78FFD6)))
-                            "purple" -> Brush.linearGradient(listOf(Color(0xFFE65C00), Color(0xFFF9D423)))
-                            "dark" -> Brush.linearGradient(listOf(Color(0xFF434343), Color(0xFF000000)))
-                            else -> Brush.linearGradient(listOf(Color(0xFF8B5CF6), Color(0xFFEC4899)))
-                        }
-                    }
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(brush)
-                            .padding(24.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = story.textContent.ifBlank { post.content },
-                            color = Color.White,
-                            fontSize = 20.sp,
-                            fontFamily = InterFontFamily,
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Center,
-                            lineHeight = 28.sp
-                        )
-                    }
+                    TextPostBackgroundView(
+                        backgroundStyle = story.backgroundStyle,
+                        content = story.textContent.ifBlank { post.content },
+                        modifier = Modifier.fillMaxSize(),
+                        isVisible = true,
+                        minHeight = 0.dp,
+                        defaultFontSizeSp = 20,
+                        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 20.dp)
+                    )
                 } else {
                     AsyncImage(
                         model = story.mediaUrl.ifBlank { post.mediaUrl },
@@ -3779,30 +3762,15 @@ fun SharedStoryCard(
                     .height(220.dp)
             ) {
                 if (story.type == "text" || (story.mediaUrl.isBlank() && story.textContent.isNotBlank())) {
-                    val brush = remember(story.backgroundStyle) {
-                        when (story.backgroundStyle) {
-                            "red" -> Brush.linearGradient(listOf(Color(0xFFFF0057), Color(0xFFE64C4C)))
-                            "blue" -> Brush.linearGradient(listOf(Color(0xFF00C6FF), Color(0xFF0072FF)))
-                            "green" -> Brush.linearGradient(listOf(Color(0xFFA8FF78), Color(0xFF78FFD6)))
-                            else -> Brush.linearGradient(listOf(Color(0xFF8B5CF6), Color(0xFFEC4899)))
-                        }
-                    }
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(brush)
-                            .padding(16.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = story.textContent,
-                            color = Color.White,
-                            fontSize = 18.sp,
-                            fontFamily = InterFontFamily,
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Center
-                        )
-                    }
+                    TextPostBackgroundView(
+                        backgroundStyle = story.backgroundStyle,
+                        content = story.textContent,
+                        modifier = Modifier.fillMaxSize(),
+                        isVisible = true,
+                        minHeight = 0.dp,
+                        defaultFontSizeSp = 18,
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp)
+                    )
                 } else {
                     AsyncImage(
                         model = story.mediaUrl,

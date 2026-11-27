@@ -1,5 +1,6 @@
 package com.unera.social.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -71,8 +72,13 @@ fun AdsManagerScreen(
     var selectedAnalyticsCampaign by remember { mutableStateOf<AdCampaign?>(null) }
 
     val filteredCampaigns = remember(campaigns, filter) {
-        if (filter == "all") campaigns
-        else campaigns.filter { it.status.equals(filter, ignoreCase = true) }
+        val base = campaigns.distinctBy { it.id }
+        if (filter == "all") base
+        else base.filter { it.status.equals(filter, ignoreCase = true) }
+    }
+
+    BackHandler(enabled = selectedTab == "create") {
+        selectedTab = if (initialPost != null) "dashboard" else "campaigns"
     }
 
     if (selectedTab == "create") {
@@ -80,12 +86,13 @@ fun AdsManagerScreen(
             currentUser = currentUser,
             userPosts = userPosts,
             initialPost = initialPost,
-            onBack = { selectedTab = "campaigns" },
+            onBack = { selectedTab = if (initialPost != null) "dashboard" else "campaigns" },
             onSuccess = { selectedTab = "campaigns" },
             onCreateCampaign = { postId, name, type, mediaUrl, mediaUrls, desc, link, phone, email, cta, loc, budget, days ->
                 onCreateCampaign(postId, name, type, mediaUrl, mediaUrls, desc, link, phone, email, cta, loc, budget, days)
                 selectedTab = "campaigns"
-            }
+            },
+            modifier = modifier
         )
         return
     }
@@ -103,7 +110,6 @@ fun AdsManagerScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(AppColors.headerBg)
-                .statusBarsPadding()
         ) {
             Row(
                 modifier = Modifier
@@ -341,6 +347,7 @@ fun AdsManagerScreen(
                         campaigns = campaigns,
                         onBack = null,
                         onNavigateToCampaigns = { selectedTab = "campaigns" },
+                        isEmbedded = true,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -469,7 +476,7 @@ private fun AdCampaignCard(
 ) {
     val mediaUrl = ad.mediaUrls.firstOrNull() ?: ad.mediaUrl
     val isVideo = ad.type == "video"
-    val ctr = if (ad.impressions == 0) "0.0" else "%.1f".format((ad.clicks.toDouble() / ad.impressions) * 100)
+    val ctr = if (ad.impressions == 0) "0.0" else String.format(java.util.Locale.US, "%.1f", (ad.clicks.toDouble() / ad.impressions) * 100)
 
     val emeraldText = if (AppColors.isLight) Color(0xFF059669) else Color(0xFF34D399)
     val amberText = if (AppColors.isLight) Color(0xFFD97706) else Color(0xFFFBBF24)

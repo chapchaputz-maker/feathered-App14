@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -27,6 +28,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
+import com.unera.social.R
+import com.unera.social.ui.components.GalleryViewerDialog
+import com.unera.social.ui.components.ReactionsSheetDialog
+import com.unera.social.ui.components.ShareBottomSheetDialog
 import com.unera.social.ui.components.VerifiedBadge
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -80,6 +86,19 @@ fun SavedPostsPage(
     onSavePost: ((Long) -> Unit)? = null,
     onSaveReel: ((Long) -> Unit)? = null,
     onShare: ((Post) -> Unit)? = null,
+    onFollowUser: ((Long) -> Unit)? = null,
+    onOpenProduct: ((Product) -> Unit)? = null,
+    onOpenEvent: ((Event) -> Unit)? = null,
+    onOpenGroup: ((Long) -> Unit)? = null,
+    onPlayMusic: ((Song) -> Unit)? = null,
+    onOpenVideo: ((Post) -> Unit)? = null,
+    onDeletePost: ((Long) -> Unit)? = null,
+    onEditPost: ((Long, String) -> Unit)? = null,
+    onHidePost: ((Long) -> Unit)? = null,
+    onReportPost: ((Long, String) -> Unit)? = null,
+    onLikeComment: ((Long, Long) -> Unit)? = null,
+    onRsvpEvent: ((Long, String, String) -> Unit)? = null,
+    onRequestAuth: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     var viewMode by remember { mutableStateOf("feed") } // "feed" or "grid"
@@ -87,6 +106,7 @@ fun SavedPostsPage(
     var visibleCount by remember { mutableIntStateOf(pageSize) }
     var isLoadingMore by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
+    val feedListState = rememberLazyListState()
 
     // Modals & Dialogs state
     var lightboxImageUrl by remember { mutableStateOf<String?>(null) }
@@ -94,21 +114,36 @@ fun SavedPostsPage(
     var activeCommentingItem by remember { mutableStateOf<SavedPostItem?>(null) }
     var newCommentText by remember { mutableStateOf("") }
     var localRemovedIds by remember { mutableStateOf(setOf<Long>()) }
+    var galleryState by remember { mutableStateOf<Pair<List<String>, Int>?>(null) }
+    var activePostForGallery by remember { mutableStateOf<Post?>(null) }
+    var reactionsSheetPost by remember { mutableStateOf<Post?>(null) }
+    var shareSheetPost by remember { mutableStateOf<Post?>(null) }
 
-    // Combine saved posts and saved reels
+    val resolvedCurrentUser = currentUser ?: User(
+        id = 0L,
+        name = "Guest",
+        username = "guest",
+        profileImageUrl = ""
+    )
+
+    // Combine saved posts and saved reels (deduplicating reel IDs already present as saved posts)
     val allSavedItems = remember(posts, reels, localRemovedIds) {
         val savedPostItems = posts
             .filter { it.isSaved && it.id !in localRemovedIds }
             .map { post ->
+                val isVid = post.postType == "video" || post.postType == "reel" ||
+                    post.mediaType == "video" ||
+                    (!post.mediaUrl.isNullOrBlank() && post.mediaUrl.contains("video", ignoreCase = true))
                 SavedPostItem(
                     id = post.id,
-                    type = if (!post.mediaUrl.isNullOrBlank() && post.mediaUrl.contains("video", ignoreCase = true)) "video" else "normal",
+                    type = if (isVid) "video" else "normal",
                     post = post
                 )
             }
 
+        val savedPostIds = savedPostItems.map { it.id }.toSet()
         val savedReelItems = reels
-            .filter { it.isSaved && it.id !in localRemovedIds }
+            .filter { it.isSaved && it.id !in savedPostIds && it.id !in localRemovedIds }
             .map { reel ->
                 SavedPostItem(
                     id = reel.id,
@@ -134,10 +169,15 @@ fun SavedPostsPage(
         }
     }
 
-    val handleRemove = { itemId: Long ->
-        localRemovedIds = localRemovedIds + itemId
-        onSavePost?.invoke(itemId)
-        onSaveReel?.invoke(itemId)
+    val handleRemove: (SavedPostItem) -> Unit = { item ->
+        localRemovedIds = localRemovedIds + item.id
+        if (item.post != null) {
+            onSavePost?.invoke(item.id)
+        } else if (item.reel != null) {
+            onSaveReel?.invoke(item.id)
+        } else {
+            onSavePost?.invoke(item.id)
+        }
     }
 
     val accentGold = savedAccentGold()
@@ -404,7 +444,7 @@ fun SavedPostsPage(
                                     activeCommentingItem = item
                                     if (item.post != null) onOpenComments?.invoke(item.post)
                                 },
-                                onRemoveClick = { handleRemove(item.id) },
+                                onRemoveClick = { handleRemove(item) },
                                 onAuthorClick = {
                                     val authorId = item.author.id
                                     onProfileClick?.invoke(authorId)
@@ -422,49 +462,83 @@ fun SavedPostsPage(
                         }
                     }
                 } else {
-                    // Feed View: Stream of full cards separated by dividers
+                    // Feed View: Exact 1:1 WebPostCard stream matching FeedScreen
                     LazyColumn(
+                        state = feedListState,
                         contentPadding = PaddingValues(bottom = 40.dp),
                         modifier = Modifier
                             .fillMaxSize()
                             .weight(1f)
                     ) {
                         items(visibleItems, key = { "feed-${it.id}" }) { item ->
-                            SavedFeedItemCard(
-                                item = item,
-                                currentUser = currentUser,
-                                onProfileClick = {
-                                    val authorId = item.author.id
-                                    onProfileClick?.invoke(authorId)
-                                },
-                                onLike = {
-                                    onLikePost?.invoke(item.id)
-                                    onReact?.invoke(item.id, "like")
+                            val cardPost = remember(item) { item.toFeedPost() }
+                            val itemKey = "feed-${item.id}"
+                            val isItemVisible by remember(feedListState, itemKey) {
+                                derivedStateOf {
+                                    feedListState.layoutInfo.visibleItemsInfo.any { it.key == itemKey }
+                                }
+                            }
+                            val liveFollowing = users.find { it.id == cardPost.author.id }?.isFollowing
+                                ?: cardPost.author.isFollowing
+
+                            WebPostCard(
+                                post = cardPost,
+                                currentUser = resolvedCurrentUser,
+                                isFollowing = liveFollowing,
+                                isVisible = isItemVisible,
+                                onFollowToggle = { onFollowUser?.invoke(cardPost.author.id) },
+                                onLike = { onLikePost?.invoke(cardPost.id) },
+                                onReact = { reaction ->
+                                    onReact?.invoke(cardPost.id, reaction) ?: onLikePost?.invoke(cardPost.id)
                                 },
                                 onComment = {
-                                    activeCommentingItem = item
-                                    if (item.post != null) onOpenComments?.invoke(item.post)
+                                    val commentHandler = onCommentPost ?: onOpenComments
+                                    if (commentHandler != null) {
+                                        commentHandler(cardPost)
+                                    } else {
+                                        activeCommentingItem = item
+                                    }
                                 },
                                 onShare = {
-                                    if (item.post != null) onShare?.invoke(item.post)
+                                    shareSheetPost = cardPost
                                 },
-                                onRemove = { handleRemove(item.id) },
-                                onImageClick = { url ->
-                                    lightboxImageUrl = url
-                                    onViewImage?.invoke(url)
+                                onSave = { handleRemove(item) },
+                                onUserClick = { onProfileClick?.invoke(cardPost.author.id) },
+                                onAuthorClick = { user -> onProfileClick?.invoke(user.id) },
+                                onOpenGallery = { imgs, idx ->
+                                    activePostForGallery = cardPost
+                                    galleryState = Pair(imgs, idx)
                                 },
-                                onVideoClick = {
-                                    if (item.reel != null && onVideoClick != null) {
-                                        onVideoClick(item.reel)
-                                    } else {
-                                        activeVideoPreview = item
+                                onOpenReactions = {
+                                    reactionsSheetPost = cardPost
+                                },
+                                onOpenProduct = { onOpenProduct?.invoke(it) },
+                                onOpenEvent = { onOpenEvent?.invoke(it) },
+                                onOpenGroup = { onOpenGroup?.invoke(it) },
+                                onPlayMusic = { onPlayMusic?.invoke(it) },
+                                onOpenVideo = { postToOpen ->
+                                    when {
+                                        item.reel != null && onVideoClick != null -> onVideoClick(item.reel)
+                                        onOpenVideo != null -> onOpenVideo(postToOpen)
+                                        else -> activeVideoPreview = item
                                     }
-                                }
+                                },
+                                onDeletePost = { onDeletePost?.invoke(it) },
+                                onEditPost = { id, text -> onEditPost?.invoke(id, text) },
+                                onHidePost = { onHidePost?.invoke(it) },
+                                onReportPost = onReportPost,
+                                allUsers = users,
+                                onLikeComment = onLikeComment,
+                                onRequestAuth = { onRequestAuth?.invoke() },
+                                onRsvpEvent = onRsvpEvent,
+                                modifier = Modifier.testTag("saved_feed_item_${item.id}")
                             )
 
-                            HorizontalDivider(
-                                thickness = if (AppColors.isLight) 6.dp else 1.dp,
-                                color = AppColors.sectionDivider
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(8.dp)
+                                    .background(AppColors.bgScreen)
                             )
                         }
 
@@ -719,7 +793,7 @@ fun SavedPostsPage(
                             }
 
                             Button(
-                                onClick = { handleRemove(videoItem.id) },
+                                onClick = { handleRemove(videoItem) },
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = Color(0xFF1E293B),
                                     contentColor = Color(0xFFF59E0B)
@@ -927,6 +1001,70 @@ fun SavedPostsPage(
                 }
             }
         }
+        // ==========================================
+        // 4. GALLERY VIEWER, REACTIONS & SHARE SHEETS (1:1 FeedScreen Parity)
+        // ==========================================
+        galleryState?.let { (imgs, idx) ->
+            activePostForGallery?.let { currentPost ->
+                GalleryViewerDialog(
+                    images = imgs,
+                    initialIndex = idx,
+                    post = currentPost,
+                    onDismiss = {
+                        galleryState = null
+                        activePostForGallery = null
+                    },
+                    onLike = { onLikePost?.invoke(currentPost.id) },
+                    onReact = { reaction ->
+                        onReact?.invoke(currentPost.id, reaction) ?: onLikePost?.invoke(currentPost.id)
+                    },
+                    onComment = {
+                        galleryState = null
+                        (onCommentPost ?: onOpenComments)?.invoke(currentPost)
+                    },
+                    onShare = {
+                        galleryState = null
+                        shareSheetPost = currentPost
+                    },
+                    onSave = { onSavePost?.invoke(currentPost.id) }
+                )
+            }
+        }
+
+        reactionsSheetPost?.let { currentPost ->
+            ReactionsSheetDialog(
+                post = currentPost,
+                allUsers = users,
+                onDismiss = { reactionsSheetPost = null },
+                onUserClick = { user ->
+                    reactionsSheetPost = null
+                    onProfileClick?.invoke(user.id)
+                }
+            )
+        }
+
+        shareSheetPost?.let { currentPost ->
+            ShareBottomSheetDialog(
+                post = currentPost,
+                onDismiss = { shareSheetPost = null },
+                onShareToFeed = {
+                    shareSheetPost = null
+                    onShare?.invoke(currentPost)
+                },
+                onShareToGroup = {
+                    shareSheetPost = null
+                    onShare?.invoke(currentPost)
+                },
+                onSendMessage = {
+                    shareSheetPost = null
+                    onShare?.invoke(currentPost)
+                },
+                onCopyLink = {
+                    shareSheetPost = null
+                    onShare?.invoke(currentPost)
+                }
+            )
+        }
     }
 }
 
@@ -1057,10 +1195,10 @@ private fun SavedGridItemCard(
                         .testTag("saved_grid_discuss_${item.id}")
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.ChatBubbleOutline,
+                        painter = painterResource(id = R.drawable.ic_far_comment),
                         contentDescription = "Discuss",
                         tint = Color.White,
-                        modifier = Modifier.size(15.dp)
+                        modifier = Modifier.size(16.dp)
                     )
                 }
 
@@ -1129,298 +1267,32 @@ private fun SavedGridItemCard(
     }
 }
 
-/**
- * Feed Item Card for Saved Posts
- * Supports rich video cards and full regular post cards with full engagement bar
- */
-@Composable
-private fun SavedFeedItemCard(
-    item: SavedPostItem,
-    currentUser: User?,
-    onProfileClick: () -> Unit,
-    onLike: () -> Unit,
-    onComment: () -> Unit,
-    onShare: () -> Unit,
-    onRemove: () -> Unit,
-    onImageClick: (String) -> Unit,
-    onVideoClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    var isLikedState by remember { mutableStateOf(item.isLiked) }
-    var likesCountState by remember { mutableIntStateOf(item.likesCount) }
-    val accentGold = savedAccentGold()
-    val tabActive = savedTabActive()
-
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(AppColors.bgCard)
-            .padding(vertical = 12.dp)
-            .testTag("saved_feed_item_${item.id}")
-    ) {
-        // Author Header Row
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable(onClick = onProfileClick)
-            ) {
-                AsyncImage(
-                    model = item.author.profileImageUrl,
-                    contentDescription = item.author.name,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(42.dp)
-                        .clip(CircleShape)
-                        .border(1.dp, AppColors.border, CircleShape)
-                )
-
-                Column {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = item.author.name,
-                            fontFamily = InterFontFamily,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp,
-                            color = AppColors.textPrimary
-                        )
-                        if (item.author.isVerified) {
-                            Spacer(modifier = Modifier.width(4.dp))
-                            VerifiedBadge(size = 14.dp)
-                        }
-                    }
-                    Text(
-                        text = "@${item.author.username} • ${item.post?.timestamp ?: "Saved"}",
-                        fontSize = 12.sp,
-                        fontFamily = InterFontFamily,
-                        fontWeight = FontWeight.Normal,
-                        color = AppColors.textSecondary
-                    )
-                }
-            }
-
-            // Remove from saved button in top right
-            IconButton(
-                onClick = onRemove,
-                modifier = Modifier
-                    .size(36.dp)
-                    .clip(CircleShape)
-                    .background(AppColors.bgInput)
-                    .testTag("saved_feed_remove_${item.id}")
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Bookmark,
-                    contentDescription = "Remove from saved",
-                    tint = accentGold,
-                    modifier = Modifier.size(18.dp)
-                )
-            }
-        }
-
-        // Content Text
-        if (item.content.isNotBlank()) {
-            Spacer(modifier = Modifier.height(10.dp))
-            Text(
-                text = item.content,
-                fontSize = 14.sp,
-                fontFamily = InterFontFamily,
-                fontWeight = FontWeight.Normal,
-                lineHeight = 20.sp,
-                color = AppColors.textPrimary,
-                modifier = Modifier.padding(horizontal = 14.dp)
-            )
-        }
-
-        // Media (Image or Video)
-        val mediaUrl = item.mediaUrl ?: item.reel?.thumbnailUrl
-        if (!mediaUrl.isNullOrBlank()) {
-            Spacer(modifier = Modifier.height(10.dp))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .clickable {
-                        if (item.type == "video") onVideoClick()
-                        else onImageClick(mediaUrl)
-                    }
-            ) {
-                AsyncImage(
-                    model = mediaUrl,
-                    contentDescription = "Saved media",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(260.dp)
-                )
-
-                if (item.type == "video") {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.Black.copy(alpha = 0.25f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(52.dp)
-                                .clip(CircleShape)
-                                .background(Color.Black.copy(alpha = 0.65f)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.PlayArrow,
-                                contentDescription = "Play",
-                                tint = Color.White,
-                                modifier = Modifier.size(32.dp)
-                            )
-                        }
-                    }
-
-                    // Top-left video badge
-                    Row(
-                        modifier = Modifier
-                            .align(Alignment.TopStart)
-                            .padding(10.dp)
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(Color.Black.copy(alpha = 0.75f))
-                            .padding(horizontal = 8.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Videocam,
-                            contentDescription = null,
-                            tint = tabActive,
-                            modifier = Modifier.size(14.dp)
-                        )
-                        Text(
-                            text = "Video",
-                            color = tabActive,
-                            fontSize = 11.sp,
-                            fontFamily = InterFontFamily,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Engagement Action Row
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 14.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(18.dp)
-            ) {
-                // Like button
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.clickable {
-                        isLikedState = !isLikedState
-                        likesCountState = if (isLikedState) likesCountState + 1 else (likesCountState - 1).coerceAtLeast(0)
-                        onLike()
-                    }
-                ) {
-                    Icon(
-                        imageVector = if (isLikedState) Icons.Default.Favorite else Icons.Outlined.FavoriteBorder,
-                        contentDescription = "Like",
-                        tint = if (isLikedState) LikeRed else AppColors.textSecondary,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = "$likesCountState",
-                        fontSize = 13.sp,
-                        fontFamily = InterFontFamily,
-                        fontWeight = FontWeight.Medium,
-                        color = if (isLikedState) LikeRed else AppColors.textSecondary
-                    )
-                }
-
-                // Comment button
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.clickable(onClick = onComment)
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.ChatBubbleOutline,
-                        contentDescription = "Comment",
-                        tint = AppColors.textSecondary,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = "${item.commentsCount}",
-                        fontSize = 13.sp,
-                        fontFamily = InterFontFamily,
-                        fontWeight = FontWeight.Medium,
-                        color = AppColors.textSecondary
-                    )
-                }
-
-                // Share button
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.clickable(onClick = onShare)
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Share,
-                        contentDescription = "Share",
-                        tint = AppColors.textSecondary,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = "${item.sharesCount}",
-                        fontSize = 13.sp,
-                        fontFamily = InterFontFamily,
-                        fontWeight = FontWeight.Medium,
-                        color = AppColors.textSecondary
-                    )
-                }
-            }
-
-            // Saved indicator badge
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(accentGold.copy(alpha = 0.12f))
-                    .padding(horizontal = 8.dp, vertical = 4.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Bookmark,
-                    contentDescription = null,
-                    tint = accentGold,
-                    modifier = Modifier.size(14.dp)
-                )
-                Text(
-                    text = "Saved",
-                    fontSize = 12.sp,
-                    fontFamily = InterFontFamily,
-                    fontWeight = FontWeight.SemiBold,
-                    color = accentGold
-                )
-            }
-        }
-    }
+private fun SavedPostItem.toFeedPost(): Post {
+    if (post != null) return post
+    val r = reel
+    return Post(
+        id = id,
+        author = r?.author ?: author,
+        content = r?.caption ?: content,
+        mediaUrl = r?.videoUrl?.takeIf { it.isNotBlank() } ?: r?.thumbnailUrl,
+        mediaUrls = listOfNotNull(
+            r?.videoUrl?.takeIf { it.isNotBlank() },
+            r?.thumbnailUrl?.takeIf { it.isNotBlank() }
+        ),
+        mediaTypes = buildList {
+            if (!r?.videoUrl.isNullOrBlank()) add("video")
+            if (!r?.thumbnailUrl.isNullOrBlank()) add("image")
+        },
+        timestamp = "Saved",
+        likesCount = r?.likesCount ?: likesCount,
+        commentsCount = r?.commentsCount ?: commentsCount,
+        sharesCount = r?.sharesCount ?: sharesCount,
+        isLiked = r?.isLiked ?: isLiked,
+        isSaved = true,
+        postType = "video",
+        videoUrl = r?.videoUrl,
+        mediaType = "video"
+    )
 }
 
 /**

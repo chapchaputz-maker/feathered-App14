@@ -9,10 +9,13 @@ import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -119,7 +122,11 @@ fun GalleryViewerDialog(
 ) {
     if (images.isEmpty()) return
 
-    var currentIndex by remember { mutableIntStateOf(initialIndex.coerceIn(0, images.size - 1)) }
+    val safeInitialIndex = initialIndex.coerceIn(0, images.size - 1)
+    val pagerState = rememberPagerState(
+        initialPage = safeInitialIndex,
+        pageCount = { images.size }
+    )
     var showReactionDock by remember { mutableStateOf(false) }
 
     Dialog(
@@ -144,7 +151,7 @@ fun GalleryViewerDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "${currentIndex + 1}/${images.size}",
+                        text = "${pagerState.currentPage + 1}/${images.size}",
                         color = Color(0xFFF8FAFC),
                         fontSize = 17.sp,
                         fontWeight = FontWeight.SemiBold
@@ -166,55 +173,121 @@ fun GalleryViewerDialog(
                     }
                 }
 
-                // Middle Image Area
+                // Middle Swipeable Image Area (Facebook-style HorizontalPager, no manual arrows)
+                var currentPageZoomed by remember { mutableStateOf(false) }
+                LaunchedEffect(pagerState.currentPage) {
+                    currentPageZoomed = false
+                }
+
                 Box(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth()
-                        .background(Color(0xFF050B18)),
-                    contentAlignment = Alignment.Center
+                        .background(Color(0xFF050B18))
                 ) {
-                    AsyncImage(
-                        model = images[currentIndex],
-                        contentDescription = "Gallery photo ${currentIndex + 1}",
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier.fillMaxSize()
-                    )
+                    HorizontalPager(
+                        state = pagerState,
+                        userScrollEnabled = !currentPageZoomed,
+                        beyondViewportPageCount = 1,
+                        pageSpacing = 12.dp,
+                        key = { idx -> "${idx}_${images[idx]}" },
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .testTag("gallery_horizontal_pager")
+                    ) { page ->
+                        var scale by remember(page) { mutableFloatStateOf(1f) }
+                        var offsetX by remember(page) { mutableFloatStateOf(0f) }
+                        var offsetY by remember(page) { mutableFloatStateOf(0f) }
+                        val isZoomed = scale > 1.05f
 
-                    // Prev / Next touch areas if multiple images
-                    if (currentIndex > 0) {
-                        IconButton(
-                            onClick = { currentIndex-- },
+                        LaunchedEffect(pagerState.currentPage) {
+                            if (pagerState.currentPage != page) {
+                                scale = 1f
+                                offsetX = 0f
+                                offsetY = 0f
+                            }
+                        }
+
+                        LaunchedEffect(isZoomed, pagerState.currentPage) {
+                            if (pagerState.currentPage == page) {
+                                currentPageZoomed = isZoomed
+                            }
+                        }
+
+                        Box(
                             modifier = Modifier
-                                .align(Alignment.CenterStart)
-                                .padding(start = 12.dp)
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(Color.Black.copy(alpha = 0.5f))
+                                .fillMaxSize()
+                                .pointerInput(page) {
+                                    detectTapGestures(
+                                        onDoubleTap = {
+                                            if (scale > 1.15f) {
+                                                scale = 1f
+                                                offsetX = 0f
+                                                offsetY = 0f
+                                            } else {
+                                                scale = 2.25f
+                                            }
+                                        }
+                                    )
+                                }
+                                .pointerInput(page, isZoomed) {
+                                    if (isZoomed) {
+                                        detectTransformGestures { _, pan, zoom, _ ->
+                                            val nextScale = (scale * zoom).coerceIn(1f, 4f)
+                                            scale = nextScale
+                                            if (nextScale > 1.05f) {
+                                                val maxPanX = (size.width * (nextScale - 1f)) / 2f
+                                                val maxPanY = (size.height * (nextScale - 1f)) / 2f
+                                                offsetX = (offsetX + pan.x).coerceIn(-maxPanX, maxPanX)
+                                                offsetY = (offsetY + pan.y).coerceIn(-maxPanY, maxPanY)
+                                            } else {
+                                                scale = 1f
+                                                offsetX = 0f
+                                                offsetY = 0f
+                                            }
+                                        }
+                                    }
+                                },
+                            contentAlignment = Alignment.Center
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.ChevronLeft,
-                                contentDescription = "Previous",
-                                tint = Color.White
+                            AsyncImage(
+                                model = images[page],
+                                contentDescription = "Gallery photo ${page + 1}",
+                                contentScale = ContentScale.Fit,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .graphicsLayer {
+                                        scaleX = scale
+                                        scaleY = scale
+                                        translationX = offsetX
+                                        translationY = offsetY
+                                    }
                             )
                         }
                     }
 
-                    if (currentIndex < images.size - 1) {
-                        IconButton(
-                            onClick = { currentIndex++ },
+                    if (images.size in 2..10) {
+                        Row(
                             modifier = Modifier
-                                .align(Alignment.CenterEnd)
-                                .padding(end = 12.dp)
-                                .size(40.dp)
+                                .align(Alignment.BottomCenter)
+                                .padding(bottom = 12.dp)
                                 .clip(CircleShape)
-                                .background(Color.Black.copy(alpha = 0.5f))
+                                .background(Color.Black.copy(alpha = 0.45f))
+                                .padding(horizontal = 10.dp, vertical = 5.dp),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.ChevronRight,
-                                contentDescription = "Next",
-                                tint = Color.White
-                            )
+                            repeat(images.size) { idx ->
+                                val isActive = idx == pagerState.currentPage
+                                Box(
+                                    modifier = Modifier
+                                        .size(if (isActive) 7.dp else 5.dp)
+                                        .clip(CircleShape)
+                                        .background(
+                                            if (isActive) Color.White else Color.White.copy(alpha = 0.4f)
+                                        )
+                                )
+                            }
                         }
                     }
                 }

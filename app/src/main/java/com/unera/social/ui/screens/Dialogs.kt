@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -1968,7 +1970,8 @@ fun ProductDetailDialog(
     onContactSeller: (User) -> Unit
 ) {
     val allImages = if (product.images.isNotEmpty()) product.images else listOf(product.imageUrl)
-    var activeImageIndex by remember { mutableStateOf(0) }
+    val imagePagerState = rememberPagerState(pageCount = { allImages.size.coerceAtLeast(1) })
+    val imageScope = rememberCoroutineScope()
     val displayPrice = product.discountPrice ?: product.price
     val formattedPrice = formatMarketPrice(displayPrice, product.country)
 
@@ -2039,7 +2042,7 @@ fun ProductDetailDialog(
                     .weight(1f)
                     .fillMaxWidth()
             ) {
-                // Square Image Carousel
+                // Square Swipeable Image Carousel
                 item {
                     Box(
                         modifier = Modifier
@@ -2047,13 +2050,20 @@ fun ProductDetailDialog(
                             .aspectRatio(1f)
                             .background(AppColors.bgCard)
                     ) {
-                        val currentImageUrl = allImages.getOrElse(activeImageIndex) { product.imageUrl }
-                        AsyncImage(
-                            model = currentImageUrl,
-                            contentDescription = product.title,
-                            contentScale = ContentScale.Crop,
+                        HorizontalPager(
+                            state = imagePagerState,
+                            beyondViewportPageCount = 1,
+                            key = { idx -> "${idx}_${allImages.getOrElse(idx) { product.imageUrl }}" },
                             modifier = Modifier.fillMaxSize()
-                        )
+                        ) { page ->
+                            val currentImageUrl = allImages.getOrElse(page) { product.imageUrl }
+                            AsyncImage(
+                                model = currentImageUrl,
+                                contentDescription = product.title,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
 
                         // "Ad" badge if sponsored
                         if (product.isSponsored) {
@@ -2075,41 +2085,22 @@ fun ProductDetailDialog(
                             }
                         }
 
-                        // Prev / Next Arrows if multiple images
+                        // Counter pill when multiple images are swipeable
                         if (allImages.size > 1) {
-                            IconButton(
-                                onClick = {
-                                    activeImageIndex = if (activeImageIndex > 0) activeImageIndex - 1 else allImages.size - 1
-                                },
+                            Surface(
+                                color = Color.Black.copy(alpha = 0.55f),
+                                shape = RoundedCornerShape(14.dp),
                                 modifier = Modifier
-                                    .align(Alignment.CenterStart)
-                                    .padding(8.dp)
-                                    .size(38.dp)
-                                    .clip(CircleShape)
-                                    .background(Color.Black.copy(alpha = 0.5f))
+                                    .align(Alignment.BottomEnd)
+                                    .padding(12.dp)
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.ChevronLeft,
-                                    contentDescription = "Previous",
-                                    tint = Color.White
-                                )
-                            }
-
-                            IconButton(
-                                onClick = {
-                                    activeImageIndex = if (activeImageIndex < allImages.size - 1) activeImageIndex + 1 else 0
-                                },
-                                modifier = Modifier
-                                    .align(Alignment.CenterEnd)
-                                    .padding(8.dp)
-                                    .size(38.dp)
-                                    .clip(CircleShape)
-                                    .background(Color.Black.copy(alpha = 0.5f))
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.ChevronRight,
-                                    contentDescription = "Next",
-                                    tint = Color.White
+                                Text(
+                                    text = "${imagePagerState.currentPage + 1} / ${allImages.size}",
+                                    color = Color.White,
+                                    fontSize = 12.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.SemiBold,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                                 )
                             }
                         }
@@ -2127,7 +2118,7 @@ fun ProductDetailDialog(
                                 .background(AppColors.bgSurface)
                         ) {
                             items(allImages.indices.toList()) { idx ->
-                                val isSelected = activeImageIndex == idx
+                                val isSelected = imagePagerState.currentPage == idx
                                 Box(
                                     modifier = Modifier
                                         .size(56.dp)
@@ -2137,7 +2128,11 @@ fun ProductDetailDialog(
                                             if (isSelected) AppColors.primaryBlue else Color.Transparent,
                                             RoundedCornerShape(8.dp)
                                         )
-                                        .clickable { activeImageIndex = idx }
+                                        .clickable {
+                                            imageScope.launch {
+                                                imagePagerState.animateScrollToPage(idx)
+                                            }
+                                        }
                                 ) {
                                     AsyncImage(
                                         model = allImages[idx],
