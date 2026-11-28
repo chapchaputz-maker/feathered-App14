@@ -2665,46 +2665,47 @@ fun RemoteImageBackgroundLayer(
  * Resolves gradient colors for all 6 Create Post classic themes, all 12 Story gradients,
  * and named short keys (red/blue/green/purple/dark/fire).
  */
+private val HEX_COLOR_REGEX = Regex("#[0-9a-fA-F]{6}")
+
 fun resolveStoryOrPostGradientColors(styleOrId: String?): List<Color> {
     val clean = styleOrId?.trim()?.removeSurrounding("\"")?.replace("\\\"", "\"") ?: ""
     val base = clean.substringBefore("|").trim()
+
+    val exactTemplate = ALL_TEXT_POST_BACKGROUNDS.firstOrNull {
+        !it.isAnimated &&
+            it.id != "none" &&
+            it.baseColors.size >= 2 &&
+            (it.id.equals(base, ignoreCase = true) || it.styleString.equals(base, ignoreCase = true))
+    }
+    if (exactTemplate != null) {
+        return exactTemplate.baseColors
+    }
+
+    val parsedHexes = HEX_COLOR_REGEX.findAll(base).mapNotNull { match ->
+        runCatching {
+            val rgb = match.value.removePrefix("#").toLong(16)
+            Color(0xFF000000L or rgb)
+        }.getOrNull()
+    }.toList()
+
+    if (parsedHexes.size >= 2) {
+        return parsedHexes
+    }
+    if (parsedHexes.size == 1) {
+        if (base.contains("black", ignoreCase = true) && !base.contains("#000000", ignoreCase = true)) {
+            return listOf(parsedHexes[0], Color(0xFF000000))
+        }
+        return listOf(parsedHexes[0], parsedHexes[0])
+    }
+
     return when {
-        // Classic 6 Create Post gradients
-        base.contains("#FF0057", ignoreCase = true) || base.equals("red", ignoreCase = true) ->
-            listOf(Color(0xFFFF0057), Color(0xFFE64C4C))
-        base.contains("#a8ff78", ignoreCase = true) || base.equals("green", ignoreCase = true) ->
-            listOf(Color(0xFFA8FF78), Color(0xFF78FFD6))
-        base.contains("#e65c00", ignoreCase = true) || base.equals("purple", ignoreCase = true) ->
-            listOf(Color(0xFFE65C00), Color(0xFFF9D423))
-        base.contains("#00C6FF", ignoreCase = true) || base.equals("blue", ignoreCase = true) ->
-            listOf(Color(0xFF00C6FF), Color(0xFF0072FF))
-        base.contains("#f6d365", ignoreCase = true) || base.equals("fire", ignoreCase = true) ->
-            listOf(Color(0xFFF6D365), Color(0xFFFDA085))
-        // 12 Story gradients (check #000000 before #434343 so story dark matches exact order)
-        base.contains("#000000", ignoreCase = true) ->
-            listOf(Color(0xFF000000), Color(0xFF434343))
-        base.contains("#434343", ignoreCase = true) || base.equals("dark", ignoreCase = true) ->
-            listOf(Color(0xFF434343), Color(0xFF000000))
-        base.contains("#F3425F", ignoreCase = true) ->
-            listOf(Color(0xFFF3425F), Color(0xFFE41E3F))
-        base.contains("#45BD62", ignoreCase = true) ->
-            listOf(Color(0xFF45BD62), Color(0xFF31A24C))
-        base.contains("#F7B928", ignoreCase = true) ->
-            listOf(Color(0xFFF7B928), Color(0xFFE3A300))
-        base.contains("#A033FF", ignoreCase = true) ->
-            listOf(Color(0xFFA033FF), Color(0xFF7B1FA2))
-        base.contains("#FF7E5F", ignoreCase = true) ->
-            listOf(Color(0xFFFF7E5F), Color(0xFFFEB47B))
-        base.contains("#2193b0", ignoreCase = true) ->
-            listOf(Color(0xFF2193B0), Color(0xFF6DD5ED))
-        base.contains("#ee9ca7", ignoreCase = true) ->
-            listOf(Color(0xFFEE9CA7), Color(0xFFFFDDE1))
-        base.contains("#42275a", ignoreCase = true) ->
-            listOf(Color(0xFF42275A), Color(0xFF734B6D))
-        base.contains("#BDC3C7", ignoreCase = true) ->
-            listOf(Color(0xFFBDC3C7), Color(0xFF2C3E50))
-        base.contains("#1877F2", ignoreCase = true) ->
-            listOf(Color(0xFF1877F2), Color(0xFF0055FF))
+        base.equals("red", ignoreCase = true) -> listOf(Color(0xFFFF0057), Color(0xFFE64C4C))
+        base.equals("green", ignoreCase = true) -> listOf(Color(0xFFA8FF78), Color(0xFF78FFD6))
+        base.equals("purple", ignoreCase = true) -> listOf(Color(0xFFE65C00), Color(0xFFF9D423))
+        base.equals("blue", ignoreCase = true) -> listOf(Color(0xFF00C6FF), Color(0xFF0072FF))
+        base.equals("fire", ignoreCase = true) -> listOf(Color(0xFFF6D365), Color(0xFFFDA085))
+        base.equals("dark", ignoreCase = true) -> listOf(Color(0xFF434343), Color(0xFF000000))
+        base.equals("black", ignoreCase = true) -> listOf(Color(0xFF000000), Color(0xFF000000))
         else -> listOf(Color(0xFF1877F2), Color(0xFF0055FF))
     }
 }
@@ -2843,11 +2844,11 @@ fun TextPostBackgroundView(
             (cleanStyle.contains("animated:") || findBackgroundTemplate(cleanStyle)?.isAnimated == true)
     }
 
-    val effectiveTextColor = remember(styling, remoteBackground) {
+    val effectiveTextColor = remember(cleanStyle, styling, remoteBackground) {
         when {
             styling.hasExplicitColor -> styling.textColor
             remoteBackground != null -> remoteBackground.resolvedDefaultTextColor()
-            else -> styling.textColor
+            else -> findBackgroundTemplate(cleanStyle)?.defaultTextColor ?: styling.textColor
         }
     }
 

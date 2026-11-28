@@ -551,8 +551,12 @@ object UserApiService {
             ?: obj.optString("avatar").trim().takeIf { it.isNotBlank() && it != "null" }
             ?: ""
 
-        val cover = obj.optString("cover_image_url").trim().takeIf { it.isNotBlank() && it != "null" }
-            ?: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200"
+        val cover = obj.optString("cover_image_url").trim().takeIf {
+            it.isNotBlank() &&
+                !it.equals("null", ignoreCase = true) &&
+                !it.equals("undefined", ignoreCase = true) &&
+                it != "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200"
+        } ?: ""
 
         val bio = obj.optString("bio").trim().takeIf { it.isNotBlank() && it != "null" } ?: ""
         val location = obj.optString("location").trim().takeIf { it.isNotBlank() && it != "null" } ?: ""

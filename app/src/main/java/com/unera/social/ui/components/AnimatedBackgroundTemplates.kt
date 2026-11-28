@@ -7,9 +7,9 @@ import androidx.compose.ui.text.style.TextAlign
  * Animated Background Categories for text posts.
  */
 enum class AnimatedBgCategory(val label: String, val emoji: String) {
+    EXISTING("Classic", "🎨"),
     REALISTIC("Realistic", "🌟"),
     REALITY("Reality", "🖼️"),
-    EXISTING("Classic", "🎨"),
     FLOWERS("Flowers", "🌸"),
     CHARACTERS_3D("3D Characters", "🧸"),
     ROMANTIC("Romantic", "❤️"),
@@ -104,6 +104,143 @@ val ALL_TEXT_POST_BACKGROUNDS: List<TextPostBackgroundTemplate> = listOf(
         styleString = "linear-gradient(120deg, #f6d365 0%, #fda085 100%)",
         iconEmoji = "🔥",
         isAnimated = false
+    ),
+    // Pure unmixed solid Classic colors
+    TextPostBackgroundTemplate(
+        id = "solid_black",
+        label = "Full Black",
+        category = AnimatedBgCategory.EXISTING,
+        baseColors = listOf(Color(0xFF000000), Color(0xFF000000)),
+        styleString = "linear-gradient(135deg, #000000, #000000)",
+        iconEmoji = "",
+        isAnimated = false
+    ),
+    TextPostBackgroundTemplate(
+        id = "solid_green",
+        label = "Pure Green",
+        category = AnimatedBgCategory.EXISTING,
+        baseColors = listOf(Color(0xFF16A34A), Color(0xFF16A34A)),
+        styleString = "linear-gradient(135deg, #16A34A, #16A34A)",
+        iconEmoji = "",
+        isAnimated = false
+    ),
+    TextPostBackgroundTemplate(
+        id = "solid_red",
+        label = "Pure Red",
+        category = AnimatedBgCategory.EXISTING,
+        baseColors = listOf(Color(0xFFDC2626), Color(0xFFDC2626)),
+        styleString = "linear-gradient(135deg, #DC2626, #DC2626)",
+        iconEmoji = "",
+        isAnimated = false
+    ),
+    TextPostBackgroundTemplate(
+        id = "solid_purple",
+        label = "Pure Purple",
+        category = AnimatedBgCategory.EXISTING,
+        baseColors = listOf(Color(0xFF7C3AED), Color(0xFF7C3AED)),
+        styleString = "linear-gradient(135deg, #7C3AED, #7C3AED)",
+        iconEmoji = "",
+        isAnimated = false
+    ),
+    TextPostBackgroundTemplate(
+        id = "solid_blue",
+        label = "Pure Blue",
+        category = AnimatedBgCategory.EXISTING,
+        baseColors = listOf(Color(0xFF1877F2), Color(0xFF1877F2)),
+        styleString = "linear-gradient(135deg, #1877F2, #1877F2)",
+        iconEmoji = "",
+        isAnimated = false
+    ),
+    TextPostBackgroundTemplate(
+        id = "solid_orange",
+        label = "Pure Orange",
+        category = AnimatedBgCategory.EXISTING,
+        baseColors = listOf(Color(0xFFEA580C), Color(0xFFEA580C)),
+        styleString = "linear-gradient(135deg, #EA580C, #EA580C)",
+        iconEmoji = "",
+        isAnimated = false
+    ),
+    TextPostBackgroundTemplate(
+        id = "solid_pink",
+        label = "Pure Pink",
+        category = AnimatedBgCategory.EXISTING,
+        baseColors = listOf(Color(0xFFDB2777), Color(0xFFDB2777)),
+        styleString = "linear-gradient(135deg, #DB2777, #DB2777)",
+        iconEmoji = "",
+        isAnimated = false
+    ),
+    TextPostBackgroundTemplate(
+        id = "solid_teal",
+        label = "Pure Teal",
+        category = AnimatedBgCategory.EXISTING,
+        baseColors = listOf(Color(0xFF0D9488), Color(0xFF0D9488)),
+        styleString = "linear-gradient(135deg, #0D9488, #0D9488)",
+        iconEmoji = "",
+        isAnimated = false
+    ),
+    TextPostBackgroundTemplate(
+        id = "solid_gold",
+        label = "Pure Gold",
+        category = AnimatedBgCategory.EXISTING,
+        baseColors = listOf(Color(0xFFCA8A04), Color(0xFFCA8A04)),
+        styleString = "linear-gradient(135deg, #CA8A04, #CA8A04)",
+        iconEmoji = "",
+        isAnimated = false
+    ),
+    TextPostBackgroundTemplate(
+        id = "solid_indigo",
+        label = "Pure Indigo",
+        category = AnimatedBgCategory.EXISTING,
+        baseColors = listOf(Color(0xFF4338CA), Color(0xFF4338CA)),
+        styleString = "linear-gradient(135deg, #4338CA, #4338CA)",
+        iconEmoji = "",
+        isAnimated = false
+    ),
+    TextPostBackgroundTemplate(
+        id = "solid_maroon",
+        label = "Pure Maroon",
+        category = AnimatedBgCategory.EXISTING,
+        baseColors = listOf(Color(0xFF881337), Color(0xFF881337)),
+        styleString = "linear-gradient(135deg, #881337, #881337)",
+        iconEmoji = "",
+        isAnimated = false
+    ),
+    TextPostBackgroundTemplate(
+        id = "solid_navy",
+        label = "Pure Navy",
+        category = AnimatedBgCategory.EXISTING,
+        baseColors = listOf(Color(0xFF0F172A), Color(0xFF0F172A)),
+        styleString = "linear-gradient(135deg, #0F172A, #0F172A)",
+        iconEmoji = "",
+        isAnimated = false
+    ),
+    TextPostBackgroundTemplate(
+        id = "solid_emerald",
+        label = "Forest Green",
+        category = AnimatedBgCategory.EXISTING,
+        baseColors = listOf(Color(0xFF065F46), Color(0xFF065F46)),
+        styleString = "linear-gradient(135deg, #065F46, #065F46)",
+        iconEmoji = "",
+        isAnimated = false
+    ),
+    TextPostBackgroundTemplate(
+        id = "solid_charcoal",
+        label = "Charcoal",
+        category = AnimatedBgCategory.EXISTING,
+        baseColors = listOf(Color(0xFF262626), Color(0xFF262626)),
+        styleString = "linear-gradient(135deg, #262626, #262626)",
+        iconEmoji = "",
+        isAnimated = false
+    ),
+    TextPostBackgroundTemplate(
+        id = "solid_white",
+        label = "Pure White",
+        category = AnimatedBgCategory.EXISTING,
+        baseColors = listOf(Color(0xFFFFFFFF), Color(0xFFFFFFFF)),
+        styleString = "linear-gradient(135deg, #FFFFFF, #FFFFFF)",
+        iconEmoji = "",
+        isAnimated = false,
+        defaultTextColor = Color(0xFF0F172A)
     ),
 
     // ==========================================

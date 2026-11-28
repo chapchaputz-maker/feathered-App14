@@ -1279,11 +1279,13 @@ fun CreateStoryDialog(
                                                 },
                                             contentAlignment = Alignment.Center
                                         ) {
-                                            Text(
-                                                text = bg.iconEmoji,
-                                                fontSize = 18.sp,
-                                                fontFamily = InterFontFamily
-                                            )
+                                            if (bg.iconEmoji.isNotBlank()) {
+                                                Text(
+                                                    text = bg.iconEmoji,
+                                                    fontSize = 18.sp,
+                                                    fontFamily = InterFontFamily
+                                                )
+                                            }
                                             if (bg.isAnimated) {
                                                 Box(
                                                     modifier = Modifier

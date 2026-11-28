@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
 import com.unera.social.data.PostsApiService
 import com.unera.social.model.*
 import com.unera.social.ui.components.InstagramVideoCard
@@ -433,20 +434,48 @@ fun ProfileScreen(
                         .fillMaxWidth()
                         .height(230.dp)
                 ) {
-                    // Cover photo
-                    AsyncImage(
-                        model = user.coverImageUrl,
-                        contentDescription = "Cover photo",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(175.dp)
-                            .clickable {
-                                navController?.launchInteractiveTransition(DestinationType.POST) {
-                                    lightboxImage = user.coverImageUrl
-                                } ?: run { lightboxImage = user.coverImageUrl }
-                            }
-                    )
+                    // Cover photo (solid dark black when user has no cover)
+                    val hasCoverImage = user.coverImageUrl.isNotBlank() &&
+                        !user.coverImageUrl.equals("null", ignoreCase = true) &&
+                        !user.coverImageUrl.equals("undefined", ignoreCase = true) &&
+                        user.coverImageUrl != "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200"
+                    if (hasCoverImage) {
+                        SubcomposeAsyncImage(
+                            model = user.coverImageUrl,
+                            contentDescription = "Cover photo",
+                            contentScale = ContentScale.Crop,
+                            loading = {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .background(Color.Black)
+                                )
+                            },
+                            error = {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .background(Color.Black)
+                                )
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(175.dp)
+                                .background(Color.Black)
+                                .clickable {
+                                    navController?.launchInteractiveTransition(DestinationType.POST) {
+                                        lightboxImage = user.coverImageUrl
+                                    } ?: run { lightboxImage = user.coverImageUrl }
+                                }
+                        )
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(175.dp)
+                                .background(Color.Black)
+                        )
+                    }
 
                     // Edit cover button if owner
                     if (isMe) {

@@ -953,14 +953,14 @@ fun CreatePostSection(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AsyncImage(
-                model = currentUser.profileImageUrl,
-                contentDescription = currentUser.name,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .border(1.dp, AppColors.border, CircleShape)
+            FeatheredAvatar(
+                name = currentUser.name,
+                username = currentUser.username,
+                imageUrl = currentUser.profileImageUrl,
+                size = 40.dp,
+                borderColor = AppColors.border,
+                borderWidth = 1.dp,
+                fontSize = 15.sp
             )
 
             Spacer(modifier = Modifier.width(10.dp))
@@ -1116,14 +1116,41 @@ fun StoriesSection(
                     .testTag("add_story_btn")
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    AsyncImage(
-                        model = currentUser.profileImageUrl,
-                        contentDescription = "Create Story",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight(0.72f)
-                    )
+                    val hasValidUserAvatar = currentUser.profileImageUrl.isNotBlank() &&
+                        currentUser.profileImageUrl != "null" &&
+                        currentUser.profileImageUrl != "undefined"
+                    if (hasValidUserAvatar) {
+                        AsyncImage(
+                            model = currentUser.profileImageUrl,
+                            contentDescription = "Create Story",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight(0.72f)
+                        )
+                    } else {
+                        val initials = remember(currentUser.name, currentUser.username) {
+                            getUserInitials(currentUser.name, currentUser.username)
+                        }
+                        val gradientColors = remember(currentUser.name, currentUser.username) {
+                            getAvatarGradientColors(currentUser.name, currentUser.username)
+                        }
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight(0.72f)
+                                .background(Brush.linearGradient(gradientColors)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = initials,
+                                color = Color.White,
+                                fontSize = 30.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
 
                     Box(
                         modifier = Modifier
@@ -1237,17 +1264,18 @@ fun StoriesSection(
                             )
                     )
 
-                    // Top-left author avatar with blue ring
-                    AsyncImage(
-                        model = story.author.profileImageUrl,
-                        contentDescription = story.author.name,
-                        contentScale = ContentScale.Crop,
+                    // Top-left author avatar with blue ring (shows initials if no profile picture)
+                    FeatheredAvatar(
+                        name = story.author.name,
+                        username = story.author.username,
+                        imageUrl = story.author.profileImageUrl,
+                        size = 36.dp,
+                        borderColor = Color(0xFF1877F2),
+                        borderWidth = 2.dp,
+                        fontSize = 13.sp,
                         modifier = Modifier
                             .align(Alignment.TopStart)
                             .padding(8.dp)
-                            .size(36.dp)
-                            .clip(CircleShape)
-                            .border(2.dp, Color(0xFF1877F2), CircleShape)
                     )
 
                     // Bottom-left author name

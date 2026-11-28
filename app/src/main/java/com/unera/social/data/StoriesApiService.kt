@@ -590,6 +590,39 @@ object StoriesApiService {
     }
 
     /**
+     * 14b. POST /api/stories/{storyId}/report
+     * Report a story to moderators
+     */
+    suspend fun reportStory(storyId: Long, userId: Long, reason: String = "Inappropriate content"): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val url = URL("$BASE_URL/api/stories/$storyId/report")
+            val conn = (url.openConnection() as HttpURLConnection).apply {
+                requestMethod = "POST"
+                doOutput = true
+                connectTimeout = 8000
+                readTimeout = 8000
+                setRequestProperty("Content-Type", "application/json; charset=utf-8")
+                setRequestProperty("Accept", "application/json")
+                setRequestProperty("User-Agent", USER_AGENT)
+                setRequestProperty("x-user-id", userId.toString())
+            }
+
+            val payload = JSONObject().apply {
+                put("user_id", userId)
+                put("reason", reason)
+            }
+
+            OutputStreamWriter(conn.outputStream).use { it.write(payload.toString()) }
+            val code = conn.responseCode
+            conn.disconnect()
+            return@withContext code in 200..299
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return@withContext false
+        }
+    }
+
+    /**
      * 15. GET /api/stories/{storyId}/analytics
      * Owner-side insights
      */
@@ -703,7 +736,7 @@ object StoriesApiService {
 
         val authorAvatar = obj.optString("author_image").takeIf { !it.isNullOrBlank() && it != "null" }
             ?: obj.optString("profile_image_url").takeIf { !it.isNullOrBlank() && it != "null" }
-            ?: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400"
+            ?: ""
 
         val authorIsVerified = obj.optInt("author_is_verified", 0) == 1
             || obj.optBoolean("author_is_verified", false)

@@ -1196,11 +1196,18 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
                 state.currentUser.copy(followingCount = (state.currentUser.followingCount - 1).coerceAtLeast(0))
             }
 
+            val updatedSelectedStory = state.selectedStory?.let { sel ->
+                if (sel.author.id == userId) {
+                    sel.copy(author = sel.author.copy(isFollowing = newFollowing, followersCount = newCount))
+                } else sel
+            }
+
             state.copy(
                 currentUser = updatedCurrentUser,
                 users = updatedUsers,
                 peopleYouMayKnow = updatedPymk,
                 selectedUserProfile = updatedSelectedProfile,
+                selectedStory = updatedSelectedStory,
                 posts = updatedPosts,
                 videoPosts = updatedVideoPosts,
                 stories = updatedStories,
@@ -4591,8 +4598,23 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun setSelectedStory(story: Story?) {
-        _uiState.update { it.copy(selectedStory = story) }
-        if (story != null) {
+        if (story == null) {
+            navigationController.cancelActive()
+            _uiState.update { it.copy(selectedStory = null) }
+            return
+        }
+
+        val isInitialOpen = _uiState.value.selectedStory == null
+        if (story.mediaUrl.isNotBlank()) {
+            SmartNavigationCache.prefetchThumbnail(
+                getApplication<Application>().applicationContext,
+                story.mediaUrl,
+                1080
+            )
+        }
+
+        val openAndSyncStory: () -> Unit = {
+            _uiState.update { it.copy(selectedStory = story) }
             val viewerId = _uiState.value.currentUser.id
             viewModelScope.launch {
                 // 1. Record view
@@ -4609,8 +4631,9 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
                 _uiState.update { state ->
                     state.copy(storyComments = state.storyComments + (story.id to comments))
                 }
-                // 4. If owner, fetch viewers and analytics
-                if (story.author.id == viewerId) {
+                // 4. Only Story Admin can see names of who viewed and their reactions
+                val isAdminUser = _uiState.value.currentUser.role.equals("admin", ignoreCase = true)
+                if (isAdminUser) {
                     val viewers = StoriesApiService.fetchViewers(story.id)
                     val analytics = StoriesApiService.fetchAnalytics(story.id)
                     _uiState.update { state ->
@@ -4620,6 +4643,14 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
                     }
                 }
             }
+        }
+
+        if (isInitialOpen) {
+            navigationController.launchInteractiveTransition(DestinationType.POST) {
+                openAndSyncStory()
+            }
+        } else {
+            openAndSyncStory()
         }
     }
 
@@ -4727,13 +4758,21 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
         viewModelScope.launch {
             _uiState.update { it.copy(isStoriesLoading = true) }
             try {
+                val resolvedMusicUrl = if (!musicUrl.isNullOrBlank() &&
+                    (musicUrl.startsWith("content://") || musicUrl.startsWith("file://"))
+                ) {
+                    MediaUploadHelper.uploadAudioFile(context, Uri.parse(musicUrl)) ?: musicUrl
+                } else {
+                    musicUrl
+                }
+
                 if (type == "text" || (hasText && !hasMedia)) {
                     createStory(
                         type = "text",
                         textContent = textContent.trim(),
                         backgroundStyle = backgroundStyle,
                         musicTitle = musicTitle,
-                        musicUrl = musicUrl,
+                        musicUrl = resolvedMusicUrl,
                         onSuccess = {
                             _uiState.update { it.copy(showCreateStoryDialog = false, isStoriesLoading = false) }
                             onSuccess()
@@ -4769,7 +4808,7 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
                         mediaMeta = bundle.mediaMeta,
                         backgroundStyle = backgroundStyle,
                         musicTitle = musicTitle,
-                        musicUrl = musicUrl,
+                        musicUrl = resolvedMusicUrl,
                         onSuccess = {
                             _uiState.update { it.copy(showCreateStoryDialog = false, isStoriesLoading = false) }
                             onSuccess()
@@ -4844,6 +4883,7 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun fetchStoryViewers(storyId: Long) {
+        if (!_uiState.value.currentUser.role.equals("admin", ignoreCase = true)) return
         viewModelScope.launch {
             _uiState.update { it.copy(isStoryViewersLoading = true) }
             val viewers = StoriesApiService.fetchViewers(storyId)
@@ -4938,6 +4978,13 @@ class FeatheredViewModel(application: Application) : AndroidViewModel(applicatio
                 )
             }
             StoriesApiService.shareStory(storyId, currentUserId, destination, message)
+        }
+    }
+
+    fun reportStory(storyId: Long, reason: String = "Inappropriate content") {
+        val currentUserId = _uiState.value.currentUser.id
+        viewModelScope.launch {
+            StoriesApiService.reportStory(storyId, currentUserId, reason)
         }
     }
 

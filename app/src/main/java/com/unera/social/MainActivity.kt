@@ -1208,6 +1208,8 @@ fun FeatheredApp(
 
     // Story Viewer Dialog (matching Web StoryViewer in Storypage)
     uiState.selectedStory?.let { currentStory ->
+        val isAuthorFollowing = uiState.users.find { it.id == currentStory.author.id }?.isFollowing
+            ?: currentStory.author.isFollowing
         StoryViewerDialog(
             story = currentStory,
             allStories = uiState.stories,
@@ -1249,6 +1251,14 @@ fun FeatheredApp(
                 if (user != null) {
                     viewModel.openUserProfile(user)
                 }
+            },
+            isAuthorFollowing = isAuthorFollowing,
+            storyViewers = uiState.storyViewers[currentStory.id] ?: emptyList(),
+            onFetchViewers = {
+                viewModel.fetchStoryViewers(currentStory.id)
+            },
+            onReportStory = { reason ->
+                viewModel.reportStory(currentStory.id, reason)
             }
         )
     }

@@ -108,8 +108,12 @@ object UserSessionManager {
             val avatar = obj.optString("profile_image_url").trim().takeIf { it.isNotBlank() && it != "null" }
                 ?: obj.optString("avatar").trim().takeIf { it.isNotBlank() && it != "null" }
                 ?: ""
-            val cover = obj.optString("cover_image_url").trim().takeIf { it.isNotBlank() && it != "null" }
-                ?: ""
+            val cover = obj.optString("cover_image_url").trim().takeIf {
+                it.isNotBlank() &&
+                    !it.equals("null", ignoreCase = true) &&
+                    !it.equals("undefined", ignoreCase = true) &&
+                    it != "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200"
+            } ?: ""
             val bio = obj.optString("bio").trim().takeIf { it != "null" } ?: ""
             val location = obj.optString("location").trim().takeIf { it != "null" } ?: ""
             val work = obj.optString("work").trim().takeIf { it != "null" } ?: ""
@@ -130,7 +134,7 @@ object UserSessionManager {
                 username = if (username.startsWith("@")) username else "@$username",
                 email = email,
                 profileImageUrl = avatar,
-                coverImageUrl = cover.ifBlank { "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200" },
+                coverImageUrl = cover,
                 bio = bio,
                 location = location,
                 work = work,

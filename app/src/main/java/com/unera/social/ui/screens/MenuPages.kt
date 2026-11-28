@@ -43,6 +43,7 @@ import com.unera.social.model.Product
 import com.unera.social.model.Song
 import com.unera.social.model.Story
 import com.unera.social.model.User
+import com.unera.social.ui.components.FeatheredAvatar
 import com.unera.social.ui.components.GalleryViewerDialog
 import com.unera.social.ui.components.ReactionsSheetDialog
 import com.unera.social.ui.components.ShareBottomSheetDialog
@@ -157,28 +158,22 @@ fun SuggestedProfilesPage(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column {
+                            val hasCardCover = user.coverImageUrl.isNotBlank() &&
+                                !user.coverImageUrl.equals("null", ignoreCase = true) &&
+                                !user.coverImageUrl.equals("undefined", ignoreCase = true) &&
+                                user.coverImageUrl != "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200"
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(84.dp)
-                                    .background(
-                                        Brush.horizontalGradient(
-                                            colors = if (AppColors.isLight) {
-                                                listOf(AppColors.headerBg, Color(0xFF2563EB))
-                                            } else {
-                                                listOf(Color(0xFF1E3A8A), Color(0xFF0F172A))
-                                            }
-                                        )
-                                    )
+                                    .background(Color.Black)
                             ) {
-                                if (user.coverImageUrl.isNotBlank()) {
+                                if (hasCardCover) {
                                     AsyncImage(
                                         model = user.coverImageUrl,
                                         contentDescription = null,
                                         contentScale = ContentScale.Crop,
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .background(Color.Black.copy(alpha = 0.2f))
+                                        modifier = Modifier.fillMaxSize()
                                     )
                                 }
 
@@ -192,10 +187,10 @@ fun SuggestedProfilesPage(
                                         .border(4.dp, AppColors.bgCard, CircleShape)
                                         .clickable { onProfileClick(user.id) }
                                 ) {
-                                    AsyncImage(
-                                        model = user.profileImageUrl,
-                                        contentDescription = user.name,
-                                        contentScale = ContentScale.Crop,
+                                    FeatheredAvatar(
+                                        imageUrl = user.profileImageUrl,
+                                        name = user.name,
+                                        size = 64.dp,
                                         modifier = Modifier.fillMaxSize()
                                     )
                                 }
@@ -1190,14 +1185,14 @@ fun StoryFeedPage(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            AsyncImage(
-                                model = story.author.profileImageUrl,
-                                contentDescription = story.author.name,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .size(42.dp)
-                                    .clip(CircleShape)
-                                    .border(2.dp, AppColors.primaryBlue, CircleShape)
+                            FeatheredAvatar(
+                                name = story.author.name,
+                                username = story.author.username,
+                                imageUrl = story.author.profileImageUrl,
+                                size = 42.dp,
+                                borderColor = AppColors.primaryBlue,
+                                borderWidth = 2.dp,
+                                fontSize = 16.sp
                             )
                             Column {
                                 Text(

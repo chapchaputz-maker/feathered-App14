@@ -122,7 +122,7 @@ fun CreatePostModal(
     var isVideoMedia by remember { mutableStateOf(initialOpenPicker == "video") }
     var activeBackground by remember { mutableStateOf<TextPostBackgroundTemplate?>(null) }
     var activeRemoteBackground by remember { mutableStateOf<RemotePostBackground?>(null) }
-    var activeCategory by remember { mutableStateOf(AnimatedBgCategory.REALISTIC) }
+    var activeCategory by remember { mutableStateOf(AnimatedBgCategory.EXISTING) }
     var activeRealitySubCategory by remember { mutableStateOf("All") }
     var textAlignment by remember { mutableStateOf(TextAlign.Center) }
     var textPosition by remember { mutableStateOf("center") }
@@ -753,7 +753,7 @@ fun CreatePostModal(
                                             ) {
                                                 val badgeLabel = when {
                                                     currentRemote != null -> "${if (currentRemote.isAnimated) "✨" else "🖼️"} ${currentRemote.name}"
-                                                    currentBg != null -> "${currentBg.iconEmoji} ${currentBg.label}"
+                                                    currentBg != null -> "${currentBg.iconEmoji} ${currentBg.label}".trim()
                                                     else -> ""
                                                 }
                                                 Text(
@@ -1556,11 +1556,13 @@ fun CreatePostModal(
                                                                 },
                                                             contentAlignment = Alignment.Center
                                                         ) {
-                                                            Text(
-                                                                text = bg.iconEmoji,
-                                                                fontSize = 18.sp,
-                                                                fontFamily = InterFontFamily
-                                                            )
+                                                            if (bg.iconEmoji.isNotBlank()) {
+                                                                Text(
+                                                                    text = bg.iconEmoji,
+                                                                    fontSize = 18.sp,
+                                                                    fontFamily = InterFontFamily
+                                                                )
+                                                            }
                                                             if (bg.isAnimated) {
                                                                 // Small animated sparkle indicator badge
                                                                 Box(

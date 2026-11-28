@@ -1,5 +1,6 @@
 package com.unera.social.ui.screens
 
+import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -31,8 +32,12 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
 import com.unera.social.ui.components.DiscussButton
 import com.unera.social.ui.components.FacebookReactionButton
+import com.unera.social.ui.components.FeatheredAvatar
 import com.unera.social.ui.components.ShareBottomSheetDialog
 import com.unera.social.ui.components.VerifiedBadge
 import com.unera.social.ui.components.TextPostBackgroundView
@@ -46,6 +51,7 @@ import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.unera.social.model.Post
 import com.unera.social.model.Story
+import com.unera.social.model.StoryViewer
 import com.unera.social.model.User
 import com.unera.social.ui.theme.*
 import kotlinx.coroutines.delay
@@ -78,30 +84,94 @@ fun StoryViewerDialog(
     onDeleteStory: (() -> Unit)? = null,
     onToggleFollow: ((Long) -> Unit)? = null,
     onProfileClick: ((Long) -> Unit)? = null,
-    onShare: ((String) -> Unit)? = null
+    onShare: ((String) -> Unit)? = null,
+    isAuthorFollowing: Boolean = story.author.isFollowing,
+    storyViewers: List<StoryViewer> = emptyList(),
+    onFetchViewers: (() -> Unit)? = null,
+    onReportStory: ((String) -> Unit)? = null
 ) {
+    val context = LocalContext.current
     // Current story index among allStories
     val currentIndex = allStories.indexOfFirst { it.id == story.id }.let { if (it >= 0) it else 0 }
     val isOwner = currentUser.id == story.author.id
+    val isAdmin = currentUser.role.equals("admin", ignoreCase = true)
 
     var isPaused by remember { mutableStateOf(false) }
     var progress by remember(story.id) { mutableFloatStateOf(0f) }
-    var isMuted by remember { mutableStateOf(false) }
+    // Ensure story music starts unmuted for everyone, especially story owner and admin
+    var isMuted by remember(story.id, isOwner, isAdmin) { mutableStateOf(false) }
     var showReactionsTray by remember { mutableStateOf(false) }
     var showViewersSheet by remember { mutableStateOf(false) }
     var showCommentSheet by remember { mutableStateOf(false) }
     var showShareSheet by remember { mutableStateOf(false) }
+    var showMoreMenu by remember { mutableStateOf(false) }
     var localLiked by remember(story.id, story.myReaction) {
         mutableStateOf(story.myReaction != null || story.isLiked)
     }
 
-    val effectivePaused = isPaused || showReactionsTray || showViewersSheet || showCommentSheet || showShareSheet
+    val effectivePaused = isPaused || showReactionsTray || showViewersSheet || showCommentSheet || showShareSheet || showMoreMenu
 
-    // Auto-advance progress timer (approx 5s for stories, paused if held down or modal open)
-    LaunchedEffect(story.id, effectivePaused) {
+    val resolvedMusicUrl = remember(story.musicUrl) {
+        val raw = story.musicUrl?.trim().orEmpty()
+        when {
+            raw.isBlank() -> ""
+            raw.startsWith("http://", ignoreCase = true) ||
+                raw.startsWith("https://", ignoreCase = true) ||
+                raw.startsWith("content://", ignoreCase = true) ||
+                raw.startsWith("file://", ignoreCase = true) -> raw
+            raw.startsWith("/") -> "https://featheredsocial.site$raw"
+            else -> "https://featheredsocial.site/$raw"
+        }
+    }
+
+    // Real audio playback for story music via Media3 ExoPlayer
+    val musicPlayer = remember(context) {
+        ExoPlayer.Builder(context).build().apply {
+            repeatMode = Player.REPEAT_MODE_ONE
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            musicPlayer.stop()
+            musicPlayer.release()
+        }
+    }
+
+    LaunchedEffect(story.id, resolvedMusicUrl) {
+        if (resolvedMusicUrl.isNotBlank()) {
+            // Never start muted for owner or admin
+            isMuted = false
+            try {
+                musicPlayer.stop()
+                musicPlayer.setMediaItem(MediaItem.fromUri(resolvedMusicUrl))
+                musicPlayer.prepare()
+                if (story.musicStart > 0) {
+                    musicPlayer.seekTo(story.musicStart * 1000L)
+                }
+                musicPlayer.volume = 1f
+                musicPlayer.playWhenReady = !effectivePaused
+            } catch (_: Exception) {
+                // Ignore malformed audio URLs safely
+            }
+        } else {
+            musicPlayer.stop()
+            musicPlayer.clearMediaItems()
+        }
+    }
+
+    LaunchedEffect(effectivePaused, isMuted, resolvedMusicUrl) {
+        if (resolvedMusicUrl.isNotBlank()) {
+            musicPlayer.volume = if (isMuted) 0f else 1f
+            musicPlayer.playWhenReady = !effectivePaused
+        }
+    }
+
+    // Auto-advance progress timer (paused if held down or modal/menu open)
+    LaunchedEffect(story.id, effectivePaused, resolvedMusicUrl) {
         if (!effectivePaused) {
             val stepMs = 50L
-            val totalMs = 5000L
+            val totalMs = if (resolvedMusicUrl.isNotBlank()) 15000L else 5000L
             val increment = stepMs.toFloat() / totalMs.toFloat()
             while (progress < 1f) {
                 delay(stepMs)
@@ -227,7 +297,7 @@ fun StoryViewerDialog(
                     }
                 }
 
-                // 3. Top Header Bar: Author info, Follow, Mute, Viewers count, Close button
+                // 3. Top Header Bar: Avatar, Name (20sp) + Follow on same line, Mute, Close (no shade, 21dp)
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -240,162 +310,129 @@ fun StoryViewerDialog(
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        modifier = Modifier
-                            .clickable {
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        FeatheredAvatar(
+                            name = story.author.name,
+                            username = story.author.username,
+                            imageUrl = story.author.profileImageUrl,
+                            size = 44.dp,
+                            borderColor = Color(0xFF1877F2),
+                            borderWidth = 2.dp,
+                            fontSize = 16.sp,
+                            onClick = {
                                 isPaused = true
                                 onProfileClick?.invoke(story.author.id)
                             }
-                    ) {
-                        AsyncImage(
-                            model = story.author.profileImageUrl,
-                            contentDescription = story.author.name,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .size(42.dp)
-                                .clip(CircleShape)
-                                .border(2.dp, Color(0xFF1877F2), CircleShape)
                         )
 
-                        Column {
+                        Column(modifier = Modifier.weight(1f)) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                modifier = Modifier.fillMaxWidth()
                             ) {
-                                Text(
-                                    text = story.author.name,
-                                    fontFamily = InterFontFamily,
-                                    color = Color.White,
-                                    fontSize = 15.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                                if (story.author.isVerified) {
-                                    VerifiedBadge(size = 14.dp)
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                    modifier = Modifier
+                                        .weight(1f, fill = false)
+                                        .clickable {
+                                            isPaused = true
+                                            onProfileClick?.invoke(story.author.id)
+                                        }
+                                ) {
+                                    Text(
+                                        text = story.author.name,
+                                        fontFamily = InterFontFamily,
+                                        color = Color.White,
+                                        fontSize = 20.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.weight(1f, fill = false)
+                                    )
+                                    if (story.author.isVerified) {
+                                        VerifiedBadge(size = 16.dp)
+                                    }
+                                }
+
+                                // Follow button in the exact same horizontal line as Name
+                                if (!isOwner && onToggleFollow != null) {
+                                    val following = isAuthorFollowing || story.author.isFollowing
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Button(
+                                        onClick = { onToggleFollow(story.author.id) },
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = if (following) Color(0xFF1E293B) else Color(0xFF1877F2)
+                                        ),
+                                        shape = RoundedCornerShape(8.dp),
+                                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                                        modifier = Modifier
+                                            .height(34.dp)
+                                            .testTag("story_follow_btn")
+                                    ) {
+                                        Icon(
+                                            imageVector = if (following) Icons.Filled.Check else Icons.Filled.PersonAdd,
+                                            contentDescription = null,
+                                            tint = if (following) Color(0xFFF8FAFC) else Color.White,
+                                            modifier = Modifier.size(15.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(5.dp))
+                                        Text(
+                                            text = if (following) "Following" else "Follow",
+                                            fontFamily = InterFontFamily,
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            maxLines = 1,
+                                            color = if (following) Color(0xFFF8FAFC) else Color.White
+                                        )
+                                    }
                                 }
                             }
+
                             Text(
                                 text = PostsApiService.formatRelativeTime(story.timestamp),
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.Normal,
-                                color = Color.White.copy(alpha = 0.7f),
-                                fontSize = 11.sp
+                                color = Color.White.copy(alpha = 0.75f),
+                                fontSize = 12.sp
                             )
-                        }
-
-                        // Follow button if not current user
-                        if (!isOwner && onToggleFollow != null) {
-                            Button(
-                                onClick = { onToggleFollow(story.author.id) },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = if (story.author.isFollowing) Color(0xFF1E293B) else Color(0xFF1877F2)
-                                ),
-                                shape = RoundedCornerShape(8.dp),
-                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
-                                modifier = Modifier.height(30.dp)
-                            ) {
-                                Icon(
-                                    imageVector = if (story.author.isFollowing) Icons.Filled.Check else Icons.Filled.PersonAdd,
-                                    contentDescription = null,
-                                    tint = if (story.author.isFollowing) Color(0xFFF8FAFC) else Color.White,
-                                    modifier = Modifier.size(14.dp)
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = if (story.author.isFollowing) "Following" else "Follow",
-                                    fontFamily = InterFontFamily,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = if (story.author.isFollowing) Color(0xFFF8FAFC) else Color.White
-                                )
-                            }
                         }
                     }
 
-                    // Action buttons (Mute, Viewers, Delete, Close)
+                    // Top-right controls: Mute toggle & unshaded 21dp Close (X) button
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        horizontalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
-                        // Mute button
-                        IconButton(
-                            onClick = { isMuted = !isMuted },
-                            modifier = Modifier
-                                .size(34.dp)
-                                .clip(CircleShape)
-                                .background(Color.White.copy(alpha = 0.15f))
-                        ) {
-                            Icon(
-                                imageVector = if (isMuted) Icons.Default.VolumeOff else Icons.Default.VolumeUp,
-                                contentDescription = if (isMuted) "Unmute" else "Mute",
-                                tint = Color.White,
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
-
-                        // Viewers count pill button (opens Viewers sheet)
-                        Surface(
-                            onClick = {
-                                isPaused = true
-                                showViewersSheet = true
-                            },
-                            shape = RoundedCornerShape(16.dp),
-                            color = if (isOwner) Color(0xFF1877F2) else Color.White.copy(alpha = 0.15f),
-                            modifier = Modifier.height(32.dp)
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                modifier = Modifier.padding(horizontal = 8.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Visibility,
-                                    contentDescription = "Viewers",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(14.dp)
-                                )
-                                Text(
-                                    text = "${story.viewsCount}",
-                                    fontFamily = InterFontFamily,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = Color.White
-                                )
-                            }
-                        }
-
-                        // Delete button for owner
-                        if (isOwner && onDeleteStory != null) {
+                        if (resolvedMusicUrl.isNotBlank() || !story.musicTitle.isNullOrBlank()) {
                             IconButton(
-                                onClick = { onDeleteStory() },
+                                onClick = { isMuted = !isMuted },
                                 modifier = Modifier
-                                    .size(34.dp)
-                                    .clip(CircleShape)
-                                    .background(Color(0xFFF43F5E).copy(alpha = 0.8f))
+                                    .size(40.dp)
+                                    .testTag("story_mute_btn")
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = "Delete Story",
+                                    imageVector = if (isMuted) Icons.Default.VolumeOff else Icons.Default.VolumeUp,
+                                    contentDescription = if (isMuted) "Unmute" else "Mute",
                                     tint = Color.White,
-                                    modifier = Modifier.size(16.dp)
+                                    modifier = Modifier.size(20.dp)
                                 )
                             }
                         }
 
-                        // Close button
+                        // Close (X) button with no background shade, matching Follow button 34dp height
                         IconButton(
                             onClick = onClose,
                             modifier = Modifier
-                                .size(34.dp)
-                                .clip(CircleShape)
-                                .background(Color.White.copy(alpha = 0.15f))
+                                .size(48.dp)
                                 .testTag("close_story_btn")
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = "Close",
                                 tint = Color.White,
-                                modifier = Modifier.size(18.dp)
+                                modifier = Modifier.size(34.dp)
                             )
                         }
                     }
@@ -516,7 +553,8 @@ fun StoryViewerDialog(
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
 
-                    // Main Action Row: React, Discuss, Share (exact FeedScreen icons & typography)
+                    // Main Action Row: React, Discuss, Share grouped closely on left (matching FeedScreen),
+                    // with Three White Bold Dots menu on right corner
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -524,66 +562,199 @@ fun StoryViewerDialog(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        FacebookReactionButton(
-                            isLiked = localLiked,
-                            myReaction = story.myReaction,
-                            likesCount = story.reactionsCount,
-                            onLike = {
-                                localLiked = !localLiked
-                                onReact("like")
-                            },
-                            onReact = { reactionType ->
-                                localLiked = true
-                                onReact(reactionType)
-                            },
-                            showReactionDock = showReactionsTray,
-                            onToggleReactionDock = { showReactionsTray = it },
-                            fontSize = 19.sp,
-                            fontFamily = InterFontFamily,
-                            unlikedTint = Color.White,
-                            modifier = Modifier.testTag("story_react_btn")
-                        )
-
-                        DiscussButton(
-                            commentCount = story.commentsCount,
-                            onClick = {
-                                isPaused = true
-                                showCommentSheet = true
-                            },
-                            testTag = "story_discuss_btn",
-                            fontSize = 19.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            fontFamily = InterFontFamily,
-                            defaultTint = Color.White
-                        )
-
                         Row(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(8.dp))
-                                .clickable {
-                                    isPaused = true
-                                    showShareSheet = true
-                                }
-                                .padding(horizontal = 6.dp, vertical = 6.dp)
-                                .testTag("story_share_btn"),
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Send,
-                                contentDescription = "Share",
-                                tint = Color.White,
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .graphicsLayer(rotationZ = -35f)
+                            FacebookReactionButton(
+                                isLiked = localLiked,
+                                myReaction = story.myReaction,
+                                likesCount = story.reactionsCount,
+                                onLike = {
+                                    localLiked = !localLiked
+                                    onReact("like")
+                                },
+                                onReact = { reactionType ->
+                                    localLiked = true
+                                    onReact(reactionType)
+                                },
+                                showReactionDock = showReactionsTray,
+                                onToggleReactionDock = { showReactionsTray = it },
+                                fontSize = 19.sp,
+                                fontFamily = InterFontFamily,
+                                unlikedTint = Color.White,
+                                modifier = Modifier.testTag("story_react_btn")
                             )
-                            if (story.sharesCount > 0) {
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(
-                                    text = formatCount(story.sharesCount),
-                                    color = Color.White,
-                                    fontSize = 19.sp,
-                                    fontFamily = InterFontFamily,
-                                    fontWeight = FontWeight.SemiBold
+
+                            DiscussButton(
+                                commentCount = story.commentsCount,
+                                onClick = {
+                                    isPaused = true
+                                    showCommentSheet = true
+                                },
+                                testTag = "story_discuss_btn",
+                                fontSize = 19.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                fontFamily = InterFontFamily,
+                                defaultTint = Color.White
+                            )
+
+                            Row(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .clickable {
+                                        isPaused = true
+                                        showShareSheet = true
+                                    }
+                                    .padding(horizontal = 4.dp, vertical = 4.dp)
+                                    .testTag("story_share_btn"),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Send,
+                                    contentDescription = "Share",
+                                    tint = Color.White,
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                        .graphicsLayer(rotationZ = -35f)
+                                )
+                                if (story.sharesCount > 0) {
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = formatCount(story.sharesCount),
+                                        color = Color.White,
+                                        fontSize = 19.sp,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                }
+                            }
+                        }
+
+                        // Three White Bold Dots Menu on right corner
+                        Box {
+                            Box(
+                                modifier = Modifier
+                                    .size(44.dp)
+                                    .clip(CircleShape)
+                                    .clickable { showMoreMenu = true }
+                                    .testTag("story_more_menu_btn"),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    repeat(3) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(6.dp)
+                                                .clip(CircleShape)
+                                                .background(Color.White)
+                                        )
+                                    }
+                                }
+                            }
+
+                            DropdownMenu(
+                                expanded = showMoreMenu,
+                                onDismissRequest = { showMoreMenu = false },
+                                containerColor = Color(0xFF18181B),
+                                shape = RoundedCornerShape(14.dp)
+                            ) {
+                                DropdownMenuItem(
+                                    text = {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Visibility,
+                                                contentDescription = null,
+                                                tint = Color.White,
+                                                modifier = Modifier.size(18.dp)
+                                            )
+                                            Text(
+                                                text = "Views (${story.viewsCount})",
+                                                color = Color.White,
+                                                fontSize = 14.sp,
+                                                fontFamily = InterFontFamily,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                        }
+                                    },
+                                    onClick = {
+                                        showMoreMenu = false
+                                        isPaused = true
+                                        if (isAdmin) {
+                                            onFetchViewers?.invoke()
+                                        }
+                                        showViewersSheet = true
+                                    },
+                                    modifier = Modifier.testTag("story_menu_views")
+                                )
+
+                                if ((isOwner || isAdmin) && onDeleteStory != null) {
+                                    DropdownMenuItem(
+                                        text = {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Delete,
+                                                    contentDescription = null,
+                                                    tint = Color(0xFFF43F5E),
+                                                    modifier = Modifier.size(18.dp)
+                                                )
+                                                Text(
+                                                    text = "Delete",
+                                                    color = Color(0xFFF43F5E),
+                                                    fontSize = 14.sp,
+                                                    fontFamily = InterFontFamily,
+                                                    fontWeight = FontWeight.Medium
+                                                )
+                                            }
+                                        },
+                                        onClick = {
+                                            showMoreMenu = false
+                                            onDeleteStory()
+                                        },
+                                        modifier = Modifier.testTag("story_menu_delete")
+                                    )
+                                }
+
+                                DropdownMenuItem(
+                                    text = {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Flag,
+                                                contentDescription = null,
+                                                tint = Color(0xFFFBBF24),
+                                                modifier = Modifier.size(18.dp)
+                                            )
+                                            Text(
+                                                text = "Report",
+                                                color = Color(0xFFFBBF24),
+                                                fontSize = 14.sp,
+                                                fontFamily = InterFontFamily,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                        }
+                                    },
+                                    onClick = {
+                                        showMoreMenu = false
+                                        onReportStory?.invoke("Inappropriate content")
+                                        Toast.makeText(
+                                            context,
+                                            "Thank you. This report has been submitted to moderators.",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    },
+                                    modifier = Modifier.testTag("story_menu_report")
                                 )
                             }
                         }
@@ -591,11 +762,32 @@ fun StoryViewerDialog(
                 }
             }
 
-            // 6. Story Viewers Modal Sheet
+            // 6. Story Viewers Modal Sheet (names & reactions visible to admin only; non-admin sees count)
             if (showViewersSheet) {
+                val resolvedViewers = remember(storyViewers, story.viewers, isAdmin) {
+                    if (!isAdmin) {
+                        emptyList()
+                    } else if (storyViewers.isNotEmpty()) {
+                        storyViewers
+                    } else {
+                        story.viewers.map { u ->
+                            StoryViewer(
+                                id = u.id,
+                                storyId = story.id,
+                                userId = u.id,
+                                name = u.name,
+                                username = u.username,
+                                profileImageUrl = u.profileImageUrl,
+                                isVerified = u.isVerified,
+                                role = u.role
+                            )
+                        }
+                    }
+                }
                 StoryViewersModal(
-                    viewers = story.viewers,
-                    totalViews = story.viewsCount,
+                    viewers = resolvedViewers,
+                    totalViews = if (isAdmin) maxOf(story.viewsCount, resolvedViewers.size) else story.viewsCount,
+                    isAdmin = isAdmin,
                     onDismiss = {
                         showViewersSheet = false
                         isPaused = false
@@ -707,8 +899,9 @@ private fun StoryMediaContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StoryViewersModal(
-    viewers: List<User>,
+    viewers: List<StoryViewer>,
     totalViews: Int,
+    isAdmin: Boolean = false,
     onDismiss: () -> Unit,
     onProfileClick: ((Long) -> Unit)? = null
 ) {
@@ -739,7 +932,7 @@ fun StoryViewersModal(
                         modifier = Modifier.size(20.dp)
                     )
                     Text(
-                        text = "Story Viewers ($totalViews)",
+                        text = if (isAdmin) "Story Viewers ($totalViews)" else "Views ($totalViews)",
                         fontFamily = InterFontFamily,
                         fontSize = 17.sp,
                         fontWeight = FontWeight.SemiBold,
@@ -758,7 +951,43 @@ fun StoryViewersModal(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            if (viewers.isEmpty()) {
+            if (!isAdmin) {
+                Surface(
+                    shape = RoundedCornerShape(14.dp),
+                    color = Color(0xFF1C1C1E),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp)
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 24.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Visibility,
+                            contentDescription = null,
+                            tint = Color(0xFF38BDF8),
+                            modifier = Modifier.size(28.dp)
+                        )
+                        Text(
+                            text = if (totalViews == 1) "1 View" else "$totalViews Views",
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                            fontSize = 18.sp
+                        )
+                        Text(
+                            text = "Only story admins can see viewer names and reactions.",
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
+                            color = Color(0xFF94A3B8),
+                            fontSize = 13.sp,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            } else if (viewers.isEmpty()) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -766,7 +995,7 @@ fun StoryViewersModal(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "No viewers yet. Friends will appear here when they view your story.",
+                        text = "No viewers yet. Viewers and reactions will appear here.",
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal,
                         color = Color(0xFF94A3B8),
@@ -781,35 +1010,44 @@ fun StoryViewersModal(
                         .fillMaxWidth()
                         .heightIn(max = 350.dp)
                 ) {
-                    items(viewers, key = { it.id }) { viewer ->
+                    items(viewers, key = { it.userId }) { viewer ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(12.dp))
                                 .clickable {
                                     onDismiss()
-                                    onProfileClick?.invoke(viewer.id)
+                                    onProfileClick?.invoke(viewer.userId)
                                 }
                                 .padding(vertical = 6.dp, horizontal = 8.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            AsyncImage(
-                                model = viewer.profileImageUrl,
-                                contentDescription = viewer.name,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .size(44.dp)
-                                    .clip(CircleShape)
+                            FeatheredAvatar(
+                                name = viewer.name,
+                                username = viewer.username,
+                                imageUrl = viewer.profileImageUrl,
+                                size = 44.dp,
+                                fontSize = 16.sp
                             )
                             Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = viewer.name,
-                                    fontFamily = InterFontFamily,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
-                                )
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Text(
+                                        text = viewer.name,
+                                        fontFamily = InterFontFamily,
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    if (viewer.isVerified) {
+                                        VerifiedBadge(size = 13.dp)
+                                    }
+                                }
                                 Text(
                                     text = "@${viewer.username}",
                                     fontFamily = InterFontFamily,
@@ -818,13 +1056,39 @@ fun StoryViewersModal(
                                     color = Color(0xFF94A3B8)
                                 )
                             }
-                            Text(
-                                text = "Viewed",
-                                fontFamily = InterFontFamily,
-                                fontSize = 11.sp,
-                                color = Color(0xFF38BDF8),
-                                fontWeight = FontWeight.Medium
-                            )
+                            if (!viewer.reaction.isNullOrBlank()) {
+                                val emoji = when (viewer.reaction.lowercase()) {
+                                    "like" -> "👍"
+                                    "love" -> "❤️"
+                                    "care" -> "🤗"
+                                    "haha" -> "😂"
+                                    "wow" -> "😮"
+                                    "sad" -> "😢"
+                                    "angry" -> "😡"
+                                    else -> "❤️"
+                                }
+                                Surface(
+                                    shape = RoundedCornerShape(12.dp),
+                                    color = Color(0xFF1E293B)
+                                ) {
+                                    Text(
+                                        text = "$emoji ${viewer.reaction.replaceFirstChar { it.uppercase() }}",
+                                        fontFamily = InterFontFamily,
+                                        fontSize = 11.sp,
+                                        color = Color.White,
+                                        fontWeight = FontWeight.SemiBold,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                    )
+                                }
+                            } else {
+                                Text(
+                                    text = "Viewed",
+                                    fontFamily = InterFontFamily,
+                                    fontSize = 11.sp,
+                                    color = Color(0xFF38BDF8),
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
                         }
                     }
                 }
@@ -900,21 +1164,12 @@ fun StoryDiscussionsModal(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .size(34.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFF1877F2)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = author.take(1),
-                                fontFamily = InterFontFamily,
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp
-                            )
-                        }
+                        FeatheredAvatar(
+                            name = author,
+                            imageUrl = null,
+                            size = 34.dp,
+                            fontSize = 13.sp
+                        )
 
                         Column(
                             modifier = Modifier

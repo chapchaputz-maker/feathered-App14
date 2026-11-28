@@ -97,7 +97,7 @@ data class User(
     val name: String,
     val username: String,
     val profileImageUrl: String = "",
-    val coverImageUrl: String = "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200",
+    val coverImageUrl: String = "",
     val bio: String = "",
     val location: String = "Dar es Salaam, Tanzania",
     val work: String = "Software Engineer at TechCorp",

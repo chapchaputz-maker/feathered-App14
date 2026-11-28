@@ -225,14 +225,14 @@ fun ChatWindow(
                     Spacer(modifier = Modifier.width(2.dp))
 
                     Box(modifier = Modifier.size(40.dp)) {
-                        AsyncImage(
-                            model = participant.profileImageUrl.ifBlank { "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200" },
-                            contentDescription = participant.name,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .size(38.dp)
-                                .clip(CircleShape)
-                                .border(1.dp, if (AppColors.isLight) Color.White.copy(alpha = 0.5f) else Color(0xFF242526), CircleShape)
+                        FeatheredAvatar(
+                            name = participant.name,
+                            username = participant.username,
+                            imageUrl = participant.profileImageUrl,
+                            size = 38.dp,
+                            borderColor = if (AppColors.isLight) Color.White.copy(alpha = 0.5f) else Color(0xFF242526),
+                            borderWidth = 1.dp,
+                            fontSize = 14.sp
                         )
                         if (effectiveRecipientOnline) {
                             Box(

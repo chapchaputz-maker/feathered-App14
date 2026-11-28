@@ -484,6 +484,12 @@ fun getUserInitials(name: String, username: String = ""): String {
     }
 }
 
+fun getAvatarGradientColors(name: String, username: String = ""): List<Color> {
+    val cleanKey = name.ifBlank { username }
+    val hash = (cleanKey.hashCode().toLong() and 0x7FFFFFFF).toInt()
+    return AVATAR_GRADIENTS[hash % AVATAR_GRADIENTS.size]
+}
+
 /**
  * FeatheredAvatar
  *
@@ -508,11 +514,7 @@ fun FeatheredAvatar(
         imageUrl != "null" &&
         imageUrl != "undefined"
     val initials = remember(name, username) { getUserInitials(name, username) }
-    val gradientColors = remember(name, username) {
-        val cleanKey = name.ifBlank { username }
-        val hash = (cleanKey.hashCode().toLong() and 0x7FFFFFFF).toInt()
-        AVATAR_GRADIENTS[hash % AVATAR_GRADIENTS.size]
-    }
+    val gradientColors = remember(name, username) { getAvatarGradientColors(name, username) }
 
     val clickableMod = if (onClick != null) modifier.clickable(onClick = onClick) else modifier
 

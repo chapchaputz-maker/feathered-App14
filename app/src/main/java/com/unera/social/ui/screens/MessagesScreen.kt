@@ -752,13 +752,12 @@ fun NewChatPickerModal(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Box(modifier = Modifier.size(42.dp)) {
-                                    AsyncImage(
-                                        model = user.profileImageUrl.ifBlank { "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200" },
-                                        contentDescription = user.name,
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier
-                                            .size(40.dp)
-                                            .clip(CircleShape)
+                                    FeatheredAvatar(
+                                        name = user.name,
+                                        username = user.username,
+                                        imageUrl = user.profileImageUrl,
+                                        size = 40.dp,
+                                        fontSize = 15.sp
                                     )
                                     if (user.isOnline) {
                                         Box(
